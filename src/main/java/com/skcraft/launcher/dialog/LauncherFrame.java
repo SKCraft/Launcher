@@ -167,12 +167,14 @@ public class LauncherFrame extends JFrame {
     }
 
     private void checkLauncherUpdate() {
-        ListenableFuture<URL> future = launcher.getExecutor().submit(new LauncherUpdateChecker(launcher));
+        ListenableFuture<URL> future = launcher.getExecutor().submit(new LauncherUpdateChecker(launcher));  
 
         Futures.addCallback(future, new FutureCallback<URL>() {
             @Override
             public void onSuccess(URL result) {
-                requestUpdate(result);
+                if (result != null) {
+                    requestUpdate(result);
+                }
             }
 
             @Override
@@ -208,7 +210,6 @@ public class LauncherFrame extends JFrame {
 
             ProgressDialog.showProgress(this, future, _("launcher.selfUpdatingTitle"), _("launcher.selfUpdatingStatus"));
             SwingHelper.addErrorDialogCallback(this, future);
-
         } else {
             selfUpdateButton.setVisible(false);
         }
