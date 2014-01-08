@@ -110,7 +110,7 @@ public class InstanceList {
                     boolean foundLocal = false;
 
                     for (Instance instance : local) {
-                        if (instance.getName().equals(manifest.getName())) {
+                        if (instance.getName().equalsIgnoreCase(manifest.getName())) {
                             foundLocal = true;
 
                             instance.setTitle(manifest.getTitle());
