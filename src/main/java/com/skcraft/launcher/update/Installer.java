@@ -77,6 +77,7 @@ public class Installer {
         while (usedHashes.contains(id)) {
             id = baseId + "_" + (index++);
         }
+        usedHashes.add(id);
 
         File dir = new File(temporaryDir, id.charAt(0) + File.separator + id.charAt(1));
         dir.mkdirs();
