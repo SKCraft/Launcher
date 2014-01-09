@@ -28,7 +28,7 @@ public class InstallLog {
     @JsonIgnore
     private Set<String> cache = new HashSet<String>();
 
-    public void add(@NonNull String group, @NonNull String entry) {
+    public synchronized void add(@NonNull String group, @NonNull String entry) {
         cache.add(entry);
         Set<String> subEntries = entries.get(group);
         if (subEntries == null) {
@@ -38,19 +38,19 @@ public class InstallLog {
         subEntries.add(entry);
     }
 
-    public void add(@NonNull File group, @NonNull File entry) {
+    public synchronized void add(@NonNull File group, @NonNull File entry) {
         add(relativize(group), relativize(entry));
     }
 
-    public boolean has(@NonNull String entry) {
+    public synchronized boolean has(@NonNull String entry) {
         return cache.contains(entry);
     }
 
-    public boolean has(@NonNull File entry) {
+    public synchronized boolean has(@NonNull File entry) {
         return has(relativize(entry));
     }
 
-    public boolean copyGroupFrom(InstallLog other, String group) {
+    public synchronized boolean copyGroupFrom(InstallLog other, String group) {
         Set<String> otherSet = other.entries.get(group);
         if (otherSet == null) {
             return false;
@@ -61,16 +61,16 @@ public class InstallLog {
         return true;
     }
 
-    public boolean copyGroupFrom(@NonNull InstallLog other, @NonNull File entry) {
+    public synchronized boolean copyGroupFrom(@NonNull InstallLog other, @NonNull File entry) {
         return copyGroupFrom(other, relativize(entry));
     }
 
     @JsonIgnore
-    public Set<Map.Entry<String, Set<String>>> getEntrySet() {
+    public synchronized Set<Map.Entry<String, Set<String>>> getEntrySet() {
         return entries.entrySet();
     }
 
-    public boolean hasGroup(String group) {
+    public synchronized boolean hasGroup(String group) {
         return entries.containsKey(group);
     }
 
