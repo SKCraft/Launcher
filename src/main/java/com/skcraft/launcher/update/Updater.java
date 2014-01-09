@@ -12,12 +12,15 @@ import com.skcraft.concurrency.ProgressFilter;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.install.Installer;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.HttpRequest;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.java.Log;
 
 import java.io.File;
@@ -40,11 +43,13 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
     private final Launcher launcher;
     private final Instance instance;
 
+    @Getter @Setter
+    private boolean online;
+
     private List<URL> librarySources = new ArrayList<URL>();
     private List<URL> assetsSources = new ArrayList<URL>();
 
-    private ProgressObservable progress = new DefaultProgress(
-            -1, _("instanceUpdater.preparingUpdate"));
+    private ProgressObservable progress = new DefaultProgress(-1, _("instanceUpdater.preparingUpdate"));
 
     public Updater(@NonNull Launcher launcher, @NonNull Instance instance) {
         super(launcher);
@@ -59,16 +64,34 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
     @Override
     public Instance call() throws Exception {
-        Updater.log.info("Checking for an update for '" + instance.getName() + "'...");
-        if (instance.getManifestURL() == null) {
-            Updater.log.log(Level.INFO,
-                    "No URL set for {0}, so it can't be updated (the modpack may be removed from the server)",
-                    new Object[] { instance });
-        } else if (instance.isUpdatePending() || !instance.isInstalled()) {
-            Updater.log.log(Level.INFO, "Updating {0}...", new Object[]{instance});
+        log.info("Checking for an update for '" + instance.getName() + "'...");
+
+        boolean updateRequired = !instance.isInstalled();
+        boolean updateDesired = (instance.isUpdatePending() || updateRequired);
+        boolean updateCapable = (instance.getManifestURL() != null);
+
+        if (!online && updateRequired) {
+            log.info("Can't update " + instance.getTitle() + " because offline");
+            String message = _("updater.updateRequiredButOffline");
+            throw new LauncherException("Update required but currently offline", message);
+        }
+
+        if (updateDesired && !updateCapable) {
+            if (updateRequired) {
+                log.info("Update required for " + instance.getTitle() + " but there is no manifest");
+                String message = _("updater.updateRequiredButNoManifest");
+                throw new LauncherException("Update required but no manifest", message);
+            } else {
+                log.info("Can't update " + instance.getTitle() + ", but update is not required");
+                return instance; // Can't update
+            }
+        }
+
+        if (updateDesired) {
+            log.info("Updating " + instance.getTitle() + "...");
             update(instance);
         } else {
-            Updater.log.log(Level.INFO, "No update found for {0}.", new Object[] { instance });
+            log.info("No update found for " + instance.getTitle());
         }
 
         return instance;
@@ -146,7 +169,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         instance.setLocal(true);
         Persistence.commitAndForget(instance);
 
-        Updater.log.log(Level.INFO, instance.getName() +
+        log.log(Level.INFO, instance.getName() +
                 " has been updated to version " + manifest.getVersion() + ".");
     }
 

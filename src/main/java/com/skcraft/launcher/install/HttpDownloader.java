@@ -135,7 +135,7 @@ public class HttpDownloader implements Downloader {
 
             synchronized (this) {
                 if (failed.size() > 0) {
-                    throw new IOException(failed.size() + "files could not be downloaded");
+                    throw new IOException(failed.size() + " files could not be downloaded");
                 }
             }
         } finally {

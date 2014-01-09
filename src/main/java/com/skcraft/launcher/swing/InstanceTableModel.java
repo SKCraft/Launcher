@@ -20,11 +20,14 @@ public class InstanceTableModel extends AbstractTableModel {
 
     private final InstanceList instances;
     private final ImageIcon instanceIcon;
+    private final ImageIcon customInstanceIcon;
     private final ImageIcon downloadIcon;
 
     public InstanceTableModel(InstanceList instances) {
         this.instances = instances;
         instanceIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "instance_icon.png")
+                .getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        customInstanceIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "custom_instance_icon.png")
                 .getScaledInstance(16, 16, Image.SCALE_SMOOTH));
         downloadIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "download_icon.png")
                 .getScaledInstance(14, 14, Image.SCALE_SMOOTH));
@@ -95,11 +98,19 @@ public class InstanceTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        Instance instance;
         switch (columnIndex) {
             case 0:
-                return instances.get(rowIndex).isLocal() ? instanceIcon : downloadIcon;
+                instance = instances.get(rowIndex);
+                if (!instance.isLocal()) {
+                    return downloadIcon;
+                } else if (instance.getManifestURL() != null) {
+                    return instanceIcon;
+                } else {
+                    return customInstanceIcon;
+                }
             case 1:
-                Instance instance = instances.get(rowIndex);
+                instance = instances.get(rowIndex);
                 return "<html>" + SwingHelper.htmlEscape(instance.getTitle()) + getAddendum(instance) + "</html>";
             default:
                 return null;

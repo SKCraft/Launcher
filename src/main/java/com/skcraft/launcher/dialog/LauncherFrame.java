@@ -14,7 +14,7 @@ import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
-import com.skcraft.launcher.launch.InstanceLauncher;
+import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.launch.LaunchProcessHandler;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.selfupdate.UpdateChecker;
@@ -430,6 +430,7 @@ public class LauncherFrame extends JFrame {
             if (update) {
                 // Execute the updater
                 Updater updater = new Updater(launcher, instance);
+                updater.setOnline(session.isOnline());
                 ObservableFuture<Instance> future = new ObservableFuture<Instance>(
                         launcher.getExecutor().submit(updater), updater);
 
@@ -469,7 +470,7 @@ public class LauncherFrame extends JFrame {
         final File extractDir = launcher.createExtractDir();
 
         // Get the process
-        InstanceLauncher task = new InstanceLauncher(launcher, instance, session, extractDir);
+        Runner task = new Runner(launcher, instance, session, extractDir);
         ObservableFuture<Process> processFuture = new ObservableFuture<Process>(
                 launcher.getExecutor().submit(task), task);
 

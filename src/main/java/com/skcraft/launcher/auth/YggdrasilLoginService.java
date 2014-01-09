@@ -118,6 +118,11 @@ public class YggdrasilLoginService implements LoginService {
         public UserType getUserType() {
             return legacy ? UserType.LEGACY : UserType.MOJANG;
         }
+
+        @Override
+        public boolean isOnline() {
+            return true;
+        }
     }
 
 }

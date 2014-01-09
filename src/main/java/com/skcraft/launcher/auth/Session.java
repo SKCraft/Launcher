@@ -64,4 +64,11 @@ public interface Session {
      */
     UserType getUserType();
 
+    /**
+     * Return true if the user is in an online session.
+     *
+     * @return true if online
+     */
+    boolean isOnline();
+
 }

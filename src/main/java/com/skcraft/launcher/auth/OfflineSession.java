@@ -62,4 +62,9 @@ public class OfflineSession implements Session {
         return UserType.LEGACY;
     }
 
+    @Override
+    public boolean isOnline() {
+        return false;
+    }
+
 }

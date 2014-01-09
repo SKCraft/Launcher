@@ -12,10 +12,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
-import com.skcraft.launcher.AssetsRoot;
-import com.skcraft.launcher.Configuration;
-import com.skcraft.launcher.Instance;
-import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.*;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.install.ZipExtract;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
@@ -43,9 +40,9 @@ import static com.skcraft.launcher.util.SharedLocale._;
  * Handles the launching of an instance.
  */
 @Log
-public class InstanceLauncher implements Callable<Process>, ProgressObservable {
+public class Runner implements Callable<Process>, ProgressObservable {
 
-    private ProgressObservable progress = new DefaultProgress(0, _("instanceLauncher.preparing"));
+    private ProgressObservable progress = new DefaultProgress(0, _("runner.preparing"));
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Launcher launcher;
@@ -69,8 +66,8 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
      * @param session the session
      * @param extractDir the directory to extract to
      */
-    public InstanceLauncher(@NonNull Launcher launcher, @NonNull Instance instance,
-                            @NonNull Session session, @NonNull File extractDir) {
+    public Runner(@NonNull Launcher launcher, @NonNull Instance instance,
+                  @NonNull Session session, @NonNull File extractDir) {
         this.launcher = launcher;
         this.instance = instance;
         this.session = session;
@@ -92,6 +89,10 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
 
     @Override
     public Process call() throws Exception {
+        if (!instance.isInstalled()) {
+            throw new LauncherException("Update required", _("runner.updateRequired"));
+        }
+
         config = launcher.getConfig();
         builder = new JavaProcessBuilder();
         assetsRoot = launcher.getAssets();
@@ -105,7 +106,7 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
         progress = assetsBuilder;
         virtualAssetsDir = assetsBuilder.build();
 
-        progress = new DefaultProgress(0.9, _("instanceLauncher.collectingArgs"));
+        progress = new DefaultProgress(0.9, _("runner.collectingArgs"));
 
         addJvmArgs();
         addLibraries();
@@ -119,10 +120,10 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
 
         ProcessBuilder processBuilder = new ProcessBuilder(builder.buildCommand());
         processBuilder.directory(instance.getContentDir());
-        log.info("Launching: " + builder);
+        Runner.log.info("Launching: " + builder);
         checkInterrupted();
 
-        progress = new DefaultProgress(1, _("instanceLauncher.startingJava"));
+        progress = new DefaultProgress(1, _("runner.startingJava"));
 
         return processBuilder.start();
     }
