@@ -60,8 +60,8 @@ public abstract class BaseUpdater {
 
     protected Manifest installPackage(@NonNull Installer installer, @NonNull Instance instance) throws Exception {
         final File contentDir = instance.getContentDir();
-        final File logPath = new File(contentDir, "install_log.json");
-        final File cachePath = new File(contentDir, "update_cache.json");
+        final File logPath = new File(instance.getDir(), "install_log.json");
+        final File cachePath = new File(instance.getDir(), "update_cache.json");
 
         final InstallLog previousLog = Persistence.read(logPath, InstallLog.class);
         final InstallLog currentLog = new InstallLog();
