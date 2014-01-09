@@ -34,6 +34,7 @@ import static com.skcraft.launcher.util.SharedLocale._;
 @Log
 public class HttpDownloader implements Downloader {
 
+    private final Random random = new Random();
     private final HashFunction hf = Hashing.sha1();
 
     private final File tempDir;
@@ -45,10 +46,10 @@ public class HttpDownloader implements Downloader {
     private final Set<String> usedKeys = new HashSet<String>();
 
     private final List<HttpDownloadJob> running = new ArrayList<HttpDownloadJob>();
+    private final List<HttpDownloadJob> failed = new ArrayList<HttpDownloadJob>();
     private long downloaded = 0;
     private long total = 0;
     private int left = 0;
-    private boolean hasError = false;
 
     /**
      * Create a new downloader using the given executor.
@@ -132,8 +133,10 @@ public class HttpDownloader implements Downloader {
                 throw new IOException("Something went wrong", e);
             }
 
-            if (hasError) {
-                throw new IOException("Some files could not be downloaded");
+            synchronized (this) {
+                if (failed.size() > 0) {
+                    throw new IOException(failed.size() + "files could not be downloaded");
+                }
             }
         } finally {
             executor.shutdownNow();
@@ -155,15 +158,20 @@ public class HttpDownloader implements Downloader {
 
     @Override
     public synchronized String getStatus() {
+        String failMessage = _("downloader.failedCount", failed.size());
         if (running.size() == 1) {
-            return _("downloader.downloadingItem", running.get(0).getName()) + "\n" + running.get(0).getStatus();
+            return _("downloader.downloadingItem", running.get(0).getName()) +
+                    "\n" + running.get(0).getStatus() +
+                    "\n" + failMessage;
         } else if (running.size() > 0) {
             StringBuilder builder = new StringBuilder();
             for (HttpDownloadJob job : running) {
                 builder.append("\n");
                 builder.append(job.getStatus());
             }
-            return _("downloader.downloadingList", queue.size(), left) + builder.toString();
+            return _("downloader.downloadingList", queue.size(), left, failed.size()) +
+                    builder.toString() +
+                    "\n" + failMessage;
         } else {
             return _("downloader.noDownloads");
         }
@@ -191,13 +199,19 @@ public class HttpDownloader implements Downloader {
                 }
 
                 download();
+
+                synchronized (HttpDownloader.this) {
+                    downloaded += size;
+                }
             } catch (IOException e) {
-                hasError = true;
+                synchronized (HttpDownloader.this) {
+                    failed.add(this);
+                }
             } catch (InterruptedException e) {
                 log.info("Download of " + destFile + " was interrupted");
             } finally {
                 synchronized (HttpDownloader.this) {
-                    downloaded += size;
+                    left--;
                     running.remove(this);
                 }
             }
@@ -228,14 +242,13 @@ public class HttpDownloader implements Downloader {
                 for (URL url : urls) {
                     // Sleep between each trial
                     if (!first) {
-                        Thread.sleep(retryDelay);
+                        Thread.sleep((long) (retryDelay / 2 + (random.nextDouble() * retryDelay)));
                     }
                     first = false;
 
                     try {
                         request = HttpRequest.get(url);
                         request.execute().expectResponseCode(200).saveContent(file);
-                        left--;
                         return;
                     } catch (IOException e) {
                         lastException = e;
