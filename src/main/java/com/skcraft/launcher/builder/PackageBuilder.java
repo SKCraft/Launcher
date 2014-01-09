@@ -9,9 +9,11 @@ package com.skcraft.launcher.builder;
 import com.beust.jcommander.JCommander;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.SimpleLogFormatter;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
@@ -25,7 +27,10 @@ import java.io.IOException;
 public class PackageBuilder {
 
     private final ObjectMapper mapper;
+    private ObjectWriter writer;
     private final Manifest manifest;
+    @Getter
+    private boolean prettyPrint = false;
 
     /**
      * Create a new package builder.
@@ -36,6 +41,21 @@ public class PackageBuilder {
     public PackageBuilder(@NonNull ObjectMapper mapper, @NonNull Manifest manifest) {
         this.mapper = mapper;
         this.manifest = manifest;
+        setPrettyPrint(false); // Set writer
+    }
+
+    /**
+     * Set whether pretty printing should be used.
+     *
+     * @param prettyPrint true to pretty print
+     */
+    public void setPrettyPrint(boolean prettyPrint) {
+        if (prettyPrint) {
+            writer = mapper.writerWithDefaultPrettyPrinter();
+        } else {
+            writer = mapper.writer();
+        }
+        this.prettyPrint = prettyPrint;
     }
 
     /**
@@ -58,9 +78,15 @@ public class PackageBuilder {
      */
     public void writeManifest(@NonNull File path) throws IOException {
         path.getParentFile().mkdirs();
-        mapper.writeValue(path, manifest);
+        writer.writeValue(path, manifest);
     }
 
+    /**
+     * Parse arguments for the builder.
+     *
+     * @param args arguments
+     * @return options
+     */
     private static PackageOptions parseArgs(String[] args) {
         PackageOptions options = new PackageOptions();
         new JCommander(options, args);
@@ -95,6 +121,8 @@ public class PackageBuilder {
         }
 
         PackageBuilder builder = new PackageBuilder(mapper, manifest);
+        builder.setPrettyPrint(options.isPrettyPrinting());
+
         log.info("Adding files...");
         builder.addFiles(options.getFilesDir(), options.getObjectsDir());
         builder.writeManifest(options.getManifestPath());

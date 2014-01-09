@@ -44,4 +44,7 @@ public class PackageOptions {
     @Parameter(names = "--objects-url")
     private String objectsLocation;
 
+    @Parameter(names = "--pretty-print")
+    private boolean prettyPrinting;
+
 }
