@@ -9,6 +9,7 @@ package com.skcraft.launcher.swing;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -351,9 +352,15 @@ public final class SwingHelper {
                     return;
                 }
 
-                String message = t.getLocalizedMessage();
-                if (message == null) {
-                    message = _("errors.genericError");
+                String message;
+                if (t instanceof LauncherException) {
+                    message = t.getLocalizedMessage();
+                    t = t.getCause();
+                } else {
+                    message = t.getLocalizedMessage();
+                    if (message == null) {
+                        message = _("errors.genericError");
+                    }
                 }
                 log.log(Level.WARNING, "Task failed", t);
                 SwingHelper.showErrorDialog(owner, message, _("errorTitle"), t);
