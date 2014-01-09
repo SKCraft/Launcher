@@ -67,11 +67,10 @@ public final class SwingHelper {
 
     public static void browseDir(File file, Component component) {
         try {
-            Desktop.getDesktop().browse(new URL("file://" + file.getAbsolutePath()).toURI());
+            Desktop.getDesktop().open(file);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(component, _("errors.openDirError", file.getAbsolutePath()),
                     _("errorTitle"), JOptionPane.ERROR_MESSAGE);
-        } catch (URISyntaxException e) {
         }
     }
 
