@@ -20,4 +20,11 @@ public interface ProgressObservable {
      */
     double getProgress();
 
+    /**
+     * Get the current status text.
+     *
+     * @return the status text, or null if unavailable
+     */
+    String getStatus();
+
 }

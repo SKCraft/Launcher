@@ -7,30 +7,31 @@
 package com.skcraft.launcher.model.modpack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.skcraft.launcher.update.FileDistribute;
-import com.skcraft.launcher.update.UpdateCache;
+import com.skcraft.launcher.install.InstallLog;
+import com.skcraft.launcher.install.InstallLogFileMover;
+import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.install.UpdateCache;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.skcraft.launcher.LauncherUtils.concat;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FileInstall extends Task {
+public class FileInstall extends ManifestEntry {
 
     private String version;
     private String hash;
     private String location;
     private String to;
+    private long size;
 
     @JsonIgnore
     public String getImpliedVersion() {
@@ -43,31 +44,23 @@ public class FileInstall extends Task {
     }
 
     @Override
-    public void run() {
-        UpdateCache updateCache = getInstaller().getUpdateCache();
+    public void install(@NonNull Installer installer, @NonNull InstallLog log,
+                        @NonNull UpdateCache cache, @NonNull File contentDir) throws MalformedURLException {
         String targetPath = getTargetPath();
-        URL url;
+        File targetFile = new File(contentDir, targetPath);
+        String fileVersion = getImpliedVersion();
+        URL url = concat(getManifest().getObjectsUrl(), getLocation());
 
-        try {
-            url = concat(getManifest().getObjectsURL(), getLocation());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Invalid URL encountered", e);
-        }
-
-        try {
-            if (updateCache.mark(FilenameUtils.normalize(targetPath), getImpliedVersion())) {
-                File targetFile = new File(getInstaller().getDestinationDir(), targetPath);
-                File sourceFile = getInstaller().download(url, getImpliedVersion());
-                List<File> targets = new ArrayList<File>();
-                targets.add(targetFile);
-                getInstaller().submit(new FileDistribute(sourceFile, targets));
+        if (cache.mark(FilenameUtils.normalize(targetPath), fileVersion)) {
+            long size = this.size;
+            if (size <= 0) {
+                size = 10 * 1024;
             }
 
-            getInstaller().getCurrentLog().add(to, to);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to download " + url.toString(), e);
+            File tempFile = installer.getDownloader().download(url, fileVersion, size, to);
+            installer.queue(new InstallLogFileMover(log, tempFile, targetFile));
+        } else {
+            log.add(to, to);
         }
     }
 

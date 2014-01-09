@@ -347,6 +347,11 @@ public class LoginDialog extends JDialog {
         public double getProgress() {
             return -1;
         }
+
+        @Override
+        public String getStatus() {
+            return _("login.loggingInStatus");
+        }
     }
 
 }

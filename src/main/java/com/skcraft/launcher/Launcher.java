@@ -271,6 +271,48 @@ public final class Launcher {
     }
 
     /**
+     * Convenient method to fetch a property.
+     *
+     * @param key the key
+     * @return the property
+     */
+    public String prop(String key) {
+        return getProperties().getProperty(key);
+    }
+
+    /**
+     * Convenient method to fetch a property.
+     *
+     * @param key the key
+     * @param args formatting arguments
+     * @return the property
+     */
+    public String prop(String key, String... args) {
+        return String.format(getProperties().getProperty(key), (Object[]) args);
+    }
+
+    /**
+     * Convenient method to fetch a property.
+     *
+     * @param key the key
+     * @return the property
+     */
+    public URL propUrl(String key) {
+        return HttpRequest.url(prop(key));
+    }
+
+    /**
+     * Convenient method to fetch a property.
+     *
+     * @param key the key
+     * @param args formatting arguments
+     * @return the property
+     */
+    public URL propUrl(String key, String... args) {
+        return HttpRequest.url(prop(key, args));
+    }
+
+    /**
      * Bootstrap.
      *
      * @param args args
@@ -317,4 +359,5 @@ public final class Launcher {
         });
 
     }
+
 }

@@ -66,13 +66,18 @@ public class ObservableFuture<V> implements ListenableFuture<V>, ProgressObserva
     }
 
     @Override
+    public String toString() {
+        return observable.toString();
+    }
+
+    @Override
     public double getProgress() {
         return observable.getProgress();
     }
 
     @Override
-    public String toString() {
-        return observable.toString();
+    public String getStatus() {
+        return observable.getStatus();
     }
 
 }

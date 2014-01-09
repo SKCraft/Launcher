@@ -16,18 +16,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-public class InstanceResetter implements Callable<Instance>, ProgressObservable {
+import static com.skcraft.launcher.util.SharedLocale._;
+
+public class HardResetter implements Callable<Instance>, ProgressObservable {
 
     private final Instance instance;
     private File currentDir;
 
-    public InstanceResetter(@NonNull Instance instance) {
+    public HardResetter(@NonNull Instance instance) {
         this.instance = instance;
     }
 
     @Override
     public double getProgress() {
         return -1;
+    }
+
+    @Override
+    public String getStatus() {
+        return _("instanceResetter.resetting", instance.getTitle());
     }
 
     @Override

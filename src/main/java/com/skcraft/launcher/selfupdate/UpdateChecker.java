@@ -18,18 +18,18 @@ import java.util.concurrent.Callable;
 import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
-public class LauncherUpdateChecker implements Callable<URL> {
+public class UpdateChecker implements Callable<URL> {
 
     private final Launcher launcher;
 
-    public LauncherUpdateChecker(@NonNull Launcher launcher) {
+    public UpdateChecker(@NonNull Launcher launcher) {
         this.launcher = launcher;
     }
 
     @Override
     public URL call() throws Exception {
         try {
-            LauncherUpdateChecker.log.info("Checking for update...");
+            UpdateChecker.log.info("Checking for update...");
 
             URL url = HttpRequest.url(launcher.getProperties().getProperty("selfUpdateUrl"));
 
@@ -42,13 +42,13 @@ public class LauncherUpdateChecker implements Callable<URL> {
             ComparableVersion current = new ComparableVersion(launcher.getVersion());
             ComparableVersion latest = new ComparableVersion(versionInfo.getVersion());
 
-            LauncherUpdateChecker.log.info("Latest version is " + latest + ", while current is " + current);
+            UpdateChecker.log.info("Latest version is " + latest + ", while current is " + current);
 
             if (latest.compareTo(current) >= 1) {
-                LauncherUpdateChecker.log.info("Update available at " + versionInfo.getUrl());
+                UpdateChecker.log.info("Update available at " + versionInfo.getUrl());
                 return versionInfo.getUrl();
             } else {
-                LauncherUpdateChecker.log.info("No update required.");
+                UpdateChecker.log.info("No update required.");
                 return null;
             }
         } catch (Exception e) {

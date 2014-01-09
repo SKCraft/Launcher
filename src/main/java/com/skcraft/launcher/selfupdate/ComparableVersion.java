@@ -29,6 +29,7 @@ import java.util.*;
  * @author <a href="mailto:hboutemy@apache.org">Herve Boutemy</a>
  * @version $Id$
  */
+@SuppressWarnings("unchecked")
 public class ComparableVersion
         implements Comparable {
     private String value;

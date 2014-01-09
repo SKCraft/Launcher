@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.google.common.base.Strings;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
-import com.skcraft.launcher.update.Installer;
+import com.skcraft.launcher.install.Installer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,13 +31,13 @@ public class Manifest extends BaseManifest {
     private String objectsLocation;
     private String gameVersion;
     @JsonManagedReference("manifest")
-    private List<Task> tasks = new ArrayList<Task>();
+    private List<ManifestEntry> tasks = new ArrayList<ManifestEntry>();
     @Getter @Setter @JsonIgnore
     private Installer installer;
     private VersionManifest versionManifest;
 
     @JsonIgnore
-    public URL getLibrariesURL() {
+    public URL getLibrariesUrl() {
         if (Strings.nullToEmpty(getLibrariesLocation()) == null) {
             return baseUrl;
         }
@@ -50,7 +50,7 @@ public class Manifest extends BaseManifest {
     }
 
     @JsonIgnore
-    public URL getObjectsURL() {
+    public URL getObjectsUrl() {
         if (Strings.nullToEmpty(getObjectsLocation()) == null) {
             return baseUrl;
         }

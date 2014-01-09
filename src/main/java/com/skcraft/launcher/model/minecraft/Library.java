@@ -9,15 +9,10 @@ package com.skcraft.launcher.model.minecraft;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.skcraft.launcher.Launcher;
-import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.util.Environment;
-import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.Platform;
 import lombok.Data;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -125,21 +120,6 @@ public class Library {
         String path = builder.toString();
         path = path.replace("${arch}", environment.getArchBits());
         return path;
-    }
-
-    public URL getURL(Launcher launcher, Environment environment, URL baseURL) {
-        if (locallyAvailable && baseURL != null) {
-            try {
-                return LauncherUtils.concat(baseURL, getPath(environment));
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            StringBuilder builder = new StringBuilder();
-            builder.append(launcher.getProperties().getProperty("librariesUrl"));
-            builder.append(getPath(environment));
-            return HttpRequest.url(builder.toString());
-        }
     }
 
     @Data

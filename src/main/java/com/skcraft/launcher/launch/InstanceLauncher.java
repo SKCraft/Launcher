@@ -10,16 +10,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.AssetsRoot;
 import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
+import com.skcraft.launcher.install.ZipExtract;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
-import com.skcraft.launcher.update.ZipExtract;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
 import lombok.Getter;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
+import static com.skcraft.launcher.util.SharedLocale._;
 
 /**
  * Handles the launching of an instance.
@@ -43,12 +45,15 @@ import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 @Log
 public class InstanceLauncher implements Callable<Process>, ProgressObservable {
 
+    private ProgressObservable progress = new DefaultProgress(0, _("instanceLauncher.preparing"));
+
     private final ObjectMapper mapper = new ObjectMapper();
     private final Launcher launcher;
     private final Instance instance;
     private final Session session;
     private final File extractDir;
     @Getter @Setter private Environment environment = Environment.getInstance();
+
     private VersionManifest versionManifest;
     private AssetsIndex assetsIndex;
     private File virtualAssetsDir;
@@ -64,10 +69,8 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
      * @param session the session
      * @param extractDir the directory to extract to
      */
-    public InstanceLauncher(@NonNull Launcher launcher,
-                            @NonNull Instance instance,
-                            @NonNull Session session,
-                            @NonNull File extractDir) {
+    public InstanceLauncher(@NonNull Launcher launcher, @NonNull Instance instance,
+                            @NonNull Session session, @NonNull File extractDir) {
         this.launcher = launcher;
         this.instance = instance;
         this.session = session;
@@ -94,11 +97,14 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
         assetsRoot = launcher.getAssets();
 
         // Load versionManifest and assets index
-        versionManifest = mapper.readValue(instance.getVersionManifestPath(), VersionManifest.class);
+        versionManifest = mapper.readValue(instance.getVersionPath(), VersionManifest.class);
         assetsIndex = mapper.readValue(assetsRoot.getIndexPath(versionManifest), AssetsIndex.class);
 
         // Copy over assets to the tree
+        progress = new DefaultProgress(0.1, _("instanceLauncher.preparingAssets"));
         virtualAssetsDir = assetsRoot.buildAssetTree(versionManifest);
+
+        progress = new DefaultProgress(0.9, _("instanceLauncher.collectingArgs"));
 
         addJvmArgs();
         addLibraries();
@@ -114,6 +120,8 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
         processBuilder.directory(instance.getContentDir());
         log.info("Launching: " + builder);
         checkInterrupted();
+
+        progress = new DefaultProgress(1, _("instanceLauncher.startingJava"));
 
         return processBuilder.start();
     }
@@ -299,6 +307,11 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
     @Override
     public double getProgress() {
         return -1;
+    }
+
+    @Override
+    public String getStatus() {
+        return null;
     }
 
 }

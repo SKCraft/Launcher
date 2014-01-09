@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher;
 
+import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.model.modpack.ManifestInfo;
 import com.skcraft.launcher.model.modpack.PackageList;
@@ -67,12 +68,15 @@ public class InstanceList {
     }
 
     public final class Enumerator implements Callable<InstanceList>, ProgressObservable {
+        private ProgressObservable progress = new DefaultProgress(-1, null);
+
         private Enumerator() {
         }
 
         @Override
         public InstanceList call() throws Exception {
             log.info("Enumerating instance list...");
+            progress = new DefaultProgress(0, _("instanceLoader.loadingLocal"));
 
             List<Instance> local = new ArrayList<Instance>();
             List<Instance> remote = new ArrayList<Instance>();
@@ -91,6 +95,8 @@ public class InstanceList {
                     log.info(instance.getName() + " local instance found at " + dir.getAbsolutePath());
                 }
             }
+
+            progress = new DefaultProgress(0.3, _("instanceLoader.checkingRemote"));
 
             try {
                 URL packagesURL = launcher.getPackagesURL();
@@ -166,7 +172,12 @@ public class InstanceList {
 
         @Override
         public double getProgress() {
-            return -1;
+            return progress.getProgress();
+        }
+
+        @Override
+        public String getStatus() {
+            return progress.getStatus();
         }
     }
 }

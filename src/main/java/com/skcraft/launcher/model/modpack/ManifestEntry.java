@@ -10,9 +10,13 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.skcraft.launcher.update.Installer;
+import com.skcraft.launcher.install.InstallLog;
+import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.install.UpdateCache;
 import lombok.Data;
 import lombok.ToString;
+
+import java.io.File;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -24,14 +28,11 @@ import lombok.ToString;
 })
 @Data
 @ToString(exclude = "manifest")
-public abstract class Task implements Runnable {
+public abstract class ManifestEntry {
 
     @JsonBackReference("manifest")
     private Manifest manifest;
 
-    @JsonIgnore
-    public Installer getInstaller() {
-        return getManifest().getInstaller();
-    }
+    public abstract void install(Installer installer, InstallLog log, UpdateCache cache, File contentDir) throws Exception;
 
 }

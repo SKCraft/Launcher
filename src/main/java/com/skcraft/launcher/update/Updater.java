@@ -1,0 +1,159 @@
+/*
+ * SK's Minecraft Launcher
+ * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
+ * Please see LICENSE.txt for license information.
+ */
+
+package com.skcraft.launcher.update;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.skcraft.concurrency.DefaultProgress;
+import com.skcraft.concurrency.ProgressFilter;
+import com.skcraft.concurrency.ProgressObservable;
+import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.modpack.Manifest;
+import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.util.HttpRequest;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+
+import static com.skcraft.launcher.util.HttpRequest.url;
+import static com.skcraft.launcher.util.SharedLocale._;
+
+@Log
+public class Updater extends BaseUpdater implements Callable<Instance>, ProgressObservable {
+
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final Installer installer;
+    private final Launcher launcher;
+    private final Instance instance;
+
+    private List<URL> librarySources = new ArrayList<URL>();
+    private List<URL> assetsSources = new ArrayList<URL>();
+
+    private ProgressObservable progress = new DefaultProgress(
+            -1, _("instanceUpdater.preparingUpdate"));
+
+    public Updater(@NonNull Launcher launcher, @NonNull Instance instance) {
+        super(launcher);
+
+        this.installer = new Installer(launcher.getInstallerDir());
+        this.launcher = launcher;
+        this.instance = instance;
+
+        librarySources.add(launcher.propUrl("librariesSource"));
+        assetsSources.add(launcher.propUrl("assetsSource"));
+    }
+
+    @Override
+    public Instance call() throws Exception {
+        Updater.log.info("Checking for an update for '" + instance.getName() + "'...");
+        if (instance.getManifestURL() == null) {
+            Updater.log.log(Level.INFO,
+                    "No URL set for {0}, so it can't be updated (the modpack may be removed from the server)",
+                    new Object[] { instance });
+        } else if (instance.isUpdatePending() || !instance.isInstalled()) {
+            Updater.log.log(Level.INFO, "Updating {0}...", new Object[]{instance});
+            update(instance);
+        } else {
+            Updater.log.log(Level.INFO, "No update found for {0}.", new Object[] { instance });
+        }
+
+        return instance;
+    }
+
+    private VersionManifest readVersionManifest(Manifest manifest) throws IOException, InterruptedException {
+        // Check whether the package manifest contains an embedded version manifest,
+        // otherwise we'll have to download the one for the given Minecraft version
+        VersionManifest version = manifest.getVersionManifest();
+        if (version != null) {
+            mapper.writeValue(instance.getVersionPath(), version);
+            return version;
+        } else {
+            URL url = url(String.format(
+                    launcher.getProperties().getProperty("versionManifestUrl"),
+                    manifest.getGameVersion()));
+
+            return HttpRequest
+                    .get(url)
+                    .execute()
+                    .expectResponseCode(200)
+                    .returnContent()
+                    .saveContent(instance.getVersionPath())
+                    .asJson(VersionManifest.class);
+        }
+    }
+
+    /**
+     * Update the given instance.
+     *
+     * @param instance the instance
+     * @throws IOException thrown on I/O error
+     * @throws InterruptedException thrown on interruption
+     * @throws ExecutionException thrown on execution error
+     */
+    protected void update(Instance instance) throws Exception {
+        // Mark this instance as local
+        instance.setLocal(true);
+        Persistence.commitAndForget(instance);
+
+        // Install package and get the manifests
+        progress = new DefaultProgress(-1, _("instanceUpdater.readingManifest"));
+        Manifest manifest = installPackage(installer, instance);
+        progress = new DefaultProgress(-1, _("instanceUpdater.readingVersion"));
+        VersionManifest version = readVersionManifest(manifest);
+
+        progress = new DefaultProgress(-1, _("instanceUpdater.buildingDownloadList"));
+
+        // Install the .jar
+        File jarPath = launcher.getJarPath(version);
+        URL jarSource = launcher.propUrl("jarUrl", version.getId());
+        installJar(installer, jarPath, jarSource);
+
+        // Download libraries and assets
+        installLibraries(installer, version, launcher.getLibrariesDir(), librarySources);
+        installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
+
+        progress = ProgressFilter.between(installer.getDownloader(), 0, 0.9);
+        installer.download();
+
+        progress = ProgressFilter.between(installer, 0.9, 1);
+        installer.execute();
+
+        complete();
+
+        // Update the instance's information
+        instance.setVersion(manifest.getVersion());
+        instance.setUpdatePending(false);
+        instance.setInstalled(true);
+        instance.setLocal(true);
+        Persistence.commitAndForget(instance);
+
+        Updater.log.log(Level.INFO, instance.getName() +
+                " has been updated to version " + manifest.getVersion() + ".");
+    }
+
+    @Override
+    public double getProgress() {
+        return progress.getProgress();
+    }
+
+    @Override
+    public String getStatus() {
+        return progress.getStatus();
+    }
+
+
+}

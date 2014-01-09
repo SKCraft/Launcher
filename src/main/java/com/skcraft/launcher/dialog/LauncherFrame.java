@@ -17,12 +17,12 @@ import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.launch.InstanceLauncher;
 import com.skcraft.launcher.launch.LaunchProcessHandler;
 import com.skcraft.launcher.persistence.Persistence;
-import com.skcraft.launcher.selfupdate.LauncherUpdateChecker;
-import com.skcraft.launcher.selfupdate.LauncherUpdater;
+import com.skcraft.launcher.selfupdate.UpdateChecker;
+import com.skcraft.launcher.selfupdate.SelfUpdater;
 import com.skcraft.launcher.swing.*;
-import com.skcraft.launcher.update.InstanceDeleter;
-import com.skcraft.launcher.update.InstanceResetter;
-import com.skcraft.launcher.update.InstanceUpdater;
+import com.skcraft.launcher.update.HardResetter;
+import com.skcraft.launcher.update.Remover;
+import com.skcraft.launcher.update.Updater;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -167,7 +167,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void checkLauncherUpdate() {
-        ListenableFuture<URL> future = launcher.getExecutor().submit(new LauncherUpdateChecker(launcher));  
+        ListenableFuture<URL> future = launcher.getExecutor().submit(new UpdateChecker(launcher));
 
         Futures.addCallback(future, new FutureCallback<URL>() {
             @Override
@@ -187,7 +187,7 @@ public class LauncherFrame extends JFrame {
     private void selfUpdate() {
         URL url = updateUrl;
         if (url != null) {
-            LauncherUpdater downloader = new LauncherUpdater(launcher, url);
+            SelfUpdater downloader = new SelfUpdater(launcher, url);
             ObservableFuture<File> future = new ObservableFuture<File>(
                     launcher.getExecutor().submit(downloader), downloader);
 
@@ -333,7 +333,7 @@ public class LauncherFrame extends JFrame {
         }
 
         // Execute the deleter
-        InstanceDeleter resetter = new InstanceDeleter(instance);
+        Remover resetter = new Remover(instance);
         ObservableFuture<Instance> future = new ObservableFuture<Instance>(
                 launcher.getExecutor().submit(resetter), resetter);
 
@@ -357,7 +357,7 @@ public class LauncherFrame extends JFrame {
         }
 
         // Execute the resetter
-        InstanceResetter resetter = new InstanceResetter(instance);
+        HardResetter resetter = new HardResetter(instance);
         ObservableFuture<Instance> future = new ObservableFuture<Instance>(
                 launcher.getExecutor().submit(resetter), resetter);
 
@@ -424,7 +424,7 @@ public class LauncherFrame extends JFrame {
 
             if (update) {
                 // Execute the updater
-                InstanceUpdater updater = new InstanceUpdater(launcher, instance);
+                Updater updater = new Updater(launcher, instance);
                 ObservableFuture<Instance> future = new ObservableFuture<Instance>(
                         launcher.getExecutor().submit(updater), updater);
 

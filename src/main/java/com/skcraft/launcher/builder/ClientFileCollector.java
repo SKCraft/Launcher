@@ -61,6 +61,7 @@ public class ClientFileCollector extends DirectoryWalker {
         task.setHash(hash);
         task.setLocation(hashedPath);
         task.setTo(relPath);
+        task.setSize(file.length());
         destPath.getParentFile().mkdirs();
         ClientFileCollector.log.info(String.format("Adding %s from %s...", relPath, file.getAbsolutePath()));
         Files.copy(file, destPath);

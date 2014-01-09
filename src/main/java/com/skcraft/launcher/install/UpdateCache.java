@@ -4,7 +4,7 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.update;
+package com.skcraft.launcher.install;
 
 import lombok.Data;
 import lombok.NonNull;

@@ -16,18 +16,24 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
+import static com.skcraft.launcher.util.SharedLocale._;
 
-public class InstanceDeleter implements Callable<Instance>, ProgressObservable {
+public class Remover implements Callable<Instance>, ProgressObservable {
 
     private final Instance instance;
 
-    public InstanceDeleter(@NonNull Instance instance) {
+    public Remover(@NonNull Instance instance) {
         this.instance = instance;
     }
 
     @Override
     public double getProgress() {
         return -1;
+    }
+
+    @Override
+    public String getStatus() {
+        return _("instanceDeleter.deleting", instance.getDir());
     }
 
     @Override

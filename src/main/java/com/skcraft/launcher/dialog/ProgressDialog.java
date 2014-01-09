@@ -29,6 +29,8 @@ import static com.skcraft.launcher.util.SharedLocale._;
 @Log
 public class ProgressDialog extends JDialog {
 
+    private final String defaultTitle;
+    private final String defaultMessage;
     private final JLabel label = new JLabel();
     private final JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
     private final JPanel textAreaPanel = new JPanel(new BorderLayout());
@@ -41,9 +43,12 @@ public class ProgressDialog extends JDialog {
 
     public ProgressDialog(Window owner, String title, String message) {
         super(owner, title, ModalityType.DOCUMENT_MODAL);
+
         setResizable(false);
         initComponents();
         label.setText(message);
+        defaultTitle = title;
+        defaultMessage = message;
         setCompactSize();
         setLocationRelativeTo(owner);
 
@@ -71,6 +76,9 @@ public class ProgressDialog extends JDialog {
     }
 
     private void initComponents() {
+        progressBar.setMaximum(1000);
+        progressBar.setMinimum(0);
+
         buttonsPanel.addElement(detailsButton);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(cancelButton);
@@ -174,8 +182,35 @@ public class ProgressDialog extends JDialog {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    dialog.logText.setText(String.valueOf(observable));
-                    dialog.logText.setCaretPosition(0);
+                    JProgressBar progressBar = dialog.progressBar;
+                    JTextArea logText = dialog.logText;
+                    JLabel label = dialog.label;
+
+                    double progress = observable.getProgress();
+                    if (progress >= 0) {
+                        dialog.setTitle(_("progress.percentTitle",
+                                Math.round(progress * 100 * 100) / 100.0, dialog.defaultTitle));
+                        progressBar.setValue((int) (progress * 1000));
+                        progressBar.setIndeterminate(false);
+                    } else {
+                        dialog.setTitle( dialog.defaultTitle);
+                        progressBar.setIndeterminate(true);
+                    }
+
+                    String status = observable.getStatus();
+                    if (status == null) {
+                        status = _("progress.defaultStatus");
+                        label.setText(dialog.defaultMessage);
+                    } else {
+                        int index = status.indexOf('\n');
+                        if (index == -1) {
+                            label.setText(status);
+                        } else {
+                            label.setText(status.substring(0, index));
+                        }
+                    }
+                    logText.setText(status);
+                    logText.setCaretPosition(0);
                 }
             });
         }

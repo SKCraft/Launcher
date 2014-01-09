@@ -44,7 +44,7 @@ public class Instance implements Comparable<Instance> {
     }
 
     @JsonIgnore
-    public File getVersionManifestPath() {
+    public File getVersionPath() {
         return new File(dir, "version.json");
     }
 

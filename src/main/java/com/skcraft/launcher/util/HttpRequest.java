@@ -289,6 +289,11 @@ public class HttpRequest implements Closeable, ProgressObservable {
     }
 
     @Override
+    public String getStatus() {
+        return null;
+    }
+
+    @Override
     public void close() throws IOException {
         if (conn != null) conn.disconnect();
     }
