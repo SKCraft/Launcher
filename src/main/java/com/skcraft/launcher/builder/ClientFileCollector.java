@@ -52,8 +52,6 @@ public class ClientFileCollector extends DirectoryWalker {
         }
     }
 
-}
-
     @Override
     protected void onFile(File file, String relPath) throws IOException {
         FileInstall task = new FileInstall();
