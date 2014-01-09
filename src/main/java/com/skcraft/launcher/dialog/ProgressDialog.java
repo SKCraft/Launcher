@@ -78,6 +78,8 @@ public class ProgressDialog extends JDialog {
     private void initComponents() {
         progressBar.setMaximum(1000);
         progressBar.setMinimum(0);
+        progressBar.setIndeterminate(true);
+        progressBar.setPreferredSize(new Dimension(0, 18));
 
         buttonsPanel.addElement(detailsButton);
         buttonsPanel.addGlue();
@@ -90,9 +92,6 @@ public class ProgressDialog extends JDialog {
         logText.setLineWrap(true);
         logText.setWrapStyleWord(false);
         logText.setFont(new JLabel().getFont());
-
-        progressBar.setIndeterminate(true);
-        progressBar.setPreferredSize(new Dimension(0, 16));
 
         progressPanel.add(label, BorderLayout.NORTH);
         progressPanel.setBorder(BorderFactory.createEmptyBorder(13, 13, 0, 13));
