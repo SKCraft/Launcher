@@ -155,7 +155,9 @@ public class HttpDownloader implements Downloader {
 
     @Override
     public synchronized String getStatus() {
-        if (running.size() > 0) {
+        if (running.size() == 1) {
+            return _("downloader.downloadingItem", running.get(0).getName()) + "\n" + running.get(0).getStatus();
+        } else if (running.size() > 0) {
             StringBuilder builder = new StringBuilder();
             for (HttpDownloadJob job : running) {
                 builder.append("\n");
@@ -171,7 +173,7 @@ public class HttpDownloader implements Downloader {
         private final File destFile;
         private final List<URL> urls;
         private final long size;
-        private String name;
+        @Getter private String name;
         private HttpRequest request;
 
         private HttpDownloadJob(File destFile, List<URL> urls, long size, String name) {

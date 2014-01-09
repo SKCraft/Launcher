@@ -101,8 +101,9 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
         assetsIndex = mapper.readValue(assetsRoot.getIndexPath(versionManifest), AssetsIndex.class);
 
         // Copy over assets to the tree
-        progress = new DefaultProgress(0.1, _("instanceLauncher.preparingAssets"));
-        virtualAssetsDir = assetsRoot.buildAssetTree(versionManifest);
+        AssetsRoot.AssetsTreeBuilder assetsBuilder = assetsRoot.createAssetsBuilder(versionManifest);
+        progress = assetsBuilder;
+        virtualAssetsDir = assetsBuilder.build();
 
         progress = new DefaultProgress(0.9, _("instanceLauncher.collectingArgs"));
 
@@ -306,12 +307,12 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
 
     @Override
     public double getProgress() {
-        return -1;
+        return progress.getProgress();
     }
 
     @Override
     public String getStatus() {
-        return null;
+        return progress.getStatus();
     }
 
 }
