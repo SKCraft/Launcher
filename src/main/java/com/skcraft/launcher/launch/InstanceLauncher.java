@@ -95,10 +95,10 @@ public class InstanceLauncher implements Callable<Process>, ProgressObservable {
 
         // Load versionManifest and assets index
         versionManifest = mapper.readValue(instance.getVersionManifestPath(), VersionManifest.class);
-        assetsIndex = mapper.readValue(assetsRoot.getIndexPath(versionManifest.getId()), AssetsIndex.class);
+        assetsIndex = mapper.readValue(assetsRoot.getIndexPath(versionManifest), AssetsIndex.class);
 
         // Copy over assets to the tree
-        virtualAssetsDir = assetsRoot.buildAssetTree(versionManifest.getAssetsIndex());
+        virtualAssetsDir = assetsRoot.buildAssetTree(versionManifest);
 
         addJvmArgs();
         addLibraries();

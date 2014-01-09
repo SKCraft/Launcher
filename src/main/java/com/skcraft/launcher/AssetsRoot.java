@@ -9,6 +9,7 @@ package com.skcraft.launcher;
 import com.google.common.io.Files;
 import com.skcraft.launcher.model.minecraft.Asset;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -28,8 +29,8 @@ public class AssetsRoot {
         this.dir = dir;
     }
 
-    public File getIndexPath(String indexId) {
-        return new File(dir, "indexes/" + indexId + ".json");
+    public File getIndexPath(VersionManifest versionManifest) {
+        return new File(dir, "indexes/" + versionManifest.getAssetsIndex() + ".json");
     }
 
     public File getObjectPath(Asset asset) {
@@ -37,10 +38,12 @@ public class AssetsRoot {
         return new File(dir, "objects/" + hash.substring(0, 2) + "/" + hash);
     }
 
-    public File buildAssetTree(String indexId) throws IOException {
-        log.info("Building asset virtual tree for '" + indexId + "'");
+    public File buildAssetTree(VersionManifest versionManifest) throws IOException {
+        String indexId = versionManifest.getAssetsIndex();
 
-        AssetsIndex index = Persistence.read(getIndexPath(indexId), AssetsIndex.class);
+        log.info("Building asset virtual tree for '" + versionManifest + "'");
+
+        AssetsIndex index = Persistence.read(getIndexPath(versionManifest), AssetsIndex.class);
         File treeDir = new File(dir, "virtual/" + indexId);
         treeDir.mkdirs();
 
