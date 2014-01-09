@@ -11,7 +11,7 @@
 
   <groupId>com.skcraft</groupId>
   <artifactId>launcher</artifactId>
-  <version>4.0.4</version>
+  <version>4.0.5</version>
 
   <dependencies>
     <dependency>
