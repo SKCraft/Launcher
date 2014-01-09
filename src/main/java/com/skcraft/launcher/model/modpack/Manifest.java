@@ -39,7 +39,7 @@ public class Manifest extends BaseManifest {
     @JsonIgnore
     public URL getLibrariesUrl() {
         if (Strings.nullToEmpty(getLibrariesLocation()) == null) {
-            return baseUrl;
+            return null;
         }
 
         try {

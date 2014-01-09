@@ -115,6 +115,11 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         progress = new DefaultProgress(-1, _("instanceUpdater.readingVersion"));
         VersionManifest version = readVersionManifest(manifest);
 
+        URL url = manifest.getLibrariesUrl();
+        if (url != null) {
+            librarySources.add(url);
+        }
+
         progress = new DefaultProgress(-1, _("instanceUpdater.buildingDownloadList"));
 
         // Install the .jar
