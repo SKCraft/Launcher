@@ -23,6 +23,8 @@ import static com.skcraft.launcher.util.SharedLocale._;
 
 public class SelfUpdater implements Callable<File>, ProgressObservable {
 
+    public static boolean updatedAlready = false;
+
     private final Launcher launcher;
     private final URL url;
     private final Installer installer;
@@ -50,6 +52,8 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
 
             progress = installer;
             installer.execute();
+
+            updatedAlready = true;
 
             return file;
         } finally {

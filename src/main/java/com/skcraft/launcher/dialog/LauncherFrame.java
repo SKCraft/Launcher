@@ -128,6 +128,7 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loadInstances();
+                checkLauncherUpdate();
             }
         });
 
@@ -167,6 +168,10 @@ public class LauncherFrame extends JFrame {
     }
 
     private void checkLauncherUpdate() {
+        if (SelfUpdater.updatedAlready) {
+            return;
+        }
+
         ListenableFuture<URL> future = launcher.getExecutor().submit(new UpdateChecker(launcher));
 
         Futures.addCallback(future, new FutureCallback<URL>() {
