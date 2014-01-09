@@ -32,7 +32,7 @@ public class ClientFileCollector extends DirectoryWalker {
      * Create a new collector.
      *
      * @param manifest the manifest
-     * @param destDir the destination directory to copy the hashed objects
+     * @param destDir  the destination directory to copy the hashed objects
      */
     public ClientFileCollector(@NonNull Manifest manifest, @NonNull File destDir) {
         this.manifest = manifest;
@@ -41,7 +41,9 @@ public class ClientFileCollector extends DirectoryWalker {
 
     @Override
     public DirectoryBehavior getBehavior(@NonNull String name) {
-        if (name.equals("_SERVER")) {
+        if (name.equals("_OPTIONAL")) {
+            return DirectoryBehavior.SKIP;
+        } else if (name.equals("_SERVER")) {
             return DirectoryBehavior.SKIP;
         } else if (name.equals("_CLIENT")) {
             return DirectoryBehavior.IGNORE;
@@ -49,6 +51,8 @@ public class ClientFileCollector extends DirectoryWalker {
             return DirectoryBehavior.CONTINUE;
         }
     }
+
+}
 
     @Override
     protected void onFile(File file, String relPath) throws IOException {
