@@ -42,9 +42,13 @@ public class AssetsRoot {
         return new File(dir, "objects/" + hash.substring(0, 2) + "/" + hash);
     }
 
-    public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) {
+    public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) throws LauncherException {
         String indexId = versionManifest.getAssetsIndex();
-        AssetsIndex index = Persistence.read(getIndexPath(versionManifest), AssetsIndex.class);
+        File path = getIndexPath(versionManifest);
+        AssetsIndex index = Persistence.read(path, AssetsIndex.class, true);
+        if (index == null || index.getObjects() == null) {
+            throw new LauncherException("Missing index at " + path, _("assets.missingIndex", path.getAbsolutePath()));
+        }
         File treeDir = new File(dir, "virtual/" + indexId);
         treeDir.mkdirs();
         return new AssetsTreeBuilder(index, treeDir);

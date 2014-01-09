@@ -505,6 +505,7 @@ public class LauncherFrame extends JFrame {
                 } catch (IOException e) {
                     log.log(Level.WARNING, "Failed to clean up " + extractDir.getAbsolutePath(), e);
                 }
+                instancesModel.update();
             }
         }, sameThreadExecutor());
     }

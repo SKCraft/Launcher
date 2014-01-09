@@ -29,10 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
@@ -139,6 +136,9 @@ public abstract class BaseUpdater {
                 .saveContent(assetsRoot.getIndexPath(versionManifest))
                 .asJson(AssetsIndex.class);
 
+        // Keep track of duplicates
+        Set<String> downloading = new HashSet<String>();
+
         for (Map.Entry<String, Asset> entry : index.getObjects().entrySet()) {
             checkInterrupted();
 
@@ -146,7 +146,7 @@ public abstract class BaseUpdater {
             String path = String.format("%s/%s", hash.subSequence(0, 2), hash);
             File targetFile = assetsRoot.getObjectPath(entry.getValue());
 
-            if (!targetFile.exists()) {
+            if (!targetFile.exists() && !downloading.contains(path)) {
                 List<URL> urls = new ArrayList<URL>();
                 for (URL sourceUrl : sources) {
                     try {
@@ -157,9 +157,10 @@ public abstract class BaseUpdater {
                 }
 
                 File tempFile = installer.getDownloader().download(
-                        sources, "", entry.getValue().getSize(), entry.getKey());
+                        urls, "", entry.getValue().getSize(), entry.getKey());
                 installer.queue(new FileMover(tempFile, targetFile));
                 log.info("Fetching " + path + " from " + urls);
+                downloading.add(path);
             }
         }
     }
@@ -186,7 +187,7 @@ public abstract class BaseUpdater {
                         }
                     }
 
-                    File tempFile = installer.getDownloader().download(sources, "", LIBRARY_SIZE_ESTIMATE,
+                    File tempFile = installer.getDownloader().download(urls, "", LIBRARY_SIZE_ESTIMATE,
                             library.getName() + ".jar");
                     installer.queue(new FileMover( tempFile, targetFile));
                     log.info("Fetching " + path + " from " + urls);

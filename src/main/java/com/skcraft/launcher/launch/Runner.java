@@ -18,6 +18,7 @@ import com.skcraft.launcher.install.ZipExtract;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
 import lombok.Getter;
@@ -27,6 +28,7 @@ import lombok.extern.java.Log;
 import org.apache.commons.lang.text.StrSubstitutor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -99,12 +101,33 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         // Load versionManifest and assets index
         versionManifest = mapper.readValue(instance.getVersionPath(), VersionManifest.class);
-        assetsIndex = mapper.readValue(assetsRoot.getIndexPath(versionManifest), AssetsIndex.class);
+
+        // Load assets index
+        File assetsFile = assetsRoot.getIndexPath(versionManifest);
+        try {
+            assetsIndex = mapper.readValue(assetsFile, AssetsIndex.class);
+        } catch (FileNotFoundException e) {
+            instance.setInstalled(false);
+            Persistence.commitAndForget(instance);
+            throw new LauncherException("Missing assets index " + assetsFile.getAbsolutePath(),
+                    _("runner.missingAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
+        } catch (IOException e) {
+            instance.setInstalled(false);
+            Persistence.commitAndForget(instance);
+            throw new LauncherException("Corrupt assets index " + assetsFile.getAbsolutePath(),
+                    _("runner.corruptAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
+        }
 
         // Copy over assets to the tree
-        AssetsRoot.AssetsTreeBuilder assetsBuilder = assetsRoot.createAssetsBuilder(versionManifest);
-        progress = assetsBuilder;
-        virtualAssetsDir = assetsBuilder.build();
+        try {
+            AssetsRoot.AssetsTreeBuilder assetsBuilder = assetsRoot.createAssetsBuilder(versionManifest);
+            progress = assetsBuilder;
+            virtualAssetsDir = assetsBuilder.build();
+        } catch (LauncherException e) {
+            instance.setInstalled(false);
+            Persistence.commitAndForget(instance);
+            throw e;
+        }
 
         progress = new DefaultProgress(0.9, _("runner.collectingArgs"));
 
@@ -150,9 +173,13 @@ public class Runner implements Callable<Process>, ProgressObservable {
     /**
      * Add libraries.
      */
-    private void addLibraries() {
+    private void addLibraries() throws LauncherException {
         // Add libraries to classpath or extract the libraries as necessary
         for (Library library : versionManifest.getLibraries()) {
+            if (!library.matches(environment)) {
+                continue;
+            }
+
             File path = new File(launcher.getLibrariesDir(), library.getPath(environment));
 
             if (path.exists()) {
@@ -164,6 +191,11 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 } else {
                     builder.classPath(path);
                 }
+            } else {
+                instance.setInstalled(false);
+                Persistence.commitAndForget(instance);
+                throw new LauncherException("Missing library " + library.getName(),
+                        _("runner.missingLibrary", instance.getTitle(), library.getName()));
             }
         }
 
