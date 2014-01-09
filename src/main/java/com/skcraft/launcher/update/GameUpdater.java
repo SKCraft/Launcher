@@ -86,7 +86,7 @@ public class GameUpdater implements Runnable {
                     .execute()
                     .expectResponseCode(200)
                     .returnContent()
-                    .saveContent(assetsRoot.getIndexPath(versionManifest.getId()))
+                    .saveContent(assetsRoot.getIndexPath(versionManifest.getAssetsIndex()))
                     .asJson(AssetsIndex.class);
 
             for (Map.Entry<String, Asset> entry : index.getObjects().entrySet()) {
