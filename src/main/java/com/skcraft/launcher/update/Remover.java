@@ -8,11 +8,15 @@ package com.skcraft.launcher.update;
 
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.persistence.Persistence;
 import lombok.NonNull;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
@@ -46,11 +50,18 @@ public class Remover implements Callable<Instance>, ProgressObservable {
 
         Thread.sleep(2000);
 
+        List<File> failures = new ArrayList<File>();
+
         try {
-            LauncherUtils.interruptibleDelete(instance.getDir());
+            LauncherUtils.interruptibleDelete(instance.getDir(), failures);
         } catch (IOException e) {
             Thread.sleep(1000);
-            LauncherUtils.interruptibleDelete(instance.getDir());
+            LauncherUtils.interruptibleDelete(instance.getDir(), failures);
+        }
+
+        if (failures.size() > 0) {
+            throw new LauncherException(failures.size() + " failed to delete",
+                     _("instanceDeleter.failures", failures.size()));
         }
 
         return instance;

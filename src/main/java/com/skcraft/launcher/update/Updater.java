@@ -132,37 +132,54 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         instance.setLocal(true);
         Persistence.commitAndForget(instance);
 
-        // Install package and get the manifests
+        // Read manifest
+        log.info("Reading package manifest...");
         progress = new DefaultProgress(-1, _("instanceUpdater.readingManifest"));
         Manifest manifest = installPackage(installer, instance);
+
+        // Read version manifest
+        log.info("Reading version manifest...");
         progress = new DefaultProgress(-1, _("instanceUpdater.readingVersion"));
         VersionManifest version = readVersionManifest(manifest);
-
-        URL url = manifest.getLibrariesUrl();
-        if (url != null) {
-            librarySources.add(url);
-        }
 
         progress = new DefaultProgress(-1, _("instanceUpdater.buildingDownloadList"));
 
         // Install the .jar
         File jarPath = launcher.getJarPath(version);
         URL jarSource = launcher.propUrl("jarUrl", version.getId());
+        log.info("JAR at " + jarPath.getAbsolutePath() + ", fetched from " + jarSource);
         installJar(installer, jarPath, jarSource);
 
-        // Download libraries and assets
+        // Download libraries
+        log.info("Enumerating libraries to download...");
+
+        URL url = manifest.getLibrariesUrl();
+        if (url != null) {
+            log.info("Added library source: " + url);
+            librarySources.add(url);
+        }
+
+        progress = new DefaultProgress(-1, _("instanceUpdater.collectingLibraries"));
         installLibraries(installer, version, launcher.getLibrariesDir(), librarySources);
+
+        // Download assets
+        log.info("Enumerating assets to download...");
+        progress = new DefaultProgress(-1, _("instanceUpdater.collectingAssets"));
         installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
 
-        progress = ProgressFilter.between(installer.getDownloader(), 0, 0.9);
+        log.info("Executing download phase...");
+        progress = ProgressFilter.between(installer.getDownloader(), 0, 0.98);
         installer.download();
 
-        progress = ProgressFilter.between(installer, 0.9, 1);
+        log.info("Executing install phase...");
+        progress = ProgressFilter.between(installer, 0.98, 1);
         installer.execute();
 
+        log.info("Completing...");
         complete();
 
         // Update the instance's information
+        log.info("Writing instance information...");
         instance.setVersion(manifest.getVersion());
         instance.setUpdatePending(false);
         instance.setInstalled(true);

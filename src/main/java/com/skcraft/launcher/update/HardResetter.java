@@ -14,6 +14,7 @@ import lombok.NonNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.util.SharedLocale._;
@@ -55,7 +56,7 @@ public class HardResetter implements Callable<Instance>, ProgressObservable {
         try {
             if (dir.isDirectory()) {
                 currentDir = dir;
-                LauncherUtils.interruptibleDelete(dir);
+                LauncherUtils.interruptibleDelete(dir, new ArrayList<File>());
             }
         } finally {
             currentDir = null;

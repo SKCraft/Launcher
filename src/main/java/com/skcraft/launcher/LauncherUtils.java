@@ -7,13 +7,16 @@
 package com.skcraft.launcher;
 
 import com.google.common.io.Closer;
+import lombok.extern.java.Log;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+@Log
 public final class LauncherUtils {
 
     private static final Pattern absoluteUrlPattern = Pattern.compile("^[A-Za-z0-9\\-]+://.*$");
@@ -70,7 +73,7 @@ public final class LauncherUtils {
 
 
 
-    public static void interruptibleDelete(File file) throws IOException, InterruptedException {
+    public static void interruptibleDelete(File file, List<File> failures) throws IOException, InterruptedException {
         checkInterrupted();
 
         if (file.isDirectory()) {
@@ -81,16 +84,22 @@ public final class LauncherUtils {
             }
 
             for (File f : files) {
-                interruptibleDelete(f);
+                interruptibleDelete(f, failures);
             }
 
-            file.delete();
+            if (!file.delete()) {
+                log.warning("Failed to delete " + file.getAbsolutePath());
+                failures.add(file);
+            }
         } else {
             if (!file.exists()) {
                 throw new FileNotFoundException("Does not exist: " + file);
             }
 
-            file.delete();
+            if (!file.delete()) {
+                log.warning("Failed to delete " + file.getAbsolutePath());
+                failures.add(file);
+            }
         }
     }
 
