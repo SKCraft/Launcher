@@ -49,6 +49,7 @@ public class ConfigurationDialog extends JDialog {
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(_("button.ok"));
     private final JButton cancelButton = new JButton(_("button.cancel"));
+    private final JButton logButton = new JButton(_("options.launcherConsole"));
 
     /**
      * Create a new configuration dialog.
@@ -114,6 +115,7 @@ public class ConfigurationDialog extends JDialog {
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(_("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
+        buttonsPanel.addElement(logButton);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(okButton);
         buttonsPanel.addElement(cancelButton);
@@ -131,6 +133,13 @@ public class ConfigurationDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 save();
+            }
+        });
+
+        logButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ConsoleFrame.showMessages();
             }
         });
     }
