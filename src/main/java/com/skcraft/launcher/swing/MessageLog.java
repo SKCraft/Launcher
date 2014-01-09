@@ -8,6 +8,7 @@ package com.skcraft.launcher.swing;
 
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.util.LimitLinesDocumentListener;
+import com.skcraft.launcher.util.SimpleLogFormatter;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -264,6 +265,8 @@ public class MessageLog extends JPanel {
      * Used to send logger messages to the console.
      */
     private class ConsoleLoggerHandler extends Handler {
+        private final SimpleLogFormatter formatter = new SimpleLogFormatter();
+
         @Override
         public void publish(LogRecord record) {
             Level level = record.getLevel();
@@ -276,10 +279,7 @@ public class MessageLog extends JPanel {
                 attributes = debugAttributes;
             }
 
-            log(record.getMessage() + "\n", attributes);
-            if (t != null) {
-                log(LauncherUtils.getStackTrace(t) + "\n", attributes);
-            }
+            log(formatter.format(record), attributes);
         }
 
         @Override

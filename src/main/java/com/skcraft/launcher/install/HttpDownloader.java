@@ -218,7 +218,7 @@ public class HttpDownloader implements Downloader {
         }
 
         private void download() throws IOException, InterruptedException {
-            log.log(Level.INFO, "Downloading {0} from {1}...", new Object[] { destFile, urls });
+            log.log(Level.INFO, "Downloading " + destFile + " from " + urls);
 
             File destDir = destFile.getParentFile();
             File tempFile = new File(destDir, destFile.getName() + ".tmp");

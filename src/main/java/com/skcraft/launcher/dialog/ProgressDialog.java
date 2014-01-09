@@ -39,6 +39,7 @@ public class ProgressDialog extends JDialog {
     private final JTextArea logText = new JTextArea();
     private final JScrollPane logScroll = new JScrollPane(logText);
     private final JButton detailsButton = new JButton();
+    private final JButton logButton = new JButton(_("progress.viewLog"));
     private final JButton cancelButton = new JButton(_("button.cancel"));
 
     public ProgressDialog(Window owner, String title, String message) {
@@ -65,13 +66,15 @@ public class ProgressDialog extends JDialog {
     }
 
     private void setCompactSize() {
-        detailsButton.setText("Details...");
+        detailsButton.setText(_("progress.details"));
+        logButton.setVisible(false);
         setMinimumSize(new Dimension(400, 100));
         pack();
     }
 
     private void setDetailsSize() {
-        detailsButton.setText("Less...");
+        detailsButton.setText(_("progress.less"));
+        logButton.setVisible(true);
         setSize(400, 350);
     }
 
@@ -82,6 +85,7 @@ public class ProgressDialog extends JDialog {
         progressBar.setPreferredSize(new Dimension(0, 18));
 
         buttonsPanel.addElement(detailsButton);
+        buttonsPanel.addElement(logButton);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(cancelButton);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(30, 13, 13, 13));
@@ -113,16 +117,24 @@ public class ProgressDialog extends JDialog {
                 }
             }
         });
+
         detailsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 toggleDetails();
             }
         });
+
+        logButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ConsoleFrame.showMessages();
+            }
+        });
     }
 
     private boolean confirmCancel() {
-        return SwingHelper.confirmDialog(this, "Are you sure that you wish to cancel?", "Cancel");
+        return SwingHelper.confirmDialog(this, _("progress.confirmCancel"), _("progress.confirmCancelTitle"));
     }
 
     protected void cancel() {

@@ -28,11 +28,15 @@ import static com.skcraft.launcher.util.SharedLocale._;
  */
 public class ConsoleFrame extends JFrame {
 
+    private static ConsoleFrame globalFrame;
+
     @Getter private final Image trayRunningIcon;
     @Getter private final Image trayClosedIcon;
 
     @Getter private final MessageLog messageLog;
     @Getter private LinedBoxPanel buttonsPanel;
+
+    private boolean registeredGlobalLog = false;
 
     /**
      * Construct the frame.
@@ -93,10 +97,22 @@ public class ConsoleFrame extends JFrame {
     }
 
     /**
+     * Register the global logger if it hasn't been registered.
+     */
+    private void registerLoggerHandler() {
+        if (!registeredGlobalLog) {
+            getMessageLog().registerLoggerHandler();
+            registeredGlobalLog = true;
+        }
+    }
+
+    /**
      * Attempt to perform window close.
      */
     protected void performClose() {
         messageLog.detachGlobalHandler();
+        messageLog.clear();
+        registeredGlobalLog = false;
         dispose();
     }
 
@@ -120,6 +136,21 @@ public class ConsoleFrame extends JFrame {
                 messageLog.log(_("console.pasteFailed", err), messageLog.asError());
             }
         });
+    }
+
+    public static void showMessages() {
+        ConsoleFrame frame = globalFrame;
+        if (frame == null) {
+            frame = new ConsoleFrame(10000, false);
+            globalFrame = frame;
+            frame.setTitle(_("console.launcherConsoleTitle"));
+            frame.registerLoggerHandler();
+            frame.setVisible(true);
+        } else {
+            frame.setVisible(true);
+            frame.registerLoggerHandler();
+            frame.requestFocus();
+        }
     }
 
 }
