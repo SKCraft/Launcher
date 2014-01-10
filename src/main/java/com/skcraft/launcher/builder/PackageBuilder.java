@@ -98,8 +98,8 @@ public class PackageBuilder {
         writer.writeValue(path, manifest);
     }
 
-    private static PackageOptions parseArgs(String[] args) {
-        PackageOptions options = new PackageOptions();
+    private static BuilderOptions parseArgs(String[] args) {
+        BuilderOptions options = new BuilderOptions();
         new JCommander(options, args);
         return options;
     }
@@ -125,7 +125,7 @@ public class PackageBuilder {
      * @throws IOException thrown on I/O error
      */
     public static void main(String[] args) throws IOException {
-        PackageOptions options = parseArgs(args);
+        BuilderOptions options = parseArgs(args);
 
         // Initialize
         SimpleLogFormatter.configureGlobalLogger();

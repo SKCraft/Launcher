@@ -12,7 +12,7 @@ import lombok.Data;
 import java.io.File;
 
 @Data
-public class PackageOptions {
+public class BuilderOptions {
 
     // Configuration
     @Parameter(names = "--config")
