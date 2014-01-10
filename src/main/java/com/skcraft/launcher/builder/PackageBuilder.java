@@ -133,6 +133,7 @@ public class PackageBuilder {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
 
         Manifest manifest = new Manifest();
+        manifest.setMinimumVersion(Manifest.MIN_PROTOCOL_VERSION);
         PackageBuilder builder = new PackageBuilder(mapper, manifest);
         builder.setPrettyPrint(options.isPrettyPrinting());
 

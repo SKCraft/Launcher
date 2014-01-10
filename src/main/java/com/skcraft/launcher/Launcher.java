@@ -44,6 +44,8 @@ import java.util.logging.Level;
 @Log
 public final class Launcher {
 
+    public static final int PROTOCOL_VERSION = 2;
+
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
     @Getter private final File baseDir;

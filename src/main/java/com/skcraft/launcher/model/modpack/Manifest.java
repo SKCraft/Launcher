@@ -28,6 +28,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class Manifest extends BaseManifest {
 
+    public static final int MIN_PROTOCOL_VERSION = 2;
+
+    private int minimumVersion;
     private URL baseUrl;
     private String librariesLocation;
     private String objectsLocation;

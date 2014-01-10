@@ -10,6 +10,7 @@ import com.google.common.base.Strings;
 import com.skcraft.launcher.AssetsRoot;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.dialog.FeatureSelectionDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.install.*;
@@ -36,6 +37,7 @@ import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.LauncherUtils.concat;
+import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
 public abstract class BaseUpdater {
@@ -76,6 +78,10 @@ public abstract class BaseUpdater {
                 .returnContent()
                 .saveContent(instance.getManifestPath())
                 .asJson(Manifest.class);
+
+        if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
+            throw new LauncherException("Update required", _("errors.updateRequiredError"));
+        }
 
         if (manifest.getBaseUrl() == null) {
             manifest.setBaseUrl(instance.getManifestURL());

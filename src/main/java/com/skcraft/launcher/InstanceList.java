@@ -32,7 +32,6 @@ import static com.skcraft.launcher.util.SharedLocale._;
 @Log
 public class InstanceList {
 
-    private static int PARSER_VERSION = 1;
     private final Launcher launcher;
     @Getter private final List<Instance> instances = new ArrayList<Instance>();
 
@@ -108,7 +107,7 @@ public class InstanceList {
                         .returnContent()
                         .asJson(PackageList.class);
 
-                if (packages.getMinimumVersion() > PARSER_VERSION) {
+                if (packages.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
                     throw new LauncherException("Update required", _("errors.updateRequiredError"));
                 }
 
