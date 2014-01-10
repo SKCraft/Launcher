@@ -42,8 +42,6 @@ public class FeatureSelectionDialog extends JDialog {
         setSize(new Dimension(500, 400));
         setResizable(false);
         setLocationRelativeTo(owner);
-
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
     private void initComponents() {

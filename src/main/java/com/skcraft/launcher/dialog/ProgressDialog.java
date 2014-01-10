@@ -187,10 +187,7 @@ public class ProgressDialog extends JDialog {
     public static ProgressDialog getLastDialog() {
         WeakReference<ProgressDialog> ref = lastDialogRef;
         if (ref != null) {
-            ProgressDialog dialog = ref.get();
-            if (!dialog.isVisible()) {
-                return dialog;
-            }
+            return ref.get();
         }
 
         return null;
