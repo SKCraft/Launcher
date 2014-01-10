@@ -37,15 +37,23 @@ public final class LauncherUtils {
         }
     }
 
-    public static Properties loadProperties(Class<?> clazz, String name) throws IOException {
+    public static Properties loadProperties(Class<?> clazz, String name, String extraProperty) throws IOException {
         Closer closer = Closer.create();
         Properties prop = new Properties();
         try {
             InputStream in = closer.register(clazz.getResourceAsStream(name));
             prop.load(in);
+            String extraPath = System.getProperty(extraProperty);
+            if (extraPath != null) {
+                log.info("Loading extra properties for " +
+                        clazz.getCanonicalName() + ":" + name + " from " + extraPath + "...");
+                in = closer.register(new BufferedInputStream(closer.register(new FileInputStream(extraPath))));
+                prop.load(in);
+            }
         } finally {
             closer.close();
         }
+
         return prop;
     }
 

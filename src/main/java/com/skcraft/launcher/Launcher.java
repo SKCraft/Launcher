@@ -63,7 +63,8 @@ public final class Launcher {
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;
-        this.properties = LauncherUtils.loadProperties(Launcher.class, "launcher.properties");
+        this.properties = LauncherUtils.loadProperties(Launcher.class,
+                "launcher.properties", "com.skcraft.launcher.propertiesFile");
         this.instances = new InstanceList(this);
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
         this.config = Persistence.load(new File(baseDir, "config.json"), Configuration.class);
