@@ -140,6 +140,9 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         progress = new DefaultProgress(-1, _("instanceUpdater.readingManifest"));
         Manifest manifest = installPackage(installer, instance);
 
+        // Update instance from manifest
+        manifest.update(instance);
+
         // Read version manifest
         log.info("Reading version manifest...");
         progress = new DefaultProgress(-1, _("instanceUpdater.readingVersion"));

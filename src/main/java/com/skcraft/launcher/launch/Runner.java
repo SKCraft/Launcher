@@ -99,7 +99,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder = new JavaProcessBuilder();
         assetsRoot = launcher.getAssets();
 
-        // Load versionManifest and assets index
+        // Load manifiests
         versionManifest = mapper.readValue(instance.getVersionPath(), VersionManifest.class);
 
         // Load assets index
@@ -141,6 +141,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder.classPath(getJarPath());
         builder.setMainClass(versionManifest.getMainClass());
 
+        callLaunchModifier();
+
         ProcessBuilder processBuilder = new ProcessBuilder(builder.buildCommand());
         processBuilder.directory(instance.getContentDir());
         Runner.log.info("Launching: " + builder);
@@ -149,6 +151,13 @@ public class Runner implements Callable<Process>, ProgressObservable {
         progress = new DefaultProgress(1, _("runner.startingJava"));
 
         return processBuilder.start();
+    }
+
+    /**
+     * Call the manifest launch modifier.
+     */
+    private void callLaunchModifier() {
+        instance.modify(builder);
     }
 
     /**

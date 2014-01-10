@@ -8,7 +8,9 @@ package com.skcraft.launcher.model.modpack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
+import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.install.Installer;
@@ -30,6 +32,8 @@ public class Manifest extends BaseManifest {
     private String librariesLocation;
     private String objectsLocation;
     private String gameVersion;
+    @JsonProperty("launch")
+    private LaunchModifier launchModifier;
     private List<Feature> features = new ArrayList<Feature>();
     @JsonManagedReference("manifest")
     private List<ManifestEntry> tasks = new ArrayList<ManifestEntry>();
@@ -79,5 +83,9 @@ public class Manifest extends BaseManifest {
         if (gameVersion != null) {
             setGameVersion(gameVersion);
         }
+    }
+
+    public void update(Instance instance) {
+        instance.setLaunchModifier(getLaunchModifier());
     }
 }

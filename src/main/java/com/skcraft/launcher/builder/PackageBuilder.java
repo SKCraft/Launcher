@@ -79,9 +79,7 @@ public class PackageBuilder {
     public void readConfig(File path) throws IOException {
         if (path != null) {
             BuilderConfig config = read(path, BuilderConfig.class);
-            manifest.updateName(config.getName());
-            manifest.updateTitle(config.getTitle());
-            manifest.updateGameVersion(config.getGameVersion());
+            config.update(manifest);
             config.registerProperties(applicator);
         }
     }

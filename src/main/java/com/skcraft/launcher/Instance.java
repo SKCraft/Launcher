@@ -7,6 +7,9 @@
 package com.skcraft.launcher;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.skcraft.launcher.launch.JavaProcessBuilder;
+import com.skcraft.launcher.model.modpack.LaunchModifier;
 import lombok.Data;
 
 import java.io.File;
@@ -22,6 +25,8 @@ public class Instance implements Comparable<Instance> {
     private boolean updatePending;
     private boolean installed;
     private Date lastAccessed;
+    @JsonProperty("launch")
+    private LaunchModifier launchModifier;
 
     @JsonIgnore private File dir;
     @JsonIgnore private URL manifestURL;
@@ -31,6 +36,12 @@ public class Instance implements Comparable<Instance> {
 
     public String getTitle() {
         return title != null ? title : name;
+    }
+
+    public void modify(JavaProcessBuilder builder) {
+        if (launchModifier != null) {
+            launchModifier.modify(builder);
+        }
     }
 
     @JsonIgnore

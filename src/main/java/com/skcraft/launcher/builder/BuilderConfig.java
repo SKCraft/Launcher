@@ -6,6 +6,9 @@
 
 package com.skcraft.launcher.builder;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.skcraft.launcher.model.modpack.LaunchModifier;
+import com.skcraft.launcher.model.modpack.Manifest;
 import lombok.Data;
 
 import java.util.List;
@@ -19,8 +22,17 @@ public class BuilderConfig {
     private String name;
     private String title;
     private String gameVersion;
+    @JsonProperty("launch")
+    private LaunchModifier launchModifier;
     private List<FeaturePattern> features;
     private FnPatternList userFiles;
+
+    public void update(Manifest manifest) {
+        manifest.updateName(getName());
+        manifest.updateTitle(getTitle());
+        manifest.updateGameVersion(getGameVersion());
+        manifest.setLaunchModifier(getLaunchModifier());
+    }
 
     public void registerProperties(PropertiesApplicator applicator) {
         if (features != null) {
