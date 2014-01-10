@@ -7,7 +7,6 @@
 package com.skcraft.launcher.model.modpack;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.skcraft.launcher.install.InstallLog;
@@ -32,6 +31,7 @@ public abstract class ManifestEntry {
 
     @JsonBackReference("manifest")
     private Manifest manifest;
+    private Condition when;
 
     public abstract void install(Installer installer, InstallLog log, UpdateCache cache, File contentDir) throws Exception;
 

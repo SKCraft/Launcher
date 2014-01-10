@@ -14,7 +14,7 @@ public class CheckboxTable extends JTable {
 
     public CheckboxTable() {
         setShowGrid(false);
-        setRowHeight(getRowHeight() + 4);
+        setRowHeight((int) (Math.max(getRowHeight(), new JCheckBox().getPreferredSize().getHeight() - 2)));
         setIntercellSpacing(new Dimension(0, 0));
         setFillsViewportHeight(true);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

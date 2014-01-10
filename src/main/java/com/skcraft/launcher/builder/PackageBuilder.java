@@ -20,6 +20,9 @@ import lombok.extern.java.Log;
 import java.io.File;
 import java.io.IOException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.emptyToNull;
+
 /**
  * Builds packages for the launcher.
  */
@@ -29,6 +32,7 @@ public class PackageBuilder {
     private final ObjectMapper mapper;
     private ObjectWriter writer;
     private final Manifest manifest;
+    private final PropertiesApplicator applicator;
     @Getter
     private boolean prettyPrint = false;
 
@@ -41,14 +45,10 @@ public class PackageBuilder {
     public PackageBuilder(@NonNull ObjectMapper mapper, @NonNull Manifest manifest) {
         this.mapper = mapper;
         this.manifest = manifest;
+        this.applicator = new PropertiesApplicator(manifest);
         setPrettyPrint(false); // Set writer
     }
 
-    /**
-     * Set whether pretty printing should be used.
-     *
-     * @param prettyPrint true to pretty print
-     */
     public void setPrettyPrint(boolean prettyPrint) {
         if (prettyPrint) {
             writer = mapper.writerWithDefaultPrettyPrinter();
@@ -58,39 +58,66 @@ public class PackageBuilder {
         this.prettyPrint = prettyPrint;
     }
 
-    /**
-     * Add the files in the given directory.
-     *
-     * @param dir the directory
-     * @param destDir the directory to copy the files to
-     * @throws IOException thrown on I/O error
-     */
-    private void addFiles(File dir, File destDir) throws IOException {
-        ClientFileCollector collector = new ClientFileCollector(this.manifest, destDir);
+    public void scan(File dir) throws IOException {
+        FileInfoScanner scanner = new FileInfoScanner(mapper);
+        scanner.walk(dir);
+        for (FeaturePattern pattern : scanner.getPatterns()) {
+            applicator.register(pattern);
+        }
+    }
+
+    public void addFiles(File dir, File destDir) throws IOException {
+        ClientFileCollector collector = new ClientFileCollector(this.manifest, applicator, destDir);
         collector.walk(dir);
     }
 
-    /**
-     * Write the manifest to a file.
-     *
-     * @param path the path
-     * @throws IOException thrown on I/O error
-     */
+    public void validateManifest() {
+        checkNotNull(emptyToNull(manifest.getName()), "Package name is not defined");
+        checkNotNull(emptyToNull(manifest.getGameVersion()), "Game version is not defined");
+    }
+
+    public void readConfig(File path) throws IOException {
+        if (path != null) {
+            BuilderConfig config = read(path, BuilderConfig.class);
+            manifest.updateName(config.getName());
+            manifest.updateTitle(config.getTitle());
+            manifest.updateGameVersion(config.getGameVersion());
+            config.registerProperties(applicator);
+        }
+    }
+
+    public void readVersionManifest(File path) throws IOException {
+        if (path != null) {
+            VersionManifest versionManifest = read(path, VersionManifest.class);
+            manifest.setVersionManifest(versionManifest);
+        }
+    }
+
     public void writeManifest(@NonNull File path) throws IOException {
+        manifest.setFeatures(applicator.getFeaturesInUse());
+        validateManifest();
         path.getParentFile().mkdirs();
         writer.writeValue(path, manifest);
     }
 
-    /**
-     * Parse arguments for the builder.
-     *
-     * @param args arguments
-     * @return options
-     */
     private static PackageOptions parseArgs(String[] args) {
         PackageOptions options = new PackageOptions();
         new JCommander(options, args);
         return options;
+    }
+
+    private <V> V read(File path, Class<V> clazz) throws IOException {
+        try {
+            if (path == null) {
+                return clazz.newInstance();
+            } else {
+                return mapper.readValue(path, clazz);
+            }
+        } catch (InstantiationException e) {
+            throw new IOException("Failed to create " + clazz.getCanonicalName(), e);
+        } catch (IllegalAccessException e) {
+            throw new IOException("Failed to create " + clazz.getCanonicalName(), e);
+        }
     }
 
     /**
@@ -100,32 +127,33 @@ public class PackageBuilder {
      * @throws IOException thrown on I/O error
      */
     public static void main(String[] args) throws IOException {
-        // May throw error here
         PackageOptions options = parseArgs(args);
 
+        // Initialize
         SimpleLogFormatter.configureGlobalLogger();
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
 
         Manifest manifest = new Manifest();
-        manifest.setName(options.getName());
-        manifest.setTitle(options.getTitle());
-        manifest.setVersion(options.getVersion());
-        manifest.setGameVersion(options.getGameVersion());
-        manifest.setLibrariesLocation(options.getLibrariesLocation());
-        manifest.setObjectsLocation(options.getObjectsLocation());
-
-        File path = options.getVersionManifestPath();
-        if (path != null) {
-            manifest.setVersionManifest(mapper.readValue(path, VersionManifest.class));
-        }
-
         PackageBuilder builder = new PackageBuilder(mapper, manifest);
         builder.setPrettyPrint(options.isPrettyPrinting());
 
-        log.info("Adding files...");
+        // From config
+        builder.readConfig(options.getConfigPath());
+        builder.readVersionManifest(options.getVersionManifestPath());
+
+        // From options
+        manifest.updateName(options.getName());
+        manifest.updateTitle(options.getTitle());
+        manifest.updateGameVersion(options.getGameVersion());
+        manifest.setVersion(options.getVersion());
+        manifest.setLibrariesLocation(options.getLibrariesLocation());
+        manifest.setObjectsLocation(options.getObjectsLocation());
+
+        builder.scan(options.getFilesDir());
         builder.addFiles(options.getFilesDir(), options.getObjectsDir());
         builder.writeManifest(options.getManifestPath());
+
         log.info("Wrote manifest to " + options.getManifestPath().getAbsolutePath());
         log.info("Done.");
     }

@@ -82,6 +82,9 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
                 String message = _("updater.updateRequiredButNoManifest");
                 throw new LauncherException("Update required but no manifest", message);
             } else {
+                instance.setUpdatePending(false);
+                Persistence.commitAndForget(instance);
+
                 log.info("Can't update " + instance.getTitle() + ", but update is not required");
                 return instance; // Can't update
             }

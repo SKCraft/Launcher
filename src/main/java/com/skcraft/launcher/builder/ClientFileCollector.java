@@ -13,6 +13,7 @@ import com.skcraft.launcher.model.modpack.FileInstall;
 import com.skcraft.launcher.model.modpack.Manifest;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.io.IOException;
 public class ClientFileCollector extends DirectoryWalker {
 
     private final Manifest manifest;
+    private final PropertiesApplicator applicator;
     private final File destDir;
     private HashFunction hf = Hashing.sha1();
 
@@ -32,17 +34,45 @@ public class ClientFileCollector extends DirectoryWalker {
      * Create a new collector.
      *
      * @param manifest the manifest
-     * @param destDir  the destination directory to copy the hashed objects
+     * @param applicator applies properties to manifest entries
+     * @param destDir the destination directory to copy the hashed objects
      */
-    public ClientFileCollector(@NonNull Manifest manifest, @NonNull File destDir) {
+    public ClientFileCollector(@NonNull Manifest manifest, @NonNull PropertiesApplicator applicator,
+                               @NonNull File destDir) {
         this.manifest = manifest;
+        this.applicator = applicator;
         this.destDir = destDir;
     }
 
     @Override
-    public DirectoryBehavior getBehavior(@NonNull String name) {
+    protected DirectoryBehavior getBehavior(@NonNull String name) {
+        return getDirectoryBehavior(name);
+    }
+
+    @Override
+    protected void onFile(File file, String relPath) throws IOException {
+        if (file.getName().endsWith(FileInfoScanner.FILE_SUFFIX)) {
+            return;
+        }
+
+        FileInstall entry = new FileInstall();
+        String hash = Files.hash(file, hf).toString();
+        String hashedPath = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;
+        File destPath = new File(destDir, hashedPath);
+        entry.setHash(hash);
+        entry.setLocation(hashedPath);
+        entry.setTo(FilenameUtils.separatorsToUnix(FilenameUtils.normalize(relPath)));
+        entry.setSize(file.length());
+        applicator.apply(entry);
+        destPath.getParentFile().mkdirs();
+        ClientFileCollector.log.info(String.format("Adding %s from %s...", relPath, file.getAbsolutePath()));
+        Files.copy(file, destPath);
+        manifest.getTasks().add(entry);
+    }
+
+    public static DirectoryBehavior getDirectoryBehavior(@NonNull String name) {
         if (name.equals("_OPTIONAL")) {
-            return DirectoryBehavior.SKIP;
+            return DirectoryBehavior.IGNORE;
         } else if (name.equals("_SERVER")) {
             return DirectoryBehavior.SKIP;
         } else if (name.equals("_CLIENT")) {
@@ -50,22 +80,6 @@ public class ClientFileCollector extends DirectoryWalker {
         } else {
             return DirectoryBehavior.CONTINUE;
         }
-    }
-
-    @Override
-    protected void onFile(File file, String relPath) throws IOException {
-        FileInstall task = new FileInstall();
-        String hash = Files.hash(file, hf).toString();
-        String hashedPath = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;
-        File destPath = new File(destDir, hashedPath);
-        task.setHash(hash);
-        task.setLocation(hashedPath);
-        task.setTo(relPath);
-        task.setSize(file.length());
-        destPath.getParentFile().mkdirs();
-        ClientFileCollector.log.info(String.format("Adding %s from %s...", relPath, file.getAbsolutePath()));
-        Files.copy(file, destPath);
-        manifest.getTasks().add(task);
     }
 
 }

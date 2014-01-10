@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,6 +29,8 @@ import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
 public class ProgressDialog extends JDialog {
+
+    private static WeakReference<ProgressDialog> lastDialogRef;
 
     private final String defaultTitle;
     private final String defaultMessage;
@@ -159,6 +162,8 @@ public class ProgressDialog extends JDialog {
             }
         };
 
+        lastDialogRef = new WeakReference<ProgressDialog>(dialog);
+
         final Timer timer = new Timer();
         timer.scheduleAtFixedRate(new UpdateProgress(dialog, future), 400, 400);
 
@@ -177,6 +182,18 @@ public class ProgressDialog extends JDialog {
         }, SwingExecutor.INSTANCE);
 
         dialog.setVisible(true);
+    }
+
+    public static ProgressDialog getLastDialog() {
+        WeakReference<ProgressDialog> ref = lastDialogRef;
+        if (ref != null) {
+            ProgressDialog dialog = ref.get();
+            if (!dialog.isVisible()) {
+                return dialog;
+            }
+        }
+
+        return null;
     }
 
     private static class UpdateProgress extends TimerTask {

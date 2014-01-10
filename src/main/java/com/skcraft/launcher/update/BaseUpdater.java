@@ -6,17 +6,18 @@
 
 package com.skcraft.launcher.update;
 
+import com.google.common.base.Strings;
 import com.skcraft.launcher.AssetsRoot;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
-import com.skcraft.launcher.install.FileMover;
-import com.skcraft.launcher.install.InstallLog;
-import com.skcraft.launcher.install.Installer;
-import com.skcraft.launcher.install.UpdateCache;
+import com.skcraft.launcher.dialog.FeatureSelectionDialog;
+import com.skcraft.launcher.dialog.ProgressDialog;
+import com.skcraft.launcher.install.*;
 import com.skcraft.launcher.model.minecraft.Asset;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.modpack.Feature;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.model.modpack.ManifestEntry;
 import com.skcraft.launcher.persistence.Persistence;
@@ -25,6 +26,7 @@ import com.skcraft.launcher.util.HttpRequest;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -59,11 +61,13 @@ public abstract class BaseUpdater {
         final File contentDir = instance.getContentDir();
         final File logPath = new File(instance.getDir(), "install_log.json");
         final File cachePath = new File(instance.getDir(), "update_cache.json");
+        final File featuresPath = new File(instance.getDir(), "features.json");
 
         final InstallLog previousLog = Persistence.read(logPath, InstallLog.class);
         final InstallLog currentLog = new InstallLog();
         currentLog.setBaseDir(contentDir);
         final UpdateCache updateCache = Persistence.read(cachePath, UpdateCache.class);
+        final FeatureCache featuresCache = Persistence.read(featuresPath, FeatureCache.class);
 
         Manifest manifest = HttpRequest
                 .get(instance.getManifestURL())
@@ -75,6 +79,29 @@ public abstract class BaseUpdater {
 
         if (manifest.getBaseUrl() == null) {
             manifest.setBaseUrl(instance.getManifestURL());
+        }
+
+        final List<Feature> features = manifest.getFeatures();
+        if (!features.isEmpty()) {
+            for (Feature feature : features) {
+                Boolean last = featuresCache.getSelected().get(feature.getName());
+                if (last != null) {
+                    feature.setSelected(last);
+                }
+            }
+
+            Collections.sort(features);
+
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    new FeatureSelectionDialog(ProgressDialog.getLastDialog(), features).setVisible(true);
+                }
+            });
+
+            for (Feature feature : features) {
+                featuresCache.getSelected().put(Strings.nullToEmpty(feature.getName()), feature.isSelected());
+            }
         }
 
         for (ManifestEntry entry : manifest.getTasks()) {
@@ -92,17 +119,9 @@ public abstract class BaseUpdater {
                     }
                 }
 
-                try {
-                    Persistence.write(logPath, currentLog);
-                } catch (IOException e) {
-                    log.log(Level.WARNING, "Failed to write install log", e);
-                }
-
-                try {
-                    Persistence.write(cachePath, updateCache);
-                } catch (IOException e) {
-                    log.log(Level.WARNING, "Failed to write update cache", e);
-                }
+                writeDataFile(logPath, currentLog);
+                writeDataFile(cachePath, updateCache);
+                writeDataFile(featuresPath, featuresCache);
             }
         });
 
@@ -193,6 +212,15 @@ public abstract class BaseUpdater {
                     log.info("Fetching " + path + " from " + urls);
                 }
             }
+        }
+    }
+
+    private static void writeDataFile(File path, Object object) {
+        try {
+            Persistence.write(path, object);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Failed to write to " + path.getAbsolutePath() +
+                    " for object " + object.getClass().getCanonicalName(), e);
         }
     }
 

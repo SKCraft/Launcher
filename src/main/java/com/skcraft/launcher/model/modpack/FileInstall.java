@@ -32,6 +32,7 @@ public class FileInstall extends ManifestEntry {
     private String location;
     private String to;
     private long size;
+    private boolean userFile;
 
     @JsonIgnore
     public String getImpliedVersion() {
@@ -46,12 +47,17 @@ public class FileInstall extends ManifestEntry {
     @Override
     public void install(@NonNull Installer installer, @NonNull InstallLog log,
                         @NonNull UpdateCache cache, @NonNull File contentDir) throws MalformedURLException {
+        if (getWhen() != null && !getWhen().matches()) {
+            return;
+        }
+
         String targetPath = getTargetPath();
         File targetFile = new File(contentDir, targetPath);
         String fileVersion = getImpliedVersion();
         URL url = concat(getManifest().getObjectsUrl(), getLocation());
 
-        if (cache.mark(FilenameUtils.normalize(targetPath), fileVersion)) {
+        if (!(isUserFile() && targetFile.exists()) &&
+                (!targetFile.exists() || cache.mark(FilenameUtils.normalize(targetPath), fileVersion))) {
             long size = this.size;
             if (size <= 0) {
                 size = 10 * 1024;

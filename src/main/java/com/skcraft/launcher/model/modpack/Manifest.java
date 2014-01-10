@@ -30,6 +30,7 @@ public class Manifest extends BaseManifest {
     private String librariesLocation;
     private String objectsLocation;
     private String gameVersion;
+    private List<Feature> features = new ArrayList<Feature>();
     @JsonManagedReference("manifest")
     private List<ManifestEntry> tasks = new ArrayList<ManifestEntry>();
     @Getter @Setter @JsonIgnore
@@ -62,4 +63,21 @@ public class Manifest extends BaseManifest {
         }
     }
 
+    public void updateName(String name) {
+        if (name != null) {
+            setName(name);
+        }
+    }
+
+    public void updateTitle(String title) {
+        if (title != null) {
+            setTitle(title);
+        }
+    }
+
+    public void updateGameVersion(String gameVersion) {
+        if (gameVersion != null) {
+            setGameVersion(gameVersion);
+        }
+    }
 }

@@ -82,7 +82,7 @@ public abstract class DirectoryWalker {
      * @param name the directory name
      * @return the behavor
      */
-    public DirectoryBehavior getBehavior(String name) {
+    protected DirectoryBehavior getBehavior(String name) {
         return DirectoryBehavior.CONTINUE;
     }
 

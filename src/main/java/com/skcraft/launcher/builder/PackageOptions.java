@@ -14,36 +14,37 @@ import java.io.File;
 @Data
 public class PackageOptions {
 
-    @Parameter(names = "--name", required = true)
-    private String name;
-
-    @Parameter(names = "--title", required = true)
-    private String title;
-
-    @Parameter(names = "--version", required = true)
-    private String version;
-
-    @Parameter(names = "--mc-version", required = true)
-    private String gameVersion;
-
-    @Parameter(names = "--manifest-path", required = true)
-    private File manifestPath;
-
-    @Parameter(names = "--objects-dest", required = true)
-    private File objectsDir;
-
-    @Parameter(names = "--files", required = true)
-    private File filesDir;
-
+    // Configuration
+    @Parameter(names = "--config")
+    private File configPath;
     @Parameter(names = "--version-file")
     private File versionManifestPath;
-
     @Parameter(names = "--libs-url")
     private String librariesLocation;
-
     @Parameter(names = "--objects-url")
     private String objectsLocation;
 
+    // Override config
+    @Parameter(names = "--name")
+    private String name;
+    @Parameter(names = "--title")
+    private String title;
+    @Parameter(names = "--mc-version")
+    private String gameVersion;
+
+    // Required
+    @Parameter(names = "--version", required = true)
+    private String version;
+
+    // Paths
+    @Parameter(names = "--files", required = true)
+    private File filesDir;
+    @Parameter(names = "--manifest-dest", required = true)
+    private File manifestPath;
+    @Parameter(names = "--objects-dest", required = true)
+    private File objectsDir;
+
+    // Misc
     @Parameter(names = "--pretty-print")
     private boolean prettyPrinting;
 
