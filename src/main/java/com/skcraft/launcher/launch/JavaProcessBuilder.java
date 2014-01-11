@@ -79,7 +79,7 @@ public class JavaProcessBuilder {
     public List<String> buildCommand() {
         List<String> command = new ArrayList<String>();
 
-        if(getJvmPath() != null) {
+        if (getJvmPath() != null) {
             command.add(getJvmPath() + File.separator + "java");
         } else {
             command.add("java");
