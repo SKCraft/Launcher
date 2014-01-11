@@ -6,8 +6,6 @@
 
 package com.skcraft.launcher.launch;
 
-import com.skcraft.launcher.util.Environment;
-import com.skcraft.launcher.util.Platform;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -81,7 +79,7 @@ public class JavaProcessBuilder {
     public List<String> buildCommand() {
         List<String> command = new ArrayList<String>();
 
-        if(Environment.getInstance().getPlatform() == Platform.WINDOWS) {
+        if(getJvmPath() != null) {
             command.add(getJvmPath() + File.separator + "java");
         } else {
             command.add("java");
