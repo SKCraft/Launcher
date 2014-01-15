@@ -7,6 +7,9 @@
 package com.skcraft.launcher.model.modpack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
 import com.skcraft.launcher.install.InstallLog;
 import com.skcraft.launcher.install.InstallLogFileMover;
 import com.skcraft.launcher.install.Installer;
@@ -17,7 +20,7 @@ import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,6 +30,7 @@ import static com.skcraft.launcher.LauncherUtils.concat;
 @EqualsAndHashCode(callSuper = false)
 public class FileInstall extends ManifestEntry {
 
+    private static HashFunction hf = Hashing.sha1();
     private String version;
     private String hash;
     private String location;
@@ -46,7 +50,7 @@ public class FileInstall extends ManifestEntry {
 
     @Override
     public void install(@NonNull Installer installer, @NonNull InstallLog log,
-                        @NonNull UpdateCache cache, @NonNull File contentDir) throws MalformedURLException {
+                        @NonNull UpdateCache cache, @NonNull File contentDir) throws IOException {
         if (getWhen() != null && !getWhen().matches()) {
             return;
         }
@@ -56,8 +60,7 @@ public class FileInstall extends ManifestEntry {
         String fileVersion = getImpliedVersion();
         URL url = concat(getManifest().getObjectsUrl(), getLocation());
 
-        if (!(isUserFile() && targetFile.exists()) &&
-                (!targetFile.exists() || cache.mark(FilenameUtils.normalize(targetPath), fileVersion))) {
+        if (shouldUpdate(cache, targetFile)) {
             long size = this.size;
             if (size <= 0) {
                 size = 10 * 1024;
@@ -68,6 +71,25 @@ public class FileInstall extends ManifestEntry {
         } else {
             log.add(to, to);
         }
+    }
+
+    private boolean shouldUpdate(UpdateCache cache, File targetFile) throws IOException {
+        if (targetFile.exists() && isUserFile()) {
+            return false;
+        }
+
+        if (!targetFile.exists()) {
+            return true;
+        }
+
+        if (hash != null) {
+            String existingHash = Files.hash(targetFile, hf).toString();
+            if (existingHash.equalsIgnoreCase(hash)) {
+                return false;
+            }
+        }
+
+        return cache.mark(FilenameUtils.normalize(getTargetPath()), getImpliedVersion());
     }
 
 }
