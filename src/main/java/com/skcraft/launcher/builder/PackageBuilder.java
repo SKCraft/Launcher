@@ -94,7 +94,7 @@ public class PackageBuilder {
     public void writeManifest(@NonNull File path) throws IOException {
         manifest.setFeatures(applicator.getFeaturesInUse());
         validateManifest();
-        path.getParentFile().mkdirs();
+        path.getAbsoluteFile().getParentFile().mkdirs();
         writer.writeValue(path, manifest);
     }
 
