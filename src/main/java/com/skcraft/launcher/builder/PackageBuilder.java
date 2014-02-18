@@ -93,6 +93,10 @@ public class PackageBuilder {
 
     public void writeManifest(@NonNull File path) throws IOException {
         manifest.setFeatures(applicator.getFeaturesInUse());
+        VersionManifest versionManifest = manifest.getVersionManifest();
+        if (versionManfiest != null) {
+            versionManifest.setId(manifest.getGameVersion());
+        }
         validateManifest();
         path.getAbsoluteFile().getParentFile().mkdirs();
         writer.writeValue(path, manifest);
