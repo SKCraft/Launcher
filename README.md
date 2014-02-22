@@ -46,9 +46,14 @@ to remove the branding and change some property files. All of this is documented
 
 Note that documentation may be lacking in some places. If you run into problems,
 **do not be hesistant to ask**. While the launcher versions have always had many features,
-documentation has always been lacking due to time constraints. The launcher also exists
-primarily for my server and not for the purpose of providing a platform, but
-we try to make as many resources available as possible.
+documentation has always been lacking due to time constraints.
+
+The launcher also exists primarily for my server, but we try to make as many resources
+available as possible. The launcher will be supported for some time. If you
+want to contact me about some sort of partnership, want to make the launcher the official
+launcher for something, please email me (see [my website](http://www.sk89q.com/contact/)).
+While you do not have to do this, I can make future decisions with awareness of what
+the needs of other users may be.
 
 Compiling
 ---------
