@@ -1,43 +1,54 @@
 SKCraft Launcher
 ================
 
-This launcher features a powerful package deployment system for 
-Minecraft. We use it to provide updates for our server, and you may 
-find it useful too.
+This project provides an open-source Minecraft launcher platform for downloading,
+installing, and updating modpacks.
 
-Unlike the previous iteration of the launcher,
-due to time constraints, we have gone back to making launchers suited for
-one server (or one provider), meaning that you will have to modify the
-launcher as necessary and distribute your own .exe, .jar, .app files
-to fit your requirements. However, this is fairly easy to do because
-nearly every string has been translated, and all the important
-properties reside in one single file. See [the 
-relevant page](http://confluence.skcraft.com/display/LAUN/Launcher+Customization) 
-for more information. You are invited to fork this repository on
-GitHub and make the necessary changes.
+Introduction
+------------
 
-For the time being, the launcher is no longer a general purpose
-Minecraft launcher.
+We've maintained this launcher since the days of Minecraft Alpha (circa 2010) for sk89q's
+(who you may know as the author of WorldEdit, WorldGuard, etc.) Minecraft server.
+It continues to be maintained because other launchers are more difficult
+to use, require more work to do everything, have fewer features, have come and gone,
+and are not open source. (Plus, we can brand the entire launcher as needed and have full
+control over its direction.)
+
+* Users can very easily select and install modpacks. The interface makes it fairly
+  clear the available options.
+* When building the modpack, convention is preferred over configuration. We do not like
+  having to maintain configuration files (or perhaps just I).
+* The server modpack can be built from the same folder. (On previous launcher versions, we
+  accomplished this with a separate Python script that was not released. It was a pretty
+  old script, because it was made for the days when you had separate client and server 
+  .jar files for mods.)
+* The update system is extremely powerful and versatile, with incremental updates, file
+  removal detection, optional feature/mod selection, and so on.
+
+For those are familiar with the 3.x launcher series, be aware that 3.x also served
+as a general-purpose launcher. Unfortunately, that also split time away from "making a good
+modpack/server launcher" and so that goal has been suspended for the time being. With
+that in mind, you **no longer** ask users to install URLs for individual modpacks; rather,
+you provide a URL that has a list of all available modpacks. This was a long desired
+feature, but was never done due to time constraints.
+
+This repository holds the 4.x version. As you may know, MC 1.6 changed how the
+game was launched. Since the 3.x codebase was fairly ancient, the launcher was rewritten
+to support MC 1.6 but primarily to also clean up the code. XML was dropped because
+we have to bundle a JSON library now anyway, and we all know how much everyone hates XML.
+
+Lastly, the source in this repository is the one for my (sk89q) server, so you will have
+to remove the branding and change some property files. All of this is documented on the wiki.
 
 * [Home page](http://opensource.skcraft.com/)
 * [Documentation](http://confluence.skcraft.com/display/LAUN/Launcher)
 * [Issue tracker](http://issues.skcraft.com/browse/LAUN)
 
-Architectural Changes from 3.x
-------------------------------
-
-This launcher has gone through two major updates since the days
-of Minecraft Alpha, but the update system (and its features) has been carried
-over between launcher versions. The biggest change from 
-[version 3.x](https://github.com/sk89q/skmclauncher) is perhaps the changeover
-to JSON from XML due to the new requirement that a JSON parsing
-library must be bundled with the launcher (we use Jackson JSON). Prior
-versions of the launcher utilized the JAXB implementation bundled with
-the Java runtime.
-
-Also note that we've decided to bundle additional libraries (notably
-Guava), which brings the file size of the launcher up by a few
-megabytes, which is fairly negligible.
+Note that documentation may be lacking in some places. If you run into problems,
+**do not be hesistant to ask**. While the launcher versions have always had many features,
+documentation has always been lacking due to time constraints. The launcher also exists
+primarily for my server and not for the purpose of providing a platform, but
+we try to make as many resources available as possible.
 
 Compiling
 ---------
