@@ -26,7 +26,9 @@ public class ServerCopyExport extends DirectoryWalker {
 
     @Override
     protected DirectoryBehavior getBehavior(String name) {
-        if (name.equals("_SERVER")) {
+        if (name.startsWith(".")) {
+            return DirectoryBehavior.SKIP;
+        } else if (name.equals("_SERVER")) {
             return DirectoryBehavior.IGNORE;
         } else if (name.equals("_CLIENT")) {
             return DirectoryBehavior.SKIP;
