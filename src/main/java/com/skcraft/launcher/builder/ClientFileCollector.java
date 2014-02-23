@@ -71,11 +71,11 @@ public class ClientFileCollector extends DirectoryWalker {
     }
 
     public static DirectoryBehavior getDirectoryBehavior(@NonNull String name) {
-        if (name.startsWith(".")) {
-            return DirectoryBehavior.SKIP;
-        } else if (name.equals("_OPTIONAL")) {
+        if (name.equals("_OPTIONAL")) {
             return DirectoryBehavior.IGNORE;
         } else if (name.equals("_SERVER")) {
+            return DirectoryBehavior.SKIP;
+        } else if (name.startsWith(".")) {
             return DirectoryBehavior.SKIP;
         } else if (name.equals("_CLIENT")) {
             return DirectoryBehavior.IGNORE;
