@@ -23,25 +23,57 @@ import java.util.logging.Level;
 
 import static com.skcraft.launcher.util.SharedLocale._;
 
+/**
+ * Represents a directory that stores assets for Minecraft. The class has
+ * various methods that abstract operations involving the assets (such
+ * as getting the path to a certain object).
+ */
 @Log
 public class AssetsRoot {
 
     @Getter
     private final File dir;
 
-    public AssetsRoot(File dir) {
+    /**
+     * Create a new instance.
+     *
+     * @param dir the directory to the assets folder
+     */
+    public AssetsRoot(@NonNull File dir) {
         this.dir = dir;
     }
 
+    /**
+     * Get the path to the index .json file for a version manfiest.
+     *
+     * @param versionManifest the version manifest
+     * @return the file, which may not exist
+     */
     public File getIndexPath(VersionManifest versionManifest) {
         return new File(dir, "indexes/" + versionManifest.getAssetsIndex() + ".json");
     }
 
+    /**
+     * Get the local path for a given asset.
+     *
+     * @param asset the asset
+     * @return the file, which may not exist
+     */
     public File getObjectPath(Asset asset) {
         String hash = asset.getHash();
         return new File(dir, "objects/" + hash.substring(0, 2) + "/" + hash);
     }
 
+    /**
+     * Create an instance of the assets tree builder, which copies the indexed
+     * assets (identified by hashes) into a directory where the assets
+     * have been renamed and moved to their real names and locations
+     * (i.e. sounds/whatever.ogg).
+     *
+     * @param versionManifest the version manifest
+     * @return the builder
+     * @throws LauncherException
+     */
     public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) throws LauncherException {
         String indexId = versionManifest.getAssetsIndex();
         File path = getIndexPath(versionManifest);

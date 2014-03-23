@@ -29,28 +29,58 @@ import java.util.concurrent.Callable;
 import static com.skcraft.launcher.LauncherUtils.concat;
 import static com.skcraft.launcher.util.SharedLocale._;
 
+/**
+ * Stores the list of instances.
+ */
 @Log
 public class InstanceList {
 
     private final Launcher launcher;
     @Getter private final List<Instance> instances = new ArrayList<Instance>();
 
+    /**
+     * Create a new instance list.
+     *
+     * @param launcher the launcher
+     */
     public InstanceList(@NonNull Launcher launcher) {
         this.launcher = launcher;
     }
 
+    /**
+     * Get the instance at a particular index.
+     *
+     * @param index the index
+     * @return the instance
+     */
     public synchronized Instance get(int index) {
         return instances.get(index);
     }
 
+    /**
+     * Get the number of instances.
+     *
+     * @return the number of instances
+     */
     public synchronized int size() {
         return instances.size();
     }
 
+    /**
+     * Create a worker that loads the list of instances from disk and from
+     * the remote list of packages.
+     *
+     * @return the worker
+     */
     public Enumerator createEnumerator() {
         return new Enumerator();
     }
 
+    /**
+     * Get a list of selected instances.
+     *
+     * @return a list of instances
+     */
     public synchronized List<Instance> getSelected() {
         List<Instance> selected = new ArrayList<Instance>();
         for (Instance instance : instances) {
@@ -62,6 +92,9 @@ public class InstanceList {
         return selected;
     }
 
+    /**
+     * Sort the list of instances.
+     */
     public synchronized void sort() {
         Collections.sort(instances);
     }

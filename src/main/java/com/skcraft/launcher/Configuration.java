@@ -9,6 +9,14 @@ package com.skcraft.launcher;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+/**
+ * The configuration for the launcher.
+ * </p>
+ * Default values are stored as field values. Note that if a default
+ * value is changed after the launcher has been deployed, it may not take effect
+ * for users who have already used the launcher because the old default
+ * values would have been written to disk.
+ */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Configuration {

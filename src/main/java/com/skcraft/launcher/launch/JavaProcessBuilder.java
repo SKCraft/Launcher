@@ -17,6 +17,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * A tool to build the entire command line used to launch a Java process.
+ * It combines flags, memory settings, arguments, the class path, and
+ * the main class.
+ */
 @ToString
 public class JavaProcessBuilder {
 

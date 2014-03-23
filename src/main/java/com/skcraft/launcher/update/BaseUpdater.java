@@ -39,6 +39,16 @@ import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.LauncherUtils.concat;
 import static com.skcraft.launcher.util.SharedLocale._;
 
+/**
+ * The base implementation of the various routines involved in downloading
+ * and updating Minecraft (including the launcher's modpacks), such as asset
+ * downloading, .jar downloading, and so on.
+ * </p>
+ * Updating actually starts in {@link com.skcraft.launcher.update.Updater},
+ * which is the update worker. This class exists to allow updaters that don't
+ * use the launcher's default modpack format to reuse these update
+ * routines. (It also makes the size of the <code>Updater</code> class smaller.)
+ */
 @Log
 public abstract class BaseUpdater {
 

@@ -19,8 +19,14 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 
 /**
- * Simple persistence framework that can bind an object to a file and later allow for
- * code utilizing the object to save it globally.
+ * Simple persistence framework that can read an object from a file, bind
+ * that object to that file, and allow any code having a reference to the
+ * object make changes to the object and save those changes back to disk.
+ * </p>
+ * For example:
+ * <pre>config = Persistence.load(file, Configuration.class);
+ * config.changeSomething();
+ * Persistence.commit(config);</pre>
  */
 @Log
 public final class Persistence {

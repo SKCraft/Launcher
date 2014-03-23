@@ -11,6 +11,9 @@ import lombok.Data;
 
 import java.io.File;
 
+/**
+ * The command line arguments that the launcher accepts.
+ */
 @Data
 public class LauncherArguments {
 

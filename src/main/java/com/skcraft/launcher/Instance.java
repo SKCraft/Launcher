@@ -16,6 +16,10 @@ import java.io.File;
 import java.net.URL;
 import java.util.Date;
 
+/**
+ * An instance is a profile that represents one particular installation
+ * of the game, with separate files and so on.
+ */
 @Data
 public class Instance implements Comparable<Instance> {
 
@@ -34,31 +38,64 @@ public class Instance implements Comparable<Instance> {
     @JsonIgnore private boolean selected;
     @JsonIgnore private boolean local;
 
+    /**
+     * Get the tile of the instance, which might be the same as the
+     * instance name if no title is set.
+     *
+     * @return a title
+     */
     public String getTitle() {
         return title != null ? title : name;
     }
 
+    /**
+     * Update the given process builder with launch settings that are
+     * specific to this instance.
+     *
+     * @param builder the process builder
+     */
     public void modify(JavaProcessBuilder builder) {
         if (launchModifier != null) {
             launchModifier.modify(builder);
         }
     }
 
+    /**
+     * Get the file for the directory where Minecraft's game files are
+     * stored, including user files (screenshots, etc.).
+     *
+     * @return the content directory, which may not exist
+     */
     @JsonIgnore
     public File getContentDir() {
         return new File(dir, "minecraft");
     }
 
+    /**
+     * Get the file for the package manifest.
+     *
+     * @return the manifest path, which may not exist
+     */
     @JsonIgnore
     public File getManifestPath() {
         return new File(dir, "manifest.json");
     }
 
+    /**
+     * Get the file for the Minecraft version manfiest file.
+     *
+     * @return the version path, which may not exist
+     */
     @JsonIgnore
     public File getVersionPath() {
         return new File(dir, "version.json");
     }
 
+    /**
+     * Get the file for the custom JAR file.
+     *
+     * @return the JAR file, which may not exist
+     */
     @JsonIgnore
     public File getCustomJarPath() {
         return new File(getContentDir(), "custom_jar.jar");
