@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher;
 
 import com.beust.jcommander.JCommander;
@@ -48,12 +47,18 @@ public final class Launcher {
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
-    @Getter private final File baseDir;
-    @Getter private final Properties properties;
-    @Getter private final InstanceList instances;
-    @Getter private final Configuration config;
-    @Getter private final AccountList accounts;
-    @Getter private final AssetsRoot assets;
+    @Getter
+    private final File baseDir;
+    @Getter
+    private final Properties properties;
+    @Getter
+    private final InstanceList instances;
+    @Getter
+    private final Configuration config;
+    @Getter
+    private final AccountList accounts;
+    @Getter
+    private final AssetsRoot assets;
 
     /**
      * Create a new launcher instance with the given base directory.
@@ -320,6 +325,19 @@ public final class Launcher {
      *
      * @param args args
      */
+    private static String defaultDirectory() {
+        String OS = System.getProperty("os.name").toUpperCase();
+        if (OS.contains("WIN")) {
+            return System.getenv("APPDATA");
+        } else if (OS.contains("MAC")) {
+            return System.getProperty("user.home") + "/Library/Application "
+                    + "Support";
+        } else if (OS.contains("NUX")) {
+            return System.getProperty("user.home");
+        }
+        return System.getProperty("user.dir");
+    }
+
     public static void main(String[] args) {
         SimpleLogFormatter.configureGlobalLogger();
 
@@ -335,7 +353,7 @@ public final class Launcher {
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
 
-        File dir = options.getDir();
+        File dir = new File(defaultDirectory() + "LolnetData/");
         if (dir != null) {
             log.info("Using given base directory " + dir.getAbsolutePath());
         } else {
@@ -355,8 +373,8 @@ public final class Launcher {
                     new LauncherFrame(launcher).setVisible(true);
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);
-                    SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a " +
-                            "problem was encountered.", "Launcher error", t);
+                    SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a "
+                            + "problem was encountered.", "Launcher error", t);
                 }
             }
         });
