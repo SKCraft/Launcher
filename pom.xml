@@ -47,7 +47,7 @@
   </dependencies>
 
   <build>
-    <finalName>SKCraftLauncher</finalName>
+    <finalName>LolnetLauncher</finalName>
 
     <resources>
       <resource>
