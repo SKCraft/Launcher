@@ -328,14 +328,14 @@ public final class Launcher {
     private static String defaultDirectory() {
         String OS = System.getProperty("os.name").toUpperCase();
         if (OS.contains("WIN")) {
-            return System.getenv("APPDATA") + "/";
+            return System.getenv("APPDATA");
         } else if (OS.contains("MAC")) {
                 return System.getProperty("user.home") + "/Library/Application "
                     + "Support" + "/";
         } else if (OS.contains("NUX")) {
-            return System.getProperty("user.home")  + "/"; 
+            return System.getProperty("user.home"); 
         }
-        return System.getProperty("user.dir") + "/";
+        return System.getProperty("user.dir");
     }
 
     public static void main(String[] args) {
@@ -353,7 +353,7 @@ public final class Launcher {
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
 
-        File dir = new File(defaultDirectory() + "LolnetData/");
+        File dir = new File(defaultDirectory() + File.separator+ "LolnetData/");
         if (dir != null) {
             log.info("Using given base directory " + dir.getAbsolutePath());
         } else {
