@@ -3,46 +3,47 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.dialog;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
-import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.launch.LaunchProcessHandler;
+import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.persistence.Persistence;
-import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.selfupdate.SelfUpdater;
+import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.update.HardResetter;
 import com.skcraft.launcher.update.Remover;
 import com.skcraft.launcher.update.Updater;
+import static com.skcraft.launcher.util.SharedLocale._;
 import com.skcraft.launcher.util.SwingExecutor;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import org.apache.commons.io.FileUtils;
-
-import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
-
-import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
-import static com.skcraft.launcher.util.SharedLocale._;
+import java.util.logging.Logger;
+import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.ThreadLolnetPingWindow;
+import org.apache.commons.io.FileUtils;
 
 /**
  * The main launcher frame.
@@ -61,6 +62,7 @@ public class LauncherFrame extends JFrame {
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(_("launcher.launch"));
+    private final JButton lolnetPingButton = new JButton("Check Servers...");
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(_("launcher.options"));
     private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
@@ -105,6 +107,7 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
+        buttonsPanel.addElement(lolnetPingButton);
         buttonsPanel.addElement(optionsButton);
         buttonsPanel.addElement(launchButton);
         container.setLayout(new BorderLayout());
@@ -144,6 +147,14 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 showOptions();
             }
+        });
+
+        lolnetPingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showPingServer();
+            }
+
         });
 
         launchButton.addActionListener(new ActionListener() {
@@ -367,7 +378,7 @@ public class LauncherFrame extends JFrame {
                 launcher.getExecutor().submit(resetter), resetter);
 
         // Show progress
-        ProgressDialog.showProgress( this, future, _("instance.resettingTitle"),
+        ProgressDialog.showProgress(this, future, _("instance.resettingTitle"),
                 _("instance.resettingStatus", instance.getTitle()));
         SwingHelper.addErrorDialogCallback(this, future);
 
@@ -404,6 +415,10 @@ public class LauncherFrame extends JFrame {
     private void showOptions() {
         ConfigurationDialog configDialog = new ConfigurationDialog(this, launcher);
         configDialog.setVisible(true);
+    }
+
+    private void showPingServer() {
+        new ThreadLolnetPingWindow();
     }
 
     private void launch() {
