@@ -144,7 +144,8 @@ public class LoginDialog extends JDialog {
         offlineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
+                
+                setResult(new OfflineSession(idCombo.getSelectedItem().toString()));
                 removeListeners();
                 dispose();
             }
