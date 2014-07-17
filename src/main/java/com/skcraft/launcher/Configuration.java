@@ -29,7 +29,7 @@ public class Configuration {
     private String jvmArgs;
     private int minMemory = 1024;
     private int maxMemory = 2048;
-    private int permGen = 128;
+    private int permGen = 256;
     private int windowWidth = 854;
     private int widowHeight = 480;
     private boolean proxyEnabled = false;
@@ -66,6 +66,10 @@ public class Configuration {
                 }
 
             }
+        }
+        if (System.getProperty("sun.arch.data.model").equalsIgnoreCase("32") && maxMemory >= 1244)
+        {
+            maxMemory = 1244;
         }
 
     }
