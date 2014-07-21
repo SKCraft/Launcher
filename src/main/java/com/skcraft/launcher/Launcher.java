@@ -20,12 +20,6 @@ import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import org.apache.commons.io.FileUtils;
-
-import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -36,6 +30,13 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+
+import javax.swing.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
+import org.apache.commons.io.FileUtils;
 
 /**
  * The main entry point for the launcher.
@@ -355,6 +356,7 @@ public final class Launcher {
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
 
         File dir = new File(defaultDirectory() + File.separator+ "LolnetData/");
+        PrivatePrivatePackagesManager.setDirectory(dir);
         if (dir != null) {
             log.info("Using given base directory " + dir.getAbsolutePath());
         } else {

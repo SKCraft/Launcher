@@ -30,8 +30,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -42,6 +48,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
 import nz.co.lolnet.james137137.ThreadLolnetPingWindow;
 import org.apache.commons.io.FileUtils;
 
@@ -63,6 +70,7 @@ public class LauncherFrame extends JFrame {
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(_("launcher.launch"));
     private final JButton lolnetPingButton = new JButton("Check Servers...");
+    private final JButton lolnetPrivatePackButton = new JButton("Private Pack...");
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(_("launcher.options"));
     private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
@@ -107,6 +115,7 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
+        buttonsPanel.addElement(lolnetPrivatePackButton);
         buttonsPanel.addElement(lolnetPingButton);
         buttonsPanel.addElement(optionsButton);
         buttonsPanel.addElement(launchButton);
@@ -147,6 +156,14 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 showOptions();
             }
+        });
+
+        lolnetPrivatePackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                launchPrivatePackPannel();
+            }
+
         });
 
         lolnetPingButton.addActionListener(new ActionListener() {
@@ -419,6 +436,115 @@ public class LauncherFrame extends JFrame {
 
     private void showPingServer() {
         new ThreadLolnetPingWindow();
+    }
+
+    private void launchPrivatePackPannel() {
+        LinedBoxPanel pPButtonsPanel = new LinedBoxPanel(true).fullyPadded();
+        JFrame frame = new JFrame("Private Pack Code here");
+        JButton pPAddButton = new JButton("Add");
+        JButton pPCloseButton = new JButton("Close");
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frame.setSize(new Dimension(300, 150));
+        frame.setResizable(false);
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+        JTextField field = new JTextField();
+        field.setBorder(BorderFactory.createLineBorder(Color.black));
+        final JTextArea area = new JTextArea(100, 80);
+        JScrollPane scrollPane = new JScrollPane(area);
+        area.setEditable(true);
+        pPButtonsPanel.addGlue();
+        pPButtonsPanel.add(pPAddButton, BorderLayout.EAST);
+        pPButtonsPanel.add(pPCloseButton, BorderLayout.EAST);
+
+        frame.add(pPButtonsPanel, BorderLayout.SOUTH);
+        frame.add(scrollPane);
+        frame.setVisible(true);
+
+        pPCloseButton.addActionListener(ActionListeners.dispose(frame));
+
+        pPAddButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text = area.getText();
+                String[] split = text.split("\n");
+                text = "";
+                BufferedReader br;
+                for (int i = 0; i < split.length; i++) {
+                    String code = split[i];
+                    boolean alreadyAdded = false;
+                    if (code.equalsIgnoreCase("showmethemoney")) {
+                        
+                        /*lolnetPingButton.setVisible(true);
+                         try {
+                         File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                         if (!codeFile.exists()) {
+                         codeFile.createNewFile();
+                         }
+                         br = new BufferedReader(new FileReader(codeFile));
+                         for (String line; (line = br.readLine()) != null;) {
+                         if (line.equalsIgnoreCase("showmethemoney")) {
+                         alreadyAdded = true;
+                         }
+                         }
+                         if (!alreadyAdded)
+                         {
+                         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                         out.println(code);
+                         out.close();
+                         split[i] = "Done";
+                         }
+                        
+                         } catch (Exception e1) {
+                         split[i] = "error";
+                         }*/
+
+                    } else {
+
+                        try {
+                            File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                            if (!codeFile.exists()) {
+                                codeFile.createNewFile();
+                            }
+                            br = new BufferedReader(new FileReader(codeFile));
+                            for (String line; (line = br.readLine()) != null;) {
+                                if (line.startsWith("lolnet:")) {
+                                    if (line.split(":")[1].equalsIgnoreCase(code)) {
+                                        alreadyAdded = true;
+                                    }
+                                }
+                            }
+
+                            if (!alreadyAdded) {
+                                URL oracle = new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s");
+                                BufferedReader in = new BufferedReader(
+                                        new InputStreamReader(oracle.openStream()));
+
+                                String inputLine;
+                                while ((inputLine = in.readLine()) != null) {
+                                    if (inputLine.length() >= 1) {
+                                        break;
+                                    }
+                                }
+                                in.close();
+
+                                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                                out.println("lolnet:" + code);
+                                out.close();
+                                split[i] = "Done";
+                            } else {
+                                split[i] = "alreadyAdded";
+                            }
+                        } catch (IOException ex) {
+                            split[i] = "WrongCode";
+                        }
+                    }
+                    text += split[i] + "\n";
+                }
+                area.setText(text);
+            }
+        });
     }
 
     private void launch() {
