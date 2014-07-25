@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
 
 import javax.swing.*;
 import lombok.Getter;
@@ -60,6 +61,8 @@ public final class Launcher {
     private final AccountList accounts;
     @Getter
     private final AssetsRoot assets;
+
+    public static File dataDir;
 
     /**
      * Create a new launcher instance with the given base directory.
@@ -332,10 +335,10 @@ public final class Launcher {
         if (OS.contains("WIN")) {
             return System.getenv("APPDATA");
         } else if (OS.contains("MAC")) {
-                return System.getProperty("user.home") + "/Library/Application "
+            return System.getProperty("user.home") + "/Library/Application "
                     + "Support" + "/";
         } else if (OS.contains("NUX")) {
-            return System.getProperty("user.home"); 
+            return System.getProperty("user.home");
         }
         return System.getProperty("user.dir");
     }
@@ -355,16 +358,24 @@ public final class Launcher {
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
 
-        File dir = new File(defaultDirectory() + File.separator+ "LolnetData/");
-        PrivatePrivatePackagesManager.setDirectory(dir);
-        if (dir != null) {
-            log.info("Using given base directory " + dir.getAbsolutePath());
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        String currentDataPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
+        if (currentDataPath == null || currentDataPath.equalsIgnoreCase("")) {
+            currentDataPath = defaultDirectory() + File.separator + "LolnetData/";
+        }
+        Launcher.dataDir = new File(currentDataPath);
+        if (!Launcher.dataDir.exists()) {
+            Launcher.dataDir = new File(defaultDirectory() + File.separator + "LolnetData/");
+        }
+        PrivatePrivatePackagesManager.setDirectory(dataDir);
+        if (dataDir != null) {
+            log.info("Using given base directory " + dataDir.getAbsolutePath());
         } else {
-            dir = new File(".");
-            log.info("Using current directory " + dir.getAbsolutePath());
+            dataDir = new File(".");
+            log.info("Using current directory " + dataDir.getAbsolutePath());
         }
 
-        final File baseDir = dir;
+        final File baseDir = dataDir;
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override

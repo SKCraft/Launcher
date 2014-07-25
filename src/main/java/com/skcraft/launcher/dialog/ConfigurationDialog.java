@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import static com.skcraft.launcher.util.SharedLocale._;
+import java.io.File;
+import java.util.prefs.Preferences;
 
 /**
  * A dialog to modify configuration options.
@@ -47,9 +49,11 @@ public class ConfigurationDialog extends JDialog {
     private final FormPanel advancedPanel = new FormPanel();
     private final JTextField gameKeyText = new JTextField();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
+    private final LinedBoxPanel buttonsPanel2 = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(_("button.ok"));
     private final JButton cancelButton = new JButton(_("button.cancel"));
     private final JButton logButton = new JButton(_("options.launcherConsole"));
+    private final JButton changeDataStorageLocationButton = new JButton("Change Data Directory...");
 
     /**
      * Create a new configuration dialog.
@@ -112,6 +116,9 @@ public class ConfigurationDialog extends JDialog {
         tabbedPane.addTab(_("options.proxyTab"), SwingHelper.alignTabbedPane(proxySettingsPanel));
 
         advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
+        buttonsPanel2.addGlue();
+        buttonsPanel2.addElement(changeDataStorageLocationButton);
+        advancedPanel.add(buttonsPanel2);
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(_("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
@@ -140,6 +147,53 @@ public class ConfigurationDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ConsoleFrame.showMessages();
+            }
+        });
+        
+        changeDataStorageLocationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+                String currentPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
+                if (currentPath==null || currentPath.equalsIgnoreCase(""))
+                {
+                    currentPath = Launcher.dataDir.getAbsolutePath();
+                }
+                String FilePath = JOptionPane.showInputDialog("Enter Data Storage Location",
+                        currentPath);
+                if (FilePath==null || FilePath.equalsIgnoreCase(""))
+                {
+                    return;
+                }
+                File file = new File(new File(FilePath).getParent());
+                
+                if (file.exists())
+                {
+                    File folder = new File(FilePath);
+                    boolean mkdirs = folder.mkdirs();
+                    if (folder.exists() || folder.mkdirs())
+                    {
+                        String oldPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
+                        userNodeForPackage.put("LolnetLauncherDataPath", FilePath);
+                        if (oldPath==null || oldPath.equalsIgnoreCase(""))
+                        {
+                         JOptionPane.showMessageDialog (null, "Changed. New path is now: " + FilePath,"success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);   
+                        }
+                        else
+                        {
+                            JOptionPane.showMessageDialog (null, "Path Changed from " + oldPath+ ".\n New path is now: " + FilePath + "\n Please restart Launcher to take effect","success", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        
+                    }
+                    else
+                    {
+                      JOptionPane.showMessageDialog (null, "Failed to create directory. Do you have permission?","Error: no permission", JOptionPane.ERROR_MESSAGE);  
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog (null, "File Path does not exist: "+ file.getPath(), "Error: No Path Found", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
     }
