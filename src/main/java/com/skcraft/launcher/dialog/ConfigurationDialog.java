@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.dialog;
 
 import com.skcraft.launcher.Configuration;
@@ -19,6 +18,9 @@ import java.awt.event.ActionListener;
 
 import static com.skcraft.launcher.util.SharedLocale._;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 /**
@@ -149,50 +151,54 @@ public class ConfigurationDialog extends JDialog {
                 ConsoleFrame.showMessages();
             }
         });
-        
+
         changeDataStorageLocationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
                 String currentPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
-                if (currentPath==null || currentPath.equalsIgnoreCase(""))
-                {
+                if (currentPath == null || currentPath.equalsIgnoreCase("")) {
                     currentPath = Launcher.dataDir.getAbsolutePath();
                 }
                 String FilePath = JOptionPane.showInputDialog("Enter Data Storage Location",
                         currentPath);
-                if (FilePath==null || FilePath.equalsIgnoreCase(""))
-                {
+                if (FilePath == null || FilePath.equalsIgnoreCase("")) {
                     return;
                 }
                 File file = new File(new File(FilePath).getParent());
-                
-                if (file.exists())
-                {
+
+                if (file.exists()) {
                     File folder = new File(FilePath);
                     boolean mkdirs = folder.mkdirs();
-                    if (folder.exists() || folder.mkdirs())
-                    {
+                    if (folder.exists() || folder.mkdirs()) {
                         String oldPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
                         userNodeForPackage.put("LolnetLauncherDataPath", FilePath);
-                        if (oldPath==null || oldPath.equalsIgnoreCase(""))
-                        {
-                         JOptionPane.showMessageDialog (null, "Changed. New path is now: " + FilePath,"success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);   
+                        if (oldPath == null || oldPath.equalsIgnoreCase("")) {
+                            JOptionPane.showMessageDialog(null, "Changed. New path is now: " + FilePath, "success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Path Changed from " + oldPath + ".\n New path is now: " + FilePath + "\n Please restart Launcher to take effect", "success", JOptionPane.INFORMATION_MESSAGE);
                         }
-                        else
-                        {
-                            JOptionPane.showMessageDialog (null, "Path Changed from " + oldPath+ ".\n New path is now: " + FilePath + "\n Please restart Launcher to take effect","success", JOptionPane.INFORMATION_MESSAGE);
+                        if (Launcher.launcherJarFile.getName().contains(".jar")) {
+                            if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                                try {
+                                    Runtime rt = Runtime.getRuntime();
+                                    Process pr = rt.exec("java -jar " + Launcher.launcherJarFile.getAbsolutePath());
+                                    // yes option
+                                } catch (IOException ex) {
+                                    Logger.getLogger(ConfigurationDialog.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                System.exit(0);
+                            } else {
+                                // no option
+                            }
                         }
-                        
+
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to create directory. Do you have permission?", "Error: no permission", JOptionPane.ERROR_MESSAGE);
                     }
-                    else
-                    {
-                      JOptionPane.showMessageDialog (null, "Failed to create directory. Do you have permission?","Error: no permission", JOptionPane.ERROR_MESSAGE);  
-                    }
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog (null, "File Path does not exist: "+ file.getPath(), "Error: No Path Found", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "File Path does not exist: " + file.getPath(), "Error: No Path Found", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

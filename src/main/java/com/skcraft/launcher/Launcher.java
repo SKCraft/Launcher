@@ -63,6 +63,7 @@ public final class Launcher {
     private final AssetsRoot assets;
 
     public static File dataDir;
+    public static File launcherJarFile;
 
     /**
      * Create a new launcher instance with the given base directory.
@@ -345,7 +346,7 @@ public final class Launcher {
 
     public static void main(String[] args) {
         SimpleLogFormatter.configureGlobalLogger();
-
+        launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         LauncherArguments options = new LauncherArguments();
         try {
             new JCommander(options, args);
