@@ -263,7 +263,12 @@ public class LauncherFrame extends JFrame {
 
     private void requestUpdate(URL url) {
         this.updateUrl = url;
-        selfUpdateButton.setVisible(true);
+        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update\n\nDo you wish to update?", "Launcher Update Available",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            selfUpdate();
+        } else {
+            // no option
+        }
     }
 
     /**
