@@ -40,6 +40,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -231,6 +232,21 @@ public class LauncherFrame extends JFrame {
                             _("launcher.selfUpdateCompleteTitle"),
                             null,
                             JOptionPane.INFORMATION_MESSAGE);
+                    if (Launcher.launcherJarFile.getName().contains(".jar")) {
+                        if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                            try {
+                                Runtime rt = Runtime.getRuntime();
+                                Process pr = rt.exec("java -jar " + Launcher.launcherJarFile.getAbsolutePath());
+                                // yes option
+                            } catch (IOException ex) {
+                                Logger.getLogger(ConfigurationDialog.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            System.exit(0);
+                        } else {
+                            // no option
+                        }
+                    }
                 }
 
                 @Override
@@ -472,7 +488,7 @@ public class LauncherFrame extends JFrame {
                     String code = split[i];
                     boolean alreadyAdded = false;
                     if (code.equalsIgnoreCase("showmethemoney")) {
-                        
+
                         /*lolnetPingButton.setVisible(true);
                          try {
                          File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
@@ -496,7 +512,6 @@ public class LauncherFrame extends JFrame {
                          } catch (Exception e1) {
                          split[i] = "error";
                          }*/
-
                     } else {
 
                         try {

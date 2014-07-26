@@ -37,6 +37,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
+import nz.co.lolnet.james137137.Updater;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -347,6 +348,18 @@ public final class Launcher {
     public static void main(String[] args) {
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        File Updater = new File(launcherJarFile.getParent(), "LolnetLauncherUpdater.jar");
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        String lolnetLauncherLatestUpdatePath = userNodeForPackage.get("LolnetLauncherLatestUpdate", "");
+        System.out.println("debug" + lolnetLauncherLatestUpdatePath);
+        if (lolnetLauncherLatestUpdatePath != null && !lolnetLauncherLatestUpdatePath.equalsIgnoreCase("")) {
+            new Updater(lolnetLauncherLatestUpdatePath);
+            userNodeForPackage.put("LolnetLauncherLatestUpdate", "");
+        }
+        if (Updater.exists()) {
+
+            new Updater(Updater, "delete");
+        }
         LauncherArguments options = new LauncherArguments();
         try {
             new JCommander(options, args);
@@ -358,8 +371,6 @@ public final class Launcher {
 
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
-
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
         String currentDataPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
         if (currentDataPath == null || currentDataPath.equalsIgnoreCase("")) {
             currentDataPath = defaultDirectory() + File.separator + "LolnetData/";

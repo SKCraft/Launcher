@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.util.SharedLocale._;
+import nz.co.lolnet.james137137.Updater;
 
 /**
  * A worker that checks for an update to the launcher. A URL is returned
@@ -47,6 +48,7 @@ public class UpdateChecker implements Callable<URL> {
             ComparableVersion latest = new ComparableVersion(versionInfo.getVersion());
 
             UpdateChecker.log.info("Latest version is " + latest + ", while current is " + current);
+            
 
             if (latest.compareTo(current) >= 1) {
                 UpdateChecker.log.info("Update available at " + versionInfo.getUrl());
