@@ -48,8 +48,10 @@ public class UpdateChecker implements Callable<URL> {
             ComparableVersion latest = new ComparableVersion(versionInfo.getVersion());
 
             UpdateChecker.log.info("Latest version is " + latest + ", while current is " + current);
-            
-
+            if (current.toString().contains("SNAPSHOT"))
+            {
+                current = new ComparableVersion(launcher.getVersionWithoutSnapshot());
+            }
             if (latest.compareTo(current) >= 1) {
                 UpdateChecker.log.info("Update available at " + versionInfo.getUrl());
                 return versionInfo.getUrl();
