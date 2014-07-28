@@ -68,7 +68,11 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getContentDir() {
-        return new File(dir, "minecraft");
+        File MCDir = new File(dir, "minecraft");
+        if(!MCDir.exists()){
+            MCDir.mkdirs();
+        }
+        return MCDir;
     }
 
     /**
