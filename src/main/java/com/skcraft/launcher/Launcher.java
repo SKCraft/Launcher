@@ -108,14 +108,6 @@ public final class Launcher {
         }
         return version;
     }
-    
-    public String getVersionWithoutSnapshot() {
-        String version = getProperties().getProperty("version");
-        if (version.equals("${project.version}")) {
-            return "1.0.0-SNAPSHOT";
-        }
-        return version.replaceAll("-SNAPSHOT", "");
-    }
 
     /**
      * Get a login service.
