@@ -527,7 +527,7 @@ public class LauncherFrame extends JFrame {
                             br = new BufferedReader(new FileReader(codeFile));
                             for (String line; (line = br.readLine()) != null;) {
                                 if (line.startsWith("lolnet:")) {
-                                    if (line.split(":")[1].equalsIgnoreCase(code)) {
+                                    if (line.split(":")[1].equalsIgnoreCase(code.replaceAll(" ", ""))) {
                                         alreadyAdded = true;
                                     }
                                 }
