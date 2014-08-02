@@ -29,7 +29,8 @@ import java.util.List;
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         setterVisibility = JsonAutoDetect.Visibility.NONE,
         fieldVisibility = JsonAutoDetect.Visibility.NONE)
-public class AccountList extends AbstractListModel implements ComboBoxModel {
+public class AccountList extends AbstractListModel implements ComboBoxModel
+{
 
     @JsonProperty
     @Getter
@@ -38,14 +39,16 @@ public class AccountList extends AbstractListModel implements ComboBoxModel {
 
     /**
      * Add a new account.
-     *
+     * <p/>
      * <p>If there is already an existing account with the same ID, then the
      * new account will not be added.</p>
      *
      * @param account the account to add
      */
-    public synchronized void add(@NonNull Account account) {
-        if (!accounts.contains(account)) {
+    public synchronized void add(@NonNull Account account)
+    {
+        if (!accounts.contains(account))
+        {
             accounts.add(account);
             Collections.sort(accounts);
             fireContentsChanged(this, 0, accounts.size());
@@ -57,11 +60,14 @@ public class AccountList extends AbstractListModel implements ComboBoxModel {
      *
      * @param account the account
      */
-    public synchronized void remove(@NonNull Account account) {
+    public synchronized void remove(@NonNull Account account)
+    {
         Iterator<Account> it = accounts.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext())
+        {
             Account other = it.next();
-            if (other.equals(account)) {
+            if (other.equals(account))
+            {
                 it.remove();
                 fireContentsChanged(this, 0, accounts.size() + 1);
                 break;
@@ -74,40 +80,53 @@ public class AccountList extends AbstractListModel implements ComboBoxModel {
      *
      * @param accounts the list of accounts
      */
-    public synchronized void setAccounts(@NonNull List<Account> accounts) {
+    public synchronized void setAccounts(@NonNull List<Account> accounts)
+    {
         this.accounts = accounts;
         Collections.sort(accounts);
     }
 
     @Override
     @JsonIgnore
-    public synchronized int getSize() {
+    public synchronized int getSize()
+    {
         return accounts.size();
     }
 
     @Override
-    public synchronized Account getElementAt(int index) {
-        try {
+    public synchronized Account getElementAt(int index)
+    {
+        try
+        {
             return accounts.get(index);
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e)
+        {
             return null;
         }
     }
 
     @Override
-    public void setSelectedItem(Object item) {
-        if (item == null) {
+    public void setSelectedItem(Object item)
+    {
+        if (item == null)
+        {
             selected = null;
             return;
         }
 
-        if (item instanceof Account) {
+        if (item instanceof Account)
+        {
             this.selected = (Account) item;
-        } else {
+        }
+        else
+        {
             String id = String.valueOf(item).trim();
             Account account = new Account(id);
-            for (Account test : accounts) {
-                if (test.equals(account)) {
+            for (Account test : accounts)
+            {
+                if (test.equals(account))
+                {
                     account = test;
                     break;
                 }
@@ -115,19 +134,23 @@ public class AccountList extends AbstractListModel implements ComboBoxModel {
             selected = account;
         }
 
-        if (selected.getId() == null || selected.getId().isEmpty()) {
+        if (selected.getId() == null || selected.getId().isEmpty())
+        {
             selected = null;
         }
     }
 
     @Override
     @JsonIgnore
-    public Account getSelectedItem() {
+    public Account getSelectedItem()
+    {
         return selected;
     }
 
-    public synchronized void forgetPasswords() {
-        for (Account account : accounts) {
+    public synchronized void forgetPasswords()
+    {
+        for (Account account : accounts)
+        {
             account.setPassword(null);
         }
     }

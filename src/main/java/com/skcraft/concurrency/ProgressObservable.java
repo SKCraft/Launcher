@@ -10,7 +10,8 @@ package com.skcraft.concurrency;
  * Implementations of this interface can provide information on the progress
  * of a task.
  */
-public interface ProgressObservable {
+public interface ProgressObservable
+{
 
     /**
      * Get the progress value as a number between 0 and 1 (inclusive), or -1

@@ -28,7 +28,8 @@ import java.util.TimerTask;
 import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
-public class ProgressDialog extends JDialog {
+public class ProgressDialog extends JDialog
+{
 
     private static WeakReference<ProgressDialog> lastDialogRef;
 
@@ -45,7 +46,8 @@ public class ProgressDialog extends JDialog {
     private final JButton logButton = new JButton(_("progress.viewLog"));
     private final JButton cancelButton = new JButton(_("button.cancel"));
 
-    public ProgressDialog(Window owner, String title, String message) {
+    public ProgressDialog(Window owner, String title, String message)
+    {
         super(owner, title, ModalityType.DOCUMENT_MODAL);
 
         setResizable(false);
@@ -57,10 +59,13 @@ public class ProgressDialog extends JDialog {
         setLocationRelativeTo(owner);
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
+        addWindowListener(new WindowAdapter()
+        {
             @Override
-            public void windowClosing(WindowEvent event) {
-                if (confirmCancel()) {
+            public void windowClosing(WindowEvent event)
+            {
+                if (confirmCancel())
+                {
                     cancel();
                     dispose();
                 }
@@ -68,20 +73,23 @@ public class ProgressDialog extends JDialog {
         });
     }
 
-    private void setCompactSize() {
+    private void setCompactSize()
+    {
         detailsButton.setText(_("progress.details"));
         logButton.setVisible(false);
         setMinimumSize(new Dimension(400, 100));
         pack();
     }
 
-    private void setDetailsSize() {
+    private void setDetailsSize()
+    {
         detailsButton.setText(_("progress.less"));
         logButton.setVisible(true);
         setSize(400, 350);
     }
 
-    private void initComponents() {
+    private void initComponents()
+    {
         progressBar.setMaximum(1000);
         progressBar.setMinimum(0);
         progressBar.setIndeterminate(true);
@@ -111,53 +119,69 @@ public class ProgressDialog extends JDialog {
         add(buttonsPanel, BorderLayout.SOUTH);
 
         textAreaPanel.setVisible(false);
-        cancelButton.addActionListener(new ActionListener() {
+        cancelButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                if (confirmCancel()) {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (confirmCancel())
+                {
                     cancel();
                     dispose();
                 }
             }
         });
 
-        detailsButton.addActionListener(new ActionListener() {
+        detailsButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 toggleDetails();
             }
         });
 
-        logButton.addActionListener(new ActionListener() {
+        logButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 ConsoleFrame.showMessages();
             }
         });
     }
 
-    private boolean confirmCancel() {
+    private boolean confirmCancel()
+    {
         return SwingHelper.confirmDialog(this, _("progress.confirmCancel"), _("progress.confirmCancelTitle"));
     }
 
-    protected void cancel() {
+    protected void cancel()
+    {
     }
 
-    private void toggleDetails() {
-        if (textAreaPanel.isVisible()) {
+    private void toggleDetails()
+    {
+        if (textAreaPanel.isVisible())
+        {
             textAreaPanel.setVisible(false);
             setCompactSize();
-        } else {
+        }
+        else
+        {
             textAreaPanel.setVisible(true);
             setDetailsSize();
         }
         setLocationRelativeTo(getOwner());
     }
 
-    public static void showProgress(final Window owner, final ObservableFuture<?> future, String title, String message) {
-        final ProgressDialog dialog = new ProgressDialog(owner, title, message) {
+    public static void showProgress(final Window owner, final ObservableFuture<?> future, String title, String message)
+    {
+        final ProgressDialog dialog = new ProgressDialog(owner, title, message)
+        {
             @Override
-            protected void cancel() {
+            protected void cancel()
+            {
                 future.cancel(true);
             }
         };
@@ -167,15 +191,18 @@ public class ProgressDialog extends JDialog {
         final Timer timer = new Timer();
         timer.scheduleAtFixedRate(new UpdateProgress(dialog, future), 400, 400);
 
-        Futures.addCallback(future, new FutureCallback<Object>() {
+        Futures.addCallback(future, new FutureCallback<Object>()
+        {
             @Override
-            public void onSuccess(Object result) {
+            public void onSuccess(Object result)
+            {
                 timer.cancel();
                 dialog.dispose();
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Throwable t)
+            {
                 timer.cancel();
                 dialog.dispose();
             }
@@ -184,53 +211,70 @@ public class ProgressDialog extends JDialog {
         dialog.setVisible(true);
     }
 
-    public static ProgressDialog getLastDialog() {
+    public static ProgressDialog getLastDialog()
+    {
         WeakReference<ProgressDialog> ref = lastDialogRef;
-        if (ref != null) {
+        if (ref != null)
+        {
             return ref.get();
         }
 
         return null;
     }
 
-    private static class UpdateProgress extends TimerTask {
+    private static class UpdateProgress extends TimerTask
+    {
+
         private final ProgressDialog dialog;
         private final ProgressObservable observable;
 
-        public UpdateProgress(ProgressDialog dialog, ProgressObservable observable) {
+        public UpdateProgress(ProgressDialog dialog, ProgressObservable observable)
+        {
             this.dialog = dialog;
             this.observable = observable;
         }
 
         @Override
-        public void run() {
-            SwingUtilities.invokeLater(new Runnable() {
+        public void run()
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     JProgressBar progressBar = dialog.progressBar;
                     JTextArea logText = dialog.logText;
                     JLabel label = dialog.label;
 
                     double progress = observable.getProgress();
-                    if (progress >= 0) {
+                    if (progress >= 0)
+                    {
                         dialog.setTitle(_("progress.percentTitle",
                                 Math.round(progress * 100 * 100) / 100.0, dialog.defaultTitle));
                         progressBar.setValue((int) (progress * 1000));
                         progressBar.setIndeterminate(false);
-                    } else {
-                        dialog.setTitle( dialog.defaultTitle);
+                    }
+                    else
+                    {
+                        dialog.setTitle(dialog.defaultTitle);
                         progressBar.setIndeterminate(true);
                     }
 
                     String status = observable.getStatus();
-                    if (status == null) {
+                    if (status == null)
+                    {
                         status = _("progress.defaultStatus");
                         label.setText(dialog.defaultMessage);
-                    } else {
+                    }
+                    else
+                    {
                         int index = status.indexOf('\n');
-                        if (index == -1) {
+                        if (index == -1)
+                        {
                             label.setText(status);
-                        } else {
+                        }
+                        else
+                        {
                             label.setText(status.substring(0, index));
                         }
                     }

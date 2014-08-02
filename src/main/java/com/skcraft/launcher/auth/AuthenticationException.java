@@ -11,13 +11,16 @@ import com.skcraft.launcher.LauncherException;
 /**
  * Thrown on authentication error.
  */
-public class AuthenticationException extends LauncherException {
+public class AuthenticationException extends LauncherException
+{
 
-    public AuthenticationException(String message, String localizedMessage) {
+    public AuthenticationException(String message, String localizedMessage)
+    {
         super(message, localizedMessage);
     }
 
-    public AuthenticationException(Throwable cause, String localizedMessage) {
+    public AuthenticationException(Throwable cause, String localizedMessage)
+    {
         super(cause, localizedMessage);
     }
 }

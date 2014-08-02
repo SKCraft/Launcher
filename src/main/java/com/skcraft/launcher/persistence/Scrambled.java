@@ -33,7 +33,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Scrambled {
+public @interface Scrambled
+{
 
     /**
      * A key used in scrambling.

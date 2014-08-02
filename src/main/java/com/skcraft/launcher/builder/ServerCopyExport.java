@@ -16,29 +16,40 @@ import java.io.File;
 import java.io.IOException;
 
 @Log
-public class ServerCopyExport extends DirectoryWalker {
+public class ServerCopyExport extends DirectoryWalker
+{
 
     private final File destDir;
 
-    public ServerCopyExport(@NonNull File destDir) {
+    public ServerCopyExport(@NonNull File destDir)
+    {
         this.destDir = destDir;
     }
 
     @Override
-    protected DirectoryBehavior getBehavior(String name) {
-        if (name.startsWith(".")) {
+    protected DirectoryBehavior getBehavior(String name)
+    {
+        if (name.startsWith("."))
+        {
             return DirectoryBehavior.SKIP;
-        } else if (name.equals("_SERVER")) {
+        }
+        else if (name.equals("_SERVER"))
+        {
             return DirectoryBehavior.IGNORE;
-        } else if (name.equals("_CLIENT")) {
+        }
+        else if (name.equals("_CLIENT"))
+        {
             return DirectoryBehavior.SKIP;
-        } else {
+        }
+        else
+        {
             return DirectoryBehavior.CONTINUE;
         }
     }
 
     @Override
-    protected void onFile(File file, String relPath) throws IOException {
+    protected void onFile(File file, String relPath) throws IOException
+    {
         File dest = new File(destDir, relPath);
 
         log.info("Copying " + file.getAbsolutePath() + " to " + dest.getAbsolutePath());
@@ -46,7 +57,8 @@ public class ServerCopyExport extends DirectoryWalker {
         Files.copy(file, dest);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
         SimpleLogFormatter.configureGlobalLogger();
 
         ServerExportOptions options = new ServerExportOptions();

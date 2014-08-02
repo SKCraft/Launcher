@@ -11,7 +11,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PackageList {
+public class PackageList
+{
 
     private int minimumVersion;
     private List<ManifestInfo> packages;

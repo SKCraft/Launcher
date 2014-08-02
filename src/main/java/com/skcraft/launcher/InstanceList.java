@@ -33,17 +33,20 @@ import static com.skcraft.launcher.util.SharedLocale._;
  * Stores the list of instances.
  */
 @Log
-public class InstanceList {
+public class InstanceList
+{
 
     private final Launcher launcher;
-    @Getter private final List<Instance> instances = new ArrayList<Instance>();
+    @Getter
+    private final List<Instance> instances = new ArrayList<Instance>();
 
     /**
      * Create a new instance list.
      *
      * @param launcher the launcher
      */
-    public InstanceList(@NonNull Launcher launcher) {
+    public InstanceList(@NonNull Launcher launcher)
+    {
         this.launcher = launcher;
     }
 
@@ -53,7 +56,8 @@ public class InstanceList {
      * @param index the index
      * @return the instance
      */
-    public synchronized Instance get(int index) {
+    public synchronized Instance get(int index)
+    {
         return instances.get(index);
     }
 
@@ -62,7 +66,8 @@ public class InstanceList {
      *
      * @return the number of instances
      */
-    public synchronized int size() {
+    public synchronized int size()
+    {
         return instances.size();
     }
 
@@ -72,7 +77,8 @@ public class InstanceList {
      *
      * @return the worker
      */
-    public Enumerator createEnumerator() {
+    public Enumerator createEnumerator()
+    {
         return new Enumerator();
     }
 
@@ -81,10 +87,13 @@ public class InstanceList {
      *
      * @return a list of instances
      */
-    public synchronized List<Instance> getSelected() {
+    public synchronized List<Instance> getSelected()
+    {
         List<Instance> selected = new ArrayList<Instance>();
-        for (Instance instance : instances) {
-            if (instance.isSelected()) {
+        for (Instance instance : instances)
+        {
+            if (instance.isSelected())
+            {
                 selected.add(instance);
             }
         }
@@ -95,18 +104,23 @@ public class InstanceList {
     /**
      * Sort the list of instances.
      */
-    public synchronized void sort() {
+    public synchronized void sort()
+    {
         Collections.sort(instances);
     }
 
-    public final class Enumerator implements Callable<InstanceList>, ProgressObservable {
+    public final class Enumerator implements Callable<InstanceList>, ProgressObservable
+    {
+
         private ProgressObservable progress = new DefaultProgress(-1, null);
 
-        private Enumerator() {
+        private Enumerator()
+        {
         }
 
         @Override
-        public InstanceList call() throws Exception {
+        public InstanceList call() throws Exception
+        {
             log.info("Enumerating instance list...");
             progress = new DefaultProgress(0, _("instanceLoader.loadingLocal"));
 
@@ -114,8 +128,10 @@ public class InstanceList {
             List<Instance> remote = new ArrayList<Instance>();
 
             File[] dirs = launcher.getInstancesDir().listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
-            if (dirs != null) {
-                for (File dir : dirs) {
+            if (dirs != null)
+            {
+                for (File dir : dirs)
+                {
                     File file = new File(dir, "instance.json");
                     Instance instance = Persistence.load(file, Instance.class);
                     instance.setDir(dir);
@@ -130,7 +146,8 @@ public class InstanceList {
 
             progress = new DefaultProgress(0.3, _("instanceLoader.checkingRemote"));
 
-            try {
+            try
+            {
                 URL packagesURL = launcher.getPackagesURL();
 
                 PackageList packages = HttpRequest
@@ -140,15 +157,19 @@ public class InstanceList {
                         .returnContent()
                         .asJson(PackageList.class);
 
-                if (packages.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
+                if (packages.getMinimumVersion() > Launcher.PROTOCOL_VERSION)
+                {
                     throw new LauncherException("Update required", _("errors.updateRequiredError"));
                 }
 
-                for (ManifestInfo manifest : packages.getPackages()) {
+                for (ManifestInfo manifest : packages.getPackages())
+                {
                     boolean foundLocal = false;
 
-                    for (Instance instance : local) {
-                        if (instance.getName().equalsIgnoreCase(manifest.getName())) {
+                    for (Instance instance : local)
+                    {
+                        if (instance.getName().equalsIgnoreCase(manifest.getName()))
+                        {
                             foundLocal = true;
 
                             instance.setTitle(manifest.getTitle());
@@ -159,7 +180,8 @@ public class InstanceList {
                             log.info("(" + instance.getName() + ").setManifestURL(" + url + ")");
 
                             // Check if an update is required
-                            if (instance.getVersion() == null || !instance.getVersion().equals(manifest.getVersion())) {
+                            if (instance.getVersion() == null || !instance.getVersion().equals(manifest.getVersion()))
+                            {
                                 instance.setUpdatePending(true);
                                 instance.setVersion(manifest.getVersion());
                                 Persistence.commitAndForget(instance);
@@ -168,7 +190,8 @@ public class InstanceList {
                         }
                     }
 
-                    if (!foundLocal) {
+                    if (!foundLocal)
+                    {
                         File dir = new File(launcher.getInstancesDir(), manifest.getName());
                         File file = new File(dir, "instance.json");
                         Instance instance = Persistence.load(file, Instance.class);
@@ -187,10 +210,15 @@ public class InstanceList {
                                 "' at version " + instance.getVersion());
                     }
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 throw new IOException("The list of modpacks could not be downloaded.", e);
-            } finally {
-                synchronized (InstanceList.this) {
+            }
+            finally
+            {
+                synchronized (InstanceList.this)
+                {
                     instances.clear();
                     instances.addAll(local);
                     instances.addAll(remote);
@@ -203,12 +231,14 @@ public class InstanceList {
         }
 
         @Override
-        public double getProgress() {
+        public double getProgress()
+        {
             return -1;
         }
 
         @Override
-        public String getStatus() {
+        public String getStatus()
+        {
             return progress.getStatus();
         }
     }

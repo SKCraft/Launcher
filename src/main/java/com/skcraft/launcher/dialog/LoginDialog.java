@@ -14,8 +14,8 @@ import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.*;
-import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -33,11 +33,14 @@ import static com.skcraft.launcher.util.SharedLocale._;
 /**
  * The login dialog.
  */
-public class LoginDialog extends JDialog {
+public class LoginDialog extends JDialog
+{
 
     private final Launcher launcher;
-    @Getter private final AccountList accounts;
-    @Getter private Session session;
+    @Getter
+    private final AccountList accounts;
+    @Getter
+    private Session session;
 
     private final JComboBox idCombo = new JComboBox();
     private final JPasswordField passwordText = new JPasswordField();
@@ -53,10 +56,11 @@ public class LoginDialog extends JDialog {
     /**
      * Create a new login dialog.
      *
-     * @param owner the owner
+     * @param owner    the owner
      * @param launcher the launcher
      */
-    public LoginDialog(Window owner, @NonNull Launcher launcher) {
+    public LoginDialog(Window owner, @NonNull Launcher launcher)
+    {
         super(owner, ModalityType.DOCUMENT_MODAL);
 
         this.launcher = launcher;
@@ -71,20 +75,24 @@ public class LoginDialog extends JDialog {
         setLocationRelativeTo(owner);
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
+        addWindowListener(new WindowAdapter()
+        {
             @Override
-            public void windowClosing(WindowEvent event) {
+            public void windowClosing(WindowEvent event)
+            {
                 removeListeners();
                 dispose();
             }
         });
     }
 
-    private void removeListeners() {
+    private void removeListeners()
+    {
         idCombo.setModel(new DefaultComboBoxModel());
     }
 
-    private void initComponents() {
+    private void initComponents()
+    {
         idCombo.setModel(getAccounts());
         updateSelection();
 
@@ -101,7 +109,8 @@ public class LoginDialog extends JDialog {
         formPanel.addRow(new JLabel(), rememberPassCheck);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 
-        if (launcher.getConfig().isOfflineEnabled()) {
+        if (launcher.getConfig().isOfflineEnabled())
+        {
             buttonsPanel.addElement(offlineButton);
             buttonsPanel.addElement(Box.createHorizontalStrut(2));
         }
@@ -117,16 +126,20 @@ public class LoginDialog extends JDialog {
 
         passwordText.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
 
-        idCombo.addActionListener(new ActionListener() {
+        idCombo.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 updateSelection();
             }
         });
 
-        idCombo.getEditor().getEditorComponent().addMouseListener(new PopupMouseAdapter() {
+        idCombo.getEditor().getEditorComponent().addMouseListener(new PopupMouseAdapter()
+        {
             @Override
-            protected void showPopup(MouseEvent e) {
+            protected void showPopup(MouseEvent e)
+            {
                 popupManageMenu(e.getComponent(), e.getX(), e.getY());
             }
         });
@@ -134,72 +147,91 @@ public class LoginDialog extends JDialog {
         recoverButton.addActionListener(
                 ActionListeners.openURL(recoverButton, launcher.getProperties().getProperty("resetPasswordUrl")));
 
-        loginButton.addActionListener(new ActionListener() {
+        loginButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 prepareLogin();
             }
         });
 
-        offlineButton.addActionListener(new ActionListener() {
+        offlineButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
                 removeListeners();
                 dispose();
             }
         });
 
-        cancelButton.addActionListener(new ActionListener() {
+        cancelButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 removeListeners();
                 dispose();
             }
         });
 
-        rememberPassCheck.addActionListener(new ActionListener() {
+        rememberPassCheck.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                if (rememberPassCheck.isSelected()) {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (rememberPassCheck.isSelected())
+                {
                     rememberIdCheck.setSelected(true);
                 }
             }
         });
 
-        rememberIdCheck.addActionListener(new ActionListener() {
+        rememberIdCheck.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!rememberIdCheck.isSelected()) {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (!rememberIdCheck.isSelected())
+                {
                     rememberPassCheck.setSelected(false);
                 }
             }
         });
     }
 
-    private void popupManageMenu(Component component, int x, int y) {
+    private void popupManageMenu(Component component, int x, int y)
+    {
         Object selected = idCombo.getSelectedItem();
         JPopupMenu popup = new JPopupMenu();
         JMenuItem menuItem;
 
-        if (selected != null && selected instanceof Account) {
+        if (selected != null && selected instanceof Account)
+        {
             final Account account = (Account) selected;
 
             menuItem = new JMenuItem(_("login.forgetUser"));
-            menuItem.addActionListener(new ActionListener() {
+            menuItem.addActionListener(new ActionListener()
+            {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e)
+                {
                     accounts.remove(account);
                     Persistence.commitAndForget(accounts);
                 }
             });
             popup.add(menuItem);
 
-            if (!Strings.isNullOrEmpty(account.getPassword())) {
+            if (!Strings.isNullOrEmpty(account.getPassword()))
+            {
                 menuItem = new JMenuItem(_("login.forgetPassword"));
-                menuItem.addActionListener(new ActionListener() {
+                menuItem.addActionListener(new ActionListener()
+                {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent e)
+                    {
                         account.setPassword(null);
                         Persistence.commitAndForget(accounts);
                     }
@@ -209,12 +241,15 @@ public class LoginDialog extends JDialog {
         }
 
         menuItem = new JMenuItem(_("login.forgetAllPasswords"));
-        menuItem.addActionListener(new ActionListener() {
+        menuItem.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 if (SwingHelper.confirmDialog(LoginDialog.this,
                         _("login.confirmForgetAllPasswords"),
-                        _("login.forgetAllPasswordsTitle"))) {
+                        _("login.forgetAllPasswordsTitle")))
+                {
                     accounts.forgetPasswords();
                     Persistence.commitAndForget(accounts);
                 }
@@ -225,21 +260,28 @@ public class LoginDialog extends JDialog {
         popup.show(component, x, y);
     }
 
-    private void updateSelection() {
+    private void updateSelection()
+    {
         Object selected = idCombo.getSelectedItem();
 
-        if (selected != null && selected instanceof Account) {
+        if (selected != null && selected instanceof Account)
+        {
             Account account = (Account) selected;
             String password = account.getPassword();
 
             rememberIdCheck.setSelected(true);
-            if (!Strings.isNullOrEmpty(password)) {
+            if (!Strings.isNullOrEmpty(password))
+            {
                 rememberPassCheck.setSelected(true);
                 passwordText.setText(password);
-            } else {
+            }
+            else
+            {
                 rememberPassCheck.setSelected(false);
             }
-        } else {
+        }
+        else
+        {
             passwordText.setText("");
             rememberIdCheck.setSelected(true);
             rememberPassCheck.setSelected(false);
@@ -247,25 +289,36 @@ public class LoginDialog extends JDialog {
     }
 
     @SuppressWarnings("deprecation")
-    private void prepareLogin() {
+    private void prepareLogin()
+    {
         Object selected = idCombo.getSelectedItem();
 
-        if (selected != null && selected instanceof Account) {
+        if (selected != null && selected instanceof Account)
+        {
             Account account = (Account) selected;
             String password = passwordText.getText();
 
-            if (password == null || password.isEmpty()) {
+            if (password == null || password.isEmpty())
+            {
                 SwingHelper.showErrorDialog(this, _("login.noPasswordError"), _("login.noPasswordTitle"));
-            } else {
-                if (rememberPassCheck.isSelected()) {
+            }
+            else
+            {
+                if (rememberPassCheck.isSelected())
+                {
                     account.setPassword(password);
-                } else {
+                }
+                else
+                {
                     account.setPassword(null);
                 }
 
-                if (rememberIdCheck.isSelected()) {
+                if (rememberIdCheck.isSelected())
+                {
                     accounts.add(account);
-                } else {
+                }
+                else
+                {
                     accounts.remove(account);
                 }
 
@@ -275,24 +328,30 @@ public class LoginDialog extends JDialog {
 
                 attemptLogin(account, password);
             }
-        } else {
+        }
+        else
+        {
             SwingHelper.showErrorDialog(this, _("login.noLoginError"), _("login.noLoginTitle"));
         }
     }
 
-    private void attemptLogin(Account account, String password) {
+    private void attemptLogin(Account account, String password)
+    {
         LoginCallable callable = new LoginCallable(account, password);
         ObservableFuture<Session> future = new ObservableFuture<Session>(
                 launcher.getExecutor().submit(callable), callable);
 
-        Futures.addCallback(future, new FutureCallback<Session>() {
+        Futures.addCallback(future, new FutureCallback<Session>()
+        {
             @Override
-            public void onSuccess(Session result) {
+            public void onSuccess(Session result)
+            {
                 setResult(result);
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Throwable t)
+            {
             }
         }, SwingExecutor.INSTANCE);
 
@@ -300,56 +359,68 @@ public class LoginDialog extends JDialog {
         SwingHelper.addErrorDialogCallback(this, future);
     }
 
-    private void setResult(Session session) {
+    private void setResult(Session session)
+    {
         this.session = session;
         removeListeners();
         dispose();
     }
 
-    public static Session showLoginRequest(Window owner, Launcher launcher) {
+    public static Session showLoginRequest(Window owner, Launcher launcher)
+    {
         LoginDialog dialog = new LoginDialog(owner, launcher);
         dialog.setVisible(true);
         return dialog.getSession();
     }
 
-    private class LoginCallable implements Callable<Session>,ProgressObservable {
+    private class LoginCallable implements Callable<Session>, ProgressObservable
+    {
+
         private final Account account;
         private final String password;
 
-        private LoginCallable(Account account, String password) {
+        private LoginCallable(Account account, String password)
+        {
             this.account = account;
             this.password = password;
         }
 
         @Override
-        public Session call() throws AuthenticationException, IOException, InterruptedException {
+        public Session call() throws AuthenticationException, IOException, InterruptedException
+        {
             LoginService service = launcher.getLoginService();
             List<? extends Session> identities = service.login(launcher.getProperties().getProperty("agentName"), account.getId(), password);
 
             // The list of identities (profiles in Mojang terms) corresponds to whether the account
             // owns the game, so we need to check that
-            if (identities.size() > 0) {
+            if (identities.size() > 0)
+            {
                 // Set offline enabled flag to true
                 Configuration config = launcher.getConfig();
-                if (!config.isOfflineEnabled()) {
+                if (!config.isOfflineEnabled())
+                {
                     config.setOfflineEnabled(true);
                     Persistence.commitAndForget(config);
                 }
 
                 Persistence.commitAndForget(getAccounts());
                 return identities.get(0);
-            } else {
+            }
+            else
+            {
                 throw new AuthenticationException("Minecraft not owned", _("login.minecraftNotOwnedError"));
             }
         }
 
         @Override
-        public double getProgress() {
+        public double getProgress()
+        {
             return -1;
         }
 
         @Override
-        public String getStatus() {
+        public String getStatus()
+        {
             return _("login.loggingInStatus");
         }
     }

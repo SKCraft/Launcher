@@ -14,7 +14,10 @@ import com.google.common.io.Files;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
@@ -29,23 +32,27 @@ import java.util.logging.Level;
  * Persistence.commit(config);</pre>
  */
 @Log
-public final class Persistence {
+public final class Persistence
+{
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final WeakHashMap<Object, ByteSink> bound =
             new WeakHashMap<Object, ByteSink>();
 
-    private Persistence() {
+    private Persistence()
+    {
     }
 
     /**
      * Bind an object to a path where the object will be saved.
      *
      * @param object the object
-     * @param sink the byte sink
+     * @param sink   the byte sink
      */
-    public static void bind(@NonNull Object object, @NonNull ByteSink sink) {
-        synchronized (bound) {
+    public static void bind(@NonNull Object object, @NonNull ByteSink sink)
+    {
+        synchronized (bound)
+        {
             bound.put(object, sink);
         }
     }
@@ -56,20 +63,26 @@ public final class Persistence {
      * @param object the object
      * @throws java.io.IOException on save error
      */
-    public static void commit(@NonNull Object object) throws IOException {
+    public static void commit(@NonNull Object object) throws IOException
+    {
         ByteSink sink;
-        synchronized (bound) {
+        synchronized (bound)
+        {
             sink = bound.get(object);
-            if (sink == null) {
+            if (sink == null)
+            {
                 throw new IOException("Cannot persist unbound object: " + object);
             }
         }
 
         Closer closer = Closer.create();
-        try {
+        try
+        {
             OutputStream os = closer.register(sink.openBufferedStream());
             mapper.writeValue(os, object);
-        } finally {
+        }
+        finally
+        {
             closer.close();
         }
     }
@@ -79,10 +92,14 @@ public final class Persistence {
      *
      * @param object the object
      */
-    public static void commitAndForget(@NonNull Object object)  {
-        try {
+    public static void commitAndForget(@NonNull Object object)
+    {
+        try
+        {
             commit(object);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             log.log(Level.WARNING, "Failed to save " + object.getClass() + ": " + object.toString(), e);
         }
     }
@@ -90,40 +107,56 @@ public final class Persistence {
     /**
      * Read an object from a byte source, without binding it.
      *
-     * @param source byte source
-     * @param cls the class
+     * @param source     byte source
+     * @param cls        the class
      * @param returnNull true to return null if the object could not be loaded
-     * @param <V> the type of class
+     * @param <V>        the type of class
      * @return an object
      */
-    public static <V> V read(ByteSource source, Class<V> cls, boolean returnNull) {
+    public static <V> V read(ByteSource source, Class<V> cls, boolean returnNull)
+    {
         V object;
         Closer closer = Closer.create();
 
-        try {
+        try
+        {
             object = mapper.readValue(closer.register(source.openBufferedStream()), cls);
-        } catch (IOException e) {
-            if (!(e instanceof FileNotFoundException)) {
+        }
+        catch (IOException e)
+        {
+            if (!(e instanceof FileNotFoundException))
+            {
                 log.log(Level.INFO, "Failed to load" + cls.getCanonicalName(), e);
             }
 
-            if (returnNull) {
+            if (returnNull)
+            {
                 return null;
             }
 
-            try {
+            try
+            {
                 object = cls.newInstance();
-            } catch (InstantiationException e1) {
-                throw new RuntimeException(
-                        "Failed to construct object with no-arg constructor", e1);
-            } catch (IllegalAccessException e1) {
+            }
+            catch (InstantiationException e1)
+            {
                 throw new RuntimeException(
                         "Failed to construct object with no-arg constructor", e1);
             }
-        } finally {
-            try {
+            catch (IllegalAccessException e1)
+            {
+                throw new RuntimeException(
+                        "Failed to construct object with no-arg constructor", e1);
+            }
+        }
+        finally
+        {
+            try
+            {
                 closer.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
             }
         }
 
@@ -133,13 +166,14 @@ public final class Persistence {
     /**
      * Read an object from file, without binding it.
      *
-     * @param file the file
-     * @param cls the class
+     * @param file       the file
+     * @param cls        the class
      * @param returnNull true to return null if the object could not be loaded
-     * @param <V> the type of class
+     * @param <V>        the type of class
      * @return an object
      */
-    public static <V> V read(File file, Class<V> cls, boolean returnNull) {
+    public static <V> V read(File file, Class<V> cls, boolean returnNull)
+    {
         return read(Files.asByteSource(file), cls, returnNull);
     }
 
@@ -148,29 +182,32 @@ public final class Persistence {
      * Read an object from file, without binding it.
      *
      * @param file the file
-     * @param cls the class
-     * @param <V> the type of class
+     * @param cls  the class
+     * @param <V>  the type of class
      * @return an object
      */
-    public static <V> V read(File file, Class<V> cls) {
+    public static <V> V read(File file, Class<V> cls)
+    {
         return read(file, cls, false);
     }
 
     /**
      * Read an object from file.
      *
-     * @param file the file
-     * @param cls the class
+     * @param file       the file
+     * @param cls        the class
      * @param returnNull true to return null if the object could not be loaded
-     * @param <V> the type of class
+     * @param <V>        the type of class
      * @return an object
      */
-    public static <V> V load(File file, Class<V> cls, boolean returnNull) {
+    public static <V> V load(File file, Class<V> cls, boolean returnNull)
+    {
         ByteSource source = Files.asByteSource(file);
         ByteSink sink = new MkdirByteSink(Files.asByteSink(file), file.getParentFile());
 
         Scrambled scrambled = cls.getAnnotation(Scrambled.class);
-        if (cls.getAnnotation(Scrambled.class) != null) {
+        if (cls.getAnnotation(Scrambled.class) != null)
+        {
             source = new ScramblingSourceFilter(source, scrambled.value());
             sink = new ScramblingSinkFilter(sink, scrambled.value());
         }
@@ -182,27 +219,29 @@ public final class Persistence {
 
     /**
      * Read an object from file.
-     *
+     * <p/>
      * <p>If the file does not exist or loading fails, construct a new instance of
      * the given class by using its no-arg constructor.</p>
      *
      * @param file the file
-     * @param cls the class
-     * @param <V> the type of class
+     * @param cls  the class
+     * @param <V>  the type of class
      * @return an object
      */
-    public static <V> V load(File file, Class<V> cls) {
+    public static <V> V load(File file, Class<V> cls)
+    {
         return load(file, cls, false);
     }
 
     /**
      * Write an object to file.
      *
-     * @param file the file
+     * @param file   the file
      * @param object the object
      * @throws java.io.IOException on I/O error
      */
-    public static void write(File file, Object object) throws IOException {
+    public static void write(File file, Object object) throws IOException
+    {
         file.getParentFile().mkdirs();
         mapper.writeValue(file, object);
     }

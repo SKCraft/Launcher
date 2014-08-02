@@ -19,27 +19,32 @@ import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.util.SharedLocale._;
 
-public class HardResetter implements Callable<Instance>, ProgressObservable {
+public class HardResetter implements Callable<Instance>, ProgressObservable
+{
 
     private final Instance instance;
     private File currentDir;
 
-    public HardResetter(@NonNull Instance instance) {
+    public HardResetter(@NonNull Instance instance)
+    {
         this.instance = instance;
     }
 
     @Override
-    public double getProgress() {
+    public double getProgress()
+    {
         return -1;
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         return _("instanceResetter.resetting", instance.getTitle());
     }
 
     @Override
-    public Instance call() throws Exception {
+    public Instance call() throws Exception
+    {
         instance.setInstalled(false);
         instance.setUpdatePending(true);
         Persistence.commitAndForget(instance);
@@ -48,26 +53,35 @@ public class HardResetter implements Callable<Instance>, ProgressObservable {
 
         removeDir(new File(instance.getContentDir(), "config"));
         removeDir(new File(instance.getContentDir(), "mods"));
-        
+
         return instance;
     }
 
-    private void removeDir(File dir) throws IOException, InterruptedException {
-        try {
-            if (dir.isDirectory()) {
+    private void removeDir(File dir) throws IOException, InterruptedException
+    {
+        try
+        {
+            if (dir.isDirectory())
+            {
                 currentDir = dir;
                 LauncherUtils.interruptibleDelete(dir, new ArrayList<File>());
             }
-        } finally {
+        }
+        finally
+        {
             currentDir = null;
         }
     }
 
-    public String toString() {
+    public String toString()
+    {
         File dir = currentDir;
-        if (dir != null) {
+        if (dir != null)
+        {
             return "Removing " + dir.getAbsolutePath();
-        } else {
+        }
+        else
+        {
             return "Working...";
         }
     }

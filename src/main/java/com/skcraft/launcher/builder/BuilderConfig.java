@@ -17,7 +17,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.emptyToNull;
 
 @Data
-public class BuilderConfig {
+public class BuilderConfig
+{
 
     private String name;
     private String title;
@@ -27,16 +28,20 @@ public class BuilderConfig {
     private List<FeaturePattern> features;
     private FnPatternList userFiles;
 
-    public void update(Manifest manifest) {
+    public void update(Manifest manifest)
+    {
         manifest.updateName(getName());
         manifest.updateTitle(getTitle());
         manifest.updateGameVersion(getGameVersion());
         manifest.setLaunchModifier(getLaunchModifier());
     }
 
-    public void registerProperties(PropertiesApplicator applicator) {
-        if (features != null) {
-            for (FeaturePattern feature : features) {
+    public void registerProperties(PropertiesApplicator applicator)
+    {
+        if (features != null)
+        {
+            for (FeaturePattern feature : features)
+            {
                 checkNotNull(emptyToNull(feature.getFeature().getName()),
                         "Empty feature name found");
                 applicator.register(feature);

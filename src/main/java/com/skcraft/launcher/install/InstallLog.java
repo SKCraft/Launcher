@@ -20,7 +20,8 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Data
-public class InstallLog {
+public class InstallLog
+{
 
     @JsonIgnore
     private File baseDir;
@@ -28,57 +29,70 @@ public class InstallLog {
     @JsonIgnore
     private Set<String> cache = new HashSet<String>();
 
-    public synchronized void add(@NonNull String group, @NonNull String entry) {
+    public synchronized void add(@NonNull String group, @NonNull String entry)
+    {
         cache.add(entry);
         Set<String> subEntries = entries.get(group);
-        if (subEntries == null) {
+        if (subEntries == null)
+        {
             subEntries = new HashSet<String>();
             entries.put(group, subEntries);
         }
         subEntries.add(entry);
     }
 
-    public synchronized void add(@NonNull File group, @NonNull File entry) {
+    public synchronized void add(@NonNull File group, @NonNull File entry)
+    {
         add(relativize(group), relativize(entry));
     }
 
-    public synchronized boolean has(@NonNull String entry) {
+    public synchronized boolean has(@NonNull String entry)
+    {
         return cache.contains(entry);
     }
 
-    public synchronized boolean has(@NonNull File entry) {
+    public synchronized boolean has(@NonNull File entry)
+    {
         return has(relativize(entry));
     }
 
-    public synchronized boolean copyGroupFrom(InstallLog other, String group) {
+    public synchronized boolean copyGroupFrom(InstallLog other, String group)
+    {
         Set<String> otherSet = other.entries.get(group);
-        if (otherSet == null) {
+        if (otherSet == null)
+        {
             return false;
         }
-        for (String entry : otherSet) {
+        for (String entry : otherSet)
+        {
             add(group, entry);
         }
         return true;
     }
 
-    public synchronized boolean copyGroupFrom(@NonNull InstallLog other, @NonNull File entry) {
+    public synchronized boolean copyGroupFrom(@NonNull InstallLog other, @NonNull File entry)
+    {
         return copyGroupFrom(other, relativize(entry));
     }
 
     @JsonIgnore
-    public synchronized Set<Map.Entry<String, Set<String>>> getEntrySet() {
+    public synchronized Set<Map.Entry<String, Set<String>>> getEntrySet()
+    {
         return entries.entrySet();
     }
 
-    public synchronized boolean hasGroup(String group) {
+    public synchronized boolean hasGroup(String group)
+    {
         return entries.containsKey(group);
     }
 
-    private String relativize(File child) {
+    private String relativize(File child)
+    {
         checkNotNull(baseDir);
         URI uri = child.toURI();
         String relative = baseDir.toURI().relativize(uri).getPath();
-        if (relative.equals(uri.toString())) {
+        if (relative.equals(uri.toString()))
+        {
             throw new IllegalArgumentException("Child path not in base");
         }
         return relative;

@@ -36,14 +36,16 @@ import static com.skcraft.launcher.util.HttpRequest.url;
 import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
-public class Updater extends BaseUpdater implements Callable<Instance>, ProgressObservable {
+public class Updater extends BaseUpdater implements Callable<Instance>, ProgressObservable
+{
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Installer installer;
     private final Launcher launcher;
     private final Instance instance;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private boolean online;
 
     private List<URL> librarySources = new ArrayList<URL>();
@@ -51,7 +53,8 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
     private ProgressObservable progress = new DefaultProgress(-1, _("instanceUpdater.preparingUpdate"));
 
-    public Updater(@NonNull Launcher launcher, @NonNull Instance instance) {
+    public Updater(@NonNull Launcher launcher, @NonNull Instance instance)
+    {
         super(launcher);
 
         this.installer = new Installer(launcher.getInstallerDir());
@@ -63,48 +66,61 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
     }
 
     @Override
-    public Instance call() throws Exception {
+    public Instance call() throws Exception
+    {
         log.info("Checking for an update for '" + instance.getName() + "'...");
 
         boolean updateRequired = !instance.isInstalled();
         boolean updateDesired = (instance.isUpdatePending() || updateRequired);
         boolean updateCapable = (instance.getManifestURL() != null);
 
-        if (!online && updateRequired) {
+        if (!online && updateRequired)
+        {
             log.info("Can't update " + instance.getTitle() + " because offline");
             String message = _("updater.updateRequiredButOffline");
             throw new LauncherException("Update required but currently offline", message);
         }
 
-        if (updateDesired && !updateCapable) {
-            if (updateRequired) {
+        if (updateDesired && !updateCapable)
+        {
+            if (updateRequired)
+            {
                 log.info("Update required for " + instance.getTitle() + " but there is no manifest");
                 String message = _("updater.updateRequiredButNoManifest");
                 throw new LauncherException("Update required but no manifest", message);
-            } else {
+            }
+            else
+            {
                 log.info("Can't update " + instance.getTitle() + ", but update is not required");
                 return instance; // Can't update
             }
         }
 
-        if (updateDesired) {
+        if (updateDesired)
+        {
             log.info("Updating " + instance.getTitle() + "...");
             update(instance);
-        } else {
+        }
+        else
+        {
             log.info("No update found for " + instance.getTitle());
         }
 
         return instance;
     }
 
-    private VersionManifest readVersionManifest(Manifest manifest) throws IOException, InterruptedException {
+    private VersionManifest readVersionManifest(Manifest manifest) throws IOException, InterruptedException
+    {
         // Check whether the package manifest contains an embedded version manifest,
         // otherwise we'll have to download the one for the given Minecraft version
         VersionManifest version = manifest.getVersionManifest();
-        if (version != null) {
+        if (version != null)
+        {
             mapper.writeValue(instance.getVersionPath(), version);
             return version;
-        } else {
+        }
+        else
+        {
             URL url = url(String.format(
                     launcher.getProperties().getProperty("versionManifestUrl"),
                     manifest.getGameVersion()));
@@ -123,11 +139,12 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
      * Update the given instance.
      *
      * @param instance the instance
-     * @throws IOException thrown on I/O error
+     * @throws IOException          thrown on I/O error
      * @throws InterruptedException thrown on interruption
-     * @throws ExecutionException thrown on execution error
+     * @throws ExecutionException   thrown on execution error
      */
-    protected void update(Instance instance) throws Exception {
+    protected void update(Instance instance) throws Exception
+    {
         // Mark this instance as local
         instance.setLocal(true);
         Persistence.commitAndForget(instance);
@@ -157,7 +174,8 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         log.info("Enumerating libraries to download...");
 
         URL url = manifest.getLibrariesUrl();
-        if (url != null) {
+        if (url != null)
+        {
             log.info("Added library source: " + url);
             librarySources.add(url);
         }
@@ -194,12 +212,14 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
     }
 
     @Override
-    public double getProgress() {
+    public double getProgress()
+    {
         return progress.getProgress();
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         return progress.getStatus();
     }
 

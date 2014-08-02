@@ -21,7 +21,8 @@ import java.util.concurrent.Executors;
 
 import static com.skcraft.launcher.util.SharedLocale._;
 
-public class SelfUpdater implements Callable<File>, ProgressObservable {
+public class SelfUpdater implements Callable<File>, ProgressObservable
+{
 
     public static boolean updatedAlready = false;
 
@@ -30,17 +31,20 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
     private final Installer installer;
     private ProgressObservable progress = new DefaultProgress(0, _("updater.updating"));
 
-    public SelfUpdater(@NonNull Launcher launcher, @NonNull URL url) {
+    public SelfUpdater(@NonNull Launcher launcher, @NonNull URL url)
+    {
         this.launcher = launcher;
         this.url = url;
         this.installer = new Installer(launcher.getInstallerDir());
     }
 
     @Override
-    public File call() throws Exception {
+    public File call() throws Exception
+    {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        try {
+        try
+        {
             File dir = launcher.getLauncherBinariesDir();
             File file = new File(dir, String.valueOf(System.currentTimeMillis()) + ".jar.pack");
             File tempFile = installer.getDownloader().download(url, "", 10000, "launcher.jar.pack");
@@ -56,18 +60,22 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
             updatedAlready = true;
 
             return file;
-        } finally {
+        }
+        finally
+        {
             executor.shutdownNow();
         }
     }
 
     @Override
-    public double getProgress() {
+    public double getProgress()
+    {
         return progress.getProgress();
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         return progress.getStatus();
     }
 

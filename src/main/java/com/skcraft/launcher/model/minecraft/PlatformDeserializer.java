@@ -13,21 +13,32 @@ import com.skcraft.launcher.util.Platform;
 
 import java.io.IOException;
 
-public class PlatformDeserializer extends JsonDeserializer<Platform> {
+public class PlatformDeserializer extends JsonDeserializer<Platform>
+{
 
     @Override
     public Platform deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
-            throws IOException {
+            throws IOException
+    {
         String text = jsonParser.getText();
-        if (text.equalsIgnoreCase("windows")) {
+        if (text.equalsIgnoreCase("windows"))
+        {
             return Platform.WINDOWS;
-        } else if (text.equalsIgnoreCase("linux")) {
+        }
+        else if (text.equalsIgnoreCase("linux"))
+        {
             return Platform.LINUX;
-        } else if (text.equalsIgnoreCase("solaris")) {
+        }
+        else if (text.equalsIgnoreCase("solaris"))
+        {
             return Platform.SOLARIS;
-        } else if (text.equalsIgnoreCase("osx")) {
+        }
+        else if (text.equalsIgnoreCase("osx"))
+        {
             return Platform.MAC_OS_X;
-        } else {
+        }
+        else
+        {
             throw new IOException("Unknown platform: " + text);
         }
     }

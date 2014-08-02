@@ -8,8 +8,8 @@ package com.skcraft.launcher.dialog;
 
 import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
-import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.swing.*;
 import lombok.NonNull;
 
 import javax.swing.*;
@@ -22,7 +22,8 @@ import static com.skcraft.launcher.util.SharedLocale._;
 /**
  * A dialog to modify configuration options.
  */
-public class ConfigurationDialog extends JDialog {
+public class ConfigurationDialog extends JDialog
+{
 
     private final Configuration config;
     private final ObjectSwingMapper mapper;
@@ -54,10 +55,11 @@ public class ConfigurationDialog extends JDialog {
     /**
      * Create a new configuration dialog.
      *
-     * @param owner the window owner
+     * @param owner    the window owner
      * @param launcher the launcher
      */
-    public ConfigurationDialog(Window owner, @NonNull Launcher launcher) {
+    public ConfigurationDialog(Window owner, @NonNull Launcher launcher)
+    {
         super(owner, ModalityType.DOCUMENT_MODAL);
 
         this.config = launcher.getConfig();
@@ -87,7 +89,8 @@ public class ConfigurationDialog extends JDialog {
         mapper.copyFromObject();
     }
 
-    private void initComponents() {
+    private void initComponents()
+    {
         javaSettingsPanel.addRow(new JLabel(_("options.jvmPath")), jvmPathText);
         javaSettingsPanel.addRow(new JLabel(_("options.jvmArguments")), jvmArgsText);
         javaSettingsPanel.addRow(Box.createVerticalStrut(15));
@@ -129,16 +132,20 @@ public class ConfigurationDialog extends JDialog {
 
         cancelButton.addActionListener(ActionListeners.dispose(this));
 
-        okButton.addActionListener(new ActionListener() {
+        okButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 save();
             }
         });
 
-        logButton.addActionListener(new ActionListener() {
+        logButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 ConsoleFrame.showMessages();
             }
         });
@@ -147,7 +154,8 @@ public class ConfigurationDialog extends JDialog {
     /**
      * Save the configuration and close the dialog.
      */
-    public void save() {
+    public void save()
+    {
         mapper.copyFromSwing();
         Persistence.commitAndForget(config);
         dispose();

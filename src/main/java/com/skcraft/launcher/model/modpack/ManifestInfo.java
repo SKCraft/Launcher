@@ -11,7 +11,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ManifestInfo extends BaseManifest {
+public class ManifestInfo extends BaseManifest
+{
 
     private String location;
     private int priority;

@@ -11,14 +11,16 @@ import com.skcraft.launcher.model.modpack.Feature;
 import lombok.Data;
 
 @Data
-public class FeaturePattern {
+public class FeaturePattern
+{
 
     @JsonProperty("properties")
     private Feature feature;
     @JsonProperty("files")
     private FnPatternList filePatterns;
 
-    public boolean matches(String path) {
+    public boolean matches(String path)
+    {
         return filePatterns != null && filePatterns.matches(path);
     }
 }

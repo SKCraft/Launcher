@@ -11,7 +11,8 @@ import java.util.Map;
 /**
  * Represents an authenticated (or virtual) session.
  */
-public interface Session {
+public interface Session
+{
 
     /**
      * Get the user's UUID.

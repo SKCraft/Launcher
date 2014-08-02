@@ -11,37 +11,48 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class PastebinPoster {
+public class PastebinPoster
+{
+
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int READ_TIMEOUT = 5000;
-    
-    public static void paste(String code, PasteCallback callback) {
+
+    public static void paste(String code, PasteCallback callback)
+    {
         PasteProcessor processor = new PasteProcessor(code, callback);
         Thread thread = new Thread(processor);
         thread.start();
     }
 
-    public static interface PasteCallback {
+    public static interface PasteCallback
+    {
+
         public void handleSuccess(String url);
+
         public void handleError(String err);
     }
-    
-    private static class PasteProcessor implements Runnable {
+
+    private static class PasteProcessor implements Runnable
+    {
+
         private String code;
         private PasteCallback callback;
-        
-        public PasteProcessor(String code, PasteCallback callback) {
+
+        public PasteProcessor(String code, PasteCallback callback)
+        {
             this.code = code;
             this.callback = callback;
         }
-        
+
         @Override
-        public void run() {
+        public void run()
+        {
             HttpURLConnection conn = null;
-            OutputStream out = null; 
+            OutputStream out = null;
             InputStream in = null;
-            
-            try {
+
+            try
+            {
                 URL url = new URL("http://pastebin.com/api/api_post.php");
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(CONNECT_TIMEOUT);
@@ -51,7 +62,7 @@ public class PastebinPoster {
                 conn.setInstanceFollowRedirects(false);
                 conn.setDoOutput(true);
                 out = conn.getOutputStream();
-                
+
                 out.write(("api_option=paste"
                         + "&api_dev_key=" + URLEncoder.encode("4867eae74c6990dbdef07c543cf8f805", "utf-8")
                         + "&api_paste_code=" + URLEncoder.encode(code, "utf-8")
@@ -62,53 +73,74 @@ public class PastebinPoster {
                         + "&api_user_key=" + URLEncoder.encode("", "utf-8")).getBytes());
                 out.flush();
                 out.close();
-                
-                if (conn.getResponseCode() == 200) {     
+
+                if (conn.getResponseCode() == 200)
+                {
                     in = conn.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                     String line;
                     StringBuilder response = new StringBuilder();
-                    while ((line = reader.readLine()) != null) {
+                    while ((line = reader.readLine()) != null)
+                    {
                         response.append(line);
                         response.append("\r\n");
                     }
                     reader.close();
-                    
+
                     String result = response.toString().trim();
-                    
-                    if (result.matches("^https?://.*")) {
+
+                    if (result.matches("^https?://.*"))
+                    {
                         callback.handleSuccess(result.trim());
-                    } else {
+                    }
+                    else
+                    {
                         String err = result.trim();
-                        if (err.length() > 100) {
+                        if (err.length() > 100)
+                        {
                             err = err.substring(0, 100);
                         }
                         callback.handleError(err);
                     }
-                } else {
+                }
+                else
+                {
                     callback.handleError("An error occurred while uploading the text.");
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 callback.handleError(e.getMessage());
-            } finally {
-                if (conn != null) {
+            }
+            finally
+            {
+                if (conn != null)
+                {
                     conn.disconnect();
                 }
-                if (in != null) {
-                    try {
+                if (in != null)
+                {
+                    try
+                    {
                         in.close();
-                    } catch (IOException ignored) {
+                    }
+                    catch (IOException ignored)
+                    {
                     }
                 }
-                if (out != null) {
-                    try {
+                if (out != null)
+                {
+                    try
+                    {
                         out.close();
-                    } catch (IOException ignored) {
+                    }
+                    catch (IOException ignored)
+                    {
                     }
                 }
             }
         }
-        
+
     }
-    
+
 }

@@ -14,11 +14,11 @@ import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
-import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.launch.LaunchProcessHandler;
+import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.persistence.Persistence;
-import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.selfupdate.SelfUpdater;
+import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.update.HardResetter;
 import com.skcraft.launcher.update.Remover;
@@ -48,7 +48,8 @@ import static com.skcraft.launcher.util.SharedLocale._;
  * The main launcher frame.
  */
 @Log
-public class LauncherFrame extends JFrame {
+public class LauncherFrame extends JFrame
+{
 
     private final Launcher launcher;
 
@@ -72,15 +73,16 @@ public class LauncherFrame extends JFrame {
      *
      * @param launcher the launcher
      */
-    public LauncherFrame(@NonNull Launcher launcher) {
+    public LauncherFrame(@NonNull Launcher launcher)
+    {
         super(_("launcher.title", launcher.getVersion()));
 
         this.launcher = launcher;
         instancesModel = new InstanceTableModel(launcher.getInstances());
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(700, 450);
-        setMinimumSize(new Dimension(400, 300));
+        setSize(680, 400);
+        setMinimumSize(new Dimension(680, 400));
         initComponents();
         setLocationRelativeTo(null);
 
@@ -88,20 +90,25 @@ public class LauncherFrame extends JFrame {
 
         loadInstances();
         checkLauncherUpdate();
+        setResizable(false);
     }
 
-    private void initComponents() {
+    private void initComponents()
+    {
         webView = WebpagePanel.forURL(launcher.getNewsURL(), false);
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
         selfUpdateButton.setVisible(false);
 
         updateCheck.setSelected(true);
+        updateCheck.setVisible(false);
         instancesTable.setModel(instancesModel);
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
-        splitPane.setDividerLocation(200);
-        splitPane.setDividerSize(4);
+        splitPane.setDividerLocation(170);
+        splitPane.setDividerSize(2);
+        splitPane.setEnabled(false);
         SwingHelper.flattenJSplitPane(splitPane);
         buttonsPanel.addElement(refreshButton);
+        refreshButton.setVisible(false);
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
@@ -113,10 +120,13 @@ public class LauncherFrame extends JFrame {
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
 
-        instancesModel.addTableModelListener(new TableModelListener() {
+        instancesModel.addTableModelListener(new TableModelListener()
+        {
             @Override
-            public void tableChanged(TableModelEvent e) {
-                if (instancesTable.getRowCount() > 0) {
+            public void tableChanged(TableModelEvent e)
+            {
+                if (instancesTable.getRowCount() > 0)
+                {
                     instancesTable.setRowSelectionInterval(0, 0);
                 }
             }
@@ -124,41 +134,52 @@ public class LauncherFrame extends JFrame {
 
         instancesTable.addMouseListener(new DoubleClickToButtonAdapter(launchButton));
 
-        refreshButton.addActionListener(new ActionListener() {
+        refreshButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 loadInstances();
                 checkLauncherUpdate();
             }
         });
 
-        selfUpdateButton.addActionListener(new ActionListener() {
+        selfUpdateButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 selfUpdate();
             }
         });
 
-        optionsButton.addActionListener(new ActionListener() {
+        optionsButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 showOptions();
             }
         });
 
-        launchButton.addActionListener(new ActionListener() {
+        launchButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 launch();
             }
         });
 
-        instancesTable.addMouseListener(new PopupMouseAdapter() {
+        instancesTable.addMouseListener(new PopupMouseAdapter()
+        {
             @Override
-            protected void showPopup(MouseEvent e) {
+            protected void showPopup(MouseEvent e)
+            {
                 int index = instancesTable.rowAtPoint(e.getPoint());
                 Instance selected = null;
-                if (index >= 0) {
+                if (index >= 0)
+                {
                     instancesTable.setRowSelectionInterval(index, index);
                     selected = launcher.getInstances().get(index);
                 }
@@ -167,38 +188,48 @@ public class LauncherFrame extends JFrame {
         });
     }
 
-    private void checkLauncherUpdate() {
-        if (SelfUpdater.updatedAlready) {
+    private void checkLauncherUpdate()
+    {
+        if (SelfUpdater.updatedAlready)
+        {
             return;
         }
 
         ListenableFuture<URL> future = launcher.getExecutor().submit(new UpdateChecker(launcher));
 
-        Futures.addCallback(future, new FutureCallback<URL>() {
+        Futures.addCallback(future, new FutureCallback<URL>()
+        {
             @Override
-            public void onSuccess(URL result) {
-                if (result != null) {
+            public void onSuccess(URL result)
+            {
+                if (result != null)
+                {
                     requestUpdate(result);
                 }
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Throwable t)
+            {
 
             }
         }, SwingExecutor.INSTANCE);
     }
 
-    private void selfUpdate() {
+    private void selfUpdate()
+    {
         URL url = updateUrl;
-        if (url != null) {
+        if (url != null)
+        {
             SelfUpdater downloader = new SelfUpdater(launcher, url);
             ObservableFuture<File> future = new ObservableFuture<File>(
                     launcher.getExecutor().submit(downloader), downloader);
 
-            Futures.addCallback(future, new FutureCallback<File>() {
+            Futures.addCallback(future, new FutureCallback<File>()
+            {
                 @Override
-                public void onSuccess(File result) {
+                public void onSuccess(File result)
+                {
                     selfUpdateButton.setVisible(false);
                     SwingHelper.showMessageDialog(
                             LauncherFrame.this,
@@ -209,18 +240,22 @@ public class LauncherFrame extends JFrame {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t)
+                {
                 }
             }, SwingExecutor.INSTANCE);
 
             ProgressDialog.showProgress(this, future, _("launcher.selfUpdatingTitle"), _("launcher.selfUpdatingStatus"));
             SwingHelper.addErrorDialogCallback(this, future);
-        } else {
+        }
+        else
+        {
             selfUpdateButton.setVisible(false);
         }
     }
 
-    private void requestUpdate(URL url) {
+    private void requestUpdate(URL url)
+    {
         this.updateUrl = url;
         selfUpdateButton.setVisible(true);
     }
@@ -229,25 +264,30 @@ public class LauncherFrame extends JFrame {
      * Popup the menu for the instances.
      *
      * @param component the component
-     * @param x mouse X
-     * @param y mouse Y
-     * @param selected the selected instance, possibly null
+     * @param x         mouse X
+     * @param y         mouse Y
+     * @param selected  the selected instance, possibly null
      */
-    private void popupInstanceMenu(Component component, int x, int y, final Instance selected) {
+    private void popupInstanceMenu(Component component, int x, int y, final Instance selected)
+    {
         JPopupMenu popup = new JPopupMenu();
         JMenuItem menuItem;
 
-        if (selected != null) {
+        if (selected != null)
+        {
             menuItem = new JMenuItem(!selected.isLocal() ? "Install" : "Launch");
-            menuItem.addActionListener(new ActionListener() {
+            menuItem.addActionListener(new ActionListener()
+            {
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent e)
+                {
                     launch();
                 }
             });
             popup.add(menuItem);
 
-            if (selected.isLocal()) {
+            if (selected.isLocal())
+            {
                 popup.addSeparator();
 
                 menuItem = new JMenuItem(_("instance.openFolder"));
@@ -271,9 +311,11 @@ public class LauncherFrame extends JFrame {
                 popup.add(menuItem);
 
                 menuItem = new JMenuItem(_("instance.copyAsPath"));
-                menuItem.addActionListener(new ActionListener() {
+                menuItem.addActionListener(new ActionListener()
+                {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent e)
+                    {
                         File dir = selected.getContentDir();
                         dir.mkdirs();
                         SwingHelper.setClipboard(dir.getAbsolutePath());
@@ -283,11 +325,14 @@ public class LauncherFrame extends JFrame {
 
                 popup.addSeparator();
 
-                if (!selected.isUpdatePending()) {
+                if (!selected.isUpdatePending())
+                {
                     menuItem = new JMenuItem(_("instance.forceUpdate"));
-                    menuItem.addActionListener(new ActionListener() {
+                    menuItem.addActionListener(new ActionListener()
+                    {
                         @Override
-                        public void actionPerformed(ActionEvent e) {
+                        public void actionPerformed(ActionEvent e)
+                        {
                             selected.setUpdatePending(true);
                             launch();
                             instancesModel.update();
@@ -297,18 +342,22 @@ public class LauncherFrame extends JFrame {
                 }
 
                 menuItem = new JMenuItem(_("instance.hardForceUpdate"));
-                menuItem.addActionListener(new ActionListener() {
+                menuItem.addActionListener(new ActionListener()
+                {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent e)
+                    {
                         confirmHardUpdate(selected);
                     }
                 });
                 popup.add(menuItem);
 
                 menuItem = new JMenuItem(_("instance.deleteFiles"));
-                menuItem.addActionListener(new ActionListener() {
+                menuItem.addActionListener(new ActionListener()
+                {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent e)
+                    {
                         confirmDelete(selected);
                     }
                 });
@@ -319,9 +368,11 @@ public class LauncherFrame extends JFrame {
         }
 
         menuItem = new JMenuItem(_("launcher.refreshList"));
-        menuItem.addActionListener(new ActionListener() {
+        menuItem.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 loadInstances();
             }
         });
@@ -331,9 +382,11 @@ public class LauncherFrame extends JFrame {
 
     }
 
-    private void confirmDelete(Instance instance) {
+    private void confirmDelete(Instance instance)
+    {
         if (!SwingHelper.confirmDialog(this,
-                _("instance.confirmDelete", instance.getTitle()), _("confirmTitle"))) {
+                _("instance.confirmDelete", instance.getTitle()), _("confirmTitle")))
+        {
             return;
         }
 
@@ -348,16 +401,20 @@ public class LauncherFrame extends JFrame {
         SwingHelper.addErrorDialogCallback(this, future);
 
         // Update the list of instances after updating
-        future.addListener(new Runnable() {
+        future.addListener(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 loadInstances();
             }
         }, SwingExecutor.INSTANCE);
     }
 
-    private void confirmHardUpdate(Instance instance) {
-        if (!SwingHelper.confirmDialog(this, _("instance.confirmHardUpdate"), _("confirmTitle"))) {
+    private void confirmHardUpdate(Instance instance)
+    {
+        if (!SwingHelper.confirmDialog(this, _("instance.confirmHardUpdate"), _("confirmTitle")))
+        {
             return;
         }
 
@@ -367,30 +424,36 @@ public class LauncherFrame extends JFrame {
                 launcher.getExecutor().submit(resetter), resetter);
 
         // Show progress
-        ProgressDialog.showProgress( this, future, _("instance.resettingTitle"),
+        ProgressDialog.showProgress(this, future, _("instance.resettingTitle"),
                 _("instance.resettingStatus", instance.getTitle()));
         SwingHelper.addErrorDialogCallback(this, future);
 
         // Update the list of instances after updating
-        future.addListener(new Runnable() {
+        future.addListener(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 launch();
                 instancesModel.update();
             }
         }, SwingExecutor.INSTANCE);
     }
 
-    private void loadInstances() {
+    private void loadInstances()
+    {
         InstanceList.Enumerator loader = launcher.getInstances().createEnumerator();
         ObservableFuture<InstanceList> future = new ObservableFuture<InstanceList>(
                 launcher.getExecutor().submit(loader), loader);
 
-        future.addListener(new Runnable() {
+        future.addListener(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 instancesModel.update();
-                if (instancesTable.getRowCount() > 0) {
+                if (instancesTable.getRowCount() > 0)
+                {
                     instancesTable.setRowSelectionInterval(0, 0);
                 }
                 requestFocus();
@@ -401,13 +464,16 @@ public class LauncherFrame extends JFrame {
         SwingHelper.addErrorDialogCallback(this, future);
     }
 
-    private void showOptions() {
+    private void showOptions()
+    {
         ConfigurationDialog configDialog = new ConfigurationDialog(this, launcher);
         configDialog.setVisible(true);
     }
 
-    private void launch() {
-        try {
+    private void launch()
+    {
+        try
+        {
             final Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
             boolean update = updateCheck.isSelected() && instance.isUpdatePending();
 
@@ -418,16 +484,19 @@ public class LauncherFrame extends JFrame {
 
             // Perform login
             final Session session = LoginDialog.showLoginRequest(this, launcher);
-            if (session == null) {
+            if (session == null)
+            {
                 return;
             }
 
             // If we have to update, we have to update
-            if (!instance.isInstalled()) {
+            if (!instance.isInstalled())
+            {
                 update = true;
             }
 
-            if (update) {
+            if (update)
+            {
                 // Execute the updater
                 Updater updater = new Updater(launcher, instance);
                 updater.setOnline(session.isOnline());
@@ -440,33 +509,43 @@ public class LauncherFrame extends JFrame {
                 SwingHelper.addErrorDialogCallback(this, future);
 
                 // Update the list of instances after updating
-                future.addListener(new Runnable() {
+                future.addListener(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         instancesModel.update();
                     }
                 }, SwingExecutor.INSTANCE);
 
                 // On success, launch also
-                Futures.addCallback(future, new FutureCallback<Instance>() {
+                Futures.addCallback(future, new FutureCallback<Instance>()
+                {
                     @Override
-                    public void onSuccess(Instance result) {
+                    public void onSuccess(Instance result)
+                    {
                         launch(instance, session);
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(Throwable t)
+                    {
                     }
                 }, SwingExecutor.INSTANCE);
-            } else {
+            }
+            else
+            {
                 launch(instance, session);
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
             SwingHelper.showErrorDialog(this, _("launcher.noInstanceError"), _("launcher.noInstanceTitle"));
         }
     }
 
-    private void launch(Instance instance, Session session) {
+    private void launch(Instance instance, Session session)
+    {
         final File extractDir = launcher.createExtractDir();
 
         // Get the process
@@ -479,14 +558,17 @@ public class LauncherFrame extends JFrame {
                 this, processFuture, _("launcher.launchingTItle"), _("launcher.launchingStatus", instance.getTitle()));
 
         // If the process is started, get rid of this window
-        Futures.addCallback(processFuture, new FutureCallback<Process>() {
+        Futures.addCallback(processFuture, new FutureCallback<Process>()
+        {
             @Override
-            public void onSuccess(Process result) {
+            public void onSuccess(Process result)
+            {
                 dispose();
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Throwable t)
+            {
             }
         });
 
@@ -496,13 +578,18 @@ public class LauncherFrame extends JFrame {
         SwingHelper.addErrorDialogCallback(null, future);
 
         // Clean up at the very end
-        future.addListener(new Runnable() {
+        future.addListener(new Runnable()
+        {
             @Override
-            public void run() {
-                try {
+            public void run()
+            {
+                try
+                {
                     log.info("Process ended; cleaning up " + extractDir.getAbsolutePath());
                     FileUtils.deleteDirectory(extractDir);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     log.log(Level.WARNING, "Failed to clean up " + extractDir.getAbsolutePath(), e);
                 }
                 instancesModel.update();

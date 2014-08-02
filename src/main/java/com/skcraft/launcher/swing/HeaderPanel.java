@@ -9,19 +9,23 @@ package com.skcraft.launcher.swing;
 import javax.swing.*;
 import java.awt.*;
 
-public class HeaderPanel extends JPanel {
+public class HeaderPanel extends JPanel
+{
 
-    public HeaderPanel() {
+    public HeaderPanel()
+    {
         setBackground(new Color(0xDB5036));
     }
 
     @Override
-    public Dimension getPreferredSize() {
+    public Dimension getPreferredSize()
+    {
         return new Dimension(200, 60);
     }
 
     @Override
-    public void paint(Graphics g) {
+    public void paint(Graphics g)
+    {
         super.paint(g);
     }
 }

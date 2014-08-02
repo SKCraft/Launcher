@@ -22,28 +22,34 @@ import java.util.logging.Level;
  * Handles post-process creation during launch.
  */
 @Log
-public class LaunchProcessHandler implements Function<Process, ProcessConsoleFrame> {
+public class LaunchProcessHandler implements Function<Process, ProcessConsoleFrame>
+{
 
     private static final int CONSOLE_NUM_LINES = 10000;
 
     private final Launcher launcher;
     private ProcessConsoleFrame consoleFrame;
 
-    public LaunchProcessHandler(@NonNull Launcher launcher) {
+    public LaunchProcessHandler(@NonNull Launcher launcher)
+    {
         this.launcher = launcher;
     }
 
     @Override
-    public ProcessConsoleFrame apply(final Process process) {
+    public ProcessConsoleFrame apply(final Process process)
+    {
         log.info("Watching process " + process);
 
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
+        try
+        {
+            SwingUtilities.invokeAndWait(new Runnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     consoleFrame = new ProcessConsoleFrame(CONSOLE_NUM_LINES, true);
                     consoleFrame.setProcess(process);
-                    consoleFrame.setVisible(true);
+                    consoleFrame.setVisible(false);
                     MessageLog messageLog = consoleFrame.getMessageLog();
                     messageLog.consume(process.getInputStream());
                     messageLog.consume(process.getErrorStream());
@@ -52,21 +58,28 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
 
             // Wait for the process to end
             process.waitFor();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             // Orphan process
-        } catch (InvocationTargetException e) {
+        }
+        catch (InvocationTargetException e)
+        {
             log.log(Level.WARNING, "Unexpected failure", e);
         }
 
         log.info("Process ended, re-showing launcher...");
 
         // Restore the launcher
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 new LauncherFrame(launcher).setVisible(true);
 
-                if (consoleFrame != null) {
+                if (consoleFrame != null)
+                {
                     consoleFrame.setProcess(null);
                     consoleFrame.requestFocus();
                 }

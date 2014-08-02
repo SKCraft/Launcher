@@ -23,7 +23,8 @@ import java.io.IOException;
  * {@link com.skcraft.launcher.model.modpack.Manifest}.
  */
 @Log
-public class ClientFileCollector extends DirectoryWalker {
+public class ClientFileCollector extends DirectoryWalker
+{
 
     private final Manifest manifest;
     private final PropertiesApplicator applicator;
@@ -33,25 +34,29 @@ public class ClientFileCollector extends DirectoryWalker {
     /**
      * Create a new collector.
      *
-     * @param manifest the manifest
+     * @param manifest   the manifest
      * @param applicator applies properties to manifest entries
-     * @param destDir the destination directory to copy the hashed objects
+     * @param destDir    the destination directory to copy the hashed objects
      */
     public ClientFileCollector(@NonNull Manifest manifest, @NonNull PropertiesApplicator applicator,
-                               @NonNull File destDir) {
+                               @NonNull File destDir)
+    {
         this.manifest = manifest;
         this.applicator = applicator;
         this.destDir = destDir;
     }
 
     @Override
-    protected DirectoryBehavior getBehavior(@NonNull String name) {
+    protected DirectoryBehavior getBehavior(@NonNull String name)
+    {
         return getDirectoryBehavior(name);
     }
 
     @Override
-    protected void onFile(File file, String relPath) throws IOException {
-        if (file.getName().endsWith(FileInfoScanner.FILE_SUFFIX)) {
+    protected void onFile(File file, String relPath) throws IOException
+    {
+        if (file.getName().endsWith(FileInfoScanner.FILE_SUFFIX))
+        {
             return;
         }
 
@@ -70,16 +75,26 @@ public class ClientFileCollector extends DirectoryWalker {
         manifest.getTasks().add(entry);
     }
 
-    public static DirectoryBehavior getDirectoryBehavior(@NonNull String name) {
-        if (name.startsWith(".")) {
+    public static DirectoryBehavior getDirectoryBehavior(@NonNull String name)
+    {
+        if (name.startsWith("."))
+        {
             return DirectoryBehavior.SKIP;
-        } else if (name.equals("_OPTIONAL")) {
+        }
+        else if (name.equals("_OPTIONAL"))
+        {
             return DirectoryBehavior.IGNORE;
-        } else if (name.equals("_SERVER")) {
+        }
+        else if (name.equals("_SERVER"))
+        {
             return DirectoryBehavior.SKIP;
-        } else if (name.equals("_CLIENT")) {
+        }
+        else if (name.equals("_CLIENT"))
+        {
             return DirectoryBehavior.IGNORE;
-        } else {
+        }
+        else
+        {
             return DirectoryBehavior.CONTINUE;
         }
     }

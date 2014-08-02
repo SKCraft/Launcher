@@ -19,7 +19,8 @@ import java.util.concurrent.TimeoutException;
  *
  * @param <V> the result type
  */
-public class ObservableFuture<V> implements ListenableFuture<V>, ProgressObservable {
+public class ObservableFuture<V> implements ListenableFuture<V>, ProgressObservable
+{
 
     private final ListenableFuture<V> future;
     private final ProgressObservable observable;
@@ -27,56 +28,66 @@ public class ObservableFuture<V> implements ListenableFuture<V>, ProgressObserva
     /**
      * Construct a new ObservableFuture.
      *
-     * @param future the delegate future
+     * @param future     the delegate future
      * @param observable the observable
      */
-    public ObservableFuture(@NonNull ListenableFuture<V> future, @NonNull ProgressObservable observable) {
+    public ObservableFuture(@NonNull ListenableFuture<V> future, @NonNull ProgressObservable observable)
+    {
         this.future = future;
         this.observable = observable;
     }
 
     @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
+    public boolean cancel(boolean mayInterruptIfRunning)
+    {
         return future.cancel(mayInterruptIfRunning);
     }
 
     @Override
-    public boolean isCancelled() {
+    public boolean isCancelled()
+    {
         return future.isCancelled();
     }
 
     @Override
-    public void addListener(Runnable listener, Executor executor) {
+    public void addListener(Runnable listener, Executor executor)
+    {
         future.addListener(listener, executor);
     }
 
     @Override
-    public boolean isDone() {
+    public boolean isDone()
+    {
         return future.isDone();
     }
 
     @Override
-    public V get() throws InterruptedException, ExecutionException {
+    public V get() throws InterruptedException, ExecutionException
+    {
         return future.get();
     }
 
     @Override
-    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
+    {
         return future.get(timeout, unit);
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return observable.toString();
     }
 
     @Override
-    public double getProgress() {
+    public double getProgress()
+    {
         return observable.getProgress();
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         return observable.getStatus();
     }
 

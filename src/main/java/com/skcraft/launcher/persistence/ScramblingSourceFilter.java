@@ -13,22 +13,28 @@ import javax.crypto.CipherInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class ScramblingSourceFilter extends ByteSource {
+class ScramblingSourceFilter extends ByteSource
+{
 
     private final ByteSource delegate;
     private final String key;
 
-    public ScramblingSourceFilter(ByteSource delegate, String key) {
+    public ScramblingSourceFilter(ByteSource delegate, String key)
+    {
         this.delegate = delegate;
         this.key = key;
     }
 
     @Override
-    public InputStream openStream() throws IOException {
+    public InputStream openStream() throws IOException
+    {
         Cipher cipher = null;
-        try {
+        try
+        {
             cipher = ScramblingSinkFilter.getCipher(Cipher.DECRYPT_MODE, key);
-        } catch (Throwable e) {
+        }
+        catch (Throwable e)
+        {
             throw new IOException("Failed to create cipher", e);
         }
         return new CipherInputStream(delegate.openStream(), cipher);

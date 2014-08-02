@@ -9,7 +9,8 @@ package com.skcraft.launcher.auth;
 /**
  * Represents the type of user for the account.
  */
-public enum UserType {
+public enum UserType
+{
 
     /**
      * Legacy accounts login with an account username.
@@ -25,7 +26,8 @@ public enum UserType {
      *
      * @return the lowercase name
      */
-    public String getName() {
+    public String getName()
+    {
         return name().toLowerCase();
     }
 

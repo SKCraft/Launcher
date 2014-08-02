@@ -11,7 +11,8 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Asset {
+public class Asset
+{
 
     private String hash;
     private int size;

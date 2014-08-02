@@ -13,17 +13,21 @@ import java.util.List;
 
 import static com.skcraft.launcher.util.SharedLocale._;
 
-public class FeatureTableModel extends AbstractTableModel {
+public class FeatureTableModel extends AbstractTableModel
+{
 
     private final List<Feature> features;
 
-    public FeatureTableModel(List<Feature> features) {
+    public FeatureTableModel(List<Feature> features)
+    {
         this.features = features;
     }
 
     @Override
-    public String getColumnName(int columnIndex) {
-        switch (columnIndex) {
+    public String getColumnName(int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 1:
                 return _("features.nameColumn");
             default:
@@ -32,8 +36,10 @@ public class FeatureTableModel extends AbstractTableModel {
     }
 
     @Override
-    public Class<?> getColumnClass(int columnIndex) {
-        switch (columnIndex) {
+    public Class<?> getColumnClass(int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 return Boolean.class;
             case 1:
@@ -44,8 +50,10 @@ public class FeatureTableModel extends AbstractTableModel {
     }
 
     @Override
-    public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        switch (columnIndex) {
+    public void setValueAt(Object value, int rowIndex, int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 features.get(rowIndex).setSelected((boolean) (Boolean) value);
                 break;
@@ -56,8 +64,10 @@ public class FeatureTableModel extends AbstractTableModel {
     }
 
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        switch (columnIndex) {
+    public boolean isCellEditable(int rowIndex, int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 return true;
             case 1:
@@ -68,18 +78,22 @@ public class FeatureTableModel extends AbstractTableModel {
     }
 
     @Override
-    public int getRowCount() {
+    public int getRowCount()
+    {
         return features.size();
     }
 
     @Override
-    public int getColumnCount() {
+    public int getColumnCount()
+    {
         return 2;
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        switch (columnIndex) {
+    public Object getValueAt(int rowIndex, int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 return features.get(rowIndex).isSelected();
             case 1:
@@ -90,11 +104,14 @@ public class FeatureTableModel extends AbstractTableModel {
         }
     }
 
-    private String getAddendum(Feature feature) {
-        if (feature.getRecommendation() == null) {
+    private String getAddendum(Feature feature)
+    {
+        if (feature.getRecommendation() == null)
+        {
             return "";
         }
-        switch (feature.getRecommendation()) {
+        switch (feature.getRecommendation())
+        {
             case STARRED:
                 return " <span style=\"color: #3758DB\">" + _("features.starred") + "</span>";
             case AVOID:

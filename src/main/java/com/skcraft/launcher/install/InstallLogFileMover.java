@@ -16,20 +16,23 @@ import java.util.logging.Level;
 import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
-public class InstallLogFileMover implements InstallTask {
+public class InstallLogFileMover implements InstallTask
+{
 
     private final InstallLog installLog;
     private final File from;
     private final File to;
 
-    public InstallLogFileMover(InstallLog installLog, @NonNull File from, @NonNull File to) {
+    public InstallLogFileMover(InstallLog installLog, @NonNull File from, @NonNull File to)
+    {
         this.installLog = installLog;
         this.from = from;
         this.to = to;
     }
 
     @Override
-    public void execute() throws IOException {
+    public void execute() throws IOException
+    {
         InstallLogFileMover.log.log(Level.INFO, "Installing to {0} (from {1})...", new Object[]{to.getAbsoluteFile(), from.getName()});
         to.getParentFile().mkdirs();
         to.delete();
@@ -38,12 +41,14 @@ public class InstallLogFileMover implements InstallTask {
     }
 
     @Override
-    public double getProgress() {
+    public double getProgress()
+    {
         return -1;
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         return _("installer.movingFile", from, to);
     }
 

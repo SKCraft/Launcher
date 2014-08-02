@@ -19,7 +19,8 @@ import java.util.List;
 import static com.skcraft.launcher.util.SharedLocale._;
 import static javax.swing.BorderFactory.createEmptyBorder;
 
-public class FeatureSelectionDialog extends JDialog {
+public class FeatureSelectionDialog extends JDialog
+{
 
     private final List<Feature> features;
     private final JPanel container = new JPanel(new BorderLayout());
@@ -31,7 +32,8 @@ public class FeatureSelectionDialog extends JDialog {
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final JButton installButton = new JButton(_("features.install"));
 
-    public FeatureSelectionDialog(Window owner, @NonNull List<Feature> features) {
+    public FeatureSelectionDialog(Window owner, @NonNull List<Feature> features)
+    {
         super(owner, ModalityType.DOCUMENT_MODAL);
 
         this.features = features;
@@ -44,7 +46,8 @@ public class FeatureSelectionDialog extends JDialog {
         setLocationRelativeTo(owner);
     }
 
-    private void initComponents() {
+    private void initComponents()
+    {
         componentsTable.setModel(new FeatureTableModel(features));
 
         descScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -75,8 +78,10 @@ public class FeatureSelectionDialog extends JDialog {
         add(container, BorderLayout.CENTER);
         add(buttonsPanel, BorderLayout.SOUTH);
 
-        componentsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
+        componentsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+        {
+            public void valueChanged(ListSelectionEvent e)
+            {
                 updateDescription();
             }
         });
@@ -84,12 +89,16 @@ public class FeatureSelectionDialog extends JDialog {
         installButton.addActionListener(ActionListeners.dispose(this));
     }
 
-    private void updateDescription() {
+    private void updateDescription()
+    {
         Feature feature = features.get(componentsTable.getSelectedRow());
 
-        if (feature != null) {
+        if (feature != null)
+        {
             descText.setText(feature.getDescription());
-        } else {
+        }
+        else
+        {
             descText.setText(_("features.selectForInfo"));
         }
     }

@@ -14,34 +14,42 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class SelectionKeeper implements ListSelectionListener, ListDataListener {
+public class SelectionKeeper implements ListSelectionListener, ListDataListener
+{
 
     private final JList list;
     private Object lastSelected;
 
-    private SelectionKeeper(@NonNull JList list) {
+    private SelectionKeeper(@NonNull JList list)
+    {
         this.list = list;
     }
 
-    public void intervalAdded(ListDataEvent e) {
+    public void intervalAdded(ListDataEvent e)
+    {
         list.setSelectedValue(lastSelected, true);
     }
 
-    public void intervalRemoved(ListDataEvent e) {
+    public void intervalRemoved(ListDataEvent e)
+    {
         list.setSelectedValue(lastSelected, true);
     }
 
-    public void contentsChanged(ListDataEvent e) {
+    public void contentsChanged(ListDataEvent e)
+    {
         list.setSelectedValue(lastSelected, true);
     }
 
-    public void valueChanged(ListSelectionEvent e) {
-        if (!e.getValueIsAdjusting()) {
+    public void valueChanged(ListSelectionEvent e)
+    {
+        if (!e.getValueIsAdjusting())
+        {
             lastSelected = list.getSelectedValue();
         }
     }
 
-    public static void attach(@NonNull JList list) {
+    public static void attach(@NonNull JList list)
+    {
         SelectionKeeper s = new SelectionKeeper(list);
         list.addListSelectionListener(s);
         list.getModel().addListDataListener(s);

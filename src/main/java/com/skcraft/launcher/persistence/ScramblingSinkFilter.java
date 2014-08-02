@@ -19,22 +19,28 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
-class ScramblingSinkFilter extends ByteSink {
+class ScramblingSinkFilter extends ByteSink
+{
 
     private final ByteSink delegate;
     private final String key;
 
-    public ScramblingSinkFilter(ByteSink delegate, String key) {
+    public ScramblingSinkFilter(ByteSink delegate, String key)
+    {
         this.delegate = delegate;
         this.key = key;
     }
 
     @Override
-    public OutputStream openStream() throws IOException {
+    public OutputStream openStream() throws IOException
+    {
         Cipher cipher = null;
-        try {
+        try
+        {
             cipher = getCipher(Cipher.ENCRYPT_MODE, key);
-        } catch (Throwable e) {
+        }
+        catch (Throwable e)
+        {
             throw new IOException("Failed to create cipher", e);
         }
         return new CipherOutputStream(delegate.openStream(), cipher);
@@ -42,7 +48,8 @@ class ScramblingSinkFilter extends ByteSink {
 
     public static Cipher getCipher(int mode, String password)
             throws InvalidKeySpecException, NoSuchAlgorithmException,
-            NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+            NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException
+    {
         // These parameters were used for encrypting lastlogin on old official Minecraft launchers
         Random random = new Random(0x29482c2L);
         byte salt[] = new byte[8];

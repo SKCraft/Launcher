@@ -16,9 +16,11 @@ import java.io.IOException;
  * path (which may be modified by dropping certain directory entries),
  * and call {@link #onFile(java.io.File, String)} with each file.
  */
-public abstract class DirectoryWalker {
+public abstract class DirectoryWalker
+{
 
-    public enum DirectoryBehavior {
+    public enum DirectoryBehavior
+    {
         /**
          * Continue and add the given directory to the relative path.
          */
@@ -39,37 +41,47 @@ public abstract class DirectoryWalker {
      * @param dir the directory
      * @throws IOException thrown on I/O error
      */
-    public final void walk(@NonNull File dir) throws IOException {
+    public final void walk(@NonNull File dir) throws IOException
+    {
         walk(dir, "");
     }
 
     /**
      * Recursively walk the given directory and keep track of the relative path.
      *
-     * @param dir the directory
+     * @param dir      the directory
      * @param basePath the base path
      * @throws IOException
      */
-    private void walk(@NonNull File dir, @NonNull String basePath) throws IOException {
-        if (!dir.isDirectory()) {
+    private void walk(@NonNull File dir, @NonNull String basePath) throws IOException
+    {
+        if (!dir.isDirectory())
+        {
             throw new IllegalArgumentException(dir.getAbsolutePath() + " is not a directory");
         }
 
         File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
+        if (files != null)
+        {
+            for (File file : files)
+            {
+                if (file.isDirectory())
+                {
                     String newPath = basePath;
 
-                    switch (getBehavior(file.getName())) {
+                    switch (getBehavior(file.getName()))
+                    {
                         case CONTINUE:
                             newPath += file.getName() + "/";
                         case IGNORE:
                             walk(file, newPath);
                             break;
-                        case SKIP: break;
+                        case SKIP:
+                            break;
                     }
-                } else {
+                }
+                else
+                {
                     onFile(file, basePath + file.getName());
                 }
             }
@@ -82,14 +94,15 @@ public abstract class DirectoryWalker {
      * @param name the directory name
      * @return the behavor
      */
-    protected DirectoryBehavior getBehavior(String name) {
+    protected DirectoryBehavior getBehavior(String name)
+    {
         return DirectoryBehavior.CONTINUE;
     }
 
     /**
      * Callback on each file.
      *
-     * @param file the file
+     * @param file    the file
      * @param relPath the relative path
      * @throws IOException thrown on I/O error
      */

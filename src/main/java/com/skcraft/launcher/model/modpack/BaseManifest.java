@@ -9,7 +9,8 @@ package com.skcraft.launcher.model.modpack;
 import lombok.Data;
 
 @Data
-public class BaseManifest {
+public class BaseManifest
+{
 
     private String title;
     private String name;

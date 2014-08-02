@@ -16,7 +16,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static org.apache.commons.io.IOUtils.closeQuietly;
@@ -26,7 +29,8 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
  * {@link java.net.HttpURLConnection} or {@link javax.net.ssl.HttpsURLConnection}.
  */
 @Log
-public class HttpRequest implements Closeable, ProgressObservable {
+public class HttpRequest implements Closeable, ProgressObservable
+{
 
     private static final int READ_TIMEOUT = 1000 * 60 * 10;
     private static final int READ_BUFFER_SIZE = 1024 * 8;
@@ -50,7 +54,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @param method the method
      * @param url    the URL
      */
-    private HttpRequest(String method, URL url) {
+    private HttpRequest(String method, URL url)
+    {
         this.method = method;
         this.url = url;
     }
@@ -62,7 +67,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @return this object
      * @throws java.io.IOException if the object can't be mapped
      */
-    public HttpRequest bodyJson(Object object) throws IOException {
+    public HttpRequest bodyJson(Object object) throws IOException
+    {
         contentType = "application/json";
         body = mapper.writeValueAsBytes(object);
         return this;
@@ -74,7 +80,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @param form the form
      * @return this object
      */
-    public HttpRequest bodyForm(Form form) {
+    public HttpRequest bodyForm(Form form)
+    {
         contentType = "application/x-www-form-urlencoded";
         body = form.toString().getBytes();
         return this;
@@ -87,7 +94,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @param value the header value
      * @return this object
      */
-    public HttpRequest header(String key, String value) {
+    public HttpRequest header(String key, String value)
+    {
         headers.put(key, value);
         return this;
     }
@@ -100,24 +108,29 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @return this object
      * @throws java.io.IOException on I/O error
      */
-    public HttpRequest execute() throws IOException {
+    public HttpRequest execute() throws IOException
+    {
         boolean successful = false;
 
-        try {
-            if (conn != null) {
+        try
+        {
+            if (conn != null)
+            {
                 throw new IllegalArgumentException("Connection already executed");
             }
 
             conn = (HttpURLConnection) reformat(url).openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Java) SKMCLauncher");
 
-            if (body != null) {
+            if (body != null)
+            {
                 conn.setRequestProperty("Content-Type", contentType);
                 conn.setRequestProperty("Content-Length", Integer.toString(body.length));
                 conn.setDoInput(true);
             }
 
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
+            for (Map.Entry<String, String> entry : headers.entrySet())
+            {
                 conn.setRequestProperty(entry.getKey(), entry.getValue());
             }
 
@@ -128,7 +141,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
 
             conn.connect();
 
-            if (body != null) {
+            if (body != null)
+            {
                 DataOutputStream out = new DataOutputStream(conn.getOutputStream());
                 out.write(body);
                 out.flush();
@@ -139,8 +153,11 @@ public class HttpRequest implements Closeable, ProgressObservable {
                     conn.getInputStream() : conn.getErrorStream();
 
             successful = true;
-        } finally {
-            if (!successful) {
+        }
+        finally
+        {
+            if (!successful)
+            {
                 close();
             }
         }
@@ -155,11 +172,14 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @return this object
      * @throws java.io.IOException if there is an I/O error or the response code is not expected
      */
-    public HttpRequest expectResponseCode(int... codes) throws IOException {
+    public HttpRequest expectResponseCode(int... codes) throws IOException
+    {
         int responseCode = getResponseCode();
 
-        for (int code : codes) {
-            if (code == responseCode) {
+        for (int code : codes)
+        {
+            if (code == responseCode)
+            {
                 return this;
             }
         }
@@ -174,8 +194,10 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @return the response code
      * @throws java.io.IOException on I/O error
      */
-    public int getResponseCode() throws IOException {
-        if (conn == null) {
+    public int getResponseCode() throws IOException
+    {
+        if (conn == null)
+        {
             throw new IllegalArgumentException("No connection has been made");
         }
 
@@ -187,7 +209,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      *
      * @return the input stream
      */
-    public InputStream getInputStream() {
+    public InputStream getInputStream()
+    {
         return inputStream;
     }
 
@@ -198,20 +221,26 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @throws java.io.IOException  on I/O error
      * @throws InterruptedException on interruption
      */
-    public BufferedResponse returnContent() throws IOException, InterruptedException {
-        if (inputStream == null) {
+    public BufferedResponse returnContent() throws IOException, InterruptedException
+    {
+        if (inputStream == null)
+        {
             throw new IllegalArgumentException("No input stream available");
         }
 
-        try {
+        try
+        {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             int b = 0;
-            while ((b = inputStream.read()) != -1) {
+            while ((b = inputStream.read()) != -1)
+            {
                 checkInterrupted();
                 bos.write(b);
             }
             return new BufferedResponse(bos.toByteArray());
-        } finally {
+        }
+        finally
+        {
             close();
         }
     }
@@ -224,16 +253,20 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @throws java.io.IOException  on I/O error
      * @throws InterruptedException on interruption
      */
-    public HttpRequest saveContent(File file) throws IOException, InterruptedException {
+    public HttpRequest saveContent(File file) throws IOException, InterruptedException
+    {
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
 
-        try {
+        try
+        {
             fos = new FileOutputStream(file);
             bos = new BufferedOutputStream(fos);
 
             saveContent(bos);
-        } finally {
+        }
+        finally
+        {
             closeQuietly(bos);
             closeQuietly(fos);
         }
@@ -249,31 +282,41 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @throws java.io.IOException  on I/O error
      * @throws InterruptedException on interruption
      */
-    public HttpRequest saveContent(OutputStream out) throws IOException, InterruptedException {
+    public HttpRequest saveContent(OutputStream out) throws IOException, InterruptedException
+    {
         BufferedInputStream bis;
 
-        try {
+        try
+        {
             String field = conn.getHeaderField("Content-Length");
-            if (field != null) {
+            if (field != null)
+            {
                 long len = Long.parseLong(field);
-                if (len >= 0) { // Let's just not deal with really big numbers
+                if (len >= 0)
+                { // Let's just not deal with really big numbers
                     contentLength = len;
                 }
             }
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e)
+        {
         }
 
-        try {
+        try
+        {
             bis = new BufferedInputStream(inputStream);
 
             byte[] data = new byte[READ_BUFFER_SIZE];
             int len = 0;
-            while ((len = bis.read(data, 0, READ_BUFFER_SIZE)) >= 0) {
+            while ((len = bis.read(data, 0, READ_BUFFER_SIZE)) >= 0)
+            {
                 out.write(data, 0, len);
                 readBytes += len;
                 checkInterrupted();
             }
-        } finally {
+        }
+        finally
+        {
             close();
         }
 
@@ -281,21 +324,27 @@ public class HttpRequest implements Closeable, ProgressObservable {
     }
 
     @Override
-    public double getProgress() {
-        if (contentLength >= 0) {
+    public double getProgress()
+    {
+        if (contentLength >= 0)
+        {
             return readBytes / (double) contentLength;
-        } else {
+        }
+        else
+        {
             return -1;
         }
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         return null;
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() throws IOException
+    {
         if (conn != null) conn.disconnect();
     }
 
@@ -305,7 +354,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @param url the URL
      * @return a new request object
      */
-    public static HttpRequest get(URL url) {
+    public static HttpRequest get(URL url)
+    {
         return request("GET", url);
     }
 
@@ -315,7 +365,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @param url the URL
      * @return a new request object
      */
-    public static HttpRequest post(URL url) {
+    public static HttpRequest post(URL url)
+    {
         return request("POST", url);
     }
 
@@ -326,7 +377,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @param url    the URL
      * @return a new request object
      */
-    public static HttpRequest request(String method, URL url) {
+    public static HttpRequest request(String method, URL url)
+    {
         return new HttpRequest(method, url);
     }
 
@@ -338,10 +390,14 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @return a URL object
      * @throws RuntimeException if the URL is invalid
      */
-    public static URL url(String url) {
-        try {
+    public static URL url(String url)
+    {
+        try
+        {
             return new URL(url);
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -352,17 +408,23 @@ public class HttpRequest implements Closeable, ProgressObservable {
      * @param existing the existing URL to transform
      * @return the new URL, or old one if there was a failure
      */
-    private static URL reformat(URL existing) {
-        try {
+    private static URL reformat(URL existing)
+    {
+        try
+        {
             URL url = new URL(existing.toString());
             URI uri = new URI(
                     url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(),
                     url.getPath(), url.getQuery(), url.getRef());
             url = uri.toURL();
             return url;
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e)
+        {
             return existing;
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e)
+        {
             return existing;
         }
     }
@@ -370,10 +432,13 @@ public class HttpRequest implements Closeable, ProgressObservable {
     /**
      * Used with {@link #bodyForm(Form)}.
      */
-    public final static class Form {
+    public final static class Form
+    {
+
         public final List<String> elements = new ArrayList<String>();
 
-        private Form() {
+        private Form()
+        {
         }
 
         /**
@@ -383,24 +448,33 @@ public class HttpRequest implements Closeable, ProgressObservable {
          * @param value the value
          * @return this object
          */
-        public Form add(String key, String value) {
-            try {
+        public Form add(String key, String value)
+        {
+            try
+            {
                 elements.add(URLEncoder.encode(key, "UTF-8") +
                         "=" + URLEncoder.encode(value, "UTF-8"));
                 return this;
-            } catch (UnsupportedEncodingException e) {
+            }
+            catch (UnsupportedEncodingException e)
+            {
                 throw new RuntimeException(e);
             }
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             StringBuilder builder = new StringBuilder();
             boolean first = true;
-            for (String element : elements) {
-                if (first) {
+            for (String element : elements)
+            {
+                if (first)
+                {
                     first = false;
-                } else {
+                }
+                else
+                {
                     builder.append("&");
                 }
                 builder.append(element);
@@ -413,7 +487,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
          *
          * @return a new form
          */
-        public static Form form() {
+        public static Form form()
+        {
             return new Form();
         }
     }
@@ -421,10 +496,13 @@ public class HttpRequest implements Closeable, ProgressObservable {
     /**
      * Used to buffer the response in memory.
      */
-    public class BufferedResponse {
+    public class BufferedResponse
+    {
+
         private final byte[] data;
 
-        private BufferedResponse(byte[] data) {
+        private BufferedResponse(byte[] data)
+        {
             this.data = data;
         }
 
@@ -433,7 +511,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
          *
          * @return the data
          */
-        public byte[] asBytes() {
+        public byte[] asBytes()
+        {
             return data;
         }
 
@@ -444,7 +523,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
          * @return the string
          * @throws java.io.IOException on I/O error
          */
-        public String asString(String encoding) throws IOException {
+        public String asString(String encoding) throws IOException
+        {
             return new String(data, encoding);
         }
 
@@ -455,7 +535,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
          * @return the object
          * @throws java.io.IOException on I/O error
          */
-        public <T> T asJson(Class<T> cls) throws IOException {
+        public <T> T asJson(Class<T> cls) throws IOException
+        {
             return mapper.readValue(asString("UTF-8"), cls);
         }
 
@@ -467,12 +548,16 @@ public class HttpRequest implements Closeable, ProgressObservable {
          * @throws java.io.IOException on I/O error
          */
         @SuppressWarnings("unchecked")
-        public <T> T asXml(Class<T> cls) throws IOException {
-            try {
+        public <T> T asXml(Class<T> cls) throws IOException
+        {
+            try
+            {
                 JAXBContext context = JAXBContext.newInstance(cls);
                 Unmarshaller um = context.createUnmarshaller();
                 return (T) um.unmarshal(new ByteArrayInputStream(data));
-            } catch (JAXBException e) {
+            }
+            catch (JAXBException e)
+            {
                 throw new IOException(e);
             }
         }
@@ -485,18 +570,22 @@ public class HttpRequest implements Closeable, ProgressObservable {
          * @throws java.io.IOException  on I/O error
          * @throws InterruptedException on interruption
          */
-        public BufferedResponse saveContent(File file) throws IOException, InterruptedException {
+        public BufferedResponse saveContent(File file) throws IOException, InterruptedException
+        {
             FileOutputStream fos = null;
             BufferedOutputStream bos = null;
 
             file.getParentFile().mkdirs();
 
-            try {
+            try
+            {
                 fos = new FileOutputStream(file);
                 bos = new BufferedOutputStream(fos);
 
                 saveContent(bos);
-            } finally {
+            }
+            finally
+            {
                 closeQuietly(bos);
                 closeQuietly(fos);
             }
@@ -512,7 +601,8 @@ public class HttpRequest implements Closeable, ProgressObservable {
          * @throws java.io.IOException  on I/O error
          * @throws InterruptedException on interruption
          */
-        public BufferedResponse saveContent(OutputStream out) throws IOException, InterruptedException {
+        public BufferedResponse saveContent(OutputStream out) throws IOException, InterruptedException
+        {
             out.write(data);
 
             return this;

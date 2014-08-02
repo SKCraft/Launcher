@@ -28,7 +28,8 @@ import static com.skcraft.launcher.LauncherUtils.concat;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FileInstall extends ManifestEntry {
+public class FileInstall extends ManifestEntry
+{
 
     private static HashFunction hf = Hashing.sha1();
     private String version;
@@ -39,19 +40,23 @@ public class FileInstall extends ManifestEntry {
     private boolean userFile;
 
     @JsonIgnore
-    public String getImpliedVersion() {
+    public String getImpliedVersion()
+    {
         return checkNotNull(version != null ? version : hash);
     }
 
     @JsonIgnore
-    public String getTargetPath() {
+    public String getTargetPath()
+    {
         return checkNotNull(this.to != null ? this.to : location);
     }
 
     @Override
     public void install(@NonNull Installer installer, @NonNull InstallLog log,
-                        @NonNull UpdateCache cache, @NonNull File contentDir) throws IOException {
-        if (getWhen() != null && !getWhen().matches()) {
+                        @NonNull UpdateCache cache, @NonNull File contentDir) throws IOException
+    {
+        if (getWhen() != null && !getWhen().matches())
+        {
             return;
         }
 
@@ -60,31 +65,40 @@ public class FileInstall extends ManifestEntry {
         String fileVersion = getImpliedVersion();
         URL url = concat(getManifest().getObjectsUrl(), getLocation());
 
-        if (shouldUpdate(cache, targetFile)) {
+        if (shouldUpdate(cache, targetFile))
+        {
             long size = this.size;
-            if (size <= 0) {
+            if (size <= 0)
+            {
                 size = 10 * 1024;
             }
 
             File tempFile = installer.getDownloader().download(url, fileVersion, size, to);
             installer.queue(new InstallLogFileMover(log, tempFile, targetFile));
-        } else {
+        }
+        else
+        {
             log.add(to, to);
         }
     }
 
-    private boolean shouldUpdate(UpdateCache cache, File targetFile) throws IOException {
-        if (targetFile.exists() && isUserFile()) {
+    private boolean shouldUpdate(UpdateCache cache, File targetFile) throws IOException
+    {
+        if (targetFile.exists() && isUserFile())
+        {
             return false;
         }
 
-        if (!targetFile.exists()) {
+        if (!targetFile.exists())
+        {
             return true;
         }
 
-        if (hash != null) {
+        if (hash != null)
+        {
             String existingHash = Files.hash(targetFile, hf).toString();
-            if (existingHash.equalsIgnoreCase(hash)) {
+            if (existingHash.equalsIgnoreCase(hash))
+            {
                 return false;
             }
         }

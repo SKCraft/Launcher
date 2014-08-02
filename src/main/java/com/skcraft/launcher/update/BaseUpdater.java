@@ -50,7 +50,8 @@ import static com.skcraft.launcher.util.SharedLocale._;
  * routines. (It also makes the size of the <code>Updater</code> class smaller.)
  */
 @Log
-public abstract class BaseUpdater {
+public abstract class BaseUpdater
+{
 
     private static final long JAR_SIZE_ESTIMATE = 5 * 1024 * 1024;
     private static final long LIBRARY_SIZE_ESTIMATE = 3 * 1024 * 1024;
@@ -59,17 +60,21 @@ public abstract class BaseUpdater {
     private final Environment environment = Environment.getInstance();
     private final List<Runnable> executeOnCompletion = new ArrayList<Runnable>();
 
-    protected BaseUpdater(@NonNull Launcher launcher) {
+    protected BaseUpdater(@NonNull Launcher launcher)
+    {
         this.launcher = launcher;
     }
 
-    protected void complete() {
-        for (Runnable runnable : executeOnCompletion) {
+    protected void complete()
+    {
+        for (Runnable runnable : executeOnCompletion)
+        {
             runnable.run();
         }
     }
 
-    protected Manifest installPackage(@NonNull Installer installer, @NonNull Instance instance) throws Exception {
+    protected Manifest installPackage(@NonNull Installer installer, @NonNull Instance instance) throws Exception
+    {
         final File contentDir = instance.getContentDir();
         final File logPath = new File(instance.getDir(), "install_log.json");
         final File cachePath = new File(instance.getDir(), "update_cache.json");
@@ -89,47 +94,61 @@ public abstract class BaseUpdater {
                 .saveContent(instance.getManifestPath())
                 .asJson(Manifest.class);
 
-        if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
+        if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION)
+        {
             throw new LauncherException("Update required", _("errors.updateRequiredError"));
         }
 
-        if (manifest.getBaseUrl() == null) {
+        if (manifest.getBaseUrl() == null)
+        {
             manifest.setBaseUrl(instance.getManifestURL());
         }
 
         final List<Feature> features = manifest.getFeatures();
-        if (!features.isEmpty()) {
-            for (Feature feature : features) {
+        if (!features.isEmpty())
+        {
+            for (Feature feature : features)
+            {
                 Boolean last = featuresCache.getSelected().get(feature.getName());
-                if (last != null) {
+                if (last != null)
+                {
                     feature.setSelected(last);
                 }
             }
 
             Collections.sort(features);
 
-            SwingUtilities.invokeAndWait(new Runnable() {
+            SwingUtilities.invokeAndWait(new Runnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     new FeatureSelectionDialog(ProgressDialog.getLastDialog(), features).setVisible(true);
                 }
             });
 
-            for (Feature feature : features) {
+            for (Feature feature : features)
+            {
                 featuresCache.getSelected().put(Strings.nullToEmpty(feature.getName()), feature.isSelected());
             }
         }
 
-        for (ManifestEntry entry : manifest.getTasks()) {
+        for (ManifestEntry entry : manifest.getTasks())
+        {
             entry.install(installer, currentLog, updateCache, contentDir);
         }
 
-        executeOnCompletion.add(new Runnable() {
+        executeOnCompletion.add(new Runnable()
+        {
             @Override
-            public void run() {
-                for (Map.Entry<String, Set<String>> entry : previousLog.getEntrySet()) {
-                    for (String path : entry.getValue()) {
-                        if (!currentLog.has(path)) {
+            public void run()
+            {
+                for (Map.Entry<String, Set<String>> entry : previousLog.getEntrySet())
+                {
+                    for (String path : entry.getValue())
+                    {
+                        if (!currentLog.has(path))
+                        {
                             new File(contentDir, path).delete();
                         }
                     }
@@ -146,9 +165,11 @@ public abstract class BaseUpdater {
 
     protected void installJar(@NonNull Installer installer,
                               @NonNull File jarFile,
-                              @NonNull URL url) throws InterruptedException {
+                              @NonNull URL url) throws InterruptedException
+    {
         // If the JAR does not exist, install it
-        if (!jarFile.exists()) {
+        if (!jarFile.exists())
+        {
             List<File> targets = new ArrayList<File>();
 
             File tempFile = installer.getDownloader().download(url, "", JAR_SIZE_ESTIMATE, jarFile.getName());
@@ -160,7 +181,8 @@ public abstract class BaseUpdater {
     protected void installAssets(@NonNull Installer installer,
                                  @NonNull VersionManifest versionManifest,
                                  @NonNull URL indexUrl,
-                                 @NonNull List<URL> sources) throws IOException, InterruptedException {
+                                 @NonNull List<URL> sources) throws IOException, InterruptedException
+    {
         AssetsRoot assetsRoot = launcher.getAssets();
 
         AssetsIndex index = HttpRequest
@@ -174,19 +196,25 @@ public abstract class BaseUpdater {
         // Keep track of duplicates
         Set<String> downloading = new HashSet<String>();
 
-        for (Map.Entry<String, Asset> entry : index.getObjects().entrySet()) {
+        for (Map.Entry<String, Asset> entry : index.getObjects().entrySet())
+        {
             checkInterrupted();
 
             String hash = entry.getValue().getHash();
             String path = String.format("%s/%s", hash.subSequence(0, 2), hash);
             File targetFile = assetsRoot.getObjectPath(entry.getValue());
 
-            if (!targetFile.exists() && !downloading.contains(path)) {
+            if (!targetFile.exists() && !downloading.contains(path))
+            {
                 List<URL> urls = new ArrayList<URL>();
-                for (URL sourceUrl : sources) {
-                    try {
+                for (URL sourceUrl : sources)
+                {
+                    try
+                    {
                         urls.add(concat(sourceUrl, path));
-                    } catch (MalformedURLException e) {
+                    }
+                    catch (MalformedURLException e)
+                    {
                         log.log(Level.WARNING, "Bad source URL for library: " + sourceUrl);
                     }
                 }
@@ -203,38 +231,50 @@ public abstract class BaseUpdater {
     protected void installLibraries(@NonNull Installer installer,
                                     @NonNull VersionManifest versionManifest,
                                     @NonNull File librariesDir,
-                                    @NonNull List<URL> sources) throws InterruptedException {
+                                    @NonNull List<URL> sources) throws InterruptedException
+    {
 
-        for (Library library : versionManifest.getLibraries()) {
-            if (library.matches(environment)) {
+        for (Library library : versionManifest.getLibraries())
+        {
+            if (library.matches(environment))
+            {
                 checkInterrupted();
 
                 String path = library.getPath(environment);
                 File targetFile = new File(librariesDir, path);
 
-                if (!targetFile.exists()) {
+                if (!targetFile.exists())
+                {
                     List<URL> urls = new ArrayList<URL>();
-                    for (URL sourceUrl : sources) {
-                        try {
+                    for (URL sourceUrl : sources)
+                    {
+                        try
+                        {
                             urls.add(concat(sourceUrl, path));
-                        } catch (MalformedURLException e) {
+                        }
+                        catch (MalformedURLException e)
+                        {
                             log.log(Level.WARNING, "Bad source URL for library: " + sourceUrl);
                         }
                     }
 
                     File tempFile = installer.getDownloader().download(urls, "", LIBRARY_SIZE_ESTIMATE,
                             library.getName() + ".jar");
-                    installer.queue(new FileMover( tempFile, targetFile));
+                    installer.queue(new FileMover(tempFile, targetFile));
                     log.info("Fetching " + path + " from " + urls);
                 }
             }
         }
     }
 
-    private static void writeDataFile(File path, Object object) {
-        try {
+    private static void writeDataFile(File path, Object object)
+    {
+        try
+        {
             Persistence.write(path, object);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             log.log(Level.WARNING, "Failed to write to " + path.getAbsolutePath() +
                     " for object " + object.getClass().getCanonicalName(), e);
         }

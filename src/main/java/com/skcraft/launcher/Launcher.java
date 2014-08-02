@@ -42,18 +42,25 @@ import java.util.logging.Level;
  * The main entry point for the launcher.
  */
 @Log
-public final class Launcher {
+public final class Launcher
+{
 
     public static final int PROTOCOL_VERSION = 2;
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
-    @Getter private final File baseDir;
-    @Getter private final Properties properties;
-    @Getter private final InstanceList instances;
-    @Getter private final Configuration config;
-    @Getter private final AccountList accounts;
-    @Getter private final AssetsRoot assets;
+    @Getter
+    private final File baseDir;
+    @Getter
+    private final Properties properties;
+    @Getter
+    private final InstanceList instances;
+    @Getter
+    private final Configuration config;
+    @Getter
+    private final AccountList accounts;
+    @Getter
+    private final AssetsRoot assets;
 
     /**
      * Create a new launcher instance with the given base directory.
@@ -61,7 +68,8 @@ public final class Launcher {
      * @param baseDir the base directory
      * @throws java.io.IOException on load error
      */
-    public Launcher(@NonNull File baseDir) throws IOException {
+    public Launcher(@NonNull File baseDir) throws IOException
+    {
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;
@@ -72,13 +80,16 @@ public final class Launcher {
         this.config = Persistence.load(new File(baseDir, "config.json"), Configuration.class);
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
 
-        if (accounts.getSize() > 0) {
+        if (accounts.getSize() > 0)
+        {
             accounts.setSelectedItem(accounts.getElementAt(0));
         }
 
-        executor.submit(new Runnable() {
+        executor.submit(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 cleanupExtractDir();
             }
         });
@@ -89,9 +100,11 @@ public final class Launcher {
      *
      * @return the launcher version
      */
-    public String getVersion() {
+    public String getVersion()
+    {
         String version = getProperties().getProperty("version");
-        if (version.equals("${project.version}")) {
+        if (version.equals("${project.version}"))
+        {
             return "1.0.0-SNAPSHOT";
         }
         return version;
@@ -102,7 +115,8 @@ public final class Launcher {
      *
      * @return a login service
      */
-    public LoginService getLoginService() {
+    public LoginService getLoginService()
+    {
         return new YggdrasilLoginService(HttpRequest.url(getProperties().getProperty("yggdrasilAuthUrl")));
     }
 
@@ -111,8 +125,9 @@ public final class Launcher {
      *
      * @return the instances dir
      */
-    public File getInstancesDir() {
-        return new File(getBaseDir(), "instances");
+    public File getInstancesDir()
+    {
+        return new File(getBaseDir(), "profiles");
     }
 
     /**
@@ -120,7 +135,8 @@ public final class Launcher {
      *
      * @return the temporary directory
      */
-    public File getTemporaryDir() {
+    public File getTemporaryDir()
+    {
         return new File(getBaseDir(), "temp");
     }
 
@@ -129,7 +145,8 @@ public final class Launcher {
      *
      * @return the temporary install directory
      */
-    public File getInstallerDir() {
+    public File getInstallerDir()
+    {
         return new File(getTemporaryDir(), "install");
     }
 
@@ -138,36 +155,48 @@ public final class Launcher {
      *
      * @return the directory
      */
-    private File getExtractDir() {
+    private File getExtractDir()
+    {
         return new File(getTemporaryDir(), "extract");
     }
 
     /**
      * Delete old extracted files.
      */
-    public void cleanupExtractDir() {
+    public void cleanupExtractDir()
+    {
         log.info("Cleaning up temporary extracted files directory...");
 
         final long now = System.currentTimeMillis();
 
-        File[] dirs = getExtractDir().listFiles(new FileFilter() {
+        File[] dirs = getExtractDir().listFiles(new FileFilter()
+        {
             @Override
-            public boolean accept(File pathname) {
-                try {
+            public boolean accept(File pathname)
+            {
+                try
+                {
                     long time = Long.parseLong(pathname.getName());
                     return (now - time) > (1000 * 60 * 60);
-                } catch (NumberFormatException e) {
+                }
+                catch (NumberFormatException e)
+                {
                     return false;
                 }
             }
         });
 
-        if (dirs != null) {
-            for (File dir : dirs) {
+        if (dirs != null)
+        {
+            for (File dir : dirs)
+            {
                 log.info("Removing " + dir.getAbsolutePath() + "...");
-                try {
+                try
+                {
                     FileUtils.deleteDirectory(dir);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     log.log(Level.WARNING, "Failed to delete " + dir.getAbsolutePath(), e);
                 }
             }
@@ -179,7 +208,8 @@ public final class Launcher {
      *
      * @return the directory path
      */
-    public File createExtractDir() {
+    public File createExtractDir()
+    {
         File dir = new File(getExtractDir(), String.valueOf(System.currentTimeMillis()));
         dir.mkdirs();
         log.info("Created temporary directory " + dir.getAbsolutePath());
@@ -191,7 +221,8 @@ public final class Launcher {
      *
      * @return the libraries directory
      */
-    public File getLauncherBinariesDir() {
+    public File getLauncherBinariesDir()
+    {
         return new File(getBaseDir(), "launcher");
     }
 
@@ -200,7 +231,8 @@ public final class Launcher {
      *
      * @return the common data directory
      */
-    public File getCommonDataDir() {
+    public File getCommonDataDir()
+    {
         return getBaseDir();
     }
 
@@ -209,7 +241,8 @@ public final class Launcher {
      *
      * @return the libraries directory
      */
-    public File getLibrariesDir() {
+    public File getLibrariesDir()
+    {
         return new File(getCommonDataDir(), "libraries");
     }
 
@@ -218,7 +251,8 @@ public final class Launcher {
      *
      * @return the versions directory
      */
-    public File getVersionsDir() {
+    public File getVersionsDir()
+    {
         return new File(getCommonDataDir(), "versions");
     }
 
@@ -228,7 +262,8 @@ public final class Launcher {
      * @param version the version
      * @return the directory
      */
-    public File getVersionDir(String version) {
+    public File getVersionDir(String version)
+    {
         return new File(getVersionsDir(), version);
     }
 
@@ -238,7 +273,8 @@ public final class Launcher {
      * @param versionManifest the version manifest
      * @return the path
      */
-    public File getJarPath(VersionManifest versionManifest) {
+    public File getJarPath(VersionManifest versionManifest)
+    {
         return new File(getVersionDir(versionManifest.getId()), versionManifest.getId() + ".jar");
     }
 
@@ -247,12 +283,16 @@ public final class Launcher {
      *
      * @return the news URL
      */
-    public URL getNewsURL() {
-        try {
+    public URL getNewsURL()
+    {
+        try
+        {
             return HttpRequest.url(
                     String.format(getProperties().getProperty("newsUrl"),
                             URLEncoder.encode(getVersion(), "UTF-8")));
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (UnsupportedEncodingException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -262,13 +302,17 @@ public final class Launcher {
      *
      * @return the packages URL
      */
-    public URL getPackagesURL() {
-        try {
+    public URL getPackagesURL()
+    {
+        try
+        {
             String key = Strings.nullToEmpty(getConfig().getGameKey());
             return HttpRequest.url(
                     String.format(getProperties().getProperty("packageListUrl"),
                             URLEncoder.encode(key, "UTF-8")));
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (UnsupportedEncodingException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -279,18 +323,20 @@ public final class Launcher {
      * @param key the key
      * @return the property
      */
-    public String prop(String key) {
+    public String prop(String key)
+    {
         return getProperties().getProperty(key);
     }
 
     /**
      * Convenient method to fetch a property.
      *
-     * @param key the key
+     * @param key  the key
      * @param args formatting arguments
      * @return the property
      */
-    public String prop(String key, String... args) {
+    public String prop(String key, String... args)
+    {
         return String.format(getProperties().getProperty(key), (Object[]) args);
     }
 
@@ -300,18 +346,20 @@ public final class Launcher {
      * @param key the key
      * @return the property
      */
-    public URL propUrl(String key) {
+    public URL propUrl(String key)
+    {
         return HttpRequest.url(prop(key));
     }
 
     /**
      * Convenient method to fetch a property.
      *
-     * @param key the key
+     * @param key  the key
      * @param args formatting arguments
      * @return the property
      */
-    public URL propUrl(String key, String... args) {
+    public URL propUrl(String key, String... args)
+    {
         return HttpRequest.url(prop(key, args));
     }
 
@@ -320,13 +368,17 @@ public final class Launcher {
      *
      * @param args args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         SimpleLogFormatter.configureGlobalLogger();
 
         LauncherArguments options = new LauncherArguments();
-        try {
+        try
+        {
             new JCommander(options, args);
-        } catch (ParameterException e) {
+        }
+        catch (ParameterException e)
+        {
             System.err.print(e.getMessage());
             System.exit(1);
             return;
@@ -336,24 +388,32 @@ public final class Launcher {
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
 
         File dir = options.getDir();
-        if (dir != null) {
+        if (dir != null)
+        {
             log.info("Using given base directory " + dir.getAbsolutePath());
-        } else {
+        }
+        else
+        {
             dir = new File(".");
             log.info("Using current directory " + dir.getAbsolutePath());
         }
 
         final File baseDir = dir;
 
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable()
+        {
             @Override
-            public void run() {
-                try {
+            public void run()
+            {
+                try
+                {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     Launcher launcher = new Launcher(baseDir);
                     new LauncherFrame(launcher).setVisible(true);
-                } catch (Throwable t) {
+                }
+                catch (Throwable t)
+                {
                     log.log(Level.WARNING, "Load failure", t);
                     SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a " +
                             "problem was encountered.", "Launcher error", t);

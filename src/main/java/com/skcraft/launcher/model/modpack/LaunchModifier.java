@@ -12,13 +12,17 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class LaunchModifier {
+public class LaunchModifier
+{
 
     private List<String> flags;
 
-    public void modify(JavaProcessBuilder builder) {
-        if (flags != null) {
-            for (String flag : flags) {
+    public void modify(JavaProcessBuilder builder)
+    {
+        if (flags != null)
+        {
+            for (String flag : flags)
+            {
                 builder.getFlags().add(flag);
             }
         }

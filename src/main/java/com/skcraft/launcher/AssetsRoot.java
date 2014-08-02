@@ -29,7 +29,8 @@ import static com.skcraft.launcher.util.SharedLocale._;
  * as getting the path to a certain object).
  */
 @Log
-public class AssetsRoot {
+public class AssetsRoot
+{
 
     @Getter
     private final File dir;
@@ -39,7 +40,8 @@ public class AssetsRoot {
      *
      * @param dir the directory to the assets folder
      */
-    public AssetsRoot(@NonNull File dir) {
+    public AssetsRoot(@NonNull File dir)
+    {
         this.dir = dir;
     }
 
@@ -49,7 +51,8 @@ public class AssetsRoot {
      * @param versionManifest the version manifest
      * @return the file, which may not exist
      */
-    public File getIndexPath(VersionManifest versionManifest) {
+    public File getIndexPath(VersionManifest versionManifest)
+    {
         return new File(dir, "indexes/" + versionManifest.getAssetsIndex() + ".json");
     }
 
@@ -59,7 +62,8 @@ public class AssetsRoot {
      * @param asset the asset
      * @return the file, which may not exist
      */
-    public File getObjectPath(Asset asset) {
+    public File getObjectPath(Asset asset)
+    {
         String hash = asset.getHash();
         return new File(dir, "objects/" + hash.substring(0, 2) + "/" + hash);
     }
@@ -74,11 +78,13 @@ public class AssetsRoot {
      * @return the builder
      * @throws LauncherException
      */
-    public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) throws LauncherException {
+    public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) throws LauncherException
+    {
         String indexId = versionManifest.getAssetsIndex();
         File path = getIndexPath(versionManifest);
         AssetsIndex index = Persistence.read(path, AssetsIndex.class, true);
-        if (index == null || index.getObjects() == null) {
+        if (index == null || index.getObjects() == null)
+        {
             throw new LauncherException("Missing index at " + path, _("assets.missingIndex", path.getAbsolutePath()));
         }
         File treeDir = new File(dir, "virtual/" + indexId);
@@ -86,30 +92,37 @@ public class AssetsRoot {
         return new AssetsTreeBuilder(index, treeDir);
     }
 
-    public class AssetsTreeBuilder implements ProgressObservable {
+    public class AssetsTreeBuilder implements ProgressObservable
+    {
+
         private final AssetsIndex index;
         private final File destDir;
         private final int count;
         private int processed = 0;
 
-        public AssetsTreeBuilder(AssetsIndex index, File destDir) {
+        public AssetsTreeBuilder(AssetsIndex index, File destDir)
+        {
             this.index = index;
             this.destDir = destDir;
             count = index.getObjects().size();
         }
 
-        public File build() throws IOException, LauncherException {
+        public File build() throws IOException, LauncherException
+        {
             AssetsRoot.log.info("Building asset virtual tree at '" + destDir.getAbsolutePath() + "'...");
 
-            for (Map.Entry<String, Asset> entry : index.getObjects().entrySet()) {
+            for (Map.Entry<String, Asset> entry : index.getObjects().entrySet())
+            {
                 File objectPath = getObjectPath(entry.getValue());
                 File virtualPath = new File(destDir, entry.getKey());
                 virtualPath.getParentFile().mkdirs();
-                if (!virtualPath.exists()) {
-                    log.log(Level.INFO, "Copying {0} to {1}...", new Object[] {
+                if (!virtualPath.exists())
+                {
+                    log.log(Level.INFO, "Copying {0} to {1}...", new Object[]{
                             objectPath.getAbsolutePath(), virtualPath.getAbsolutePath()});
 
-                    if (!objectPath.exists()) {
+                    if (!objectPath.exists())
+                    {
                         String message = _("assets.missingObject", objectPath.getAbsolutePath());
                         throw new LauncherException("Missing object " + objectPath.getAbsolutePath(), message);
                     }
@@ -123,19 +136,27 @@ public class AssetsRoot {
         }
 
         @Override
-        public double getProgress() {
-            if (count == 0) {
+        public double getProgress()
+        {
+            if (count == 0)
+            {
                 return -1;
-            } else {
+            }
+            else
+            {
                 return processed / (double) count;
             }
         }
 
         @Override
-        public String getStatus() {
-            if (count == 0) {
+        public String getStatus()
+        {
+            if (count == 0)
+            {
                 return _("assets.expanding1", count, count - processed);
-            } else {
+            }
+            else
+            {
                 return _("assets.expandingN", count, count - processed);
             }
         }

@@ -14,7 +14,8 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ReleaseList {
+public class ReleaseList
+{
 
     private LatestReleases latest;
     private List<Version> versions;
@@ -25,9 +26,12 @@ public class ReleaseList {
      * @param id the ID
      * @return the release
      */
-    public Version find(@NonNull String id) {
-        for (Version version : getVersions()) {
-            if (version.getId().equals(id)) {
+    public Version find(@NonNull String id)
+    {
+        for (Version version : getVersions())
+        {
+            if (version.getId().equals(id))
+            {
                 return version;
             }
         }
@@ -35,7 +39,9 @@ public class ReleaseList {
     }
 
     @Data
-    public static class LatestReleases {
+    public static class LatestReleases
+    {
+
         private String snapshot;
         private String release;
     }

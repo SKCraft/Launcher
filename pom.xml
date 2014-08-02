@@ -9,9 +9,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.skcraft</groupId>
-  <artifactId>launcher</artifactId>
-  <version>4.2.3-SNAPSHOT</version>
+  <groupId>me.ardacraft</groupId>
+  <artifactId>ArdaCraftLauncher</artifactId>
+  <version>1.0</version>
 
   <dependencies>
     <dependency>
@@ -47,7 +47,7 @@
   </dependencies>
 
   <build>
-    <finalName>SKCraftLauncher</finalName>
+    <finalName>${artifactId}-${version}</finalName>
 
     <resources>
       <resource>
@@ -67,6 +67,7 @@
     </resources>
 
     <plugins>
+    
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -76,6 +77,7 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -91,6 +93,7 @@
           </archive>
         </configuration>
       </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -114,6 +117,57 @@
           <minimizeJar>false</minimizeJar>
         </configuration>
       </plugin>
+      
+      <plugin>
+        <groupId>org.bluestemsoftware.open.maven.plugin</groupId>
+        <artifactId>launch4j-plugin</artifactId>
+        <version>1.5.0.0</version>
+        <executions>
+            <execution>
+                <id>l4j-gui</id>
+                <phase>package</phase>
+                <goals>
+                    <goal>launch4j</goal>
+                </goals>
+                <configuration>
+                    <headerType>gui</headerType>
+                    <outfile>target/${artifactId}-${version}.exe</outfile>
+                    <jar>target/${artifactId}-${version}.jar</jar> <!-- 'shaded' is the value set on shadedClassifierName above -->
+                    <errTitle>App Err</errTitle>
+                    <classPath>
+                        <mainClass>com.skcraft.launcher.Launcher</mainClass>
+                    </classPath>
+                    <icon>src/main/resources/acl-icon.ico</icon>
+                    <jre>
+                        <minVersion>1.6.0</minVersion>
+                        <maxVersion>1.8.0</maxVersion>
+                        <initialHeapSize>128</initialHeapSize>
+                        <maxHeapSize>1024</maxHeapSize>
+                    </jre>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>osxappbundle-maven-plugin</artifactId>
+        <version>1.0-alpha-1</version>
+        <configuration>
+            <mainClass>com.skcraft.launcher.Launcher</mainClass>
+            <iconFile>${basedir}/src/main/resources/acl-icon.icns</iconFile>
+             <javaApplicationStub>${basedir}/src/main/resources/JavaApplicationStub</javaApplicationStub>
+        </configuration>
+        <executions>
+            <execution>
+                <phase>package</phase>
+                <goals>
+                    <goal>bundle</goal>
+                </goals>
+            </execution>
+        </executions>
+       </plugin>
+        
     </plugins>
   </build>
 

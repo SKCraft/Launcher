@@ -27,7 +27,8 @@ import static com.google.common.base.Strings.emptyToNull;
  * Builds packages for the launcher.
  */
 @Log
-public class PackageBuilder {
+public class PackageBuilder
+{
 
     private final ObjectMapper mapper;
     private ObjectWriter writer;
@@ -39,62 +40,77 @@ public class PackageBuilder {
     /**
      * Create a new package builder.
      *
-     * @param mapper the mapper
+     * @param mapper   the mapper
      * @param manifest the manifest
      */
-    public PackageBuilder(@NonNull ObjectMapper mapper, @NonNull Manifest manifest) {
+    public PackageBuilder(@NonNull ObjectMapper mapper, @NonNull Manifest manifest)
+    {
         this.mapper = mapper;
         this.manifest = manifest;
         this.applicator = new PropertiesApplicator(manifest);
         setPrettyPrint(false); // Set writer
     }
 
-    public void setPrettyPrint(boolean prettyPrint) {
-        if (prettyPrint) {
+    public void setPrettyPrint(boolean prettyPrint)
+    {
+        if (prettyPrint)
+        {
             writer = mapper.writerWithDefaultPrettyPrinter();
-        } else {
+        }
+        else
+        {
             writer = mapper.writer();
         }
         this.prettyPrint = prettyPrint;
     }
 
-    public void scan(File dir) throws IOException {
+    public void scan(File dir) throws IOException
+    {
         FileInfoScanner scanner = new FileInfoScanner(mapper);
         scanner.walk(dir);
-        for (FeaturePattern pattern : scanner.getPatterns()) {
+        for (FeaturePattern pattern : scanner.getPatterns())
+        {
             applicator.register(pattern);
         }
     }
 
-    public void addFiles(File dir, File destDir) throws IOException {
+    public void addFiles(File dir, File destDir) throws IOException
+    {
         ClientFileCollector collector = new ClientFileCollector(this.manifest, applicator, destDir);
         collector.walk(dir);
     }
 
-    public void validateManifest() {
+    public void validateManifest()
+    {
         checkNotNull(emptyToNull(manifest.getName()), "Package name is not defined");
         checkNotNull(emptyToNull(manifest.getGameVersion()), "Game version is not defined");
     }
 
-    public void readConfig(File path) throws IOException {
-        if (path != null) {
+    public void readConfig(File path) throws IOException
+    {
+        if (path != null)
+        {
             BuilderConfig config = read(path, BuilderConfig.class);
             config.update(manifest);
             config.registerProperties(applicator);
         }
     }
 
-    public void readVersionManifest(File path) throws IOException {
-        if (path != null) {
+    public void readVersionManifest(File path) throws IOException
+    {
+        if (path != null)
+        {
             VersionManifest versionManifest = read(path, VersionManifest.class);
             manifest.setVersionManifest(versionManifest);
         }
     }
 
-    public void writeManifest(@NonNull File path) throws IOException {
+    public void writeManifest(@NonNull File path) throws IOException
+    {
         manifest.setFeatures(applicator.getFeaturesInUse());
         VersionManifest versionManifest = manifest.getVersionManifest();
-        if (versionManifest != null) {
+        if (versionManifest != null)
+        {
             versionManifest.setId(manifest.getGameVersion());
         }
         validateManifest();
@@ -102,22 +118,32 @@ public class PackageBuilder {
         writer.writeValue(path, manifest);
     }
 
-    private static BuilderOptions parseArgs(String[] args) {
+    private static BuilderOptions parseArgs(String[] args)
+    {
         BuilderOptions options = new BuilderOptions();
         new JCommander(options, args);
         return options;
     }
 
-    private <V> V read(File path, Class<V> clazz) throws IOException {
-        try {
-            if (path == null) {
+    private <V> V read(File path, Class<V> clazz) throws IOException
+    {
+        try
+        {
+            if (path == null)
+            {
                 return clazz.newInstance();
-            } else {
+            }
+            else
+            {
                 return mapper.readValue(path, clazz);
             }
-        } catch (InstantiationException e) {
+        }
+        catch (InstantiationException e)
+        {
             throw new IOException("Failed to create " + clazz.getCanonicalName(), e);
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e)
+        {
             throw new IOException("Failed to create " + clazz.getCanonicalName(), e);
         }
     }
@@ -128,7 +154,8 @@ public class PackageBuilder {
      * @param args arguments
      * @throws IOException thrown on I/O error
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException
+    {
         BuilderOptions options = parseArgs(args);
 
         // Initialize

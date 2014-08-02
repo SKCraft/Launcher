@@ -10,9 +10,11 @@ import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
 
-public class InstanceTable extends JTable {
+public class InstanceTable extends JTable
+{
 
-    public InstanceTable() {
+    public InstanceTable()
+    {
         setShowGrid(false);
         setRowHeight(Math.max(getRowHeight() + 4, 20));
         setIntercellSpacing(new Dimension(0, 0));
@@ -21,11 +23,15 @@ public class InstanceTable extends JTable {
     }
 
     @Override
-    public void setModel(TableModel dataModel) {
+    public void setModel(TableModel dataModel)
+    {
         super.setModel(dataModel);
-        try {
+        try
+        {
             getColumnModel().getColumn(0).setMaxWidth(24);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
         }
     }
 }

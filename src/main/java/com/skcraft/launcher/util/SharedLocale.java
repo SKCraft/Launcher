@@ -19,7 +19,8 @@ import java.util.logging.Level;
  * Handles loading a shared message {@link java.util.ResourceBundle}.
  */
 @Log
-public class SharedLocale {
+public class SharedLocale
+{
 
     private static Locale locale = Locale.getDefault();
     private static ResourceBundle bundle;
@@ -29,7 +30,8 @@ public class SharedLocale {
      *
      * @return the current locale
      */
-    public static Locale getLocale() {
+    public static Locale getLocale()
+    {
         return locale;
     }
 
@@ -38,23 +40,29 @@ public class SharedLocale {
      *
      * @return the current resource bundle, or null if not available
      */
-    public static ResourceBundle getBundle() {
+    public static ResourceBundle getBundle()
+    {
         return bundle;
     }
 
     /**
      * Translate a string.
-     *
+     * <p/>
      * <p>If the string is not available, then ${key} will be returned.</p>
      *
      * @param key the key
      * @return the translated string
      */
-    public static String _(String key) {
-        if (bundle != null) {
-            try {
+    public static String _(String key)
+    {
+        if (bundle != null)
+        {
+            try
+            {
                 return bundle.getString(key);
-            } catch (MissingResourceException e) {
+            }
+            catch (MissingResourceException e)
+            {
                 log.log(Level.WARNING, "Failed to find message", e);
             }
         }
@@ -64,20 +72,25 @@ public class SharedLocale {
 
     /**
      * Format a translated string.
-     *
+     * <p/>
      * <p>If the string is not available, then ${key}:args will be returned.</p>
      *
-     * @param key the key
+     * @param key  the key
      * @param args arguments
      * @return a translated string
      */
-    public static String _(String key, Object... args) {
-        if (bundle != null) {
-            try {
+    public static String _(String key, Object... args)
+    {
+        if (bundle != null)
+        {
+            try
+            {
                 MessageFormat formatter = new MessageFormat(_(key));
                 formatter.setLocale(getLocale());
                 return formatter.format(args);
-            } catch (MissingResourceException e) {
+            }
+            catch (MissingResourceException e)
+            {
                 log.log(Level.WARNING, "Failed to find message", e);
             }
         }
@@ -89,16 +102,20 @@ public class SharedLocale {
      * Load a shared resource bundle.
      *
      * @param baseName the bundle name
-     * @param locale the locale
+     * @param locale   the locale
      * @return true if loaded successfully
      */
-    public static boolean loadBundle(@NonNull String baseName, @NonNull Locale locale) {
-        try {
+    public static boolean loadBundle(@NonNull String baseName, @NonNull Locale locale)
+    {
+        try
+        {
             SharedLocale.locale = locale;
             bundle = ResourceBundle.getBundle(baseName, locale,
                     SharedLocale.class.getClassLoader());
             return true;
-        } catch (MissingResourceException e) {
+        }
+        catch (MissingResourceException e)
+        {
             log.log(Level.SEVERE, "Failed to load resource bundle", e);
             return false;
         }

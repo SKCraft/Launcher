@@ -15,7 +15,8 @@ import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class VersionManifest {
+public class VersionManifest
+{
 
     private String id;
     private Date time;
@@ -29,7 +30,8 @@ public class VersionManifest {
     private List<Library> libraries;
 
     @JsonIgnore
-    public String getAssetsIndex() {
+    public String getAssetsIndex()
+    {
         return getAssets() != null ? getAssets() : "legacy";
     }
 

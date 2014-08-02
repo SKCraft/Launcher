@@ -11,26 +11,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public final class SwingExecutor extends AbstractExecutorService {
+public final class SwingExecutor extends AbstractExecutorService
+{
 
     public static final SwingExecutor INSTANCE = new SwingExecutor();
 
-    private SwingExecutor() {
+    private SwingExecutor()
+    {
     }
 
     @Override
-    public void execute(Runnable runnable) {
+    public void execute(Runnable runnable)
+    {
         SwingUtilities.invokeLater(runnable);
     }
 
     @Override
-    protected <T> RunnableFuture<T> newTaskFor(final Callable<T> callable) {
-        return new FutureTask<T>(callable) {
+    protected <T> RunnableFuture<T> newTaskFor(final Callable<T> callable)
+    {
+        return new FutureTask<T>(callable)
+        {
             @Override
-            public void run() {
-                try {
+            public void run()
+            {
+                try
+                {
                     super.run();
-                } catch (Throwable e) {
+                }
+                catch (Throwable e)
+                {
                     setException(e);
                 }
             }
@@ -38,26 +47,31 @@ public final class SwingExecutor extends AbstractExecutorService {
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown()
+    {
     }
 
     @Override
-    public List<Runnable> shutdownNow() {
+    public List<Runnable> shutdownNow()
+    {
         return new ArrayList<Runnable>();
     }
 
     @Override
-    public boolean isShutdown() {
+    public boolean isShutdown()
+    {
         return false;
     }
 
     @Override
-    public boolean isTerminated() {
+    public boolean isTerminated()
+    {
         return false;
     }
 
     @Override
-    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException
+    {
         return false;
     }
 }

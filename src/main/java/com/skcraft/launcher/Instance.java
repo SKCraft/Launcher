@@ -21,7 +21,8 @@ import java.util.Date;
  * of the game, with separate files and so on.
  */
 @Data
-public class Instance implements Comparable<Instance> {
+public class Instance implements Comparable<Instance>
+{
 
     private String title;
     private String name;
@@ -32,11 +33,16 @@ public class Instance implements Comparable<Instance> {
     @JsonProperty("launch")
     private LaunchModifier launchModifier;
 
-    @JsonIgnore private File dir;
-    @JsonIgnore private URL manifestURL;
-    @JsonIgnore private int priority;
-    @JsonIgnore private boolean selected;
-    @JsonIgnore private boolean local;
+    @JsonIgnore
+    private File dir;
+    @JsonIgnore
+    private URL manifestURL;
+    @JsonIgnore
+    private int priority;
+    @JsonIgnore
+    private boolean selected;
+    @JsonIgnore
+    private boolean local;
 
     /**
      * Get the tile of the instance, which might be the same as the
@@ -44,7 +50,8 @@ public class Instance implements Comparable<Instance> {
      *
      * @return a title
      */
-    public String getTitle() {
+    public String getTitle()
+    {
         return title != null ? title : name;
     }
 
@@ -54,8 +61,10 @@ public class Instance implements Comparable<Instance> {
      *
      * @param builder the process builder
      */
-    public void modify(JavaProcessBuilder builder) {
-        if (launchModifier != null) {
+    public void modify(JavaProcessBuilder builder)
+    {
+        if (launchModifier != null)
+        {
             launchModifier.modify(builder);
         }
     }
@@ -67,9 +76,11 @@ public class Instance implements Comparable<Instance> {
      * @return the content directory, which may not exist
      */
     @JsonIgnore
-    public File getContentDir() {
-        File dir = new File(this.dir, "minecraft");
-        if (!dir.exists()) {
+    public File getContentDir()
+    {
+        File dir = new File(this.dir, "");
+        if (!dir.exists())
+        {
             dir.mkdirs();
         }
         return dir;
@@ -81,7 +92,8 @@ public class Instance implements Comparable<Instance> {
      * @return the manifest path, which may not exist
      */
     @JsonIgnore
-    public File getManifestPath() {
+    public File getManifestPath()
+    {
         return new File(dir, "manifest.json");
     }
 
@@ -91,7 +103,8 @@ public class Instance implements Comparable<Instance> {
      * @return the version path, which may not exist
      */
     @JsonIgnore
-    public File getVersionPath() {
+    public File getVersionPath()
+    {
         return new File(dir, "version.json");
     }
 
@@ -101,49 +114,73 @@ public class Instance implements Comparable<Instance> {
      * @return the JAR file, which may not exist
      */
     @JsonIgnore
-    public File getCustomJarPath() {
+    public File getCustomJarPath()
+    {
         return new File(getContentDir(), "custom_jar.jar");
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return name;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return super.hashCode();
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(Object other)
+    {
         return super.equals(other);
     }
 
     @Override
-    public int compareTo(Instance o) {
-        if (isLocal() && !o.isLocal()) {
+    public int compareTo(Instance o)
+    {
+        if (isLocal() && !o.isLocal())
+        {
             return -1;
-        } else if (!isLocal() && o.isLocal()) {
+        }
+        else if (!isLocal() && o.isLocal())
+        {
             return 1;
-        } else if (isLocal() && o.isLocal()) {
+        }
+        else if (isLocal() && o.isLocal())
+        {
             Date otherDate = o.getLastAccessed();
 
-            if (otherDate == null && lastAccessed == null) {
+            if (otherDate == null && lastAccessed == null)
+            {
                 return 0;
-            } else if (otherDate == null) {
+            }
+            else if (otherDate == null)
+            {
                 return -1;
-            } else if (lastAccessed == null) {
+            }
+            else if (lastAccessed == null)
+            {
                 return 1;
-            } else {
+            }
+            else
+            {
                 return -lastAccessed.compareTo(otherDate);
             }
-        } else {
-            if (priority > o.priority) {
+        }
+        else
+        {
+            if (priority > o.priority)
+            {
                 return -1;
-            } else if (priority < o.priority) {
+            }
+            else if (priority < o.priority)
+            {
                 return 1;
-            } else {
+            }
+            else
+            {
                 return 0;
             }
         }

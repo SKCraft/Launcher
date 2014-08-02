@@ -13,7 +13,8 @@ import java.net.URL;
 import java.util.List;
 
 
-public interface Downloader extends ProgressObservable {
+public interface Downloader extends ProgressObservable
+{
 
     File download(List<URL> urls, String key, long size, String name);
 

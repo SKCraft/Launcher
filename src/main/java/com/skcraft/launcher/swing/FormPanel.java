@@ -9,7 +9,8 @@ package com.skcraft.launcher.swing;
 import javax.swing.*;
 import java.awt.*;
 
-public class FormPanel extends JPanel {
+public class FormPanel extends JPanel
+{
 
     private static final GridBagConstraints labelConstraints;
     private static final GridBagConstraints fieldConstraints;
@@ -17,7 +18,8 @@ public class FormPanel extends JPanel {
 
     private final GridBagLayout layout;
 
-    static {
+    static
+    {
         fieldConstraints = new GridBagConstraints();
         fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
         fieldConstraints.weightx = 1.0;
@@ -33,19 +35,22 @@ public class FormPanel extends JPanel {
         wideFieldConstraints.insets = new Insets(7, 2, 1, 2);
     }
 
-    public FormPanel() {
+    public FormPanel()
+    {
         setLayout(layout = new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
 
-    public void addRow(Component label, Component component) {
+    public void addRow(Component label, Component component)
+    {
         add(label);
         add(component);
         layout.setConstraints(label, labelConstraints);
         layout.setConstraints(component, fieldConstraints);
     }
 
-    public void addRow(Component component) {
+    public void addRow(Component component)
+    {
         add(component);
         layout.setConstraints(component, wideFieldConstraints);
     }

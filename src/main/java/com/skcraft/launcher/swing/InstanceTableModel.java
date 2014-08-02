@@ -16,14 +16,16 @@ import java.awt.*;
 
 import static com.skcraft.launcher.util.SharedLocale._;
 
-public class InstanceTableModel extends AbstractTableModel {
+public class InstanceTableModel extends AbstractTableModel
+{
 
     private final InstanceList instances;
     private final ImageIcon instanceIcon;
     private final ImageIcon customInstanceIcon;
     private final ImageIcon downloadIcon;
 
-    public InstanceTableModel(InstanceList instances) {
+    public InstanceTableModel(InstanceList instances)
+    {
         this.instances = instances;
         instanceIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "instance_icon.png")
                 .getScaledInstance(16, 16, Image.SCALE_SMOOTH));
@@ -33,14 +35,17 @@ public class InstanceTableModel extends AbstractTableModel {
                 .getScaledInstance(14, 14, Image.SCALE_SMOOTH));
     }
 
-    public void update() {
+    public void update()
+    {
         instances.sort();
         fireTableDataChanged();
     }
 
     @Override
-    public String getColumnName(int columnIndex) {
-        switch (columnIndex) {
+    public String getColumnName(int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 return "";
             case 1:
@@ -51,8 +56,10 @@ public class InstanceTableModel extends AbstractTableModel {
     }
 
     @Override
-    public Class<?> getColumnClass(int columnIndex) {
-        switch (columnIndex) {
+    public Class<?> getColumnClass(int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 return ImageIcon.class;
             case 1:
@@ -63,8 +70,10 @@ public class InstanceTableModel extends AbstractTableModel {
     }
 
     @Override
-    public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        switch (columnIndex) {
+    public void setValueAt(Object value, int rowIndex, int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 instances.get(rowIndex).setSelected((boolean) (Boolean) value);
                 break;
@@ -75,8 +84,10 @@ public class InstanceTableModel extends AbstractTableModel {
     }
 
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        switch (columnIndex) {
+    public boolean isCellEditable(int rowIndex, int columnIndex)
+    {
+        switch (columnIndex)
+        {
             case 0:
                 return true;
             case 1:
@@ -87,26 +98,35 @@ public class InstanceTableModel extends AbstractTableModel {
     }
 
     @Override
-    public int getRowCount() {
+    public int getRowCount()
+    {
         return instances.size();
     }
 
     @Override
-    public int getColumnCount() {
+    public int getColumnCount()
+    {
         return 2;
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public Object getValueAt(int rowIndex, int columnIndex)
+    {
         Instance instance;
-        switch (columnIndex) {
+        switch (columnIndex)
+        {
             case 0:
                 instance = instances.get(rowIndex);
-                if (!instance.isLocal()) {
+                if (!instance.isLocal())
+                {
                     return downloadIcon;
-                } else if (instance.getManifestURL() != null) {
+                }
+                else if (instance.getManifestURL() != null)
+                {
                     return instanceIcon;
-                } else {
+                }
+                else
+                {
                     return customInstanceIcon;
                 }
             case 1:
@@ -117,14 +137,22 @@ public class InstanceTableModel extends AbstractTableModel {
         }
     }
 
-    private String getAddendum(Instance instance) {
-        if (!instance.isLocal()) {
+    private String getAddendum(Instance instance)
+    {
+        if (!instance.isLocal())
+        {
             return " <span style=\"color: #cccccc\">" + _("launcher.notInstalledHint") + "</span>";
-        } else if (!instance.isInstalled()) {
+        }
+        else if (!instance.isInstalled())
+        {
             return " <span style=\"color: red\">" + _("launcher.requiresUpdateHint") + "</span>";
-        } else if (instance.isUpdatePending()) {
+        }
+        else if (instance.isUpdatePending())
+        {
             return " <span style=\"color: #3758DB\">" + _("launcher.updatePendingHint") + "</span>";
-        } else {
+        }
+        else
+        {
             return "";
         }
     }

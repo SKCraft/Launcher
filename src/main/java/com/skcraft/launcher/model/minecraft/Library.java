@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Library {
+public class Library
+{
 
     private String name;
     private transient String group;
@@ -35,31 +36,41 @@ public class Library {
     // Custom
     private boolean locallyAvailable;
 
-    public void setName(String name) {
+    public void setName(String name)
+    {
         this.name = name;
 
-        if (name != null) {
+        if (name != null)
+        {
             String[] parts = name.split(":");
             this.group = parts[0];
             this.artifact = parts[1];
             this.version = parts[2];
-        } else {
+        }
+        else
+        {
             this.group = null;
             this.artifact = null;
             this.version = null;
         }
     }
 
-    public boolean matches(Environment environment) {
+    public boolean matches(Environment environment)
+    {
         boolean allow = false;
 
-        if (getRules() != null) {
-            for (Rule rule : getRules()) {
-                if (rule.matches(environment)) {
+        if (getRules() != null)
+        {
+            for (Rule rule : getRules())
+            {
+                if (rule.matches(environment))
+                {
                     allow = rule.getAction() == Action.ALLOW;
                 }
             }
-        } else {
+        }
+        else
+        {
             allow = true;
         }
 
@@ -67,23 +78,29 @@ public class Library {
     }
 
     @JsonIgnore
-    public String getGroup() {
+    public String getGroup()
+    {
         return group;
     }
 
     @JsonIgnore
-    public String getArtifact() {
+    public String getArtifact()
+    {
         return artifact;
     }
 
     @JsonIgnore
-    public String getVersion() {
+    public String getVersion()
+    {
         return version;
     }
 
-    public String getNativeString(Platform platform) {
-        if (getNatives() != null) {
-            switch (platform) {
+    public String getNativeString(Platform platform)
+    {
+        if (getNatives() != null)
+        {
+            switch (platform)
+            {
                 case LINUX:
                     return getNatives().get("linux");
                 case WINDOWS:
@@ -93,14 +110,18 @@ public class Library {
                 default:
                     return null;
             }
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
 
-    public String getFilename(Environment environment) {
+    public String getFilename(Environment environment)
+    {
         String nativeString = getNativeString(environment.getPlatform());
-        if (nativeString != null) {
+        if (nativeString != null)
+        {
             return String.format("%s-%s-%s.jar",
                     getArtifact(), getVersion(), nativeString);
         }
@@ -108,7 +129,8 @@ public class Library {
         return String.format("%s-%s.jar", getArtifact(), getVersion());
     }
 
-    public String getPath(Environment environment) {
+    public String getPath(Environment environment)
+    {
         StringBuilder builder = new StringBuilder();
         builder.append(getGroup().replace('.', '/'));
         builder.append("/");
@@ -123,53 +145,68 @@ public class Library {
     }
 
     @Data
-    public static class Rule {
+    public static class Rule
+    {
+
         private Action action;
         private OS os;
 
-        public boolean matches(Environment environment) {
-            if (getOs() == null) {
+        public boolean matches(Environment environment)
+        {
+            if (getOs() == null)
+            {
                 return true;
-            } else {
+            }
+            else
+            {
                 return getOs().matches(environment);
             }
         }
     }
 
     @Data
-    public static class OS {
+    public static class OS
+    {
+
         private Platform platform;
         private Pattern version;
 
         @JsonProperty("name")
         @JsonDeserialize(using = PlatformDeserializer.class)
         @JsonSerialize(using = PlatformSerializer.class)
-        public Platform getPlatform() {
+        public Platform getPlatform()
+        {
             return platform;
         }
 
-        public boolean matches(Environment environment) {
+        public boolean matches(Environment environment)
+        {
             return (getPlatform() == null || getPlatform().equals(environment.getPlatform())) &&
                     (getVersion() == null || getVersion().matcher(environment.getPlatformVersion()).matches());
         }
     }
 
     @Data
-    public static class Extract {
+    public static class Extract
+    {
+
         private List<String> exclude;
     }
 
-    private enum Action {
+    private enum Action
+    {
         ALLOW,
         DISALLOW;
 
         @JsonCreator
-        public static Action fromJson(String text) {
+        public static Action fromJson(String text)
+        {
             return valueOf(text.toUpperCase());
         }
 
         @JsonValue
-        public String toJson() {
+        public String toJson()
+        {
             return name().toLowerCase();
         }
     }

@@ -20,41 +20,57 @@ import java.util.zip.ZipInputStream;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
-public class ZipExtract implements Runnable {
+public class ZipExtract implements Runnable
+{
 
-    @Getter private final ByteSource source;
-    @Getter private final File destination;
-    @Getter @Setter
+    @Getter
+    private final ByteSource source;
+    @Getter
+    private final File destination;
+    @Getter
+    @Setter
     private List<String> exclude;
 
-    public ZipExtract(@NonNull ByteSource source, @NonNull File destination) {
+    public ZipExtract(@NonNull ByteSource source, @NonNull File destination)
+    {
         this.source = source;
         this.destination = destination;
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         Closer closer = Closer.create();
 
-        try {
+        try
+        {
             InputStream is = closer.register(source.openBufferedStream());
             ZipInputStream zis = closer.register(new ZipInputStream(is));
             ZipEntry entry;
 
             destination.getParentFile().mkdirs();
 
-            while ((entry = zis.getNextEntry()) != null) {
-                if (matches(entry)) {
+            while ((entry = zis.getNextEntry()) != null)
+            {
+                if (matches(entry))
+                {
                     File file = new File(getDestination(), entry.getName());
                     writeEntry(zis, file);
                 }
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException(e);
-        } finally {
-            try {
+        }
+        finally
+        {
+            try
+            {
                 closer.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
             }
         }
     }
@@ -65,10 +81,14 @@ public class ZipExtract implements Runnable {
      * @param entry the entry
      * @return true if the entry matches the filter
      */
-    private boolean matches(ZipEntry entry) {
-        if (exclude != null) {
-            for (String pattern : exclude) {
-                if (entry.getName().startsWith(pattern)) {
+    private boolean matches(ZipEntry entry)
+    {
+        if (exclude != null)
+        {
+            for (String pattern : exclude)
+            {
+                if (entry.getName().startsWith(pattern))
+                {
                     return false;
                 }
             }
@@ -77,24 +97,29 @@ public class ZipExtract implements Runnable {
         return true;
     }
 
-    private void writeEntry(ZipInputStream zis, File path) throws IOException {
+    private void writeEntry(ZipInputStream zis, File path) throws IOException
+    {
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
 
-        try {
+        try
+        {
             path.getParentFile().mkdirs();
 
             fos = new FileOutputStream(path);
             bos = new BufferedOutputStream(fos);
             IOUtils.copy(zis, bos);
-        } finally {
+        }
+        finally
+        {
             closeQuietly(bos);
             closeQuietly(fos);
         }
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return destination.getName();
     }
 

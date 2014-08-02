@@ -21,7 +21,8 @@ import java.util.Map;
 /**
  * Creates authenticated sessions using the Mojang Yggdrasil login protocol.
  */
-public class YggdrasilLoginService implements LoginService {
+public class YggdrasilLoginService implements LoginService
+{
 
     private final URL authUrl;
 
@@ -30,13 +31,15 @@ public class YggdrasilLoginService implements LoginService {
      *
      * @param authUrl the authentication URL
      */
-    public YggdrasilLoginService(@NonNull URL authUrl) {
+    public YggdrasilLoginService(@NonNull URL authUrl)
+    {
         this.authUrl = authUrl;
     }
 
     @Override
     public List<? extends Session> login(String agent, String id, String password)
-            throws IOException, InterruptedException, AuthenticationException {
+            throws IOException, InterruptedException, AuthenticationException
+    {
         Object payload = new AuthenticatePayload(new Agent(agent), id, password);
 
         HttpRequest request = HttpRequest
@@ -44,23 +47,30 @@ public class YggdrasilLoginService implements LoginService {
                 .bodyJson(payload)
                 .execute();
 
-        if (request.getResponseCode() != 200) {
+        if (request.getResponseCode() != 200)
+        {
             ErrorResponse error = request.returnContent().asJson(ErrorResponse.class);
             throw new AuthenticationException(error.getErrorMessage(), error.getErrorMessage());
-        } else {
+        }
+        else
+        {
             AuthenticateResponse response = request.returnContent().asJson(AuthenticateResponse.class);
             return response.getAvailableProfiles();
         }
     }
 
     @Data
-    private static class Agent {
+    private static class Agent
+    {
+
         private final String name;
         private final int version = 1;
     }
 
     @Data
-    private static class AuthenticatePayload {
+    private static class AuthenticatePayload
+    {
+
         private final Agent agent;
         private final String username;
         private final String password;
@@ -68,15 +78,20 @@ public class YggdrasilLoginService implements LoginService {
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class AuthenticateResponse {
+    private static class AuthenticateResponse
+    {
+
         private String accessToken;
         private String clientToken;
-        @JsonManagedReference private List<Profile> availableProfiles;
+        @JsonManagedReference
+        private List<Profile> availableProfiles;
         private Profile selectedProfile;
     }
 
     @Data
-    private static class ErrorResponse {
+    private static class ErrorResponse
+    {
+
         private String error;
         private String errorMessage;
         private String cause;
@@ -88,39 +103,49 @@ public class YggdrasilLoginService implements LoginService {
     @Data
     @ToString(exclude = "response")
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class Profile implements Session {
-        @JsonProperty("id") private String uuid;
+    private static class Profile implements Session
+    {
+
+        @JsonProperty("id")
+        private String uuid;
         private String name;
         private boolean legacy;
-        @JsonIgnore private final Map<String, String> userProperties = Collections.emptyMap();
-        @JsonBackReference private AuthenticateResponse response;
+        @JsonIgnore
+        private final Map<String, String> userProperties = Collections.emptyMap();
+        @JsonBackReference
+        private AuthenticateResponse response;
 
         @Override
         @JsonIgnore
-        public String getSessionToken() {
+        public String getSessionToken()
+        {
             return String.format("token:%s:%s", getAccessToken(), getUuid());
         }
 
         @Override
         @JsonIgnore
-        public String getClientToken() {
+        public String getClientToken()
+        {
             return response.getClientToken();
         }
 
         @Override
         @JsonIgnore
-        public String getAccessToken() {
+        public String getAccessToken()
+        {
             return response.getAccessToken();
         }
 
         @Override
         @JsonIgnore
-        public UserType getUserType() {
+        public UserType getUserType()
+        {
             return legacy ? UserType.LEGACY : UserType.MOJANG;
         }
 
         @Override
-        public boolean isOnline() {
+        public boolean isOnline()
+        {
             return true;
         }
     }

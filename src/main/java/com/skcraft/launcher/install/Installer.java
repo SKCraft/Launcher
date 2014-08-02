@@ -21,9 +21,11 @@ import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
-public class Installer implements ProgressObservable {
+public class Installer implements ProgressObservable
+{
 
-    @Getter private final File tempDir;
+    @Getter
+    private final File tempDir;
     private final HttpDownloader downloader;
     private InstallTask running;
     private int count = 0;
@@ -31,54 +33,69 @@ public class Installer implements ProgressObservable {
 
     private List<InstallTask> queue = new ArrayList<InstallTask>();
 
-    public Installer(@NonNull File tempDir) {
+    public Installer(@NonNull File tempDir)
+    {
         this.tempDir = tempDir;
         this.downloader = new HttpDownloader(tempDir);
     }
 
-    public synchronized void queue(@NonNull InstallTask runnable) {
+    public synchronized void queue(@NonNull InstallTask runnable)
+    {
         queue.add(runnable);
         count++;
     }
 
-    public void download() throws IOException, InterruptedException {
+    public void download() throws IOException, InterruptedException
+    {
         downloader.execute();
     }
 
-    public synchronized void execute() throws Exception {
+    public synchronized void execute() throws Exception
+    {
         queue = Collections.unmodifiableList(queue);
 
-        try {
-            for (InstallTask runnable : queue) {
+        try
+        {
+            for (InstallTask runnable : queue)
+            {
                 checkInterrupted();
                 running = runnable;
                 runnable.execute();
                 finished++;
             }
-        } finally {
+        }
+        finally
+        {
             running = null;
         }
     }
 
-    public Downloader getDownloader() {
+    public Downloader getDownloader()
+    {
         return downloader;
     }
 
     @Override
-    public double getProgress() {
+    public double getProgress()
+    {
         return finished / (double) count;
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         InstallTask running = this.running;
-        if (running != null) {
+        if (running != null)
+        {
             String status = running.getStatus();
-            if (status == null) {
+            if (status == null)
+            {
                 status = running.toString();
             }
             return _("installer.executing", count - finished) + "\n" + status;
-        } else {
+        }
+        else
+        {
             return _("installer.installing");
         }
     }

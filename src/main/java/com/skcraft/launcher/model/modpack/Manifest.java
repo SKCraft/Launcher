@@ -12,8 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.LauncherUtils;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,7 +26,8 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Manifest extends BaseManifest {
+public class Manifest extends BaseManifest
+{
 
     public static final int MIN_PROTOCOL_VERSION = 2;
 
@@ -40,55 +41,74 @@ public class Manifest extends BaseManifest {
     private List<Feature> features = new ArrayList<Feature>();
     @JsonManagedReference("manifest")
     private List<ManifestEntry> tasks = new ArrayList<ManifestEntry>();
-    @Getter @Setter @JsonIgnore
+    @Getter
+    @Setter
+    @JsonIgnore
     private Installer installer;
     private VersionManifest versionManifest;
 
     @JsonIgnore
-    public URL getLibrariesUrl() {
-        if (Strings.nullToEmpty(getLibrariesLocation()) == null) {
+    public URL getLibrariesUrl()
+    {
+        if (Strings.nullToEmpty(getLibrariesLocation()) == null)
+        {
             return null;
         }
 
-        try {
+        try
+        {
             return LauncherUtils.concat(baseUrl, Strings.nullToEmpty(getLibrariesLocation()) + "/");
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e)
+        {
             throw new RuntimeException(e);
         }
     }
 
     @JsonIgnore
-    public URL getObjectsUrl() {
-        if (Strings.nullToEmpty(getObjectsLocation()) == null) {
+    public URL getObjectsUrl()
+    {
+        if (Strings.nullToEmpty(getObjectsLocation()) == null)
+        {
             return baseUrl;
         }
 
-        try {
+        try
+        {
             return LauncherUtils.concat(baseUrl, Strings.nullToEmpty(getObjectsLocation()) + "/");
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e)
+        {
             throw new RuntimeException(e);
         }
     }
 
-    public void updateName(String name) {
-        if (name != null) {
+    public void updateName(String name)
+    {
+        if (name != null)
+        {
             setName(name);
         }
     }
 
-    public void updateTitle(String title) {
-        if (title != null) {
+    public void updateTitle(String title)
+    {
+        if (title != null)
+        {
             setTitle(title);
         }
     }
 
-    public void updateGameVersion(String gameVersion) {
-        if (gameVersion != null) {
+    public void updateGameVersion(String gameVersion)
+    {
+        if (gameVersion != null)
+        {
             setGameVersion(gameVersion);
         }
     }
 
-    public void update(Instance instance) {
+    public void update(Instance instance)
+    {
         instance.setLaunchModifier(getLaunchModifier());
     }
 }

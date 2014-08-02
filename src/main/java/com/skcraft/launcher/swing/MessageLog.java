@@ -6,7 +6,6 @@
 
 package com.skcraft.launcher.swing;
 
-import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.util.LimitLinesDocumentListener;
 import com.skcraft.launcher.util.SimpleLogFormatter;
 
@@ -27,13 +26,14 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 /**
  * A simple message log.
  */
-public class MessageLog extends JPanel {
+public class MessageLog extends JPanel
+{
 
     private static final Logger rootLogger = Logger.getLogger("");
-    
+
     private final int numLines;
     private final boolean colorEnabled;
-    
+
     protected JTextComponent textComponent;
     protected Document document;
 
@@ -44,33 +44,40 @@ public class MessageLog extends JPanel {
     protected final SimpleAttributeSet infoAttributes;
     protected final SimpleAttributeSet debugAttributes;
 
-    public MessageLog(int numLines, boolean colorEnabled) {
+    public MessageLog(int numLines, boolean colorEnabled)
+    {
         this.numLines = numLines;
         this.colorEnabled = colorEnabled;
-        
+
         this.highlightedAttributes = new SimpleAttributeSet();
         StyleConstants.setForeground(highlightedAttributes, new Color(0xFF7F00));
-        
+
         this.errorAttributes = new SimpleAttributeSet();
         StyleConstants.setForeground(errorAttributes, new Color(0xFF0000));
         this.infoAttributes = new SimpleAttributeSet();
         this.debugAttributes = new SimpleAttributeSet();
 
         setLayout(new BorderLayout());
-        
+
         initComponents();
     }
 
-    private void initComponents() {
-        if (colorEnabled) {
-            JTextPane text = new JTextPane() {
+    private void initComponents()
+    {
+        if (colorEnabled)
+        {
+            JTextPane text = new JTextPane()
+            {
                 @Override
-                public boolean getScrollableTracksViewportWidth() {
+                public boolean getScrollableTracksViewportWidth()
+                {
                     return true;
                 }
             };
             this.textComponent = text;
-        } else {
+        }
+        else
+        {
             JTextArea text = new JTextArea();
             this.textComponent = text;
             text.setLineWrap(true);
@@ -84,136 +91,159 @@ public class MessageLog extends JPanel {
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         document = textComponent.getDocument();
         document.addDocumentListener(new LimitLinesDocumentListener(numLines, true));
-        
+
         JScrollPane scrollText = new JScrollPane(textComponent);
         scrollText.setBorder(null);
         scrollText.setVerticalScrollBarPolicy(
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollText.setHorizontalScrollBarPolicy(
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        
+
         add(scrollText, BorderLayout.CENTER);
     }
-    
-    public String getPastableText() {
+
+    public String getPastableText()
+    {
         String text = textComponent.getText().replaceAll("[\r\n]+", "\n");
         text = text.replaceAll("Session ID is [A-Fa-f0-9]+", "Session ID is [redacted]");
         return text;
     }
 
-    public void clear() {
+    public void clear()
+    {
         textComponent.setText("");
     }
-    
+
     /**
      * Log a message given the {@link javax.swing.text.AttributeSet}.
-     * 
-     * @param line line
+     *
+     * @param line       line
      * @param attributes attribute set, or null for none
      */
-    public void log(String line, AttributeSet attributes) {
-        if (colorEnabled) {
-            if (line.startsWith("(!!)")) {
+    public void log(String line, AttributeSet attributes)
+    {
+        if (colorEnabled)
+        {
+            if (line.startsWith("(!!)"))
+            {
                 attributes = highlightedAttributes;
             }
         }
-        
-        try {
+
+        try
+        {
             int offset = document.getLength();
             document.insertString(offset, line,
                     (attributes != null && colorEnabled) ? attributes : defaultAttributes);
             textComponent.setCaretPosition(document.getLength());
-        } catch (BadLocationException ble) {
-        
+        }
+        catch (BadLocationException ble)
+        {
+
         }
     }
-    
+
     /**
      * Get an output stream that can be written to.
-     * 
+     *
      * @return output stream
      */
-    public ConsoleOutputStream getOutputStream() {
+    public ConsoleOutputStream getOutputStream()
+    {
         return getOutputStream((AttributeSet) null);
     }
-    
+
     /**
      * Get an output stream with the given attribute set.
-     * 
+     *
      * @param attributes attributes
      * @return output stream
      */
-    public ConsoleOutputStream getOutputStream(AttributeSet attributes) {
+    public ConsoleOutputStream getOutputStream(AttributeSet attributes)
+    {
         return new ConsoleOutputStream(attributes);
     }
 
     /**
      * Get an output stream using the give color.
-     * 
+     *
      * @param color color to use
      * @return output stream
      */
-    public ConsoleOutputStream getOutputStream(Color color) {
+    public ConsoleOutputStream getOutputStream(Color color)
+    {
         SimpleAttributeSet attributes = new SimpleAttributeSet();
         StyleConstants.setForeground(attributes, color);
         return getOutputStream(attributes);
     }
-    
+
     /**
      * Consume an input stream and print it to the dialog. The consumer
      * will be in a separate daemon thread.
-     * 
+     *
      * @param from stream to read
      */
-    public void consume(InputStream from) {
+    public void consume(InputStream from)
+    {
         consume(from, getOutputStream());
     }
 
     /**
      * Consume an input stream and print it to the dialog. The consumer
      * will be in a separate daemon thread.
-     * 
-     * @param from stream to read
+     *
+     * @param from  stream to read
      * @param color color to use
      */
-    public void consume(InputStream from, Color color) {
+    public void consume(InputStream from, Color color)
+    {
         consume(from, getOutputStream(color));
     }
 
     /**
      * Consume an input stream and print it to the dialog. The consumer
      * will be in a separate daemon thread.
-     * 
-     * @param from stream to read
+     *
+     * @param from       stream to read
      * @param attributes attributes
      */
-    public void consume(InputStream from, AttributeSet attributes) {
+    public void consume(InputStream from, AttributeSet attributes)
+    {
         consume(from, getOutputStream(attributes));
     }
-    
+
     /**
      * Internal method to consume a stream.
-     * 
-     * @param from stream to consume
+     *
+     * @param from         stream to consume
      * @param outputStream console stream to write to
      */
-    private void consume(InputStream from, ConsoleOutputStream outputStream) {
+    private void consume(InputStream from, ConsoleOutputStream outputStream)
+    {
         final InputStream in = from;
         final PrintWriter out = new PrintWriter(outputStream, true);
-        Thread thread = new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 byte[] buffer = new byte[1024];
-                try {
+                try
+                {
                     int len;
-                    while ((len = in.read(buffer)) != -1) {
+                    while ((len = in.read(buffer)) != -1)
+                    {
                         String s = new String(buffer, 0, len);
                         System.out.print(s);
                         out.append(s);
                         out.flush();
                     }
-                } catch (IOException e) {
-                } finally {
+                }
+                catch (IOException e)
+                {
+                }
+                finally
+                {
                     closeQuietly(in);
                     closeQuietly(out);
                 }
@@ -226,56 +256,70 @@ public class MessageLog extends JPanel {
     /**
      * Register a global logger listener.
      */
-    public void registerLoggerHandler() {
+    public void registerLoggerHandler()
+    {
         loggerHandler = new ConsoleLoggerHandler();
         rootLogger.addHandler(loggerHandler);
     }
-    
+
     /**
      * Detach the handler on the global logger.
      */
-    public void detachGlobalHandler() {
-        if (loggerHandler != null) {
+    public void detachGlobalHandler()
+    {
+        if (loggerHandler != null)
+        {
             rootLogger.removeHandler(loggerHandler);
             loggerHandler = null;
         }
     }
 
-    public SimpleAttributeSet asDefault() {
+    public SimpleAttributeSet asDefault()
+    {
         return defaultAttributes;
     }
 
-    public SimpleAttributeSet asHighlighted() {
+    public SimpleAttributeSet asHighlighted()
+    {
         return highlightedAttributes;
     }
 
-    public SimpleAttributeSet asError() {
+    public SimpleAttributeSet asError()
+    {
         return errorAttributes;
     }
 
-    public SimpleAttributeSet asInfo() {
+    public SimpleAttributeSet asInfo()
+    {
         return infoAttributes;
     }
 
-    public SimpleAttributeSet asDebug() {
+    public SimpleAttributeSet asDebug()
+    {
         return debugAttributes;
     }
 
     /**
      * Used to send logger messages to the console.
      */
-    private class ConsoleLoggerHandler extends Handler {
+    private class ConsoleLoggerHandler extends Handler
+    {
+
         private final SimpleLogFormatter formatter = new SimpleLogFormatter();
 
         @Override
-        public void publish(LogRecord record) {
+        public void publish(LogRecord record)
+        {
             Level level = record.getLevel();
             Throwable t = record.getThrown();
             AttributeSet attributes = defaultAttributes;
 
-            if (level.intValue() >= Level.WARNING.intValue()) {
+            if (level.intValue() >= Level.WARNING.intValue())
+            {
                 attributes = errorAttributes;
-            } else if (level.intValue() < Level.INFO.intValue()) {
+            }
+            else if (level.intValue() < Level.INFO.intValue())
+            {
                 attributes = debugAttributes;
             }
 
@@ -283,26 +327,32 @@ public class MessageLog extends JPanel {
         }
 
         @Override
-        public void flush() {
+        public void flush()
+        {
         }
 
         @Override
-        public void close() throws SecurityException {
+        public void close() throws SecurityException
+        {
         }
     }
-    
+
     /**
      * Used to send console messages to the console.
      */
-    private class ConsoleOutputStream extends ByteArrayOutputStream {
+    private class ConsoleOutputStream extends ByteArrayOutputStream
+    {
+
         private AttributeSet attributes;
-        
-        private ConsoleOutputStream(AttributeSet attributes) {
+
+        private ConsoleOutputStream(AttributeSet attributes)
+        {
             this.attributes = attributes;
         }
-        
+
         @Override
-        public void flush() {
+        public void flush()
+        {
             String data = toString();
             if (data.length() == 0) return;
             log(data, attributes);

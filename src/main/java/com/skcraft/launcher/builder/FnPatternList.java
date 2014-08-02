@@ -16,23 +16,30 @@ import java.util.EnumSet;
 import java.util.List;
 
 @Data
-public class FnPatternList {
+public class FnPatternList
+{
 
     private static final EnumSet<FnMatch.Flag> DEFAULT_FLAGS = EnumSet.of(
             FnMatch.Flag.CASEFOLD, FnMatch.Flag.PERIOD);
 
     private List<String> include;
     private List<String> exclude;
-    @Getter @Setter @JsonIgnore
+    @Getter
+    @Setter
+    @JsonIgnore
     private EnumSet<FnMatch.Flag> flags = DEFAULT_FLAGS;
 
-    public boolean matches(String path) {
+    public boolean matches(String path)
+    {
         return include != null && matches(path, include) && (exclude == null || !matches(path, exclude));
     }
 
-    public boolean matches(String path, Collection<String> patterns) {
-        for (String pattern : patterns) {
-            if (FnMatch.fnmatch(pattern, path, flags)) {
+    public boolean matches(String path, Collection<String> patterns)
+    {
+        for (String pattern : patterns)
+        {
+            if (FnMatch.fnmatch(pattern, path, flags))
+            {
                 return true;
             }
         }

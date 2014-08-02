@@ -13,29 +13,37 @@ import java.util.Arrays;
 import java.util.List;
 
 @Data
-public class RequireAll implements Condition {
+public class RequireAll implements Condition
+{
 
     private List<Feature> features = new ArrayList<Feature>();
 
-    public RequireAll() {
+    public RequireAll()
+    {
     }
 
-    public RequireAll(List<Feature> features) {
+    public RequireAll(List<Feature> features)
+    {
         this.features = features;
     }
 
-    public RequireAll(Feature... feature) {
+    public RequireAll(Feature... feature)
+    {
         features.addAll(Arrays.asList(feature));
     }
 
     @Override
-    public boolean matches() {
-        if (features == null) {
+    public boolean matches()
+    {
+        if (features == null)
+        {
             return true;
         }
 
-        for (Feature feature : features) {
-            if (!feature.isSelected()) {
+        for (Feature feature : features)
+        {
+            if (!feature.isSelected())
+            {
                 return false;
             }
         }

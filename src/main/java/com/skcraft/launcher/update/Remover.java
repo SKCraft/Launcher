@@ -22,26 +22,31 @@ import java.util.concurrent.Callable;
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.util.SharedLocale._;
 
-public class Remover implements Callable<Instance>, ProgressObservable {
+public class Remover implements Callable<Instance>, ProgressObservable
+{
 
     private final Instance instance;
 
-    public Remover(@NonNull Instance instance) {
+    public Remover(@NonNull Instance instance)
+    {
         this.instance = instance;
     }
 
     @Override
-    public double getProgress() {
+    public double getProgress()
+    {
         return -1;
     }
 
     @Override
-    public String getStatus() {
+    public String getStatus()
+    {
         return _("instanceDeleter.deleting", instance.getDir());
     }
 
     @Override
-    public Instance call() throws Exception {
+    public Instance call() throws Exception
+    {
         instance.setInstalled(false);
         instance.setUpdatePending(true);
         Persistence.commitAndForget(instance);
@@ -52,16 +57,20 @@ public class Remover implements Callable<Instance>, ProgressObservable {
 
         List<File> failures = new ArrayList<File>();
 
-        try {
+        try
+        {
             LauncherUtils.interruptibleDelete(instance.getDir(), failures);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             Thread.sleep(1000);
             LauncherUtils.interruptibleDelete(instance.getDir(), failures);
         }
 
-        if (failures.size() > 0) {
+        if (failures.size() > 0)
+        {
             throw new LauncherException(failures.size() + " failed to delete",
-                     _("instanceDeleter.failures", failures.size()));
+                    _("instanceDeleter.failures", failures.size()));
         }
 
         return instance;

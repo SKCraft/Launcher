@@ -14,12 +14,15 @@ import com.skcraft.launcher.util.Platform;
 
 import java.io.IOException;
 
-public class PlatformSerializer extends JsonSerializer<Platform> {
+public class PlatformSerializer extends JsonSerializer<Platform>
+{
 
     @Override
     public void serialize(Platform platform, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
-            throws IOException, JsonProcessingException {
-        switch (platform) {
+            throws IOException, JsonProcessingException
+    {
+        switch (platform)
+        {
             case WINDOWS:
                 jsonGenerator.writeString("windows");
                 break;

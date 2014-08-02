@@ -12,7 +12,8 @@ import lombok.Data;
 import java.io.File;
 
 @Data
-public class ServerExportOptions {
+public class ServerExportOptions
+{
 
     @Parameter(names = "--source", required = true)
     private File sourceDir;

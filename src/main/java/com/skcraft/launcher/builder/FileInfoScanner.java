@@ -23,7 +23,8 @@ import static com.skcraft.launcher.builder.ClientFileCollector.getDirectoryBehav
 import static org.apache.commons.io.FilenameUtils.*;
 
 @Log
-public class FileInfoScanner extends DirectoryWalker {
+public class FileInfoScanner extends DirectoryWalker
+{
 
     private static final EnumSet<FnMatch.Flag> MATCH_FLAGS = EnumSet.of(
             FnMatch.Flag.CASEFOLD, FnMatch.Flag.PERIOD, FnMatch.Flag.PATHNAME);
@@ -33,26 +34,31 @@ public class FileInfoScanner extends DirectoryWalker {
     @Getter
     private final List<FeaturePattern> patterns = new ArrayList<FeaturePattern>();
 
-    public FileInfoScanner(ObjectMapper mapper) {
+    public FileInfoScanner(ObjectMapper mapper)
+    {
         this.mapper = mapper;
     }
 
     @Override
-    protected DirectoryBehavior getBehavior(String name) {
+    protected DirectoryBehavior getBehavior(String name)
+    {
         return getDirectoryBehavior(name);
     }
 
     @Override
-    protected void onFile(File file, String relPath) throws IOException {
-        if (file.getName().endsWith(FILE_SUFFIX)) {
+    protected void onFile(File file, String relPath) throws IOException
+    {
+        if (file.getName().endsWith(FILE_SUFFIX))
+        {
             String fnPattern =
                     separatorsToUnix(getPath(relPath)) +
-                    getBaseName(getBaseName(file.getName())) + "*";
+                            getBaseName(getBaseName(file.getName())) + "*";
 
             FileInfo info = mapper.readValue(file, FileInfo.class);
             Feature feature = info.getFeature();
 
-            if (feature != null) {
+            if (feature != null)
+            {
                 checkNotNull(emptyToNull(feature.getName()),
                         "Empty component name found in " + file.getAbsolutePath());
 

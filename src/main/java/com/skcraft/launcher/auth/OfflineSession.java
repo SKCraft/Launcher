@@ -16,7 +16,8 @@ import java.util.UUID;
 /**
  * An offline session.
  */
-public class OfflineSession implements Session {
+public class OfflineSession implements Session
+{
 
     private static Map<String, String> dummyProperties = Collections.emptyMap();
 
@@ -28,42 +29,50 @@ public class OfflineSession implements Session {
      *
      * @param name the player name
      */
-    public OfflineSession(@NonNull String name) {
+    public OfflineSession(@NonNull String name)
+    {
         this.name = name;
     }
 
     @Override
-    public String getUuid() {
+    public String getUuid()
+    {
         return (new UUID(0, 0)).toString();
     }
 
     @Override
-    public String getClientToken() {
+    public String getClientToken()
+    {
         return "0";
     }
 
     @Override
-    public String getAccessToken() {
+    public String getAccessToken()
+    {
         return "0";
     }
 
     @Override
-    public Map<String, String> getUserProperties() {
+    public Map<String, String> getUserProperties()
+    {
         return dummyProperties;
     }
 
     @Override
-    public String getSessionToken() {
+    public String getSessionToken()
+    {
         return "-";
     }
 
     @Override
-    public UserType getUserType() {
+    public UserType getUserType()
+    {
         return UserType.LEGACY;
     }
 
     @Override
-    public boolean isOnline() {
+    public boolean isOnline()
+    {
         return false;
     }
 

@@ -22,17 +22,21 @@ import static com.skcraft.launcher.util.SharedLocale._;
  * if there is an update to be downloaded.
  */
 @Log
-public class UpdateChecker implements Callable<URL> {
+public class UpdateChecker implements Callable<URL>
+{
 
     private final Launcher launcher;
 
-    public UpdateChecker(@NonNull Launcher launcher) {
+    public UpdateChecker(@NonNull Launcher launcher)
+    {
         this.launcher = launcher;
     }
 
     @Override
-    public URL call() throws Exception {
-        try {
+    public URL call() throws Exception
+    {
+        try
+        {
             UpdateChecker.log.info("Checking for update...");
 
             URL url = HttpRequest.url(launcher.getProperties().getProperty("selfUpdateUrl"));
@@ -48,14 +52,19 @@ public class UpdateChecker implements Callable<URL> {
 
             UpdateChecker.log.info("Latest version is " + latest + ", while current is " + current);
 
-            if (latest.compareTo(current) >= 1) {
+            if (latest.compareTo(current) >= 1)
+            {
                 UpdateChecker.log.info("Update available at " + versionInfo.getUrl());
                 return versionInfo.getUrl();
-            } else {
+            }
+            else
+            {
                 UpdateChecker.log.info("No update required.");
                 return null;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new LauncherException(e, _("errors.selfUpdateCheckError"));
         }
     }

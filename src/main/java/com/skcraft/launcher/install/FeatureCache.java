@@ -12,7 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class FeatureCache {
+public class FeatureCache
+{
 
     private Map<String, Boolean> selected = new HashMap<String, Boolean>();
 

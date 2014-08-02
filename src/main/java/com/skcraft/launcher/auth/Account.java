@@ -18,7 +18,8 @@ import java.util.Date;
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Account implements Comparable<Account> {
+public class Account implements Comparable<Account>
+{
 
     private String id;
     private String password;
@@ -27,7 +28,8 @@ public class Account implements Comparable<Account> {
     /**
      * Create a new account.
      */
-    public Account() {
+    public Account()
+    {
     }
 
     /**
@@ -35,7 +37,8 @@ public class Account implements Comparable<Account> {
      *
      * @param id the ID
      */
-    public Account(String id) {
+    public Account(String id)
+    {
         setId(id);
     }
 
@@ -44,15 +47,18 @@ public class Account implements Comparable<Account> {
      *
      * @param password the password
      */
-    public void setPassword(String password) {
-        if (password != null && password.isEmpty()) {
+    public void setPassword(String password)
+    {
+        if (password != null && password.isEmpty())
+        {
             password = null;
         }
         this.password = Strings.emptyToNull(password);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -64,27 +70,37 @@ public class Account implements Comparable<Account> {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return id.toLowerCase().hashCode();
     }
 
     @Override
-    public int compareTo(@NonNull Account o) {
+    public int compareTo(@NonNull Account o)
+    {
         Date otherDate = o.getLastUsed();
 
-        if (otherDate == null && lastUsed == null) {
+        if (otherDate == null && lastUsed == null)
+        {
             return 0;
-        } else if (otherDate == null) {
+        }
+        else if (otherDate == null)
+        {
             return -1;
-        } else if (lastUsed == null) {
+        }
+        else if (lastUsed == null)
+        {
             return 1;
-        } else {
+        }
+        else
+        {
             return -lastUsed.compareTo(otherDate);
         }
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return getId();
     }
 

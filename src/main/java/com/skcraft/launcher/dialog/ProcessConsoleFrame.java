@@ -22,24 +22,29 @@ import static com.skcraft.launcher.util.SharedLocale._;
 /**
  * A version of the console window that can manage a process.
  */
-public class ProcessConsoleFrame extends ConsoleFrame {
-    
+public class ProcessConsoleFrame extends ConsoleFrame
+{
+
     private JButton killButton;
     private JButton minimizeButton;
     private TrayIcon trayIcon;
 
-    @Getter private Process process;
-    @Getter @Setter private boolean killOnClose;
+    @Getter
+    private Process process;
+    @Getter
+    @Setter
+    private boolean killOnClose;
 
     private PrintWriter processOut;
 
     /**
      * Create a new instance of the frame.
      *
-     * @param numLines the number of log lines
+     * @param numLines     the number of log lines
      * @param colorEnabled whether color is enabled in the log
      */
-    public ProcessConsoleFrame(int numLines, boolean colorEnabled) {
+    public ProcessConsoleFrame(int numLines, boolean colorEnabled)
+    {
         super(_("console.title"), numLines, colorEnabled);
         processOut = new PrintWriter(
                 getMessageLog().getOutputStream(new Color(0, 0, 255)), true);
@@ -52,54 +57,71 @@ public class ProcessConsoleFrame extends ConsoleFrame {
      *
      * @param process the process
      */
-    public synchronized void setProcess(Process process) {
-        try {
+    public synchronized void setProcess(Process process)
+    {
+        try
+        {
             Process lastProcess = this.process;
-            if (lastProcess != null) {
+            if (lastProcess != null)
+            {
                 processOut.println(_("console.processEndCode", lastProcess.exitValue()));
             }
-        } catch (IllegalThreadStateException e) {
+        }
+        catch (IllegalThreadStateException e)
+        {
         }
 
-        if (process != null) {
+        if (process != null)
+        {
             processOut.println(_("console.attachedToProcess"));
         }
 
         this.process = process;
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
                 updateComponents();
             }
         });
     }
 
-    private synchronized boolean hasProcess() {
+    private synchronized boolean hasProcess()
+    {
         return process != null;
     }
 
     @Override
-    protected void performClose() {
-        if (hasProcess()) {
-            if (killOnClose) {
+    protected void performClose()
+    {
+        if (hasProcess())
+        {
+            if (killOnClose)
+            {
                 performKill();
             }
         }
 
-        if (trayIcon != null) {
+        if (trayIcon != null)
+        {
             SystemTray.getSystemTray().remove(trayIcon);
         }
 
         super.performClose();
     }
 
-    private void performKill() {
-        if (!confirmKill()) {
+    private void performKill()
+    {
+        if (!confirmKill())
+        {
             return;
         }
 
-        synchronized (this) {
-            if (hasProcess()) {
+        synchronized (this)
+        {
+            if (hasProcess())
+            {
                 process.destroy();
                 setProcess(null);
             }
@@ -108,7 +130,8 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         updateComponents();
     }
 
-    protected void initComponents() {
+    protected void initComponents()
+    {
         killButton = new JButton(_("console.forceClose"));
         minimizeButton = new JButton(); // Text set later
 
@@ -116,28 +139,35 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         buttonsPanel.addGlue();
         buttonsPanel.addElement(killButton);
         buttonsPanel.addElement(minimizeButton);
-        
-        killButton.addActionListener(new ActionListener() {
+
+        killButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 performKill();
             }
         });
 
-        minimizeButton.addActionListener(new ActionListener() {
+        minimizeButton.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 contextualClose();
             }
         });
-        
-        if (!setupTrayIcon()) {
+
+        if (!setupTrayIcon())
+        {
             minimizeButton.setEnabled(true);
         }
     }
 
-    private boolean setupTrayIcon() {
-        if (!SystemTray.isSupported()) {
+    private boolean setupTrayIcon()
+    {
+        if (!SystemTray.isSupported())
+        {
             return false;
         }
 
@@ -145,13 +175,15 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         trayIcon.setImageAutoSize(true);
         trayIcon.setToolTip(_("console.trayTooltip"));
 
-        trayIcon.addActionListener(new ActionListener() {
+        trayIcon.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 reshow();
             }
         });
-       
+
         PopupMenu popup = new PopupMenu();
         MenuItem item;
 
@@ -159,70 +191,89 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         item.setEnabled(false);
 
         popup.add(item = new MenuItem(_("console.tray.showWindow")));
-        item.addActionListener(new ActionListener() {
+        item.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 reshow();
             }
         });
 
         popup.add(item = new MenuItem(_("console.tray.forceClose")));
-        item.addActionListener(new ActionListener() {
+        item.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 performKill();
             }
         });
-       
+
         trayIcon.setPopupMenu(popup);
-       
-        try {
+
+        try
+        {
             SystemTray tray = SystemTray.getSystemTray();
             tray.add(trayIcon);
             return true;
-        } catch (AWTException e) {
         }
-        
+        catch (AWTException e)
+        {
+        }
+
         return false;
     }
 
-    private synchronized void updateComponents() {
+    private synchronized void updateComponents()
+    {
         Image icon = hasProcess() ? getTrayRunningIcon() : getTrayClosedIcon();
 
         killButton.setEnabled(hasProcess());
 
-        if (!hasProcess() || trayIcon == null) {
+        if (!hasProcess() || trayIcon == null)
+        {
             minimizeButton.setText(_("console.closeWindow"));
-        } else {
+        }
+        else
+        {
             minimizeButton.setText(_("console.hideWindow"));
         }
 
-        if (trayIcon != null) {
+        if (trayIcon != null)
+        {
             trayIcon.setImage(icon);
         }
 
         setIconImage(icon);
     }
 
-    private synchronized void contextualClose() {
-        if (!hasProcess() || trayIcon == null) {
+    private synchronized void contextualClose()
+    {
+        if (!hasProcess() || trayIcon == null)
+        {
             performClose();
-        } else {
+        }
+        else
+        {
             minimize();
         }
 
         updateComponents();
     }
 
-    private boolean confirmKill() {
-        return SwingHelper.confirmDialog(this,  _("console.confirmKill"), _("console.confirmKillTitle"));
+    private boolean confirmKill()
+    {
+        return SwingHelper.confirmDialog(this, _("console.confirmKill"), _("console.confirmKillTitle"));
     }
 
-    private void minimize() {
+    private void minimize()
+    {
         setVisible(false);
     }
 
-    private void reshow() {
+    private void reshow()
+    {
         setVisible(true);
         requestFocus();
     }

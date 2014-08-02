@@ -12,7 +12,8 @@ import lombok.Data;
  * Represents information about the current environment.
  */
 @Data
-public class Environment {
+public class Environment
+{
 
     private final Platform platform;
     private final String platformVersion;
@@ -23,11 +24,13 @@ public class Environment {
      *
      * @return the current environment
      */
-    public static Environment getInstance() {
+    public static Environment getInstance()
+    {
         return new Environment(detectPlatform(), System.getProperty("os.version"), System.getProperty("os.arch"));
     }
 
-    public String getArchBits() {
+    public String getArchBits()
+    {
         return arch.contains("64") ? "64" : "32";
     }
 
@@ -36,7 +39,8 @@ public class Environment {
      *
      * @return the current platform
      */
-    public static Platform detectPlatform() {
+    public static Platform detectPlatform()
+    {
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("win"))
             return Platform.WINDOWS;

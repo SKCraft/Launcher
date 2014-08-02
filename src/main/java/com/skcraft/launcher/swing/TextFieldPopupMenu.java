@@ -14,7 +14,8 @@ import java.awt.event.ActionListener;
 
 import static com.skcraft.launcher.util.SharedLocale._;
 
-public class TextFieldPopupMenu extends JPopupMenu implements ActionListener {
+public class TextFieldPopupMenu extends JPopupMenu implements ActionListener
+{
 
     public static final TextFieldPopupMenu INSTANCE = new TextFieldPopupMenu();
 
@@ -24,7 +25,8 @@ public class TextFieldPopupMenu extends JPopupMenu implements ActionListener {
     private final JMenuItem deleteItem;
     private final JMenuItem selectAllItem;
 
-    private TextFieldPopupMenu() {
+    private TextFieldPopupMenu()
+    {
         cutItem = addMenuItem(new JMenuItem(_("context.cut"), 'T'));
         copyItem = addMenuItem(new JMenuItem(_("context.copy"), 'C'));
         pasteItem = addMenuItem(new JMenuItem(_("context.paste"), 'P'));
@@ -33,13 +35,15 @@ public class TextFieldPopupMenu extends JPopupMenu implements ActionListener {
         selectAllItem = addMenuItem(new JMenuItem(_("context.selectAll"), 'A'));
     }
 
-    private JMenuItem addMenuItem(JMenuItem item) {
+    private JMenuItem addMenuItem(JMenuItem item)
+    {
         item.addActionListener(this);
         return add(item);
     }
 
     @Override
-    public void show(Component invoker, int x, int y) {
+    public void show(Component invoker, int x, int y)
+    {
         JTextComponent textComponent = (JTextComponent) invoker;
         boolean editable = textComponent.isEditable() && textComponent.isEnabled();
         cutItem.setVisible(editable);
@@ -49,25 +53,35 @@ public class TextFieldPopupMenu extends JPopupMenu implements ActionListener {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JTextComponent textComponent = (JTextComponent) getInvoker();
         textComponent.requestFocus();
 
         boolean haveSelection =
                 textComponent.getSelectionStart() != textComponent.getSelectionEnd();
 
-        if (e.getSource() == cutItem) {
+        if (e.getSource() == cutItem)
+        {
             if (!haveSelection) textComponent.selectAll();
             textComponent.cut();
-        } else if (e.getSource() == copyItem) {
+        }
+        else if (e.getSource() == copyItem)
+        {
             if (!haveSelection) textComponent.selectAll();
             textComponent.copy();
-        } else if (e.getSource() == pasteItem) {
+        }
+        else if (e.getSource() == pasteItem)
+        {
             textComponent.paste();
-        } else if (e.getSource() == deleteItem) {
+        }
+        else if (e.getSource() == deleteItem)
+        {
             if (!haveSelection) textComponent.selectAll();
             textComponent.replaceSelection("");
-        } else if (e.getSource() == selectAllItem) {
+        }
+        else if (e.getSource() == selectAllItem)
+        {
             textComponent.selectAll();
         }
     }

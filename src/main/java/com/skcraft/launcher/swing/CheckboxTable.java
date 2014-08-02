@@ -10,9 +10,11 @@ import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
 
-public class CheckboxTable extends JTable {
+public class CheckboxTable extends JTable
+{
 
-    public CheckboxTable() {
+    public CheckboxTable()
+    {
         setShowGrid(false);
         setRowHeight((int) (Math.max(getRowHeight(), new JCheckBox().getPreferredSize().getHeight() - 2)));
         setIntercellSpacing(new Dimension(0, 0));
@@ -21,11 +23,15 @@ public class CheckboxTable extends JTable {
     }
 
     @Override
-    public void setModel(TableModel dataModel) {
+    public void setModel(TableModel dataModel)
+    {
         super.setModel(dataModel);
-        try {
+        try
+        {
             getColumnModel().getColumn(0).setMaxWidth((int) new JCheckBox().getPreferredSize().getWidth());
-        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
         }
     }
 }

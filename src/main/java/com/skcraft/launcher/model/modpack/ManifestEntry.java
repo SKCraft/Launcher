@@ -27,7 +27,8 @@ import java.io.File;
 })
 @Data
 @ToString(exclude = "manifest")
-public abstract class ManifestEntry {
+public abstract class ManifestEntry
+{
 
     @JsonBackReference("manifest")
     private Manifest manifest;

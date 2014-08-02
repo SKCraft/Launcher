@@ -13,15 +13,18 @@ import lombok.Data;
  * with settable properties.
  */
 @Data
-public class DefaultProgress implements ProgressObservable {
+public class DefaultProgress implements ProgressObservable
+{
 
     private String status;
     private double progress = -1;
 
-    public DefaultProgress() {
+    public DefaultProgress()
+    {
     }
 
-    public DefaultProgress(double progress, String status) {
+    public DefaultProgress(double progress, String status)
+    {
         this.progress = progress;
         this.status = status;
     }

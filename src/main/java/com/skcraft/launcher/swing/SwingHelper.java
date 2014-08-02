@@ -42,33 +42,43 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
  * Swing utility methods.
  */
 @Log
-public final class SwingHelper {
+public final class SwingHelper
+{
 
-    private static final ClipboardOwner clipboardOwner = new ClipboardOwner() {
+    private static final ClipboardOwner clipboardOwner = new ClipboardOwner()
+    {
         @Override
-        public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        public void lostOwnership(Clipboard clipboard, Transferable contents)
+        {
 
         }
     };
 
-    private SwingHelper() {
+    private SwingHelper()
+    {
     }
 
-    public static String htmlEscape(String str) {
+    public static String htmlEscape(String str)
+    {
         return str.replace(">", "&gt;")
                 .replace("<", "&lt;")
                 .replace("&", "&amp;");
     }
 
-    public static void setClipboard(String text) {
+    public static void setClipboard(String text)
+    {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
                 new StringSelection(text), clipboardOwner);
     }
 
-    public static void browseDir(File file, Component component) {
-        try {
+    public static void browseDir(File file, Component component)
+    {
+        try
+        {
             Desktop.getDesktop().open(file);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             JOptionPane.showMessageDialog(component, _("errors.openDirError", file.getAbsolutePath()),
                     _("errorTitle"), JOptionPane.ERROR_MESSAGE);
         }
@@ -77,28 +87,38 @@ public final class SwingHelper {
     /**
      * Opens a system web browser for the given URL.
      *
-     * @param url the URL
+     * @param url             the URL
      * @param parentComponent the component from which to show any errors
      */
-    public static void openURL(@NonNull String url, @NonNull Component parentComponent) {
-        try {
+    public static void openURL(@NonNull String url, @NonNull Component parentComponent)
+    {
+        try
+        {
             openURL(new URL(url), parentComponent);
-        } catch (MalformedURLException e) {
+        }
+        catch (MalformedURLException e)
+        {
         }
     }
 
     /**
      * Opens a system web browser for the given URL.
      *
-     * @param url the URL
+     * @param url             the URL
      * @param parentComponent the component from which to show any errors
      */
-    public static void openURL(URL url, Component parentComponent) {
-        try {
+    public static void openURL(URL url, Component parentComponent)
+    {
+        try
+        {
             Desktop.getDesktop().browse(url.toURI());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             showErrorDialog(parentComponent, _("errors.openUrlError", url.toString()), _("errorTitle"));
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e)
+        {
         }
     }
 
@@ -108,12 +128,13 @@ public final class SwingHelper {
      *
      * @param parentComponent the frame from which the dialog is displayed, otherwise
      *                        null to use the default frame
-     * @param message the message to display
-     * @param title the title string for the dialog
+     * @param message         the message to display
+     * @param title           the title string for the dialog
      * @see #showMessageDialog(java.awt.Component, String, String, String, int) for details
      */
     public static void showErrorDialog(Component parentComponent, @NonNull String message,
-                                       @NonNull String title) {
+                                       @NonNull String title)
+    {
         showErrorDialog(parentComponent, message, title, null);
     }
 
@@ -123,18 +144,20 @@ public final class SwingHelper {
      *
      * @param parentComponent the frame from which the dialog is displayed, otherwise
      *                        null to use the default frame
-     * @param message the message to display
-     * @param title the title string for the dialog
-     * @param throwable the exception, or null if there is no exception to show
+     * @param message         the message to display
+     * @param title           the title string for the dialog
+     * @param throwable       the exception, or null if there is no exception to show
      * @see #showMessageDialog(java.awt.Component, String, String, String, int) for details
      */
     public static void showErrorDialog(Component parentComponent, @NonNull String message,
-                                       @NonNull String title, Throwable throwable) {
+                                       @NonNull String title, Throwable throwable)
+    {
         String detailsText = null;
 
         // Get a string version of the exception and use that for
         // the extra details text
-        if (throwable != null) {
+        if (throwable != null)
+        {
             StringWriter sw = new StringWriter();
             throwable.printStackTrace(new PrintWriter(sw));
             detailsText = sw.toString();
@@ -148,25 +171,27 @@ public final class SwingHelper {
     /**
      * Show a message dialog using
      * {@link javax.swing.JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)}.
-     *
+     * <p/>
      * <p>The dialog will be shown from the Event Dispatch Thread, regardless of the
      * thread it is called from. In either case, the method will block until the
      * user has closed the dialog (or dialog creation fails for whatever reason).</p>
      *
      * @param parentComponent the frame from which the dialog is displayed, otherwise
      *                        null to use the default frame
-     * @param message the message to display
-     * @param title the title string for the dialog
-     * @param messageType see {@link javax.swing.JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)}
-     *                    for available message types
+     * @param message         the message to display
+     * @param title           the title string for the dialog
+     * @param messageType     see {@link javax.swing.JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)}
+     *                        for available message types
      */
     public static void showMessageDialog(final Component parentComponent,
                                          @NonNull final String message,
                                          @NonNull final String title,
                                          final String detailsText,
-                                         final int messageType) {
+                                         final int messageType)
+    {
 
-        if (SwingUtilities.isEventDispatchThread()) {
+        if (SwingUtilities.isEventDispatchThread())
+        {
             // To force the label to wrap, convert the message to broken HTML
             String htmlMessage = "<html><div style=\"width: 250px\">" + htmlEscape(message);
 
@@ -176,7 +201,8 @@ public final class SwingHelper {
             panel.add(new JLabel(htmlMessage), BorderLayout.NORTH);
 
             // Add the extra details
-            if (detailsText != null) {
+            if (detailsText != null)
+            {
                 JTextArea textArea = new JTextArea(_("errors.reportErrorPreface") + detailsText);
                 JLabel tempLabel = new JLabel();
                 textArea.setFont(tempLabel.getFont());
@@ -192,20 +218,29 @@ public final class SwingHelper {
 
             JOptionPane.showMessageDialog(
                     parentComponent, panel, title, messageType);
-        } else {
+        }
+        else
+        {
             // Call method again from the Event Dispatch Thread
-            try {
-                SwingUtilities.invokeAndWait(new Runnable() {
+            try
+            {
+                SwingUtilities.invokeAndWait(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         showMessageDialog(
                                 parentComponent, message, title,
                                 detailsText, messageType);
                     }
                 });
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e)
+            {
                 Thread.currentThread().interrupt();
-            } catch (InvocationTargetException e) {
+            }
+            catch (InvocationTargetException e)
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -215,32 +250,43 @@ public final class SwingHelper {
      * Asks the user a binary yes or no question.
      *
      * @param parentComponent the component
-     * @param message the message to display
-     * @param title the title string for the dialog
+     * @param message         the message to display
+     * @param title           the title string for the dialog
      * @return whether 'yes' was selected
      */
     public static boolean confirmDialog(final Component parentComponent,
                                         @NonNull final String message,
-                                        @NonNull final String title) {
-        if (SwingUtilities.isEventDispatchThread()) {
+                                        @NonNull final String title)
+    {
+        if (SwingUtilities.isEventDispatchThread())
+        {
             return JOptionPane.showConfirmDialog(
                     parentComponent, message, title, JOptionPane.YES_NO_OPTION) ==
                     JOptionPane.YES_OPTION;
-        } else {
+        }
+        else
+        {
             // Use an AtomicBoolean to pass the result back from the
             // Event Dispatcher Thread
             final AtomicBoolean yesSelected = new AtomicBoolean();
 
-            try {
-                SwingUtilities.invokeAndWait(new Runnable() {
+            try
+            {
+                SwingUtilities.invokeAndWait(new Runnable()
+                {
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         yesSelected.set(confirmDialog(parentComponent, title, message));
                     }
                 });
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e)
+            {
                 Thread.currentThread().interrupt();
-            } catch (InvocationTargetException e) {
+            }
+            catch (InvocationTargetException e)
+            {
                 throw new RuntimeException(e);
             }
 
@@ -253,16 +299,20 @@ public final class SwingHelper {
      *
      * @param component component
      */
-    public static void equalWidth(Component ... component) {
+    public static void equalWidth(Component... component)
+    {
         double widest = 0;
-        for (Component comp : component) {
+        for (Component comp : component)
+        {
             Dimension dim = comp.getPreferredSize();
-            if (dim.getWidth() > widest) {
+            if (dim.getWidth() > widest)
+            {
                 widest = dim.getWidth();
             }
         }
 
-        for (Component comp : component) {
+        for (Component comp : component)
+        {
             Dimension dim = comp.getPreferredSize();
             comp.setPreferredSize(new Dimension((int) widest, (int) dim.getHeight()));
         }
@@ -273,9 +323,12 @@ public final class SwingHelper {
      *
      * @param components list of components
      */
-    public static void removeOpaqueness(@NonNull Component ... components) {
-        for (Component component : components) {
-            if (component instanceof JComponent) {
+    public static void removeOpaqueness(@NonNull Component... components)
+    {
+        for (Component component : components)
+        {
+            if (component instanceof JComponent)
+            {
                 JComponent jComponent = (JComponent) component;
                 jComponent.setOpaque(false);
                 removeOpaqueness(jComponent.getComponents());
@@ -283,39 +336,52 @@ public final class SwingHelper {
         }
     }
 
-    public static BufferedImage readIconImage(Class<?> clazz, String path) {
+    public static BufferedImage readIconImage(Class<?> clazz, String path)
+    {
         InputStream in = null;
-        try {
+        try
+        {
             in = clazz.getResourceAsStream(path);
-            if (in != null) {
+            if (in != null)
+            {
                 return ImageIO.read(in);
             }
-        } catch (IOException e) {
-        } finally {
+        }
+        catch (IOException e)
+        {
+        }
+        finally
+        {
             closeQuietly(in);
         }
         return null;
     }
 
-    public static void setIconImage(JFrame frame, Class<?> clazz, String path) {
+    public static void setIconImage(JFrame frame, Class<?> clazz, String path)
+    {
         BufferedImage image = readIconImage(clazz, path);
-        if (image != null) {
+        if (image != null)
+        {
             frame.setIconImage(image);
         }
     }
 
     /**
      * Focus a component.
-     *
+     * <p/>
      * <p>The focus call happens in {@link javax.swing.SwingUtilities#invokeLater(Runnable)}.</p>
-     * 
+     *
      * @param component the component
      */
-    public static void focusLater(@NonNull final Component component) {
-        SwingUtilities.invokeLater(new Runnable() {
+    public static void focusLater(@NonNull final Component component)
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
             @Override
-            public void run() {
-                if (component instanceof JTextComponent) {
+            public void run()
+            {
+                if (component instanceof JTextComponent)
+                {
                     ((JTextComponent) component).selectAll();
                 }
                 component.requestFocusInWindow();
@@ -323,14 +389,19 @@ public final class SwingHelper {
         });
     }
 
-    public static void flattenJSplitPane(JSplitPane splitPane) {
+    public static void flattenJSplitPane(JSplitPane splitPane)
+    {
         splitPane.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        BasicSplitPaneUI flatDividerSplitPaneUI = new BasicSplitPaneUI() {
+        BasicSplitPaneUI flatDividerSplitPaneUI = new BasicSplitPaneUI()
+        {
             @Override
-            public BasicSplitPaneDivider createDefaultDivider() {
-                return new BasicSplitPaneDivider(this) {
+            public BasicSplitPaneDivider createDefaultDivider()
+            {
+                return new BasicSplitPaneDivider(this)
+                {
                     @Override
-                    public void setBorder(Border b) {
+                    public void setBorder(Border b)
+                    {
                     }
                 };
             }
@@ -339,25 +410,34 @@ public final class SwingHelper {
         splitPane.setBorder(null);
     }
 
-    public static void addErrorDialogCallback(final Window owner, ListenableFuture<?> future) {
-        Futures.addCallback(future, new FutureCallback<Object>() {
+    public static void addErrorDialogCallback(final Window owner, ListenableFuture<?> future)
+    {
+        Futures.addCallback(future, new FutureCallback<Object>()
+        {
             @Override
-            public void onSuccess(Object result) {
+            public void onSuccess(Object result)
+            {
             }
 
             @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof InterruptedException || t instanceof CancellationException) {
+            public void onFailure(Throwable t)
+            {
+                if (t instanceof InterruptedException || t instanceof CancellationException)
+                {
                     return;
                 }
 
                 String message;
-                if (t instanceof LauncherException) {
+                if (t instanceof LauncherException)
+                {
                     message = t.getLocalizedMessage();
                     t = t.getCause();
-                } else {
+                }
+                else
+                {
                     message = t.getLocalizedMessage();
-                    if (message == null) {
+                    if (message == null)
+                    {
                         message = _("errors.genericError");
                     }
                 }
@@ -367,7 +447,8 @@ public final class SwingHelper {
         }, SwingExecutor.INSTANCE);
     }
 
-    public static Component alignTabbedPane(Component component) {
+    public static Component alignTabbedPane(Component component)
+    {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.add(component);

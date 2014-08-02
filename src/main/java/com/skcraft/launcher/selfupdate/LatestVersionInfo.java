@@ -11,7 +11,8 @@ import lombok.Data;
 import java.net.URL;
 
 @Data
-public class LatestVersionInfo {
+public class LatestVersionInfo
+{
 
     private String version;
     private URL url;

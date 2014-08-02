@@ -10,7 +10,8 @@ import com.skcraft.launcher.model.modpack.Feature;
 import lombok.Data;
 
 @Data
-public class FileInfo {
+public class FileInfo
+{
 
     private Feature feature;
 

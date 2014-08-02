@@ -33,3 +33,4 @@
 /dependency-reduced-pom.xml
 /*.pack
 /local_launcher.properties
+*.bat

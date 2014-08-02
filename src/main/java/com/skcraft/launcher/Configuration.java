@@ -19,13 +19,14 @@ import lombok.Data;
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Configuration {
+public class Configuration
+{
 
     private boolean offlineEnabled = false;
     private String jvmPath;
     private String jvmArgs;
     private int minMemory = 1024;
-    private int maxMemory = 1024;
+    private int maxMemory = 2048;
     private int permGen = 128;
     private int windowWidth = 854;
     private int widowHeight = 480;
@@ -37,12 +38,14 @@ public class Configuration {
     private String gameKey;
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         return super.equals(o);
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return super.hashCode();
     }
 
