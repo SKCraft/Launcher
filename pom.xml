@@ -119,9 +119,8 @@
       </plugin>
       
       <plugin>
-        <groupId>org.bluestemsoftware.open.maven.plugin</groupId>
-        <artifactId>launch4j-plugin</artifactId>
-        <version>1.5.0.0</version>
+        <groupId>com.akathist.maven.plugins.launch4j</groupId>
+        <artifactId>launch4j-maven-plugin</artifactId>
         <executions>
             <execution>
                 <id>l4j-gui</id>
@@ -133,13 +132,12 @@
                     <headerType>gui</headerType>
                     <outfile>target/${artifactId}-${version}.exe</outfile>
                     <jar>target/${artifactId}-${version}.jar</jar> <!-- 'shaded' is the value set on shadedClassifierName above -->
-                    <errTitle>App Err</errTitle>
                     <classPath>
                         <mainClass>com.skcraft.launcher.Launcher</mainClass>
                     </classPath>
                     <icon>src/main/resources/acl-icon.ico</icon>
                     <jre>
-                        <minVersion>1.6.0</minVersion>
+                        <minVersion>1.5.0</minVersion>
                         <maxVersion>1.8.0</maxVersion>
                         <initialHeapSize>128</initialHeapSize>
                         <maxHeapSize>1024</maxHeapSize>
