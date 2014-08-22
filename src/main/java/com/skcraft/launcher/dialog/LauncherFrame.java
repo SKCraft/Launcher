@@ -489,6 +489,7 @@ public class LauncherFrame extends JFrame {
                 String[] split = text.split("\n");
                 text = "";
                 BufferedReader br;
+                boolean newPackAdded = false;
                 for (int i = 0; i < split.length; i++) {
                     String code = split[i];
                     boolean alreadyAdded = false;
@@ -550,6 +551,7 @@ public class LauncherFrame extends JFrame {
                                 out.println("lolnet:" + code);
                                 out.close();
                                 split[i] = "Done";
+                                newPackAdded = true;
                             } else {
                                 split[i] = "alreadyAdded";
                             }
@@ -558,6 +560,10 @@ public class LauncherFrame extends JFrame {
                         }
                     }
                     text += split[i] + "\n";
+                }
+                if (newPackAdded)
+                {
+                    loadInstances();
                 }
                 area.setText(text);
             }
