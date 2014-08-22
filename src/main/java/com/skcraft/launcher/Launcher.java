@@ -376,6 +376,10 @@ public final class Launcher {
             currentDataPath = defaultDirectory() + File.separator + "LolnetData/";
         }
         Launcher.dataDir = new File(currentDataPath);
+        if (!dataDir.exists())
+        {
+            dataDir.mkdirs();
+        }
         if (!Launcher.dataDir.exists()) {
             Launcher.dataDir = new File(defaultDirectory() + File.separator + "LolnetData/");
         }
