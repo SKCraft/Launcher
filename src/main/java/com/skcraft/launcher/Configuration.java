@@ -67,9 +67,11 @@ public class Configuration {
 
             }
         }
-        if (System.getProperty("sun.arch.data.model").equalsIgnoreCase("32") && maxMemory > 1244)
-        {
-            maxMemory = 1244;
+        
+        if (System.getProperty("sun.arch.data.model").equalsIgnoreCase("32") && maxMemory > 1244) {
+            minMemory = 512;
+            maxMemory = 1200;
+
         }
 
     }
