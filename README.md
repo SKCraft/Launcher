@@ -1,5 +1,11 @@
-SKCraft Launcher
+Kakadua Launcher
 ================
+The Kakadua Launcher is a kakadua branded launcher build on the SKCraft Launcher.
+You can find the original at https://github.com/SKCraft/Launcher
+
+The rest of this readme is a direct copy of the SKcraft readme
+
+------------
 
 This project provides an open-source Minecraft launcher platform for downloading,
 installing, and updating modpacks.
