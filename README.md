@@ -38,9 +38,7 @@ you need to do that, and it's all documented on our documentation page.
 
 **You can fork the project on GitHub** and make modifications.
 
-* [Home page](http://opensource.skcraft.com/)
-* [Documentation](http://confluence.skcraft.com/display/LAUN/Launcher)
-* [Issue tracker](http://issues.skcraft.com/browse/LAUN)
+* [Documentation](http://wiki.sk89q.com/wiki/Launcher)
 
 Note that documentation may be lacking in some places. If you run into problems,
 **do not hesitate to ask**.
