@@ -20,6 +20,8 @@
 /bin
 /dist
 /manifest.mf
+/pack
+/web
 
 # Mac filesystem dust
 /.DS_Store
