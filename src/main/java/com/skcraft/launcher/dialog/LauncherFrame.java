@@ -237,7 +237,7 @@ public class LauncherFrame extends JFrame {
                                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                             try {
                                 Runtime rt = Runtime.getRuntime();
-                                Process pr = rt.exec("java -jar " + Launcher.launcherJarFile.getAbsolutePath());
+                                Process pr = rt.exec("java -jar " + "\""+Launcher.launcherJarFile.getAbsolutePath()+"\"");
                                 // yes option
                             } catch (IOException ex) {
                                 Logger.getLogger(ConfigurationDialog.class.getName()).log(Level.SEVERE, null, ex);

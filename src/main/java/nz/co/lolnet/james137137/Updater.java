@@ -62,8 +62,13 @@ public class Updater implements Runnable {
                 downloadFromUrl(new URL("https://www.lolnet.co.nz/modpack/update/LolnetLauncherUpdater.jar"),"LolnetLauncherUpdater.jar");
                 File updaterFile = new File(Launcher.launcherJarFile.getParentFile(), "LolnetLauncherUpdater.jar");
                 Runtime rt = Runtime.getRuntime();
-                Process pr = rt.exec("java -jar " + updaterFile.getAbsolutePath() + " " + newJarFile +
-                        " " + Launcher.launcherJarFile.getAbsolutePath());
+                Process pr = rt.exec("java -jar " + 
+                        "\""+updaterFile.getAbsolutePath()+"\"" + 
+                        " " + 
+                        "\""+newJarFile +"\""+
+                        " " 
+                        +"\""+ Launcher.launcherJarFile.getAbsolutePath()+"\""
+                );
                 System.exit(0);
             } catch (IOException ex) {
                 Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
