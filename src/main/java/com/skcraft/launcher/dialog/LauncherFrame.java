@@ -237,7 +237,11 @@ public class LauncherFrame extends JFrame {
                                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                             try {
                                 Runtime rt = Runtime.getRuntime();
-                                Process pr = rt.exec("java -jar " + "\""+Launcher.launcherJarFile.getAbsolutePath()+"\"");
+                                File file = new File(Launcher.launcherJarFile.getAbsolutePath());
+                                String path = file.getAbsolutePath().replaceAll("%20", " ");
+                                String command = "java -jar " + "\""+path+"\"".replaceAll("%20", " ");
+                                Process pr = rt.exec(command);
+                                System.out.println(command);
                                 // yes option
                             } catch (IOException ex) {
                                 Logger.getLogger(ConfigurationDialog.class.getName()).log(Level.SEVERE, null, ex);
