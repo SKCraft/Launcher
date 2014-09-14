@@ -11,7 +11,7 @@
 
   <groupId>com.skcraft</groupId>
   <artifactId>launcher</artifactId>
-  <version>4.2.3-SNAPSHOT</version>
+  <version>0.0.2</version>
 
   <dependencies>
     <dependency>
@@ -47,7 +47,7 @@
   </dependencies>
 
   <build>
-    <finalName>SKCraftLauncher</finalName>
+    <finalName>DracoNetLauncher</finalName>
 
     <resources>
       <resource>
