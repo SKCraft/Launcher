@@ -7,6 +7,7 @@ package com.skcraft.launcher;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Strings;
+import com.skcraft.launcher.launch.JavaRuntimeFinder;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
@@ -61,7 +62,7 @@ public class Configuration {
         if (minMemory > maxMemory) {
             maxMemory = minMemory;
         }
-        
+
         long value = -1;
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
@@ -103,17 +104,20 @@ public class Configuration {
         if (!Strings.isNullOrEmpty(jvmPath) && new File(jvmPath).exists()) {
             return;
         }
+
         String OS = System.getProperty("os.name").toUpperCase();
         if (OS.contains("WIN")) {
             for (int i = 7; i >= 6; i--) {
-                if (new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/jre" + i + "/bin/javaw.exe").exists()) {
-                    jvmPath = new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/jre" + i + "/bin/javaw.exe").getAbsolutePath();
+                if (checkJvmPath(new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/jre" + i + "/bin/javaw.exe"))) {
+                    jvmPath = System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/jre" + i + "/bin/javaw.exe";
                     return;
-                } else if (new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files (x86)/Java/jre" + i + "/bin/javaw.exe").exists()) {
-                    jvmPath = new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/jre" + i + "/bin/javaw.exe").getAbsolutePath();
+                } else if (checkJvmPath(new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files (x86)/Java/jre" + i + "/bin/javaw.exe"))) {
+                    jvmPath = System.getenv("ProgramFiles").charAt(0) + ":/Program Files (x86)/Java/jre" + i + "/bin/javaw.exe";
                     return;
                 }
             }
+
+            jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
 
             //C:\Program Files\Java\jre7\bin\javaw.exe
             //return System.getenv("APPDATA");
@@ -124,6 +128,10 @@ public class Configuration {
         }
         // return System.getProperty("user.dir");
 
+    }
+
+    public static boolean checkJvmPath(File path) {
+        return path.exists();
     }
 
     @Override
