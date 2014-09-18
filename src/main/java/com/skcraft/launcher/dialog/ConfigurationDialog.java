@@ -184,7 +184,7 @@ public class ConfigurationDialog extends JDialog {
                                 try {
                                     Runtime rt = Runtime.getRuntime();
                                     String path = Launcher.launcherJarFile.getAbsolutePath().replaceAll("%20", " ");
-                                    String command = "java -jar " + "\""+path+"\"".replaceAll("%20", " ");
+                                    String command = "java -jar " + "\"" + path + "\"".replaceAll("%20", " ");
                                     Process pr = rt.exec(command);
                                     System.out.println(command);
                                     // yes option
