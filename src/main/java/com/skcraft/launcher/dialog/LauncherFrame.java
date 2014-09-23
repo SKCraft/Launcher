@@ -64,7 +64,7 @@ public class LauncherFrame extends JFrame
     private final JButton launchButton = new JButton(_("launcher.launch"));
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(_("launcher.options"));
-    private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
+    //private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(_("launcher.downloadUpdates"));
     private URL updateUrl;
 
@@ -97,7 +97,7 @@ public class LauncherFrame extends JFrame
     {
         webView = WebpagePanel.forURL(launcher.getNewsURL(), false);
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
-        selfUpdateButton.setVisible(false);
+        //selfUpdateButton.setVisible(false);
 
         updateCheck.setSelected(true);
         updateCheck.setVisible(false);
@@ -111,7 +111,7 @@ public class LauncherFrame extends JFrame
         refreshButton.setVisible(false);
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
-        buttonsPanel.addElement(selfUpdateButton);
+        //buttonsPanel.addElement(selfUpdateButton);
         buttonsPanel.addElement(optionsButton);
         buttonsPanel.addElement(launchButton);
         container.setLayout(new BorderLayout());
@@ -144,6 +144,7 @@ public class LauncherFrame extends JFrame
             }
         });
 
+        /*
         selfUpdateButton.addActionListener(new ActionListener()
         {
             @Override
@@ -152,6 +153,7 @@ public class LauncherFrame extends JFrame
                 selfUpdate();
             }
         });
+        */
 
         optionsButton.addActionListener(new ActionListener()
         {
@@ -216,6 +218,7 @@ public class LauncherFrame extends JFrame
         }, SwingExecutor.INSTANCE);
     }
 
+    /*
     private void selfUpdate()
     {
         URL url = updateUrl;
@@ -253,11 +256,12 @@ public class LauncherFrame extends JFrame
             selfUpdateButton.setVisible(false);
         }
     }
+    */
 
     private void requestUpdate(URL url)
     {
         this.updateUrl = url;
-        selfUpdateButton.setVisible(true);
+        //selfUpdateButton.setVisible(true);
     }
 
     /**
