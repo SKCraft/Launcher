@@ -9,6 +9,7 @@ package com.skcraft.launcher.swing;
 import com.skcraft.launcher.LauncherUtils;
 import lombok.extern.java.Log;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.event.HyperlinkEvent;
@@ -102,6 +103,15 @@ public final class WebpagePanel extends JPanel {
         
         JScrollPane scrollPane = new JScrollPane(documentView);
         panel.add(scrollPane, new Integer(1));
+        Image image = null;
+        try {
+            URL url = new URL("http://alice.penagw.in/image1.jpg");
+            image = ImageIO.read(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JLabel label = new JLabel(new ImageIcon(image));
+        this.add(label, BorderLayout.NORTH);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         
         progressBar = new JProgressBar();
