@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 
 /**
  *
@@ -25,6 +26,7 @@ import javax.swing.JLabel;
  */
 public class ThreadLolnetPingWindow implements Runnable {
 
+    JScrollPane pane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     private static JFrame frame = null;
     JLabel jLabel;
 
@@ -33,10 +35,11 @@ public class ThreadLolnetPingWindow implements Runnable {
             return;
 
         }
-
         frame = new JFrame();
         jLabel = new JLabel();
-        frame.getContentPane().add(jLabel);
+        
+        //frame.getContentPane().add(jLabel);
+        
         start();
     }
 
@@ -49,14 +52,15 @@ public class ThreadLolnetPingWindow implements Runnable {
     public void run() {
 
         reloadPicture();
+        
         frame.getContentPane().setBackground(Color.BLACK);
         try {
-            frame.setSize(new Dimension(getImage().getWidth(null) + 15, 50 + getImage().getHeight(null)));
+            frame.setSize(new Dimension(getImage().getWidth(null) + 40, 720));
         } catch (IOException ex) {
             Logger.getLogger(ThreadLolnetPingWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+        frame.setLocation(dim.width / 2 - frame.getSize().width / 2 - 50 , dim.height / 2 - frame.getSize().height / 2);
         frame.setVisible(true);
         while (frame != null && jLabel != null && frame.isVisible() && jLabel.isVisible()) {
 
@@ -77,8 +81,8 @@ public class ThreadLolnetPingWindow implements Runnable {
         try {
             ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL("https://www.lolnet.co.nz/LolnetServerStatus/FullServers.png")));
             jLabel.setIcon(imageIcon);
-            frame.revalidate();
-            frame.repaint();
+            pane = new JScrollPane(new JLabel(imageIcon));
+            frame.setContentPane(pane);
         } catch (MalformedURLException ex) {
             Logger.getLogger(ThreadLolnetPingWindow.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
