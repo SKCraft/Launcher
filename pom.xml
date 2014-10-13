@@ -106,7 +106,7 @@
                             <headerType>gui</headerType>
                             <outfile>${project.build.directory}/${project.build.finalName}.exe</outfile>
                             <!--<jar>target/${project.build.finalName}-${project.version}-shaded.jar</jar>-->
-                            <jar>target/${project.build.finalName}</jar>
+                            <jar>target/${project.build.finalName}.jar</jar>
                             <icon>${basedir}/src/main//resources/com/skcraft/launcher/icon.ico</icon>
                             <jre>
                                 <minVersion>1.6.0</minVersion>
