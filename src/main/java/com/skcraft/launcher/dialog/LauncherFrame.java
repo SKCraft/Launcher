@@ -37,6 +37,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
@@ -217,6 +218,14 @@ public class LauncherFrame extends JFrame {
 
     private void selfUpdate() {
         URL url = updateUrl;
+        if (Launcher.launcherJarFile.getName().contains(".exe")) {
+            try {
+                url = new URL(url.toString().replaceAll(".jar", ".exe"));
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
         if (url != null) {
             SelfUpdater downloader = new SelfUpdater(launcher, url);
             ObservableFuture<File> future = new ObservableFuture<File>(
@@ -232,14 +241,14 @@ public class LauncherFrame extends JFrame {
                             _("launcher.selfUpdateCompleteTitle"),
                             null,
                             JOptionPane.INFORMATION_MESSAGE);
-                    if (Launcher.launcherJarFile.getName().contains(".jar")) {
+                    if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
                         if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
                                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                             try {
                                 Runtime rt = Runtime.getRuntime();
                                 File file = new File(Launcher.launcherJarFile.getAbsolutePath());
                                 String path = file.getAbsolutePath().replaceAll("%20", " ");
-                                String command = "java -jar " + "\""+path+"\"".replaceAll("%20", " ");
+                                String command = "java -jar " + "\"" + path + "\"".replaceAll("%20", " ");
                                 Process pr = rt.exec(command);
                                 System.out.println(command);
                                 // yes option
@@ -565,8 +574,7 @@ public class LauncherFrame extends JFrame {
                     }
                     text += split[i] + "\n";
                 }
-                if (newPackAdded)
-                {
+                if (newPackAdded) {
                     loadInstances();
                 }
                 area.setText(text);
