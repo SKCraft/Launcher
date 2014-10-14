@@ -3,46 +3,53 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.dialog;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
-import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.launch.LaunchProcessHandler;
+import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.persistence.Persistence;
-import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.selfupdate.SelfUpdater;
+import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.update.HardResetter;
 import com.skcraft.launcher.update.Remover;
 import com.skcraft.launcher.update.Updater;
+import static com.skcraft.launcher.util.SharedLocale._;
 import com.skcraft.launcher.util.SwingExecutor;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import org.apache.commons.io.FileUtils;
-
-import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
-
-import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
-import static com.skcraft.launcher.util.SharedLocale._;
+import java.util.logging.Logger;
+import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
+import nz.co.lolnet.james137137.ThreadLolnetPingWindow;
+import org.apache.commons.io.FileUtils;
 
 /**
  * The main launcher frame.
@@ -61,6 +68,8 @@ public class LauncherFrame extends JFrame {
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(_("launcher.launch"));
+    private final JButton lolnetPingButton = new JButton("Check Servers...");
+    private final JButton lolnetPrivatePackButton = new JButton("Private Pack...");
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(_("launcher.options"));
     private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
@@ -79,7 +88,7 @@ public class LauncherFrame extends JFrame {
         instancesModel = new InstanceTableModel(launcher.getInstances());
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(700, 450);
+        setSize(850, 550);
         setMinimumSize(new Dimension(400, 300));
         initComponents();
         setLocationRelativeTo(null);
@@ -98,13 +107,15 @@ public class LauncherFrame extends JFrame {
         updateCheck.setSelected(true);
         instancesTable.setModel(instancesModel);
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
-        splitPane.setDividerLocation(200);
+        splitPane.setDividerLocation(250);
         splitPane.setDividerSize(4);
         SwingHelper.flattenJSplitPane(splitPane);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
+        buttonsPanel.addElement(lolnetPrivatePackButton);
+        buttonsPanel.addElement(lolnetPingButton);
         buttonsPanel.addElement(optionsButton);
         buttonsPanel.addElement(launchButton);
         container.setLayout(new BorderLayout());
@@ -144,6 +155,22 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 showOptions();
             }
+        });
+
+        lolnetPrivatePackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                launchPrivatePackPannel();
+            }
+
+        });
+
+        lolnetPingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showPingServer();
+            }
+
         });
 
         launchButton.addActionListener(new ActionListener() {
@@ -191,6 +218,14 @@ public class LauncherFrame extends JFrame {
 
     private void selfUpdate() {
         URL url = updateUrl;
+        if (Launcher.launcherJarFile.getName().contains(".exe")) {
+            try {
+                url = new URL(url.toString().replaceAll(".jar", ".exe"));
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
         if (url != null) {
             SelfUpdater downloader = new SelfUpdater(launcher, url);
             ObservableFuture<File> future = new ObservableFuture<File>(
@@ -206,6 +241,25 @@ public class LauncherFrame extends JFrame {
                             _("launcher.selfUpdateCompleteTitle"),
                             null,
                             JOptionPane.INFORMATION_MESSAGE);
+                    if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
+                        if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                            try {
+                                Runtime rt = Runtime.getRuntime();
+                                File file = new File(Launcher.launcherJarFile.getAbsolutePath());
+                                String path = file.getAbsolutePath().replaceAll("%20", " ");
+                                String command = "java -jar " + "\"" + path + "\"".replaceAll("%20", " ");
+                                Process pr = rt.exec(command);
+                                System.out.println(command);
+                                // yes option
+                            } catch (IOException ex) {
+                                Logger.getLogger(ConfigurationDialog.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            System.exit(0);
+                        } else {
+                            // no option
+                        }
+                    }
                 }
 
                 @Override
@@ -222,7 +276,12 @@ public class LauncherFrame extends JFrame {
 
     private void requestUpdate(URL url) {
         this.updateUrl = url;
-        selfUpdateButton.setVisible(true);
+        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update\n\nDo you wish to update?", "Launcher Update Available",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            selfUpdate();
+        } else {
+            // no option
+        }
     }
 
     /**
@@ -367,7 +426,7 @@ public class LauncherFrame extends JFrame {
                 launcher.getExecutor().submit(resetter), resetter);
 
         // Show progress
-        ProgressDialog.showProgress( this, future, _("instance.resettingTitle"),
+        ProgressDialog.showProgress(this, future, _("instance.resettingTitle"),
                 _("instance.resettingStatus", instance.getTitle()));
         SwingHelper.addErrorDialogCallback(this, future);
 
@@ -404,6 +463,123 @@ public class LauncherFrame extends JFrame {
     private void showOptions() {
         ConfigurationDialog configDialog = new ConfigurationDialog(this, launcher);
         configDialog.setVisible(true);
+    }
+
+    private void showPingServer() {
+        new ThreadLolnetPingWindow();
+    }
+
+    private void launchPrivatePackPannel() {
+        LinedBoxPanel pPButtonsPanel = new LinedBoxPanel(true).fullyPadded();
+        JFrame frame = new JFrame("Private Pack Code here");
+        JButton pPAddButton = new JButton("Add");
+        JButton pPCloseButton = new JButton("Close");
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frame.setSize(new Dimension(300, 150));
+        frame.setResizable(false);
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+        JTextField field = new JTextField();
+        field.setBorder(BorderFactory.createLineBorder(Color.black));
+        final JTextArea area = new JTextArea(100, 80);
+        JScrollPane scrollPane = new JScrollPane(area);
+        area.setEditable(true);
+        pPButtonsPanel.addGlue();
+        pPButtonsPanel.add(pPAddButton, BorderLayout.EAST);
+        pPButtonsPanel.add(pPCloseButton, BorderLayout.EAST);
+
+        frame.add(pPButtonsPanel, BorderLayout.SOUTH);
+        frame.add(scrollPane);
+        frame.setVisible(true);
+
+        pPCloseButton.addActionListener(ActionListeners.dispose(frame));
+
+        pPAddButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text = area.getText();
+                String[] split = text.split("\n");
+                text = "";
+                BufferedReader br;
+                boolean newPackAdded = false;
+                for (int i = 0; i < split.length; i++) {
+                    String code = split[i];
+                    boolean alreadyAdded = false;
+                    if (code.equalsIgnoreCase("showmethemoney")) {
+
+                        /*lolnetPingButton.setVisible(true);
+                         try {
+                         File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                         if (!codeFile.exists()) {
+                         codeFile.createNewFile();
+                         }
+                         br = new BufferedReader(new FileReader(codeFile));
+                         for (String line; (line = br.readLine()) != null;) {
+                         if (line.equalsIgnoreCase("showmethemoney")) {
+                         alreadyAdded = true;
+                         }
+                         }
+                         if (!alreadyAdded)
+                         {
+                         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                         out.println(code);
+                         out.close();
+                         split[i] = "Done";
+                         }
+                        
+                         } catch (Exception e1) {
+                         split[i] = "error";
+                         }*/
+                    } else {
+
+                        try {
+                            File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                            if (!codeFile.exists()) {
+                                codeFile.createNewFile();
+                            }
+                            br = new BufferedReader(new FileReader(codeFile));
+                            for (String line; (line = br.readLine()) != null;) {
+                                if (line.startsWith("lolnet:")) {
+                                    if (line.split(":")[1].equalsIgnoreCase(code.replaceAll(" ", ""))) {
+                                        alreadyAdded = true;
+                                    }
+                                }
+                            }
+
+                            if (!alreadyAdded) {
+                                URL oracle = new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s");
+                                BufferedReader in = new BufferedReader(
+                                        new InputStreamReader(oracle.openStream()));
+
+                                String inputLine;
+                                while ((inputLine = in.readLine()) != null) {
+                                    if (inputLine.length() >= 1) {
+                                        break;
+                                    }
+                                }
+                                in.close();
+
+                                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                                out.println("lolnet:" + code);
+                                out.close();
+                                split[i] = "Done";
+                                newPackAdded = true;
+                            } else {
+                                split[i] = "alreadyAdded";
+                            }
+                        } catch (IOException ex) {
+                            split[i] = "WrongCode";
+                        }
+                    }
+                    text += split[i] + "\n";
+                }
+                if (newPackAdded) {
+                    loadInstances();
+                }
+                area.setText(text);
+            }
+        });
     }
 
     private void launch() {

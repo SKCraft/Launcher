@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher;
 
 import com.beust.jcommander.JCommander;
@@ -21,12 +20,6 @@ import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-import org.apache.commons.io.FileUtils;
-
-import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -37,6 +30,15 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
+
+import javax.swing.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
+import nz.co.lolnet.james137137.Updater;
+import org.apache.commons.io.FileUtils;
 
 /**
  * The main entry point for the launcher.
@@ -48,12 +50,21 @@ public final class Launcher {
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
-    @Getter private final File baseDir;
-    @Getter private final Properties properties;
-    @Getter private final InstanceList instances;
-    @Getter private final Configuration config;
-    @Getter private final AccountList accounts;
-    @Getter private final AssetsRoot assets;
+    @Getter
+    private final File baseDir;
+    @Getter
+    private final Properties properties;
+    @Getter
+    private final InstanceList instances;
+    @Getter
+    private final Configuration config;
+    @Getter
+    private final AccountList accounts;
+    @Getter
+    private final AssetsRoot assets;
+
+    public static File dataDir;
+    public static File launcherJarFile;
 
     /**
      * Create a new launcher instance with the given base directory.
@@ -70,6 +81,8 @@ public final class Launcher {
         this.instances = new InstanceList(this);
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
         this.config = Persistence.load(new File(baseDir, "config.json"), Configuration.class);
+        config.setupJVMPath();
+        config.setupMemory();
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
 
         if (accounts.getSize() > 0) {
@@ -320,9 +333,34 @@ public final class Launcher {
      *
      * @param args args
      */
+    private static String defaultDirectory() {
+        String OS = System.getProperty("os.name").toUpperCase();
+        if (OS.contains("WIN")) {
+            return System.getenv("APPDATA");
+        } else if (OS.contains("MAC")) {
+            return System.getProperty("user.home") + "/Library/Application "
+                    + "Support" + "/";
+        } else if (OS.contains("NUX")) {
+            return System.getProperty("user.home");
+        }
+        return System.getProperty("user.dir");
+    }
+
     public static void main(String[] args) {
         SimpleLogFormatter.configureGlobalLogger();
+        launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        File Updater = new File(launcherJarFile.getParent(), "LolnetLauncherUpdater.jar");
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        String lolnetLauncherLatestUpdatePath = userNodeForPackage.get("LolnetLauncherLatestUpdate", "");
+        System.out.println("debug" + lolnetLauncherLatestUpdatePath);
+        if (lolnetLauncherLatestUpdatePath != null && !lolnetLauncherLatestUpdatePath.equalsIgnoreCase("")) {
+            new Updater(lolnetLauncherLatestUpdatePath);
+            userNodeForPackage.put("LolnetLauncherLatestUpdate", "");
+        }
+        if (Updater.exists()) {
 
+            new Updater(Updater, "delete");
+        }
         LauncherArguments options = new LauncherArguments();
         try {
             new JCommander(options, args);
@@ -334,29 +372,46 @@ public final class Launcher {
 
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
-
-        File dir = options.getDir();
-        if (dir != null) {
-            log.info("Using given base directory " + dir.getAbsolutePath());
+        String currentDataPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
+        if (currentDataPath == null || currentDataPath.equalsIgnoreCase("")) {
+            currentDataPath = defaultDirectory() + File.separator + "LolnetData/";
+        }
+        Launcher.dataDir = new File(currentDataPath);
+        if (!dataDir.exists())
+        {
+            dataDir.mkdirs();
+        }
+        if (!Launcher.dataDir.exists()) {
+            Launcher.dataDir = new File(defaultDirectory() + File.separator + "LolnetData/");
+        }
+        PrivatePrivatePackagesManager.setDirectory(dataDir);
+        if (dataDir != null) {
+            log.info("Using given base directory " + dataDir.getAbsolutePath());
         } else {
-            dir = new File(".");
-            log.info("Using current directory " + dir.getAbsolutePath());
+            dataDir = new File(".");
+            log.info("Using current directory " + dataDir.getAbsolutePath());
         }
 
-        final File baseDir = dir;
+        final File baseDir = dataDir;
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                        if ("Nimbus".equals(info.getName())) {
+                            UIManager.setLookAndFeel(info.getClassName());
+                            break;
+                        }
+                    }
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     Launcher launcher = new Launcher(baseDir);
                     new LauncherFrame(launcher).setVisible(true);
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);
-                    SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a " +
-                            "problem was encountered.", "Launcher error", t);
+                    SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a "
+                            + "problem was encountered.", "Launcher error", t);
                 }
             }
         });

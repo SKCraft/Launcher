@@ -14,6 +14,6 @@ import java.util.List;
 public class PackageList {
 
     private int minimumVersion;
-    private List<ManifestInfo> packages;
+    public List<ManifestInfo> packages;
 
 }
