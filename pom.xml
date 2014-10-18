@@ -11,7 +11,7 @@
 
     <groupId>nz.co.lolnet</groupId>
     <artifactId>lolnetLauncher</artifactId>
-    <version>0.9.9</version>
+    <version>0.9.10-Snapshot</version>
 
     <dependencies>
         <dependency>
@@ -107,12 +107,12 @@
                             <outfile>${project.build.directory}/${project.build.finalName}.exe</outfile>
                             <!--<jar>target/${project.build.finalName}-${project.version}-shaded.jar</jar>-->
                             <jar>target/${project.build.finalName}.jar</jar>
-                            <icon>${basedir}/src/main//resources/com/skcraft/launcher/icon.ico</icon>
+                            <icon>${basedir}/src/main/resources/com/skcraft/launcher/icon.ico</icon>
                             <jre>
                                 <minVersion>1.6.0</minVersion>
                             </jre>
                             <splash>
-                                <file>${basedir}/src/main/resources/com/skcraft/launcher/icon.bmp</file>
+                                <file>${basedir}/src/main/resources/com/skcraft/launcher/splash.bmp</file>
                                 <waitForWindow>true</waitForWindow>
                                 <timeout>60</timeout>
                                 <timeoutErr>true</timeoutErr>
