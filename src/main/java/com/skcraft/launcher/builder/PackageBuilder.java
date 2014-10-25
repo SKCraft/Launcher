@@ -3,25 +3,37 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.builder;
 
 import com.beust.jcommander.JCommander;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
-import com.skcraft.launcher.model.modpack.Manifest;
-import com.skcraft.launcher.util.SimpleLogFormatter;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.extern.java.Log;
-
-import java.io.File;
-import java.io.IOException;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.emptyToNull;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.modpack.Manifest;
+import com.skcraft.launcher.util.SimpleLogFormatter;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.java.Log;
 
 /**
  * Builds packages for the launcher.
@@ -130,6 +142,29 @@ public class PackageBuilder {
      */
     public static void main(String[] args) throws IOException {
         BuilderOptions options = parseArgs(args);
+        String version = options.getVersion();
+        File versionFile = new File("Version.txt");
+        if (versionFile.exists()) {
+            FileReader versionreader = new FileReader(versionFile);
+            BufferedReader in = new BufferedReader(versionreader);
+            version = in.readLine();
+            options.setVersion(version);
+        }
+        File buildFile = new File("BuildNumber");
+        if (buildFile.exists()) {
+            FileReader versionreader = new FileReader(buildFile);
+            BufferedReader in = new BufferedReader(versionreader);
+            version = options.getVersion() + "." + in.readLine();
+            options.setVersion(version);
+        }
+
+        Path path = Paths.get("Template.json");
+        Path path2 = Paths.get("CompletedTemplate.json");
+        Charset charset = StandardCharsets.UTF_8;
+
+        String content = new String(Files.readAllBytes(path), charset);
+        content = content.replaceAll("MODPACKVERSION", version);
+        Files.write(path2, content.getBytes(charset));
 
         // Initialize
         SimpleLogFormatter.configureGlobalLogger();

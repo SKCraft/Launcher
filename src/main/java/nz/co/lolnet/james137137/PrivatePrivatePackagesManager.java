@@ -13,8 +13,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -55,6 +59,10 @@ public class PrivatePrivatePackagesManager {
         for (String code : codeList) {
             packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
         }
+        List<String> publicList = getPublicList();
+        for (String code : publicList) {
+            packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s"));
+        }
         return packagesURL;
     }
 
@@ -83,6 +91,37 @@ public class PrivatePrivatePackagesManager {
 
     public static void setDirectory(File dirinput) {
         dir = dirinput;
+    }
+
+    private static List<String> getPublicList() {
+        List<String> publicList = new ArrayList<String>();
+        try { 
+            URL url = new URL("https://www.lolnet.co.nz/modpack/listpackages.php");
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.flush();
+
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                String[] split = line.split("~~");
+                for (String string : split) {
+                    if (string.length() >= 2)
+                    {
+                        publicList.add(string);
+                    }
+                }
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+            return publicList;
+        }
+
+        return publicList;
     }
 
 }
