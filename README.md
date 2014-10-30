@@ -1,13 +1,31 @@
-SKCraft Launcher
+Lolnet Launcher
 ================
 
-This project provides an open-source Minecraft launcher platform for downloading,
+This project is forked from SKCraft Launcher that provides an open-source Minecraft launcher platform for downloading,
 installing, and updating modpacks.
+
+I james137137 do not claim I am the author of SKCraft launcher. I have rename SKCraft launcher
+to Lolnet launcher as I have customized it.
+
+All the changes have been committed and I (james137137) give full ownership to myself for my work
+unless otherwise stated.
+
+The main changes I have made are:
+
+* Moved all user data to %appdata%/LolnetData which is changeable via options
+* Added an auto updater
+* changed the look&feel
+* made sure that the launcher opens the latest java and at 64 bit when possible
+* Automatic calculate how much memory can be used
+* Added an extra button to show lolnet's server status
+* Allowed private pack codes
+* Added a .exe wrapper on build
+
 
 Introduction
 ------------
 
-This launcher is maintained by sk89q, who writes WorldEdit, WorldGuard, and so on. It has
+SKCraft launcher is maintained by sk89q, who writes WorldEdit, WorldGuard, and so on. It has
 been primarily developed for his server, but you can use it for your own modpack or
 server.
 
@@ -22,31 +40,6 @@ server.
 * Open source!
 
 *Except for the Launcher frame class. That one is pretty bad.
-
-### Previous Versions
-
-This repository only contains code for the launcher versions 4.x and newer.
-
-You can find [the 3.x version on GitHub](https://github.com/sk89q/skmclauncher).
-
-Documentation
--------------
-
-First off, be aware that the launcher in this directory has been branded for sk89q's
-server, so you will have to replace that with your own. There's only a few places that
-you need to do that, and it's all documented on our documentation page.
-
-**You can fork the project on GitHub** and make modifications.
-
-* [Documentation](http://wiki.sk89q.com/wiki/Launcher)
-
-Note that documentation may be lacking in some places. If you run into problems,
-**do not hesitate to ask**.
-
-If you want to contact me about some sort of partnership, want to make the launcher
-the official launcher for something, please email me (see
-[my website](http://www.sk89q.com/contact/)). While you do not have to do this, we
-can make future decisions with awareness of what the needs of other users may be.
 
 Compiling
 ---------
