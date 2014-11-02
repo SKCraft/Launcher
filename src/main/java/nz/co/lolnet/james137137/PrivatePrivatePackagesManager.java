@@ -55,13 +55,22 @@ public class PrivatePrivatePackagesManager {
 
     private static List<URL> getList() throws MalformedURLException {
         List<String> codeList = getCodes();
-        List<URL> packagesURL = new ArrayList<URL>();
-        for (String code : codeList) {
-            packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
-        }
         List<String> publicList = getPublicList();
+        List<URL> packagesURL = new ArrayList<URL>();
         for (String code : publicList) {
-            packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s"));
+            try {
+                packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        for (String code : codeList) {
+            try {
+            packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return packagesURL;
     }
@@ -74,8 +83,7 @@ public class PrivatePrivatePackagesManager {
             try {
                 br = new BufferedReader(new FileReader(codeFile));
                 for (String line; (line = br.readLine()) != null;) {
-                    if (line.startsWith("lolnet:"))
-                    {
+                    if (line.startsWith("lolnet:")) {
                         codeList.add(line.split(":")[1]);
                     }
                 }
@@ -95,7 +103,7 @@ public class PrivatePrivatePackagesManager {
 
     private static List<String> getPublicList() {
         List<String> publicList = new ArrayList<String>();
-        try { 
+        try {
             URL url = new URL("https://www.lolnet.co.nz/modpack/listpackages.php");
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
@@ -109,8 +117,7 @@ public class PrivatePrivatePackagesManager {
             while ((line = rd.readLine()) != null) {
                 String[] split = line.split("~~");
                 for (String string : split) {
-                    if (string.length() >= 2)
-                    {
+                    if (string.length() >= 2) {
                         publicList.add(string);
                     }
                 }
