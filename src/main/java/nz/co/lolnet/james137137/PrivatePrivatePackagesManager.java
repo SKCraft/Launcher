@@ -15,10 +15,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -33,10 +31,10 @@ public class PrivatePrivatePackagesManager {
     public static File dir;
 
     public static void addPrivatePackages(PackageList packages) {
+        List<URL> URLs = getList();
+        for (URL packagesURL : URLs) {
+            try {
 
-        try {
-            List<URL> URLs = getList();
-            for (URL packagesURL : URLs) {
                 PackageList tempPackages = HttpRequest
                         .get(packagesURL)
                         .execute()
@@ -46,20 +44,21 @@ public class PrivatePrivatePackagesManager {
                 for (ManifestInfo manifestInfo : tempPackages.getPackages()) {
                     packages.packages.add(manifestInfo);
                 }
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        } catch (Exception e) {
         }
-
     }
 
-    private static List<URL> getList() throws MalformedURLException {
+    private static List<URL> getList() {
         List<String> codeList = getCodes();
         List<String> publicList = getPublicList();
         List<URL> packagesURL = new ArrayList<URL>();
         for (String code : publicList) {
             try {
                 packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s"));
+                System.out.println(code);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -67,7 +66,7 @@ public class PrivatePrivatePackagesManager {
         }
         for (String code : codeList) {
             try {
-            packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
+                packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
