@@ -44,6 +44,12 @@
             <artifactId>jcommander</artifactId>
             <version>1.32</version>
         </dependency>
+        <dependency>
+            <groupId>net.sf.launch4j</groupId>
+            <artifactId>launch4j</artifactId>
+            <version>3.5.0</version>
+            <classifier>core</classifier>
+        </dependency>
     </dependencies>
 
     <build>
