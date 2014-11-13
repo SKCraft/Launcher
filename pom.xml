@@ -45,10 +45,10 @@
             <version>1.32</version>
         </dependency>
         <dependency>
-            <groupId>org.bluestemsoftware.open.maven.plugin</groupId>
-            <artifactId>launch4j-plugin</artifactId>
-            <version>1.5.0.0</version>
-            <classifier>workdir-linux</classifier>
+            <groupId>net.sf.launch4j</groupId>
+            <artifactId>launch4j</artifactId>
+            <version>3.5.0</version>
+            <classifier>core</classifier>
         </dependency>
     </dependencies>
 
@@ -99,7 +99,6 @@
             <plugin>
                 <groupId>org.bluestemsoftware.open.maven.plugin</groupId>
                 <artifactId>launch4j-plugin</artifactId>
-                <version>1.5.0.0</version>
                 <executions>
                     <execution>
                         <id>l4j-gui</id>
