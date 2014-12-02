@@ -109,15 +109,17 @@ public final class WebpagePanel extends JPanel {
         try {
             URL url = new URL("http://alice.penagw.in/image1.jpg");
             URLConnection con = url.openConnection();
-            con.setConnectTimeout(10000);
-            con.setReadTimeout(10000);
+            con.setConnectTimeout(5000);
+            con.setReadTimeout(5000);
             InputStream in = con.getInputStream();
             image = ImageIO.read(in);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JLabel label = new JLabel(new ImageIcon(image));
-        this.add(label, BorderLayout.NORTH);
+        if(image != null) {
+            JLabel label = new JLabel(new ImageIcon(image));
+            this.add(label, BorderLayout.NORTH);
+        }
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         
         progressBar = new JProgressBar();
