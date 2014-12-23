@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.util.SharedLocale._;
-import nz.co.lolnet.james137137.Updater;
 
 /**
  * A worker that checks for an update to the launcher. A URL is returned
