@@ -102,7 +102,15 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getCustomJarPath() {
-        return new File(getContentDir(), "custom_jar.jar");
+        File file = new File(getContentDir(), "custom_jar.jar");
+        if (file.exists())
+        {
+            return file;
+        }
+        else
+        {
+            return new File(getContentDir(), "minecraft.jar");
+        }
     }
 
     @Override
