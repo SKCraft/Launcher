@@ -123,6 +123,23 @@ public class Configuration {
         // return System.getProperty("user.dir");
 
     }
+    
+    public void setupJVMargs() {
+        if (Strings.isNullOrEmpty(jvmArgs)) {
+            jvmArgs = "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC";
+        }
+        if (!jvmArgs.contains("-XX:+UseParNewGC"))
+        {
+            jvmArgs += " -XX:+UseParNewGC";
+            return;
+        }
+        if (!jvmArgs.contains("-XX:+UseConcMarkSweepGC"))
+        {
+            jvmArgs += " -XX:+UseConcMarkSweepGC";
+            return;
+        }
+        
+    }
 
     public static boolean checkJvmPath(File path) {
         return path.exists();

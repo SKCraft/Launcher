@@ -82,6 +82,7 @@ public final class Launcher {
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
         this.config = Persistence.load(new File(baseDir, "config.json"), Configuration.class);
         config.setupJVMPath();
+        config.setupJVMargs();
         config.setupMemory();
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
 
