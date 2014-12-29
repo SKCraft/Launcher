@@ -43,20 +43,16 @@ public class Configuration {
     private String gameKey;
 
     public void setupMemory() {
-        if (minMemory <= 0) {
-            minMemory = 1024;
+        if (minMemory <= 32) {
+            minMemory = 256;
         }
 
         if (maxMemory <= 0) {
             maxMemory = 1024;
         }
 
-        if (permGen <= 0) {
+        if (permGen <= 128) {
             permGen = 128;
-        }
-
-        if (permGen <= 64) {
-            permGen = 64;
         }
 
         if (minMemory > maxMemory) {
@@ -79,12 +75,10 @@ public class Configuration {
 
         if (value > 0) {
             int memoryMB = (int) (value / (1024 * 1024));
-            if (memoryMB <= 2500) {
+            if (memoryMB <= maxMemory) {
                 memoryMB = (memoryMB / 256) * 256;
                 maxMemory = memoryMB;
-                if (memoryMB >= 512) {
-                    minMemory = 256;
-                } else {
+                if (memoryMB <= 512) {
                     minMemory = 128;
                 }
 
