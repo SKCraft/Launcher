@@ -114,7 +114,7 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerLocation(250);
         splitPane.setDividerSize(4);
         SwingHelper.flattenJSplitPane(splitPane);
-        buttonsPanel.addElement(lolnetPublicPackListButton);
+        buttonsPanel2.addElement(lolnetPublicPackListButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
@@ -176,26 +176,23 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 if (lolnetPublicPackListButton.getText().equals("Lolnet Packs")) {
-                    lolnetPublicPackListButton.setText("loading..");
+                    lolnetPublicPackListButton.setText("Loading Private Packs..");
                     InstanceList.showPublic = false;
                     InstanceList.showPrivate = true;
                     loadInstances(false);
                     checkLauncherUpdate();
-                    lolnetPublicPackListButton.setText("Private Packs");
                 } else if (lolnetPublicPackListButton.getText().equals("Private Packs")) {
-                    lolnetPublicPackListButton.setText("loading..");
+                    lolnetPublicPackListButton.setText("Loading Every Pack..");
                     InstanceList.showPublic = true;
                     InstanceList.showPrivate = true;
                     loadInstances(false);
                     checkLauncherUpdate();
-                    lolnetPublicPackListButton.setText("All Packs");
                 } else {
-                    lolnetPublicPackListButton.setText("loading..");
+                    lolnetPublicPackListButton.setText("Loading Lolnet Packs..");
                     InstanceList.showPublic = true;
                     InstanceList.showPrivate = false;
                     loadInstances(false);
                     checkLauncherUpdate();
-                    lolnetPublicPackListButton.setText("Lolnet Packs");
 
                 }
 
@@ -491,6 +488,14 @@ public class LauncherFrame extends JFrame {
                     instancesTable.setRowSelectionInterval(0, 0);
                 }
                 requestFocus();
+                if (InstanceList.showPublic && InstanceList.showPrivate) {
+                    lolnetPublicPackListButton.setText("All Packs");
+                } else if (InstanceList.showPublic && !InstanceList.showPrivate) {
+                    lolnetPublicPackListButton.setText("Lolnet Packs");
+                } else {
+                    lolnetPublicPackListButton.setText("Private Packs");
+                }
+
             }
         }, SwingExecutor.INSTANCE);
 
