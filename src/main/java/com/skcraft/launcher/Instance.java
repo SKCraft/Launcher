@@ -29,6 +29,7 @@ public class Instance implements Comparable<Instance> {
     private boolean updatePending;
     private boolean installed;
     private Date lastAccessed;
+    public boolean isPublic;
     @JsonProperty("launch")
     private LaunchModifier launchModifier;
 

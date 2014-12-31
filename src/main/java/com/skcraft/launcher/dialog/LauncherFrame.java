@@ -67,9 +67,11 @@ public class LauncherFrame extends JFrame {
     private JSplitPane splitPane;
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
+    private final LinedBoxPanel buttonsPanel2 = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(_("launcher.launch"));
     private final JButton lolnetPingButton = new JButton("Check Servers...");
-    private final JButton lolnetPrivatePackButton = new JButton("Private Pack...");
+    private final JButton lolnetPrivatePackButton = new JButton("Add code...");
+    private final JButton lolnetPublicPackListButton = new JButton("Lolnet Packs");
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(_("launcher.options"));
     private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
@@ -89,15 +91,15 @@ public class LauncherFrame extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         //setSize(850, 550);
-        setSize(Toolkit.getDefaultToolkit().getScreenSize().width- Toolkit.getDefaultToolkit().getScreenSize().width / 5, Toolkit.getDefaultToolkit().getScreenSize().height - Toolkit.getDefaultToolkit().getScreenSize().height / 5);
-        setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - getSize().width / 2 - 50 , Toolkit.getDefaultToolkit().getScreenSize().height / 2 - getSize().height / 2);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize().width - Toolkit.getDefaultToolkit().getScreenSize().width / 5, Toolkit.getDefaultToolkit().getScreenSize().height - Toolkit.getDefaultToolkit().getScreenSize().height / 5);
+        setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - getSize().width / 2 - 50, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - getSize().height / 2);
         setMinimumSize(new Dimension(400, 300));
         initComponents();
         setLocationRelativeTo(null);
 
         SwingHelper.setIconImage(this, Launcher.class, "icon.png");
 
-        loadInstances();
+        loadInstances(true);
         checkLauncherUpdate();
     }
 
@@ -112,6 +114,7 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerLocation(250);
         splitPane.setDividerSize(4);
         SwingHelper.flattenJSplitPane(splitPane);
+        buttonsPanel.addElement(lolnetPublicPackListButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
@@ -123,6 +126,7 @@ public class LauncherFrame extends JFrame {
         container.setLayout(new BorderLayout());
         container.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
         container.add(splitPane, BorderLayout.CENTER);
+        add(buttonsPanel2, BorderLayout.NORTH);
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
 
@@ -140,7 +144,7 @@ public class LauncherFrame extends JFrame {
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                loadInstances();
+                loadInstances(true);
                 checkLauncherUpdate();
             }
         });
@@ -163,6 +167,38 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 launchPrivatePackPannel();
+            }
+
+        });
+
+        lolnetPublicPackListButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (lolnetPublicPackListButton.getText().equals("Lolnet Packs")) {
+                    lolnetPublicPackListButton.setText("loading..");
+                    InstanceList.showPublic = false;
+                    InstanceList.showPrivate = true;
+                    loadInstances(false);
+                    checkLauncherUpdate();
+                    lolnetPublicPackListButton.setText("Private Packs");
+                } else if (lolnetPublicPackListButton.getText().equals("Private Packs")) {
+                    lolnetPublicPackListButton.setText("loading..");
+                    InstanceList.showPublic = true;
+                    InstanceList.showPrivate = true;
+                    loadInstances(false);
+                    checkLauncherUpdate();
+                    lolnetPublicPackListButton.setText("All Packs");
+                } else {
+                    lolnetPublicPackListButton.setText("loading..");
+                    InstanceList.showPublic = true;
+                    InstanceList.showPrivate = false;
+                    loadInstances(false);
+                    checkLauncherUpdate();
+                    lolnetPublicPackListButton.setText("Lolnet Packs");
+
+                }
+
             }
 
         });
@@ -383,7 +419,7 @@ public class LauncherFrame extends JFrame {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                loadInstances();
+                loadInstances(true);
             }
         });
         popup.add(menuItem);
@@ -412,7 +448,7 @@ public class LauncherFrame extends JFrame {
         future.addListener(new Runnable() {
             @Override
             public void run() {
-                loadInstances();
+                loadInstances(true);
             }
         }, SwingExecutor.INSTANCE);
     }
@@ -442,7 +478,7 @@ public class LauncherFrame extends JFrame {
         }, SwingExecutor.INSTANCE);
     }
 
-    private void loadInstances() {
+    private void loadInstances(boolean showProgress) {
         InstanceList.Enumerator loader = launcher.getInstances().createEnumerator();
         ObservableFuture<InstanceList> future = new ObservableFuture<InstanceList>(
                 launcher.getExecutor().submit(loader), loader);
@@ -458,7 +494,9 @@ public class LauncherFrame extends JFrame {
             }
         }, SwingExecutor.INSTANCE);
 
-        ProgressDialog.showProgress(this, future, _("launcher.checkingTitle"), _("launcher.checkingStatus"));
+        if (showProgress) {
+            ProgressDialog.showProgress(this, future, _("launcher.checkingTitle"), _("launcher.checkingStatus"));
+        }
         SwingHelper.addErrorDialogCallback(this, future);
     }
 
@@ -577,7 +615,7 @@ public class LauncherFrame extends JFrame {
                     text += split[i] + "\n";
                 }
                 if (newPackAdded) {
-                    loadInstances();
+                    loadInstances(true);
                 }
                 area.setText(text);
             }

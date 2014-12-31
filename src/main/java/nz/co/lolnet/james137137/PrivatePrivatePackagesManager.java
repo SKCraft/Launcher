@@ -31,7 +31,7 @@ public class PrivatePrivatePackagesManager {
     public static File dir;
 
     public static void addPrivatePackages(PackageList packages) {
-        List<URL> URLs = getList();
+        List<URL> URLs = getList("all");
         for (URL packagesURL : URLs) {
             try {
 
@@ -51,26 +51,100 @@ public class PrivatePrivatePackagesManager {
         }
     }
 
-    private static List<URL> getList() {
+    public static List<String> getPublicPackagesList() {
+        List<URL> URLs = getList("public");
+        List<String> output = new ArrayList<String>();
+        for (URL packagesURL : URLs) {
+            try {
+
+                PackageList tempPackages = HttpRequest
+                        .get(packagesURL)
+                        .execute()
+                        .expectResponseCode(200)
+                        .returnContent()
+                        .asJson(PackageList.class);
+                for (ManifestInfo manifestInfo : tempPackages.getPackages()) {
+                    output.add(manifestInfo.getName());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return output;
+    }
+    
+    public static List<String> getPrivateList() {
+        List<URL> URLs = getList("private");
+        List<String> output = new ArrayList<String>();
+        for (URL packagesURL : URLs) {
+            try {
+
+                PackageList tempPackages = HttpRequest
+                        .get(packagesURL)
+                        .execute()
+                        .expectResponseCode(200)
+                        .returnContent()
+                        .asJson(PackageList.class);
+                for (ManifestInfo manifestInfo : tempPackages.getPackages()) {
+                    output.add(manifestInfo.getName());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return output;
+    }
+    
+    public static List<String> getAllList() {
+        List<URL> URLs = getList("all");
+        List<String> output = new ArrayList<String>();
+        for (URL packagesURL : URLs) {
+            try {
+
+                PackageList tempPackages = HttpRequest
+                        .get(packagesURL)
+                        .execute()
+                        .expectResponseCode(200)
+                        .returnContent()
+                        .asJson(PackageList.class);
+                for (ManifestInfo manifestInfo : tempPackages.getPackages()) {
+                    output.add(manifestInfo.getName());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return output;
+    }
+
+    private static List<URL> getList(String mode) {
         List<String> codeList = getCodes();
         List<String> publicList = getPublicList();
         List<URL> packagesURL = new ArrayList<URL>();
-        for (String code : publicList) {
-            try {
-                packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s"));
-                System.out.println(code);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (mode.equals("public") || mode.equals("all")) {
+            for (String code : publicList) {
+                try {
+                    packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s"));
+                    System.out.println(code);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-        }
-        for (String code : codeList) {
-            try {
-                packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
-            } catch (Exception e) {
-                e.printStackTrace();
+            }
+        } 
+        if (mode.equals("private") || mode.equals("all")) {
+            for (String code : codeList) {
+                try {
+                    packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
+
         return packagesURL;
     }
 
