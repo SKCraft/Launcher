@@ -73,7 +73,7 @@ public class PrivatePrivatePackagesManager {
         }
         return output;
     }
-    
+
     public static List<String> getPrivateList() {
         List<URL> URLs = getList("private");
         List<String> output = new ArrayList<String>();
@@ -96,7 +96,7 @@ public class PrivatePrivatePackagesManager {
         }
         return output;
     }
-    
+
     public static List<String> getAllList() {
         List<URL> URLs = getList("all");
         List<String> output = new ArrayList<String>();
@@ -123,6 +123,7 @@ public class PrivatePrivatePackagesManager {
     private static List<URL> getList(String mode) {
         List<String> codeList = getCodes();
         List<String> publicList = getPublicList();
+        List<String> publicPrivateList = getPublicPrivateList();
         List<URL> packagesURL = new ArrayList<URL>();
         if (mode.equals("public") || mode.equals("all")) {
             for (String code : publicList) {
@@ -134,9 +135,16 @@ public class PrivatePrivatePackagesManager {
                 }
 
             }
-        } 
+        }
         if (mode.equals("private") || mode.equals("all")) {
             for (String code : codeList) {
+                try {
+                    packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            for (String code : publicPrivateList) {
                 try {
                     packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s"));
                 } catch (Exception e) {
@@ -178,6 +186,36 @@ public class PrivatePrivatePackagesManager {
         List<String> publicList = new ArrayList<String>();
         try {
             URL url = new URL("https://www.lolnet.co.nz/modpack/listpackages.php");
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.flush();
+
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                String[] split = line.split("~~");
+                for (String string : split) {
+                    if (string.length() >= 2) {
+                        publicList.add(string);
+                    }
+                }
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+            return publicList;
+        }
+
+        return publicList;
+    }
+
+    private static List<String> getPublicPrivateList() {
+        List<String> publicList = new ArrayList<String>();
+        try {
+            URL url = new URL("https://www.lolnet.co.nz/modpack/listpublicprivatepackages.php");
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());

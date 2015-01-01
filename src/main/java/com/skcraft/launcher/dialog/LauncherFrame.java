@@ -67,7 +67,6 @@ public class LauncherFrame extends JFrame {
     private JSplitPane splitPane;
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
-    private final LinedBoxPanel buttonsPanel2 = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(_("launcher.launch"));
     private final JButton lolnetPingButton = new JButton("Check Servers...");
     private final JButton lolnetPrivatePackButton = new JButton("Add code...");
