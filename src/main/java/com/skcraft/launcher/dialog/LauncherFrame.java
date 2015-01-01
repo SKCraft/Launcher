@@ -114,7 +114,7 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerLocation(250);
         splitPane.setDividerSize(4);
         SwingHelper.flattenJSplitPane(splitPane);
-        buttonsPanel2.addElement(lolnetPublicPackListButton);
+        buttonsPanel.addElement(lolnetPublicPackListButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
@@ -126,7 +126,6 @@ public class LauncherFrame extends JFrame {
         container.setLayout(new BorderLayout());
         container.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
         container.add(splitPane, BorderLayout.CENTER);
-        add(buttonsPanel2, BorderLayout.NORTH);
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
 
