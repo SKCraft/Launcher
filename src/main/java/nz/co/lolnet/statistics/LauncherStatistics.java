@@ -21,8 +21,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -32,11 +30,34 @@ public class LauncherStatistics {
 
     public static void launcherIsLaunched() throws IOException {
         try {
-            System.out.println("#### IP ADDRESS: " + getIp());
             String data = "input={\"ipaddress\":\"" + getIp() + "\"}";
-            System.out.println(data);
             // Send data
             URL url = new URL("https://www.lolnet.co.nz/api/v1.0/lolstats/launcher/launched.php");
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(30000);
+            // Get the response
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(data);
+            wr.flush();
+            
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String s = rd.readLine();
+            wr.close();
+            rd.close();
+        }
+        catch (IOException ex)
+        {
+            //Logger.getLogger(ThreadLauncherIsLaunched.class.getName()).log(Level.SEVERE, null, ex);
+            //Just die quietly, something went wrong but its not the end of the world.
+        }
+    }
+    
+    public static void installModPack(String title, String version) throws IOException {
+        try {
+            String data = "input={\"title\":\"" + title + "\",\"version\":\"" + version + "\"}";
+            // Send data
+            URL url = new URL("https://www.lolnet.co.nz/api/v1.0/lolstats/launcher/installed_modpack.php");
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
             conn.setConnectTimeout(30000);

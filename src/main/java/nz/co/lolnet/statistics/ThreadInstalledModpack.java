@@ -21,10 +21,15 @@ import java.io.IOException;
  *
  * @author CptWin
  */
-public class ThreadLauncherIsLaunched implements Runnable {
+public class ThreadInstalledModpack implements Runnable {
     
-    public ThreadLauncherIsLaunched()
+    private String title;
+    private String version;
+    
+    public ThreadInstalledModpack(String title, String version)
     {
+        this.title = title;
+        this.version = version;
         startUp();
     }
     
@@ -37,7 +42,7 @@ public class ThreadLauncherIsLaunched implements Runnable {
     @Override
     public void run() {
         try {
-            LauncherStatistics.launcherIsLaunched();
+            LauncherStatistics.installModPack(title, version);
         } catch (IOException ex) {
             //Logger.getLogger(ThreadLauncherIsLaunched.class.getName()).log(Level.SEVERE, null, ex);
         }

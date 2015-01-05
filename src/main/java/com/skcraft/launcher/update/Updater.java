@@ -18,11 +18,8 @@ import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.HttpRequest;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import lombok.extern.java.Log;
-
+import static com.skcraft.launcher.util.HttpRequest.url;
+import static com.skcraft.launcher.util.SharedLocale._;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -31,9 +28,11 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-
-import static com.skcraft.launcher.util.HttpRequest.url;
-import static com.skcraft.launcher.util.SharedLocale._;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.extern.java.Log;
+import nz.co.lolnet.statistics.ThreadInstalledModpack;
 
 @Log
 public class Updater extends BaseUpdater implements Callable<Instance>, ProgressObservable {
@@ -75,6 +74,17 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         String message = _("updater.updateRequiredButOffline");
         throw new LauncherException("Update required but currently offline", message);
         }*/
+        
+        if(updateRequired)
+        {
+            //new install
+            new ThreadInstalledModpack(instance.getTitle(), instance.getVersion());
+            //System.out.println("#### |" + instance.getName() + "| |" + instance.getTitle() + "| |" + instance.getVersion() + "|");
+        }
+        if(instance.isInstalled() && instance.isUpdatePending())
+        {
+            //modpack needs updating
+        }
 
         if (updateDesired && !updateCapable) {
             if (updateRequired) {
