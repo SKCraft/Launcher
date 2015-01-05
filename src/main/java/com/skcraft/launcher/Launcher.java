@@ -38,6 +38,7 @@ import lombok.NonNull;
 import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
 import nz.co.lolnet.james137137.Updater;
+import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -73,6 +74,9 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir) throws IOException {
+        
+        new ThreadLauncherIsLaunched();
+        
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;
