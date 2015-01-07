@@ -129,7 +129,6 @@ public class PrivatePrivatePackagesManager {
             for (String code : publicList) {
                 try {
                     packagesURL.add(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s"));
-                    System.out.println(code);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
