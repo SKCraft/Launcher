@@ -13,6 +13,7 @@ import com.google.common.io.Files;
 import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.*;
+import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.install.ZipExtract;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
@@ -21,12 +22,7 @@ import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import lombok.extern.java.Log;
-import org.apache.commons.lang.text.StrSubstitutor;
-
+import static com.skcraft.launcher.util.SharedLocale._;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,9 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
-import static com.skcraft.launcher.util.SharedLocale._;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.extern.java.Log;
+import nz.co.lolnet.statistics.ThreadLaunchedModpack;
+import org.apache.commons.lang.text.StrSubstitutor;
 
 /**
  * Handles the launching of an instance.
@@ -150,6 +149,9 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         progress = new DefaultProgress(1, _("runner.startingJava"));
 
+        //cptwin, launcher statistics
+        new ThreadLaunchedModpack(instance.getTitle());
+        
         return processBuilder.start();
     }
 
