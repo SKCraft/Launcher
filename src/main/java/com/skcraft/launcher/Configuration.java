@@ -99,19 +99,33 @@ public class Configuration {
             return;
         }
 
+        jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
         String OS = System.getProperty("os.name").toUpperCase();
         if (OS.contains("WIN")) {
-            for (int i = 7; i >= 6; i--) {
-                if (checkJvmPath(new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/jre" + i + "/bin/javaw.exe"))) {
-                    jvmPath = System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/jre" + i + "/bin/javaw.exe";
-                    return;
-                } else if (checkJvmPath(new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files (x86)/Java/jre" + i + "/bin/javaw.exe"))) {
-                    jvmPath = System.getenv("ProgramFiles").charAt(0) + ":/Program Files (x86)/Java/jre" + i + "/bin/javaw.exe";
+            File file = new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/");
+            if (!file.exists())
+            {
+                return;
+            }
+            File[] listFiles = file.listFiles();
+            for (File file1 : listFiles) {
+                if (file1.getName().toLowerCase().contains("jre1.8")) {
+                    jvmPath = file1.getAbsolutePath();
                     return;
                 }
             }
-
-            jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
+            for (File file1 : listFiles) {
+                if (file1.getName().toLowerCase().contains("jre7")) {
+                    jvmPath = file1.getAbsolutePath();
+                    return;
+                }
+            }
+            for (File file1 : listFiles) {
+                if (file1.getName().toLowerCase().contains("jre6")) {
+                    jvmPath = file1.getAbsolutePath();
+                    return;
+                }
+            }
 
             //C:\Program Files\Java\jre7\bin\javaw.exe
             //return System.getenv("APPDATA");
@@ -123,22 +137,20 @@ public class Configuration {
         // return System.getProperty("user.dir");
 
     }
-    
+
     public void setupJVMargs() {
         if (Strings.isNullOrEmpty(jvmArgs)) {
             jvmArgs = "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC";
         }
-        if (!jvmArgs.contains("-XX:+UseParNewGC"))
-        {
+        if (!jvmArgs.contains("-XX:+UseParNewGC")) {
             jvmArgs += " -XX:+UseParNewGC";
             return;
         }
-        if (!jvmArgs.contains("-XX:+UseConcMarkSweepGC"))
-        {
+        if (!jvmArgs.contains("-XX:+UseConcMarkSweepGC")) {
             jvmArgs += " -XX:+UseConcMarkSweepGC";
             return;
         }
-        
+
     }
 
     public static boolean checkJvmPath(File path) {
