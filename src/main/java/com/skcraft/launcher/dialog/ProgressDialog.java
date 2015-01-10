@@ -33,18 +33,18 @@ public class ProgressDialog extends JDialog
 
     private static WeakReference<ProgressDialog> lastDialogRef;
 
-    private final String defaultTitle;
-    private final String defaultMessage;
-    private final JLabel label = new JLabel();
-    private final JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
-    private final JPanel textAreaPanel = new JPanel(new BorderLayout());
-    private final JProgressBar progressBar = new JProgressBar();
-    private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
-    private final JTextArea logText = new JTextArea();
-    private final JScrollPane logScroll = new JScrollPane(logText);
-    private final JButton detailsButton = new JButton();
-    private final JButton logButton = new JButton(_("progress.viewLog"));
-    private final JButton cancelButton = new JButton(_("button.cancel"));
+    public final String defaultTitle;
+    public final String defaultMessage;
+    public final JLabel label = new JLabel();
+    public final JPanel progressPanel = new JPanel(new BorderLayout(0, 5));
+    public final JPanel textAreaPanel = new JPanel(new BorderLayout());
+    public final JProgressBar progressBar = new JProgressBar();
+    public final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
+    public final JTextArea logText = new JTextArea();
+    public final JScrollPane logScroll = new JScrollPane(logText);
+    public final JButton detailsButton = new JButton();
+    public final JButton logButton = new JButton(_("progress.viewLog"));
+    public final JButton cancelButton = new JButton(_("button.cancel"));
 
     public ProgressDialog(Window owner, String title, String message)
     {
@@ -222,7 +222,7 @@ public class ProgressDialog extends JDialog
         return null;
     }
 
-    private static class UpdateProgress extends TimerTask
+    public static class UpdateProgress extends TimerTask
     {
 
         private final ProgressDialog dialog;

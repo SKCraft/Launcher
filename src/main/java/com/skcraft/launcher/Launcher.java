@@ -46,6 +46,7 @@ public final class Launcher
 {
 
     public static final int PROTOCOL_VERSION = 2;
+    public static Launcher instance;
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
@@ -70,6 +71,7 @@ public final class Launcher
      */
     public Launcher(@NonNull File baseDir) throws IOException
     {
+        instance = this;
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;

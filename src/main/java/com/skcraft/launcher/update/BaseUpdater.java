@@ -24,7 +24,9 @@ import com.skcraft.launcher.model.modpack.ManifestEntry;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.HttpRequest;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.java.Log;
 
 import javax.swing.*;
@@ -52,6 +54,10 @@ import static com.skcraft.launcher.util.SharedLocale._;
 @Log
 public abstract class BaseUpdater
 {
+
+    @Getter
+    @Setter
+    public boolean manual = false;
 
     private static final long JAR_SIZE_ESTIMATE = 5 * 1024 * 1024;
     private static final long LIBRARY_SIZE_ESTIMATE = 3 * 1024 * 1024;
@@ -107,25 +113,39 @@ public abstract class BaseUpdater
         final List<Feature> features = manifest.getFeatures();
         if (!features.isEmpty())
         {
-            for (Feature feature : features)
+            // Set all false for self-install pack
+            if (manual)
             {
-                Boolean last = featuresCache.getSelected().get(feature.getName());
-                if (last != null)
+                for (Feature feature : features)
                 {
-                    feature.setSelected(last);
+                    feature.setSelected(false);
+                }
+            }
+            else
+            {
+                for (Feature feature : features)
+                {
+                    Boolean last = featuresCache.getSelected().get(feature.getName());
+                    if (last != null)
+                    {
+                        feature.setSelected(last);
+                    }
                 }
             }
 
             Collections.sort(features);
 
-            SwingUtilities.invokeAndWait(new Runnable()
+            if (Launcher.instance.getConfig().isSelectFeatures() && !manual)
             {
-                @Override
-                public void run()
+                SwingUtilities.invokeAndWait(new Runnable()
                 {
-                    new FeatureSelectionDialog(ProgressDialog.getLastDialog(), features).setVisible(true);
-                }
-            });
+                    @Override
+                    public void run()
+                    {
+                        new FeatureSelectionDialog(ProgressDialog.getLastDialog(), features).setVisible(true);
+                    }
+                });
+            }
 
             for (Feature feature : features)
             {

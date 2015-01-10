@@ -76,12 +76,19 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
             @Override
             public void run()
             {
-                new LauncherFrame(launcher).setVisible(true);
-
-                if (consoleFrame != null)
+                if (launcher.getConfig().isCloseOnExit())
                 {
-                    consoleFrame.setProcess(null);
-                    consoleFrame.requestFocus();
+                    System.exit(0);
+                }
+                else
+                {
+                    new LauncherFrame(launcher).setVisible(true);
+
+                    if (consoleFrame != null)
+                    {
+                        consoleFrame.setProcess(null);
+                        consoleFrame.requestFocus();
+                    }
                 }
             }
         });

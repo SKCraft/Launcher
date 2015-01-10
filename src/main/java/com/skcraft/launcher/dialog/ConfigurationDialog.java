@@ -10,6 +10,7 @@ import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.*;
+import com.skcraft.launcher.update.SelfInstallUpdate;
 import lombok.NonNull;
 
 import javax.swing.*;
@@ -45,11 +46,15 @@ public class ConfigurationDialog extends JDialog
     private final JSpinner proxyPortText = new JSpinner();
     private final JTextField proxyUsernameText = new JTextField();
     private final JPasswordField proxyPasswordText = new JPasswordField();
+
     private final FormPanel advancedPanel = new FormPanel();
+    //private final JTextField closeOnExitText = new JTextField();
+    private final JCheckBox closeOnExitCheck = new JCheckBox(_("options.closeOnExit"));
     private final JTextField gameKeyText = new JTextField();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(_("button.ok"));
     private final JButton cancelButton = new JButton(_("button.cancel"));
+    private final JButton selfInstall = new JButton(_("button.selfInstall"));
     private final JButton logButton = new JButton(_("options.launcherConsole"));
 
     /**
@@ -61,7 +66,6 @@ public class ConfigurationDialog extends JDialog
     public ConfigurationDialog(Window owner, @NonNull Launcher launcher)
     {
         super(owner, ModalityType.DOCUMENT_MODAL);
-
         this.config = launcher.getConfig();
         mapper = new ObjectSwingMapper(config);
 
@@ -85,6 +89,7 @@ public class ConfigurationDialog extends JDialog
         mapper.map(proxyUsernameText, "proxyUsername");
         mapper.map(proxyPasswordText, "proxyPassword");
         mapper.map(gameKeyText, "gameKey");
+        mapper.map(closeOnExitCheck, "closeOnExit");
 
         mapper.copyFromObject();
     }
@@ -114,12 +119,14 @@ public class ConfigurationDialog extends JDialog
         SwingHelper.removeOpaqueness(proxySettingsPanel);
         tabbedPane.addTab(_("options.proxyTab"), SwingHelper.alignTabbedPane(proxySettingsPanel));
 
+        advancedPanel.addRow(closeOnExitCheck);
         advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(_("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
         buttonsPanel.addElement(logButton);
         buttonsPanel.addGlue();
+        buttonsPanel.addElement(selfInstall);
         buttonsPanel.addElement(okButton);
         buttonsPanel.addElement(cancelButton);
 
@@ -141,6 +148,15 @@ public class ConfigurationDialog extends JDialog
             }
         });
 
+        selfInstall.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                download();
+            }
+        });
+
         logButton.addActionListener(new ActionListener()
         {
             @Override
@@ -159,5 +175,14 @@ public class ConfigurationDialog extends JDialog
         mapper.copyFromSwing();
         Persistence.commitAndForget(config);
         dispose();
+    }
+
+    /**
+     * Download modpack for manual install
+     */
+    public void download()
+    {
+        WarningDialog wd = new WarningDialog(getOwner(), this);
+        wd.setVisible(true);
     }
 }

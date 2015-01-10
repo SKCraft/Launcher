@@ -22,6 +22,10 @@ import lombok.Data;
 public class Configuration
 {
 
+    private boolean closeOnExit = true;
+    private boolean selectFeatures = true;
+    private String lastAccountUsed = "";
+
     private boolean offlineEnabled = false;
     private String jvmPath;
     private String jvmArgs;

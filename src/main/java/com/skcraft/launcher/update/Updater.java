@@ -96,7 +96,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
             }
         }
 
-        if (updateDesired)
+        if (updateDesired || Launcher.instance.getConfig().isSelectFeatures())
         {
             log.info("Updating " + instance.getTitle() + "...");
             update(instance);
@@ -143,7 +143,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
      * @throws InterruptedException thrown on interruption
      * @throws ExecutionException   thrown on execution error
      */
-    protected void update(Instance instance) throws Exception
+    public void update(Instance instance) throws Exception
     {
         // Mark this instance as local
         instance.setLocal(true);
@@ -180,13 +180,17 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
             librarySources.add(url);
         }
 
-        progress = new DefaultProgress(-1, _("instanceUpdater.collectingLibraries"));
-        installLibraries(installer, version, launcher.getLibrariesDir(), librarySources);
+        // ignore if downloading self install pack
+        if (!manual)
+        {
+            progress = new DefaultProgress(-1, _("instanceUpdater.collectingLibraries"));
+            installLibraries(installer, version, launcher.getLibrariesDir(), librarySources);
 
-        // Download assets
-        log.info("Enumerating assets to download...");
-        progress = new DefaultProgress(-1, _("instanceUpdater.collectingAssets"));
-        installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
+            // Download assets
+            log.info("Enumerating assets to download...");
+            progress = new DefaultProgress(-1, _("instanceUpdater.collectingAssets"));
+            installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
+        }
 
         log.info("Executing download phase...");
         progress = ProgressFilter.between(installer.getDownloader(), 0, 0.98);

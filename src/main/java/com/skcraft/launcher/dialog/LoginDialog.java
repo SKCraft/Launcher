@@ -23,6 +23,7 @@ import lombok.NonNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +68,7 @@ public class LoginDialog extends JDialog
         this.accounts = launcher.getAccounts();
 
         setTitle(_("login.title"));
+        setToLastAccount();
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setMinimumSize(new Dimension(420, 0));
@@ -152,6 +154,15 @@ public class LoginDialog extends JDialog
             @Override
             public void actionPerformed(ActionEvent e)
             {
+                launcher.getConfig().setLastAccountUsed(accounts.getSelectedItem().getId());
+                try
+                {
+                    Persistence.write(new File(launcher.getBaseDir(), "config.json"), launcher.getConfig());
+                }
+                catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
                 prepareLogin();
             }
         });
@@ -200,6 +211,27 @@ public class LoginDialog extends JDialog
                 }
             }
         });
+    }
+
+    private void setToLastAccount()
+    {
+        if (accounts.getSize() <= 1)
+        {
+            return;
+        }
+        String user = launcher.getConfig().getLastAccountUsed();
+        Account selected = null;
+        for (Account a : accounts.getAccounts())
+        {
+            if (a.getId().equalsIgnoreCase(user))
+            {
+                selected = a;
+            }
+        }
+        if (selected != null)
+        {
+            accounts.setSelectedItem(selected);
+        }
     }
 
     private void popupManageMenu(Component component, int x, int y)

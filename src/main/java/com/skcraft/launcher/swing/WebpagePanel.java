@@ -226,9 +226,14 @@ public final class WebpagePanel extends JPanel
         documentView.setText(text);
 
         documentView.setCaretPosition(0);
+        /*
+        String newText = documentView.getText().replace("1.jpg", "2.jpg");
+        documentView.setText(newText);
+        System.out.println(documentView.getText());
+        */
     }
 
-    private void setError(String text)
+        private void setError(String text)
     {
         progressBar.setVisible(false);
         documentView.setContentType("text/plain");

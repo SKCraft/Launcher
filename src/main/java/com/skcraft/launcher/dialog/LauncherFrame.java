@@ -64,6 +64,7 @@ public class LauncherFrame extends JFrame
     private final JButton launchButton = new JButton(_("launcher.launch"));
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(_("launcher.options"));
+    private final JCheckBox featuresCheckbox = new JCheckBox("Choose Features");
     //private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(_("launcher.downloadUpdates"));
     private URL updateUrl;
@@ -112,6 +113,8 @@ public class LauncherFrame extends JFrame
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
         //buttonsPanel.addElement(selfUpdateButton);
+        buttonsPanel.addElement(featuresCheckbox);
+        featuresCheckbox.setSelected(launcher.getConfig().isSelectFeatures());
         buttonsPanel.addElement(optionsButton);
         buttonsPanel.addElement(launchButton);
         container.setLayout(new BorderLayout());
@@ -154,6 +157,23 @@ public class LauncherFrame extends JFrame
             }
         });
         */
+
+        featuresCheckbox.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                launcher.getConfig().setSelectFeatures(featuresCheckbox.isSelected());
+                try
+                {
+                    Persistence.write(new File(launcher.getBaseDir(), "config.json"), launcher.getConfig());
+                }
+                catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
+        });
 
         optionsButton.addActionListener(new ActionListener()
         {
@@ -499,7 +519,7 @@ public class LauncherFrame extends JFrame
                 update = true;
             }
 
-            if (update)
+            if (update || Launcher.instance.getConfig().isSelectFeatures())
             {
                 // Execute the updater
                 Updater updater = new Updater(launcher, instance);

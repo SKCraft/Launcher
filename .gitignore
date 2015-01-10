@@ -34,3 +34,9 @@
 /*.pack
 /local_launcher.properties
 *.bat
+assets/
+libraries/
+Install Files/
+README.txt
+accounts.dat
+config.json
