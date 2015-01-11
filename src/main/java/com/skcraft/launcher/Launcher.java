@@ -45,6 +45,7 @@ import java.util.logging.Level;
 public final class Launcher {
 
     public static final int PROTOCOL_VERSION = 2;
+    public static Launcher launcher;
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
@@ -62,6 +63,7 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir) throws IOException {
+        launcher = this;
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;

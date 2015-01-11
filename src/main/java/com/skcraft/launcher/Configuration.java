@@ -35,6 +35,7 @@ public class Configuration {
     private String proxyUsername;
     private String proxyPassword;
     private String gameKey;
+    private String statusURL = "http://alice.penagw.in/image1.jpg";
 
     @Override
     public boolean equals(Object o) {
