@@ -229,9 +229,9 @@ public class Runner implements Callable<Process>, ProgressObservable {
             maxMemory = 1024;
         }
         if((Integer.valueOf(System.getProperty("sun.arch.data.model")) == 32)){
-            permGen = 128;
-            minMemory = 1024;
-            maxMemory = 1024;
+            if (permGen > 128)      permGen = 128;
+            if (minMemory > 1024)   minMemory = 1024;
+            if (maxMemory > 1024)   maxMemory = 1024;
         }
         if (permGen <= 0) {
             permGen = 128;
