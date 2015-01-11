@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.util.SharedLocale._;
@@ -220,7 +221,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
         int minMemory = config.getMinMemory();
         int maxMemory = config.getMaxMemory();
         int permGen = config.getPermGen();
-
         if (minMemory <= 0) {
             minMemory = 1024;
         }
@@ -228,7 +228,11 @@ public class Runner implements Callable<Process>, ProgressObservable {
         if (maxMemory <= 0) {
             maxMemory = 1024;
         }
-
+        if((Integer.valueOf(System.getProperty("sun.arch.data.model")) == 32)){
+            permGen = 128;
+            minMemory = 1024;
+            maxMemory = 1024;
+        }
         if (permGen <= 0) {
             permGen = 128;
         }
