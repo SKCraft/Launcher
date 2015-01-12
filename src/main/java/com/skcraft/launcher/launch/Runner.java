@@ -228,11 +228,13 @@ public class Runner implements Callable<Process>, ProgressObservable {
         if (maxMemory <= 0) {
             maxMemory = 1024;
         }
-        System.out.println(System.getProperty("os.arch"));
-        if(!((System.getProperty("os.arch")).equals("amd64"))){
+        int bit  = System.getProperty("os.arch").endsWith("64") ? 64 : 32;
+        //System.out.println(bit);
+        if(bit != 64){
             if (permGen > 128)      permGen = 128;
             if (minMemory > 1024)   minMemory = 1024;
             if (maxMemory > 1024)   maxMemory = 1024;
+
         }
         if (permGen <= 0) {
             permGen = 128;

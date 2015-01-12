@@ -119,7 +119,8 @@ public final class WebpagePanel extends JPanel {
                 InputStream in = con.getInputStream();
                 image = ImageIO.read(in);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.log(Level.WARNING, "Failed to fetch status", e);
+
             }
             if (image != null) {
                 JLabel label = new JLabel(new ImageIcon(image));
