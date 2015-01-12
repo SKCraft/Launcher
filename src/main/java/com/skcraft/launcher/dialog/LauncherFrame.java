@@ -120,18 +120,10 @@ public class LauncherFrame extends JFrame {
 		add(buttonsPanel, BorderLayout.SOUTH);
 		add(container, BorderLayout.CENTER);
 
-		String arch = System.getenv("PROCESSOR_ARCHITECTURE");
-		String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
-		String realArch = arch.endsWith("64") || wow64Arch != null && wow64Arch.endsWith("64") ? "64" : "32";
+        int bit  = System.getProperty("os.arch").endsWith("64") ? 64 : 32;
 
-		String javaBitVersion = System.getProperty("sun.arch.data.model");
 
-		log.log(Level.INFO, "SYSTEM INFORMATION");
-		log.log(Level.INFO, "U are using arch: " + arch);
-		log.log(Level.INFO, "U are using wow64Arch: " + wow64Arch);
-		log.log(Level.INFO, "U are using realArch: " + realArch);
-
-		if (javaBitVersion.equals("32") && realArch.equals("64")) {
+        if (bit == 32) {
 			// Custom button text
 			Object[] options = { "Yes, please", "No, thanks" };
 
