@@ -37,6 +37,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -381,8 +382,18 @@ public class LauncherFrame extends JFrame {
                     public void actionPerformed(ActionEvent e) {
                         if (Desktop.isDesktopSupported()) {
                             try {
-                                Desktop.getDesktop().browse(
-                                        new URI("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html"));
+                                URI uri = new URI("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
+                                URL url = uri.toURL();
+                                HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+                                int responseCode = huc.getResponseCode();
+                                if (responseCode != 404) {
+                                    Desktop.getDesktop().browse(uri);
+                                } else
+                                {
+                                    Desktop.getDesktop().browse(new URI("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html"));
+                                }
+
+                                
                             } catch (IOException ex) {
                                 Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (URISyntaxException ex) {
