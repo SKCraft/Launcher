@@ -382,21 +382,18 @@ public class LauncherFrame extends JFrame {
                     public void actionPerformed(ActionEvent e) {
                         if (Desktop.isDesktopSupported()) {
                             try {
-                                URI uri = new URI("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
-                                URL url = uri.toURL();
+                                URL url  = new URL("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
                                 HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                                 int responseCode = huc.getResponseCode();
                                 if (responseCode != 404) {
-                                    Desktop.getDesktop().browse(uri);
+                                    SwingHelper.openURL(url, webView);
                                 } else
                                 {
-                                    Desktop.getDesktop().browse(new URI("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html"));
+                                    SwingHelper.openURL(url, webView);
                                 }
 
                                 
                             } catch (IOException ex) {
-                                Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (URISyntaxException ex) {
                                 Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
