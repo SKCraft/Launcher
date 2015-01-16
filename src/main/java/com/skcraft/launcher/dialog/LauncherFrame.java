@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
@@ -369,6 +371,24 @@ public class LauncherFrame extends JFrame {
                         File dir = selected.getContentDir();
                         dir.mkdirs();
                         SwingHelper.setClipboard(dir.getAbsolutePath());
+                    }
+                });
+                popup.add(menuItem);
+
+                menuItem = new JMenuItem("View Change Log");
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (Desktop.isDesktopSupported()) {
+                            try {
+                                Desktop.getDesktop().browse(
+                                        new URI("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html"));
+                            } catch (IOException ex) {
+                                Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (URISyntaxException ex) {
+                                Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
                     }
                 });
                 popup.add(menuItem);
