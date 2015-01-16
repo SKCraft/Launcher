@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.swing;
 
 import com.skcraft.launcher.LauncherUtils;
@@ -26,31 +25,32 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
+import javax.swing.border.Border;
 
 @Log
 public final class WebpagePanel extends JPanel {
-    
+
     private final WebpagePanel self = this;
-    
+
     private URL url;
     private boolean activated;
     private JEditorPane documentView;
     private JProgressBar progressBar;
     private Thread thread;
-    
+
     public static WebpagePanel forURL(URL url, boolean lazy) {
         return new WebpagePanel(url, lazy);
     }
-    
+
     public static WebpagePanel forHTML(String html) {
         return new WebpagePanel(html);
     }
 
     private WebpagePanel(URL url, boolean lazy) {
         this.url = url;
-        
+
         setLayout(new BorderLayout());
-        
+
         if (lazy) {
             setPlaceholder();
         } else {
@@ -61,16 +61,16 @@ public final class WebpagePanel extends JPanel {
 
     private WebpagePanel(String text) {
         this.url = null;
-        
+
         setLayout(new BorderLayout());
-        
+
         setDocument();
         setDisplay(text, null);
     }
-    
+
     public WebpagePanel(boolean lazy) {
         this.url = null;
-        
+
         setLayout(new BorderLayout());
 
         if (lazy) {
@@ -82,12 +82,12 @@ public final class WebpagePanel extends JPanel {
 
     private void setDocument() {
         activated = true;
-        
+
         JLayeredPane panel = new JLayeredPane();
         panel.setLayout(new WebpageLayoutManager());
-        
+
         documentView = new JEditorPane();
-        documentView.setBorder(null);
+        documentView.setBorder(BorderFactory.createLineBorder(Color.WHITE, 5));
         documentView.setEditable(false);
         documentView.addHyperlinkListener(new HyperlinkListener() {
             @Override
@@ -99,27 +99,27 @@ public final class WebpagePanel extends JPanel {
                 }
             }
         });
-        
+
         JScrollPane scrollPane = new JScrollPane(documentView);
         panel.add(scrollPane, new Integer(1));
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        
+
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         panel.add(progressBar, new Integer(2));
-        
+
         add(panel, BorderLayout.CENTER);
     }
-    
+
     private void setPlaceholder() {
         activated = false;
-        
+
         JLayeredPane panel = new JLayeredPane();
         panel.setBorder(new CompoundBorder(
                 BorderFactory.createEtchedBorder(), BorderFactory
-                        .createEmptyBorder(4, 4, 4, 4)));
+                .createEmptyBorder(4, 4, 4, 4)));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        
+
         final JButton showButton = new JButton("Load page");
         showButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         showButton.addActionListener(new ActionListener() {
@@ -130,7 +130,7 @@ public final class WebpagePanel extends JPanel {
                 fetchAndDisplay(url);
             }
         });
-        
+
         // Center the button vertically.
         panel.add(new Box.Filler(
                 new Dimension(0, 0),
@@ -141,13 +141,13 @@ public final class WebpagePanel extends JPanel {
                 new Dimension(0, 0),
                 new Dimension(0, 0),
                 new Dimension(1000, 1000)));
-        
+
         add(panel, BorderLayout.CENTER);
     }
-    
+
     /**
      * Browse to a URL.
-     * 
+     *
      * @param url the URL
      * @param onlyChanged true to only browse if the last URL was different
      * @return true if only the URL was changed
@@ -156,28 +156,28 @@ public final class WebpagePanel extends JPanel {
         if (onlyChanged && this.url != null && this.url.equals(url)) {
             return false;
         }
-        
+
         this.url = url;
-        
+
         if (activated) {
             fetchAndDisplay(url);
         }
-        
+
         return true;
     }
 
     /**
      * Update the page. This has to be run in the Swing event thread.
-     * 
+     *
      * @param url the URL
      */
     private synchronized void fetchAndDisplay(URL url) {
         if (thread != null) {
             thread.interrupt();
         }
-        
+
         progressBar.setVisible(true);
-        
+
         thread = new Thread(new FetchWebpage(url));
         thread.setDaemon(true);
         thread.start();
@@ -187,17 +187,17 @@ public final class WebpagePanel extends JPanel {
         progressBar.setVisible(false);
         documentView.setContentType("text/html");
         HTMLDocument document = (HTMLDocument) documentView.getDocument();
-        
+
         // Clear existing styles
         Enumeration<?> e = document.getStyleNames();
         while (e.hasMoreElements()) {
             Object o = e.nextElement();
             document.removeStyle((String) o);
         }
-        
+
         document.setBase(baseUrl);
         documentView.setText(text);
-        
+
         documentView.setCaretPosition(0);
     }
 
@@ -207,14 +207,15 @@ public final class WebpagePanel extends JPanel {
         documentView.setText(text);
         documentView.setCaretPosition(0);
     }
-    
+
     private class FetchWebpage implements Runnable {
+
         private URL url;
-        
+
         public FetchWebpage(URL url) {
             this.url = url;
         }
-        
+
         @Override
         public void run() {
             HttpURLConnection conn = null;
@@ -234,7 +235,7 @@ public final class WebpagePanel extends JPanel {
                 if (conn.getResponseCode() != 200) {
                     throw new IOException(
                             "Did not get expected 200 code, got "
-                                    + conn.getResponseCode());
+                            + conn.getResponseCode());
                 }
 
                 BufferedReader reader = new BufferedReader(
@@ -248,7 +249,7 @@ public final class WebpagePanel extends JPanel {
                     s.append(buf, 0, len);
                 }
                 String result = s.toString();
-                
+
                 checkInterrupted();
 
                 setDisplay(result, LauncherUtils.concat(url, ""));
@@ -256,13 +257,14 @@ public final class WebpagePanel extends JPanel {
                 if (Thread.interrupted()) {
                     return;
                 }
-                
+
                 log.log(Level.WARNING, "Failed to fetch page", e);
                 setError("Failed to fetch page: " + e.getMessage());
             } catch (InterruptedException e) {
             } finally {
-                if (conn != null)
+                if (conn != null) {
                     conn.disconnect();
+                }
                 conn = null;
             }
         }
