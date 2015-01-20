@@ -117,8 +117,8 @@ public class ConfigurationDialog extends JDialog {
         SwingHelper.removeOpaqueness(proxySettingsPanel);
         //tabbedPane.addTab(_("options.proxyTab"), SwingHelper.alignTabbedPane(proxySettingsPanel));
 
-        advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
-        buttonsPanel2.addGlue();
+        //advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
+        //buttonsPanel2.addGlue();
         buttonsPanel2.addElement(changeDataStorageLocationButton);
         advancedPanel.add(buttonsPanel2);
         SwingHelper.removeOpaqueness(advancedPanel);
