@@ -111,6 +111,7 @@ public class LauncherFrame extends JFrame {
         selfUpdateButton.setVisible(false);
 
         updateCheck.setSelected(true);
+        updateCheck.setVisible(false);
         instancesTable.setModel(instancesModel);
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
         splitPane.setDividerLocation(250);
