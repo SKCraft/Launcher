@@ -115,7 +115,7 @@ public class ConfigurationDialog extends JDialog {
         proxySettingsPanel.addRow(new JLabel(_("options.proxyUsername")), proxyUsernameText);
         proxySettingsPanel.addRow(new JLabel(_("options.proxyPassword")), proxyPasswordText);
         SwingHelper.removeOpaqueness(proxySettingsPanel);
-        tabbedPane.addTab(_("options.proxyTab"), SwingHelper.alignTabbedPane(proxySettingsPanel));
+        //tabbedPane.addTab(_("options.proxyTab"), SwingHelper.alignTabbedPane(proxySettingsPanel));
 
         advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
         buttonsPanel2.addGlue();
