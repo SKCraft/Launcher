@@ -45,12 +45,14 @@ import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.embed.swing.JFXPanel;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
+import nz.co.lolnet.james137137.SimpleSwingBrowser;
 import nz.co.lolnet.james137137.ThreadLolnetPingWindow;
 import org.apache.commons.io.FileUtils;
 
@@ -61,12 +63,11 @@ import org.apache.commons.io.FileUtils;
 public class LauncherFrame extends JFrame {
 
     private final Launcher launcher;
-
+    public static JFXPanel jfxPanel = new JFXPanel();
     private final HeaderPanel header = new HeaderPanel();
     private final InstanceTable instancesTable = new InstanceTable();
     private final InstanceTableModel instancesModel;
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
-    private WebpagePanel webView;
     private JSplitPane splitPane;
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
@@ -79,6 +80,7 @@ public class LauncherFrame extends JFrame {
     private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(_("launcher.downloadUpdates"));
     private URL updateUrl;
+    SimpleSwingBrowser simpleSwingBrowser;
 
     /**
      * Create a new frame.
@@ -106,8 +108,10 @@ public class LauncherFrame extends JFrame {
     }
 
     private void initComponents() {
-        webView = WebpagePanel.forURL(launcher.getNewsURL(), false);
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
+        
+        simpleSwingBrowser = new SimpleSwingBrowser(jfxPanel);
+        simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, jfxPanel);
         selfUpdateButton.setVisible(false);
 
         updateCheck.setSelected(true);
@@ -389,10 +393,10 @@ public class LauncherFrame extends JFrame {
                                 HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                                 int responseCode = huc.getResponseCode();
                                 if (responseCode != 404) {
-                                    SwingHelper.openURL(url, webView);
+                                    simpleSwingBrowser.loadURL(url.toString());
                                 } else
                                 {
-                                    SwingHelper.openURL(url, webView);
+                                    simpleSwingBrowser.loadURL("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html");
                                 }
 
                                 
@@ -505,6 +509,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void loadInstances(boolean showProgress) {
+        simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
         InstanceList.Enumerator loader = launcher.getInstances().createEnumerator();
         ObservableFuture<InstanceList> future = new ObservableFuture<InstanceList>(
                 launcher.getExecutor().submit(loader), loader);
