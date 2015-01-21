@@ -9,6 +9,7 @@ package nz.co.lolnet.james137137;
  *
  * @author James
  */
+import com.skcraft.launcher.swing.SwingHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -60,7 +61,6 @@ public class SimpleSwingBrowser extends JFrame {
                 loadURL(txtURL.getText());
             }
         };
-        
         pack();
 
     }
@@ -149,18 +149,5 @@ public class SimpleSwingBrowser extends JFrame {
         } catch (MalformedURLException exception) {
                 return null;
         }
-    }
-
-   
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            public void run() {
-                SimpleSwingBrowser browser = new SimpleSwingBrowser();
-                browser.setVisible(true);
-                browser.loadURL("http://oracle.com");
-           }     
-       });
     }
 }
