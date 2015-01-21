@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.swing;
 
 import com.skcraft.launcher.Instance;
@@ -15,6 +14,10 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 
 import static com.skcraft.launcher.util.SharedLocale._;
+import java.awt.image.BufferedImage;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import javax.imageio.ImageIO;
 
 public class InstanceTableModel extends AbstractTableModel {
 
@@ -103,11 +106,11 @@ public class InstanceTableModel extends AbstractTableModel {
             case 0:
                 instance = instances.get(rowIndex);
                 if (!instance.isLocal()) {
-                    return downloadIcon;
+                    return getDownloadIcon(instance);
                 } else if (instance.getManifestURL() != null) {
-                    return instanceIcon;
+                    return getInstanceIcon(instance);
                 } else {
-                    return customInstanceIcon;
+                    return getCustomInstanceIcon(instance);
                 }
             case 1:
                 instance = instances.get(rowIndex);
@@ -126,6 +129,68 @@ public class InstanceTableModel extends AbstractTableModel {
             return " <span style=\"color: #3758DB\">" + _("launcher.updatePendingHint") + "</span>";
         } else {
             return "";
+        }
+    }
+
+    private ImageIcon getDownloadIcon(Instance instance) {
+        //if (true) return downloadIcon;
+        BufferedImage image;
+        try {
+            URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/download_icon.png");
+            if (exists(url.toString())) {
+                image = ImageIO.read(url);
+                return new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return downloadIcon;
+
+    }
+
+    private ImageIcon getInstanceIcon(Instance instance) {
+        //if (true) return downloadIcon;
+        BufferedImage image;
+        try {
+            URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/instance_icon.png");
+            if (exists(url.toString())) {
+                image = ImageIO.read(url);
+                return new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return instanceIcon;
+    }
+
+    private ImageIcon getCustomInstanceIcon(Instance instance) {
+        //if (true) return downloadIcon;
+        BufferedImage image;
+        try {
+            URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/custom_instance_icon.png");
+            if (exists(url.toString())) {
+                image = ImageIO.read(url);
+                return new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return customInstanceIcon;
+    }
+
+    public static boolean exists(String URLName) {
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            // note : you may also need
+            //        HttpURLConnection.setInstanceFollowRedirects(false)
+            HttpURLConnection con
+                    = (HttpURLConnection) new URL(URLName).openConnection();
+            con.setRequestMethod("HEAD");
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
