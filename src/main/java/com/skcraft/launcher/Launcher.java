@@ -47,6 +47,7 @@ import org.apache.commons.io.FileUtils;
 @Log
 public final class Launcher {
 
+    public static final boolean debugmode = false;
     public static final int PROTOCOL_VERSION = 2;
 
     @Getter
@@ -74,9 +75,9 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir) throws IOException {
-        
+
         new ThreadLauncherIsLaunched();
-        
+
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;
@@ -357,7 +358,10 @@ public final class Launcher {
         File Updater = new File(launcherJarFile.getParent(), "LolnetLauncherUpdater.jar");
         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
         String lolnetLauncherLatestUpdatePath = userNodeForPackage.get("LolnetLauncherLatestUpdate", "");
-        System.out.println("debug" + lolnetLauncherLatestUpdatePath);
+        if (Launcher.debugmode) {
+            System.out.println("debug" + lolnetLauncherLatestUpdatePath);
+        }
+
         if (lolnetLauncherLatestUpdatePath != null && !lolnetLauncherLatestUpdatePath.equalsIgnoreCase("")) {
             new Updater(lolnetLauncherLatestUpdatePath);
             userNodeForPackage.put("LolnetLauncherLatestUpdate", "");
@@ -382,8 +386,7 @@ public final class Launcher {
             currentDataPath = defaultDirectory() + File.separator + "LolnetData/";
         }
         Launcher.dataDir = new File(currentDataPath);
-        if (!dataDir.exists())
-        {
+        if (!dataDir.exists()) {
             dataDir.mkdirs();
         }
         if (!Launcher.dataDir.exists()) {
