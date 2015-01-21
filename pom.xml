@@ -109,7 +109,7 @@
                             <jar>target/${project.build.finalName}.jar</jar>
                             <icon>${basedir}/src/main/resources/com/skcraft/launcher/icon.ico</icon>
                             <jre>
-                                <minVersion>1.6.0</minVersion>
+                                <minVersion>1.7.0</minVersion>
                             </jre>
                             <splash>
                                 <file>${basedir}/src/main/resources/com/skcraft/launcher/splash.bmp</file>
@@ -126,8 +126,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
