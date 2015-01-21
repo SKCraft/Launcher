@@ -71,7 +71,7 @@ public class LauncherFrame extends JFrame {
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(_("launcher.launch"));
-    private final JButton lolnetPingButton = new JButton("Check Servers...");
+    public static final JButton lolnetPingButton = new JButton("Check Servers...");
     private final JButton lolnetPrivatePackButton = new JButton("Add code...");
     private final JButton lolnetPublicPackListButton = new JButton("Lolnet Packs");
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
@@ -113,6 +113,7 @@ public class LauncherFrame extends JFrame {
         updateCheck.setSelected(true);
         updateCheck.setVisible(false);
         refreshButton.setVisible(false);
+        lolnetPingButton.setVisible(false);
         instancesTable.setModel(instancesModel);
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
         splitPane.setDividerLocation(250);
@@ -581,7 +582,7 @@ public class LauncherFrame extends JFrame {
                     boolean alreadyAdded = false;
                     if (code.equalsIgnoreCase("showmethemoney")) {
 
-                        /*lolnetPingButton.setVisible(true);
+                        lolnetPingButton.setVisible(true);
                          try {
                          File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
                          if (!codeFile.exists()) {
@@ -589,21 +590,21 @@ public class LauncherFrame extends JFrame {
                          }
                          br = new BufferedReader(new FileReader(codeFile));
                          for (String line; (line = br.readLine()) != null;) {
-                         if (line.equalsIgnoreCase("showmethemoney")) {
+                         if (line.equalsIgnoreCase("launcher:showmethemoney")) {
                          alreadyAdded = true;
                          }
                          }
                          if (!alreadyAdded)
                          {
                          PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
-                         out.println(code);
+                         out.println("launcher:" + code);
                          out.close();
                          split[i] = "Done";
                          }
                         
                          } catch (Exception e1) {
                          split[i] = "error";
-                         }*/
+                         }
                     } else {
 
                         try {

@@ -5,6 +5,7 @@
  */
 package nz.co.lolnet.james137137;
 
+import static com.skcraft.launcher.dialog.LauncherFrame.lolnetPingButton;
 import com.skcraft.launcher.model.modpack.ManifestInfo;
 import com.skcraft.launcher.model.modpack.PackageList;
 import com.skcraft.launcher.util.HttpRequest;
@@ -165,6 +166,10 @@ public class PrivatePrivatePackagesManager {
                 for (String line; (line = br.readLine()) != null;) {
                     if (line.startsWith("lolnet:")) {
                         codeList.add(line.split(":")[1]);
+                    } else if (line.startsWith("launcher:")) {
+                        if (line.split(":")[1].equals("showmethemoney")) {
+                            lolnetPingButton.setVisible(true);
+                        }
                     }
                 }
             } catch (FileNotFoundException ex) {
