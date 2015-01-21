@@ -98,10 +98,10 @@ public class Configuration {
         if (!Strings.isNullOrEmpty(jvmPath) && new File(jvmPath).exists()) {
             return;
         }
-
-        jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
+        
         String OS = System.getProperty("os.name").toUpperCase();
         if (OS.contains("WIN")) {
+            jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
             File file = new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/");
             if (!file.exists())
             {
