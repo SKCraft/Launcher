@@ -55,7 +55,7 @@ public class ThreadLolnetPingWindow implements Runnable {
         
         frame.getContentPane().setBackground(Color.BLACK);
         try {
-            frame.setSize(new Dimension(getImage().getWidth(null) + 40, 720));
+            frame.setSize(new Dimension(getImage().getWidth(null) + 40, getImage().getHeight(null)+50));
         } catch (IOException ex) {
             Logger.getLogger(ThreadLolnetPingWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
