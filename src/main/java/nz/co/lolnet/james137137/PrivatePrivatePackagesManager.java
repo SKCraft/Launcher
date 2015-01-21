@@ -16,6 +16,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -34,21 +35,24 @@ public class PrivatePrivatePackagesManager {
     public static void addPrivatePackages(PackageList packages) {
         List<URL> URLs = getList("all");
         for (URL packagesURL : URLs) {
-            try {
+            if (exists(packagesURL.toString())) {
+                try {
 
-                PackageList tempPackages = HttpRequest
-                        .get(packagesURL)
-                        .execute()
-                        .expectResponseCode(200)
-                        .returnContent()
-                        .asJson(PackageList.class);
-                for (ManifestInfo manifestInfo : tempPackages.getPackages()) {
-                    packages.packages.add(manifestInfo);
+                    PackageList tempPackages = HttpRequest
+                            .get(packagesURL)
+                            .execute()
+                            .expectResponseCode(200)
+                            .returnContent()
+                            .asJson(PackageList.class);
+                    for (ManifestInfo manifestInfo : tempPackages.getPackages()) {
+                        packages.packages.add(manifestInfo);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
         }
     }
 
@@ -244,6 +248,21 @@ public class PrivatePrivatePackagesManager {
         }
 
         return publicList;
+    }
+
+    public static boolean exists(String URLName) {
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            // note : you may also need
+            //        HttpURLConnection.setInstanceFollowRedirects(false)
+            HttpURLConnection con
+                    = (HttpURLConnection) new URL(URLName).openConnection();
+            con.setRequestMethod("HEAD");
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }
