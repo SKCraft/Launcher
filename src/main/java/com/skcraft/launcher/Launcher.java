@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
+import javafx.application.Platform;
 
 import javax.swing.*;
 import lombok.Getter;
@@ -353,6 +354,7 @@ public final class Launcher {
     }
 
     public static void main(String[] args) {
+        Platform.setImplicitExit(false);
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         File Updater = new File(launcherJarFile.getParent(), "LolnetLauncherUpdater.jar");
