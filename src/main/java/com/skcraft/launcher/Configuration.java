@@ -108,18 +108,21 @@ public class Configuration {
                 return;
             }
             File[] listFiles = file.listFiles();
-            for (File file1 : listFiles) {
-                if (file1.getName().toLowerCase().contains("jre1.8")) {
-                    jvmPath = file1.getAbsolutePath();
-                    return;
-                }
-            }
+            
             for (File file1 : listFiles) {
                 if (file1.getName().toLowerCase().contains("jre7")) {
                     jvmPath = file1.getAbsolutePath();
                     return;
                 }
             }
+            
+            for (File file1 : listFiles) {
+                if (file1.getName().toLowerCase().contains("jre1.8")) {
+                    jvmPath = file1.getAbsolutePath();
+                    return;
+                }
+            }
+            
             for (File file1 : listFiles) {
                 if (file1.getName().toLowerCase().contains("jre6")) {
                     jvmPath = file1.getAbsolutePath();
