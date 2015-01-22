@@ -17,10 +17,12 @@ import static com.skcraft.launcher.util.SharedLocale._;
 import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 public class InstanceTableModel extends AbstractTableModel {
 
+    private static HashMap<String, ImageIcon> imageIconMap = new HashMap<>();
     private final InstanceList instances;
     private final ImageIcon instanceIcon;
     private final ImageIcon customInstanceIcon;
@@ -134,48 +136,73 @@ public class InstanceTableModel extends AbstractTableModel {
 
     private ImageIcon getDownloadIcon(Instance instance) {
         //if (true) return downloadIcon;
-        BufferedImage image;
-        try {
-            URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/download_icon.png");
-            if (exists(url.toString())) {
-                image = ImageIO.read(url);
-                return new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        ImageIcon icon = imageIconMap.get(instance.getTitle() + "_" + "DownloadIcon");
+        if (icon == null) {
+            BufferedImage image;
+            try {
+                URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/download_icon.png");
+                if (exists(url.toString())) {
+                    image = ImageIO.read(url);
+                    icon = new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                }
+                else
+                {
+                    icon = downloadIcon;
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            imageIconMap.put(instance.getTitle() + "_" + "DownloadIcon", icon);
         }
-        return downloadIcon;
+        return icon;
 
     }
 
     private ImageIcon getInstanceIcon(Instance instance) {
-        //if (true) return downloadIcon;
-        BufferedImage image;
-        try {
-            URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/instance_icon.png");
-            if (exists(url.toString())) {
-                image = ImageIO.read(url);
-                return new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        ImageIcon icon = imageIconMap.get(instance.getTitle() + "_" + "InstanceIcon");
+        if (icon == null) {
+            BufferedImage image;
+            try {
+                URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/instance_icon.png");
+                if (exists(url.toString())) {
+                    image = ImageIO.read(url);
+                    icon = new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                }
+                else
+                {
+                   icon = instanceIcon; 
+                }
+            } catch (Exception ex) {
+                icon = downloadIcon;
+                ex.printStackTrace();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            imageIconMap.put(instance.getTitle() + "_" + "InstanceIcon", icon);
         }
 
-        return instanceIcon;
+        return icon;
     }
 
     private ImageIcon getCustomInstanceIcon(Instance instance) {
-        //if (true) return downloadIcon;
-        BufferedImage image;
-        try {
-            URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/custom_instance_icon.png");
-            if (exists(url.toString())) {
-                image = ImageIO.read(url);
-                return new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        ImageIcon icon = imageIconMap.get(instance.getTitle() + "_" + "CustomInstanceIcon");
+        if (icon == null) {
+            BufferedImage image;
+            try {
+                URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/custom_instance_icon.png");
+                if (exists(url.toString())) {
+                    image = ImageIO.read(url);
+                    icon = new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                }
+                else
+                {
+                   icon = customInstanceIcon; 
+                }
+            } catch (Exception ex) {
+                icon = customInstanceIcon;
+                ex.printStackTrace();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            imageIconMap.put(instance.getTitle() + "_" + "CustomInstanceIcon", icon);
         }
+
         return customInstanceIcon;
     }
 
