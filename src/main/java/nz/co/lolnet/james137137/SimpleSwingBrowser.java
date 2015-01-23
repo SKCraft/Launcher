@@ -43,15 +43,17 @@ public class SimpleSwingBrowser extends JFrame {
     private final JPanel panel = new JPanel(new BorderLayout());
     private final JLabel lblStatus = new JLabel();
 
-    private final JTextField txtURL = new JTextField();
+    private JTextField txtURL = new JTextField();
 
     public SimpleSwingBrowser() {
         super();
         initComponents();
     }
 
-    public SimpleSwingBrowser(JFXPanel jfxPanel) {
+    public SimpleSwingBrowser(JFXPanel jfxPanel,JTextField txtURL) {
+        
         super();
+        this.txtURL = txtURL;
         this.jfxPanel = jfxPanel;
         initComponents();
     }
@@ -95,6 +97,18 @@ public class SimpleSwingBrowser extends JFrame {
                     public void changed(ObservableValue<? extends String> ov, String oldValue, final String newValue) {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
+                            public void run() {
+                                txtURL.setText(newValue);
+                            }
+                        });
+                    }
+                });
+                
+                engine.locationProperty().addListener(new ChangeListener<String>() {
+                    @Override
+                    public void changed(ObservableValue<? extends String> ov, String oldValue, final String newValue) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override 
                             public void run() {
                                 txtURL.setText(newValue);
                             }

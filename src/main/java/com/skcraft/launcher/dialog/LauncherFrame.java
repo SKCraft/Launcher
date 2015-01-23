@@ -45,6 +45,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javafx.embed.swing.JFXPanel;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -79,6 +80,8 @@ public class LauncherFrame extends JFrame {
     private final JButton optionsButton = new JButton(_("launcher.options"));
     private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(_("launcher.downloadUpdates"));
+    private final JTextField txtURL = new JTextField();
+    private final JButton btnGo = new JButton("Go");
     private URL updateUrl;
     SimpleSwingBrowser simpleSwingBrowser;
 
@@ -108,8 +111,9 @@ public class LauncherFrame extends JFrame {
     }
 
     private void initComponents() {
-        
-        simpleSwingBrowser = new SimpleSwingBrowser(jfxPanel);
+
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        simpleSwingBrowser = new SimpleSwingBrowser(jfxPanel, txtURL);
         simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, jfxPanel);
         selfUpdateButton.setVisible(false);
@@ -135,8 +139,25 @@ public class LauncherFrame extends JFrame {
         container.setLayout(new BorderLayout());
         container.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
         container.add(splitPane, BorderLayout.CENTER);
+
+        JPanel topBar = new JPanel(new BorderLayout(5, 0));
+        topBar.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
+        topBar.add(txtURL, BorderLayout.CENTER);
+        topBar.add(btnGo, BorderLayout.EAST);
+        String showURLBar = userNodeForPackage.get("IWantToGoPlaces", "");
+        System.out.println("=============   " + showURLBar);
+        if (showURLBar != null && showURLBar.equals("true")) {
+            add(topBar, BorderLayout.NORTH);
+        }
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
+
+        btnGo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                simpleSwingBrowser.loadURL(txtURL.getText());
+            }
+        });
 
         instancesModel.addTableModelListener(new TableModelListener() {
             @Override
@@ -389,17 +410,15 @@ public class LauncherFrame extends JFrame {
                     public void actionPerformed(ActionEvent e) {
                         if (Desktop.isDesktopSupported()) {
                             try {
-                                URL url  = new URL("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
+                                URL url = new URL("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
                                 HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                                 int responseCode = huc.getResponseCode();
                                 if (responseCode != 404) {
                                     simpleSwingBrowser.loadURL(url.toString());
-                                } else
-                                {
+                                } else {
                                     simpleSwingBrowser.loadURL("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html");
                                 }
 
-                                
                             } catch (IOException ex) {
                                 Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -585,31 +604,55 @@ public class LauncherFrame extends JFrame {
                 for (int i = 0; i < split.length; i++) {
                     String code = split[i];
                     boolean alreadyAdded = false;
-                    if (code.equalsIgnoreCase("showmethemoney")) {
 
+                    if (code.equalsIgnoreCase("showmethemoney")) {
                         lolnetPingButton.setVisible(true);
-                         try {
-                         File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
-                         if (!codeFile.exists()) {
-                         codeFile.createNewFile();
-                         }
-                         br = new BufferedReader(new FileReader(codeFile));
-                         for (String line; (line = br.readLine()) != null;) {
-                         if (line.equalsIgnoreCase("launcher:showmethemoney")) {
-                         alreadyAdded = true;
-                         }
-                         }
-                         if (!alreadyAdded)
-                         {
-                         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
-                         out.println("launcher:" + code);
-                         out.close();
-                         split[i] = "Done";
-                         }
-                        
-                         } catch (Exception e1) {
-                         split[i] = "error";
-                         }
+                        try {
+                            File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                            if (!codeFile.exists()) {
+                                codeFile.createNewFile();
+                            }
+                            br = new BufferedReader(new FileReader(codeFile));
+                            for (String line; (line = br.readLine()) != null;) {
+                                if (line.equalsIgnoreCase("launcher:showmethemoney")) {
+                                    alreadyAdded = true;
+                                }
+                            }
+                            if (!alreadyAdded) {
+                                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                                out.println("launcher:" + code);
+                                out.close();
+                                split[i] = "Done";
+                            }
+
+                        } catch (Exception e1) {
+                            split[i] = "error";
+                        }
+                    } else if (code.equalsIgnoreCase("IWantToGoPlaces")) {
+                        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+                        userNodeForPackage.put("IWantToGoPlaces", "true");
+                        try {
+                            File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                            if (!codeFile.exists()) {
+                                codeFile.createNewFile();
+                            }
+                            br = new BufferedReader(new FileReader(codeFile));
+                            for (String line; (line = br.readLine()) != null;) {
+                                if (line.equalsIgnoreCase("launcher:IWantToGoPlaces")) {
+                                    alreadyAdded = true;
+                                }
+                            }
+                            if (!alreadyAdded) {
+                                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                                out.println("launcher:" + code);
+                                out.close();
+                                split[i] = "Done";
+                                
+                            }
+
+                        } catch (Exception e1) {
+                            split[i] = "error";
+                        }
                     } else {
 
                         try {

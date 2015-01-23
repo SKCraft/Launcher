@@ -5,6 +5,7 @@
  */
 package nz.co.lolnet.james137137;
 
+import com.skcraft.launcher.Launcher;
 import static com.skcraft.launcher.dialog.LauncherFrame.lolnetPingButton;
 import com.skcraft.launcher.model.modpack.ManifestInfo;
 import com.skcraft.launcher.model.modpack.PackageList;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 /**
  *
@@ -167,14 +169,24 @@ public class PrivatePrivatePackagesManager {
             BufferedReader br;
             try {
                 br = new BufferedReader(new FileReader(codeFile));
+                boolean addedIWantToGoPlaces = false;
+                Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
                 for (String line; (line = br.readLine()) != null;) {
                     if (line.startsWith("lolnet:")) {
                         codeList.add(line.split(":")[1]);
                     } else if (line.startsWith("launcher:")) {
                         if (line.split(":")[1].equals("showmethemoney")) {
                             lolnetPingButton.setVisible(true);
+                        } else if (line.split(":")[1].equals("IWantToGoPlaces")) {
+                            
+                            userNodeForPackage.put("IWantToGoPlaces", "true");
+                            addedIWantToGoPlaces = true;
                         }
                     }
+                }
+                if (!addedIWantToGoPlaces)
+                {
+                    userNodeForPackage.put("IWantToGoPlaces", "false");
                 }
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(PrivatePrivatePackagesManager.class.getName()).log(Level.SEVERE, null, ex);
