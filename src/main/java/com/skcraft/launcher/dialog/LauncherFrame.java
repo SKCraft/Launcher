@@ -145,7 +145,6 @@ public class LauncherFrame extends JFrame {
         topBar.add(txtURL, BorderLayout.CENTER);
         topBar.add(btnGo, BorderLayout.EAST);
         String showURLBar = userNodeForPackage.get("IWantToGoPlaces", "");
-        System.out.println("=============   " + showURLBar);
         if (showURLBar != null && showURLBar.equals("true")) {
             add(topBar, BorderLayout.NORTH);
         }
@@ -646,7 +645,7 @@ public class LauncherFrame extends JFrame {
                                 PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
                                 out.println("launcher:" + code);
                                 out.close();
-                                split[i] = "Done";
+                                split[i] = "Done. Restart launcher please.";
                                 
                             }
 
