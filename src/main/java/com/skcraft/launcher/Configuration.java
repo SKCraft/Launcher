@@ -8,6 +8,7 @@ package com.skcraft.launcher;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Strings;
 import com.skcraft.launcher.launch.JavaRuntimeFinder;
+import com.skcraft.launcher.selfupdate.ComparableVersion;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
@@ -98,31 +99,44 @@ public class Configuration {
         if (!Strings.isNullOrEmpty(jvmPath) && new File(jvmPath).exists()) {
             return;
         }
-        
+
         String OS = System.getProperty("os.name").toUpperCase();
         if (OS.contains("WIN")) {
             jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
             File file = new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/");
-            if (!file.exists())
-            {
+            if (!file.exists()) {
                 return;
             }
             File[] listFiles = file.listFiles();
-            
+
             for (File file1 : listFiles) {
                 if (file1.getName().toLowerCase().contains("jre7")) {
                     jvmPath = file1.getAbsolutePath();
                     return;
                 }
             }
-            
+
+            String best = null;
             for (File file1 : listFiles) {
+
                 if (file1.getName().toLowerCase().contains("jre1.8")) {
-                    jvmPath = file1.getAbsolutePath();
-                    return;
+                    if (best == null) {
+                        best = file.getName();
+                    } else {
+                        ComparableVersion version1 = new ComparableVersion(best);
+                        ComparableVersion version2 = new ComparableVersion(file.getName());
+                        if (version1.compareTo(version2) < 0) {
+                            best = file.getName();
+                        }
+                    }
                 }
+
             }
-            
+            if (best != null) {
+                jvmPath = new File(file, best).getAbsolutePath();
+                return;
+            }
+
             for (File file1 : listFiles) {
                 if (file1.getName().toLowerCase().contains("jre6")) {
                     jvmPath = file1.getAbsolutePath();
