@@ -121,12 +121,12 @@ public class Configuration {
 
                 if (file1.getName().toLowerCase().contains("jre1.8")) {
                     if (best == null) {
-                        best = file.getName();
+                        best = file1.getName();
                     } else {
                         ComparableVersion version1 = new ComparableVersion(best);
                         ComparableVersion version2 = new ComparableVersion(file.getName());
                         if (version1.compareTo(version2) < 0) {
-                            best = file.getName();
+                            best = file1.getName();
                         }
                     }
                 }
