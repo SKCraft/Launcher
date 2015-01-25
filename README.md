@@ -4,7 +4,7 @@ Lolnet Launcher
 This project is forked from SKCraft Launcher that provides an open-source Minecraft launcher platform for downloading,
 installing, and updating modpacks.
 
-I james137137 do not claim I am the author of SKCraft launcher. I have rename SKCraft launcher
+I james137137 do not claim I am the author of SKCraft launcher. I have renamed SKCraft launcher
 to Lolnet launcher as I have customized it.
 
 All the changes have been committed and I (james137137) give full ownership to myself for my work
