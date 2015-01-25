@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Locale;
@@ -31,7 +32,6 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
-import javafx.application.Platform;
 
 import javax.swing.*;
 import lombok.Getter;
@@ -354,7 +354,14 @@ public final class Launcher {
     }
 
     public static void main(String[] args) {
-        Platform.setImplicitExit(false);
+
+        String property = System.getProperty("java.version");
+        if (property.startsWith("1.5") || property.startsWith("1.6") || property.startsWith("1.7")) {
+            JOptionPane.showMessageDialog(null, "LolnetLauncher requires java 8 or above", "Please update Java", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+            return;
+        }
+        Configuration.setImplicitExit();
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         File Updater = new File(launcherJarFile.getParent(), "LolnetLauncherUpdater.jar");

@@ -42,7 +42,10 @@ public class Configuration {
     private String proxyUsername;
     private String proxyPassword;
     private String gameKey;
-
+    
+    public static void setImplicitExit() {
+       javafx.application.Platform.setImplicitExit(false); 
+    }
     public void setupMemory() {
         if (minMemory <= 32) {
             minMemory = 256;
