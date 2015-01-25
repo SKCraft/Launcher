@@ -101,6 +101,7 @@ public class LauncherFrame extends JFrame {
         setSize(Toolkit.getDefaultToolkit().getScreenSize().width - Toolkit.getDefaultToolkit().getScreenSize().width / 6, Toolkit.getDefaultToolkit().getScreenSize().height - Toolkit.getDefaultToolkit().getScreenSize().height / 6);
         setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - getSize().width / 2 - 50, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - getSize().height / 2);
         setMinimumSize(new Dimension(400, 300));
+        setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         initComponents();
         setLocationRelativeTo(null);
 
