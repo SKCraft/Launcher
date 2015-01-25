@@ -355,13 +355,7 @@ public final class Launcher {
 
     public static void main(String[] args) {
 
-        String property = System.getProperty("java.version");
-        if (property.startsWith("1.5") || property.startsWith("1.6") || property.startsWith("1.7")) {
-            JOptionPane.showMessageDialog(null, "LolnetLauncher requires java 8 or above", "Please update Java", JOptionPane.WARNING_MESSAGE);
-            System.exit(0);
-            return;
-        }
-        Configuration.setImplicitExit();
+        
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         File Updater = new File(launcherJarFile.getParent(), "LolnetLauncherUpdater.jar");
@@ -378,6 +372,13 @@ public final class Launcher {
         if (Updater.exists()) {
 
             new Updater(Updater, "delete");
+        }
+        String property = System.getProperty("java.version");
+        Configuration.setImplicitExit();
+        if (property.startsWith("1.5") || property.startsWith("1.6") || property.startsWith("1.7")) {
+            JOptionPane.showMessageDialog(null, "LolnetLauncher requires java 8 or above", "Please update Java", JOptionPane.WARNING_MESSAGE);
+            System.exit(0);
+            return;
         }
         LauncherArguments options = new LauncherArguments();
         try {
