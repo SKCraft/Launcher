@@ -74,7 +74,12 @@ public class LauncherFrame extends JFrame {
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(_("launcher.launch"));
     public static final JButton lolnetPingButton = new JButton("Check Servers...");
-    private final JButton lolnetPrivatePackButton = new JButton("Add code...");
+    private final JButton lolnetAddCodeButton = new JButton("Add code...");
+    private final JButton lolnetModPackButton = new JButton("ModPacks");
+    private final JButton lolnetNewsButton = new JButton("News");
+    private final JButton lolnetForumButton = new JButton("Forum");
+    private final JButton lolnetWikiButton = new JButton("Wiki");
+    
     private final JButton lolnetPublicPackListButton = new JButton("Lolnet Packs");
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(_("launcher.options"));
@@ -119,6 +124,7 @@ public class LauncherFrame extends JFrame {
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, jfxPanel);
         selfUpdateButton.setVisible(false);
 
+        
         updateCheck.setSelected(true);
         updateCheck.setVisible(false);
         refreshButton.setVisible(false);
@@ -129,18 +135,27 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerSize(4);
         SwingHelper.flattenJSplitPane(splitPane);
         buttonsPanel.addElement(lolnetPublicPackListButton);
+        buttonsPanel.addElement(lolnetAddCodeButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
         buttonsPanel.addGlue();
+        buttonsPanel.addElement(lolnetModPackButton);
+        buttonsPanel.addElement(lolnetNewsButton);
+        buttonsPanel.addElement(lolnetForumButton);
+        buttonsPanel.addElement(lolnetWikiButton);
+        buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
-        buttonsPanel.addElement(lolnetPrivatePackButton);
         buttonsPanel.addElement(lolnetPingButton);
         buttonsPanel.addElement(optionsButton);
         buttonsPanel.addElement(launchButton);
+        
         container.setLayout(new BorderLayout());
         container.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
+        
         container.add(splitPane, BorderLayout.CENTER);
+        
 
+        
         JPanel topBar = new JPanel(new BorderLayout(5, 0));
         topBar.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
         topBar.add(txtURL, BorderLayout.CENTER);
@@ -149,6 +164,7 @@ public class LauncherFrame extends JFrame {
         if (showURLBar != null && showURLBar.equals("true")) {
             add(topBar, BorderLayout.NORTH);
         }
+        
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
 
@@ -177,6 +193,72 @@ public class LauncherFrame extends JFrame {
                 checkLauncherUpdate();
             }
         });
+        
+        lolnetModPackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (instanceScroll.isVisible())
+                {
+                    
+                    splitPane.setDividerLocation(250);
+                }
+                else
+                {
+                    splitPane.add(instanceScroll);
+                    splitPane.setDividerLocation(250);
+                    instanceScroll.setVisible(true);
+                    simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
+                }
+            }
+        });
+        
+        lolnetNewsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (instanceScroll.isVisible())
+                {
+                    simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
+                    splitPane.remove(instanceScroll);
+                    instanceScroll.setVisible(false);
+                }
+                else
+                {
+                    simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
+                }
+            }
+        });
+        
+        lolnetForumButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (instanceScroll.isVisible())
+                {
+                    simpleSwingBrowser.loadURL("https://www.lolnet.co.nz/");
+                    splitPane.remove(instanceScroll);
+                    instanceScroll.setVisible(false);
+                }
+                else
+                {
+                    simpleSwingBrowser.loadURL("https://www.lolnet.co.nz/");
+                }
+            }
+        });
+        
+        lolnetWikiButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (instanceScroll.isVisible())
+                {
+                    simpleSwingBrowser.loadURL("http://wiki.lolnet.co.nz/");
+                    splitPane.remove(instanceScroll);
+                    instanceScroll.setVisible(false);
+                }
+                else
+                {
+                    simpleSwingBrowser.loadURL("http://wiki.lolnet.co.nz/");
+                }
+            }
+        });
 
         selfUpdateButton.addActionListener(new ActionListener() {
             @Override
@@ -192,7 +274,7 @@ public class LauncherFrame extends JFrame {
             }
         });
 
-        lolnetPrivatePackButton.addActionListener(new ActionListener() {
+        lolnetAddCodeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 launchPrivatePackPannel();
