@@ -189,7 +189,6 @@ public class LauncherFrame extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 final Instance selected = launcher.getInstances().get(instancesTable.getSelectedRow());
-                simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
                 try {
                     URL url = new URL("https://www.lolnet.co.nz/modpack/news/" + selected.getName().replaceAll(" ", "_") + "/index.html");
                     HttpURLConnection huc = (HttpURLConnection) url.openConnection();
