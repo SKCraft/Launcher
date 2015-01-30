@@ -165,12 +165,14 @@ public class PrivatePrivatePackagesManager {
     private static List<String> getCodes() {
         List<String> codeList = new ArrayList<String>();
         File codeFile = new File(dir, "codes.txt");
+        boolean addedIWantToGoPlaces = false;
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
         if (codeFile.exists()) {
             BufferedReader br;
             try {
                 br = new BufferedReader(new FileReader(codeFile));
-                boolean addedIWantToGoPlaces = false;
-                Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+
+                
                 for (String line; (line = br.readLine()) != null;) {
                     if (line.startsWith("lolnet:")) {
                         codeList.add(line.split(":")[1]);
@@ -178,21 +180,20 @@ public class PrivatePrivatePackagesManager {
                         if (line.split(":")[1].equals("showmethemoney")) {
                             lolnetPingButton.setVisible(true);
                         } else if (line.split(":")[1].equals("IWantToGoPlaces")) {
-                            
+
                             userNodeForPackage.put("IWantToGoPlaces", "true");
                             addedIWantToGoPlaces = true;
                         }
                     }
-                }
-                if (!addedIWantToGoPlaces)
-                {
-                    userNodeForPackage.put("IWantToGoPlaces", "false");
                 }
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(PrivatePrivatePackagesManager.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
                 Logger.getLogger(PrivatePrivatePackagesManager.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+        if (!addedIWantToGoPlaces) {
+            userNodeForPackage.put("IWantToGoPlaces", "false");
         }
 
         return codeList;
