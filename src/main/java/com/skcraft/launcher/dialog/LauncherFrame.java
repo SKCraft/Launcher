@@ -192,6 +192,15 @@ public class LauncherFrame extends JFrame {
                 }
             }
         });
+        
+        instancesTable.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    launch();
+                }
+            }
+
+        });
 
         instancesTable.addMouseListener(new DoubleClickToButtonAdapter(launchButton));
         
