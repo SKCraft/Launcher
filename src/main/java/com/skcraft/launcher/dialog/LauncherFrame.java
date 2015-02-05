@@ -100,7 +100,7 @@ public class LauncherFrame extends JFrame {
      */
     public LauncherFrame(@NonNull Launcher launcher) {
         super(_("launcher.title", launcher.getVersion()));
-
+        
         this.launcher = launcher;
         instancesModel = new InstanceTableModel(launcher.getInstances());
 
@@ -463,9 +463,21 @@ public class LauncherFrame extends JFrame {
 
     private void requestUpdate(URL url) {
         this.updateUrl = url;
-        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update\n\nDo you wish to update?", "Launcher Update Available",
+        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + UpdateChecker.latestVersion +")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            selfUpdate();
+            if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
+               selfUpdate(); 
+            }
+            else
+            {
+                try {
+                    Desktop.getDesktop().browse(url.toURI());
+                } catch (IOException ex) {
+                    Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (URISyntaxException ex) {
+                    Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         } else {
             // no option
         }
