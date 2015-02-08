@@ -352,6 +352,11 @@ public final class Launcher {
         }
         return System.getProperty("user.dir");
     }
+    
+    public static void main() {
+        String[] args = new String[1];
+        main(args);
+    }
 
     public static void main(String[] args) {
 

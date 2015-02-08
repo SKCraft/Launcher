@@ -44,6 +44,13 @@
             <artifactId>jcommander</artifactId>
             <version>1.32</version>
         </dependency>
+        <dependency>
+            <groupId>nz.co.lolnet</groupId>
+            <artifactId>LolnetLauncherAPI</artifactId>
+            <version>0.0.1</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/LolnetLauncherAPI.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
