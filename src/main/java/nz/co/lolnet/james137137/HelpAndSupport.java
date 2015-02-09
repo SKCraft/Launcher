@@ -114,6 +114,9 @@ public class HelpAndSupport {
         if (answer == 0) {
             CantLogin();
         }
+        if (answer == 1) {
+            openURL("https://help.mojang.com/customer/portal/articles/329524-change-or-forgot-password");
+        }
     }
     
     private static void goToNewModPackSummition() {
