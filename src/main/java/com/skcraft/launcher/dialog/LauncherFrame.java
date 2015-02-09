@@ -55,6 +55,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.HelpAndSupport;
 import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
 import nz.co.lolnet.james137137.SimpleSwingBrowser;
 import nz.co.lolnet.james137137.ThreadLolnetPingWindow;
@@ -82,6 +83,7 @@ public class LauncherFrame extends JFrame {
     private final JButton lolnetNewsButton = new JButton("News");
     private final JButton lolnetForumButton = new JButton("Forum");
     private final JButton lolnetWikiButton = new JButton("Wiki");
+    private final JButton launcherHelpButton = new JButton("Help");
 
     private final JButton lolnetPublicPackListButton = new JButton("Lolnet Packs");
     private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
@@ -100,7 +102,7 @@ public class LauncherFrame extends JFrame {
      */
     public LauncherFrame(@NonNull Launcher launcher) {
         super(_("launcher.title", launcher.getVersion()));
-        
+
         this.launcher = launcher;
         instancesModel = new InstanceTableModel(launcher.getInstances());
 
@@ -137,6 +139,7 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerSize(4);
         SwingHelper.flattenJSplitPane(splitPane);
         buttonsPanel.addElement(lolnetPublicPackListButton);
+        buttonsPanel.addElement(launcherHelpButton);
         buttonsPanel.addElement(lolnetAddCodeButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
@@ -168,6 +171,13 @@ public class LauncherFrame extends JFrame {
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
 
+        launcherHelpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HelpAndSupport.Start();
+            }
+        });
+
         btnGo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -192,7 +202,7 @@ public class LauncherFrame extends JFrame {
                 }
             }
         });
-        
+
         instancesTable.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -203,7 +213,7 @@ public class LauncherFrame extends JFrame {
         });
 
         instancesTable.addMouseListener(new DoubleClickToButtonAdapter(launchButton));
-        
+
         instancesTable.addMouseListener(new MouseListener() {
 
             @Override
@@ -463,13 +473,11 @@ public class LauncherFrame extends JFrame {
 
     private void requestUpdate(URL url) {
         this.updateUrl = url;
-        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + UpdateChecker.latestVersion +")\n\nDo you wish to update?", "Launcher Update Available",
+        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + UpdateChecker.latestVersion + ")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
-               selfUpdate(); 
-            }
-            else
-            {
+                selfUpdate();
+            } else {
                 try {
                     Desktop.getDesktop().browse(url.toURI());
                 } catch (IOException ex) {
