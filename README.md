@@ -5,21 +5,33 @@ This project is forked from SKCraft Launcher that provides an open-source Minecr
 installing, and updating modpacks.
 
 I james137137 do not claim I am the author of SKCraft launcher. I have renamed SKCraft launcher
-to Lolnet launcher as I have customized it.
+to Lolnet launcher as I have customized it for the best interest of Lolnet.
 
 All the changes have been committed and I (james137137) give full ownership to myself for my work
 unless otherwise stated.
 
 The main changes I have made are:
 
-* Moved all user data to %appdata%/LolnetData which is changeable via options
-* Added an auto updater
-* changed the look&feel
-* made sure that the launcher opens the latest java and at 64 bit when possible
-* Automatic calculate how much memory can be used
-* Added an extra button to show lolnet's server status
-* Allowed private pack codes
-* Added a .exe wrapper on build
+* Moved all user data to %appdata%/LolnetData which is changeable via options.
+* Added an auto updater.
+* Changed the look&feel and window size.
+* Made sure that the launcher opens the latest java and at 64 bit when possible.
+* Automatic calculate how much memory can be used.
+* Added an extra button to show lolnet's server status.
+* Allowed private pack codes.
+* Added a .exe wrapper on build.
+* Allowed minecraft.jar not just custom_jar.jar in the src folder.
+* Changed ID/password to Minecraft username/email in the login section.
+* Added a smart way to detect how much memory is available (with most modpacks this will need to be adjusted by player).
+* Added button to filter public and private packs.
+* Added some statistics collection (number of times a modpack is launched).
+* By Right clicking on a modpack you can view the changelog.
+* Removed some unwanted buttons and options (some were confusing).
+* Modpacks can have custom icons.
+* Updated Webpanel to HTML5 (launcher requires Java 8).
+* Added a Help button for FAQ that can redirect to webpages if needed.
+* When clicking on a modpack it can (if available) display a news section just for that pack.
+
 
 
 Introduction
