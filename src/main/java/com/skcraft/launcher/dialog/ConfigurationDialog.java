@@ -42,12 +42,6 @@ public class ConfigurationDialog extends JDialog {
     private final FormPanel gameSettingsPanel = new FormPanel();
     private final JSpinner widthSpinner = new JSpinner();
     private final JSpinner heightSpinner = new JSpinner();
-    private final FormPanel proxySettingsPanel = new FormPanel();
-    private final JCheckBox useProxyCheck = new JCheckBox(_("options.useProxyCheck"));
-    private final JTextField proxyHostText = new JTextField();
-    private final JSpinner proxyPortText = new JSpinner();
-    private final JTextField proxyUsernameText = new JTextField();
-    private final JPasswordField proxyPasswordText = new JPasswordField();
     private final FormPanel advancedPanel = new FormPanel();
     private final JTextField gameKeyText = new JTextField();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
@@ -83,11 +77,6 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(permGenSpinner, "permGen");
         mapper.map(widthSpinner, "windowWidth");
         mapper.map(heightSpinner, "widowHeight");
-        mapper.map(useProxyCheck, "proxyEnabled");
-        mapper.map(proxyHostText, "proxyHost");
-        mapper.map(proxyPortText, "proxyPort");
-        mapper.map(proxyUsernameText, "proxyUsername");
-        mapper.map(proxyPasswordText, "proxyPassword");
         mapper.map(gameKeyText, "gameKey");
 
         mapper.copyFromObject();
@@ -109,14 +98,7 @@ public class ConfigurationDialog extends JDialog {
         SwingHelper.removeOpaqueness(gameSettingsPanel);
         tabbedPane.addTab(_("options.minecraftTab"), SwingHelper.alignTabbedPane(gameSettingsPanel));
 
-        proxySettingsPanel.addRow(useProxyCheck);
-        proxySettingsPanel.addRow(new JLabel(_("options.proxyHost")), proxyHostText);
-        proxySettingsPanel.addRow(new JLabel(_("options.proxyPort")), proxyPortText);
-        proxySettingsPanel.addRow(new JLabel(_("options.proxyUsername")), proxyUsernameText);
-        proxySettingsPanel.addRow(new JLabel(_("options.proxyPassword")), proxyPasswordText);
-        SwingHelper.removeOpaqueness(proxySettingsPanel);
-        //tabbedPane.addTab(_("options.proxyTab"), SwingHelper.alignTabbedPane(proxySettingsPanel));
-
+        
         //advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
         //buttonsPanel2.addGlue();
         buttonsPanel2.addElement(changeDataStorageLocationButton);

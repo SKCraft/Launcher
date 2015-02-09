@@ -36,11 +36,6 @@ public class Configuration {
     private int permGen = 256;
     private int windowWidth = 854;
     private int widowHeight = 480;
-    private boolean proxyEnabled = false;
-    private String proxyHost = "localhost";
-    private int proxyPort = 8080;
-    private String proxyUsername;
-    private String proxyPassword;
     private String gameKey;
     
     public static void setImplicitExit() {
