@@ -113,8 +113,7 @@ public class HelpAndSupport {
                 null);
         if (answer == 0) {
             CantLogin();
-        }
-        if (answer == 1) {
+        } else if (answer == 1) {
             openURL("https://help.mojang.com/customer/portal/articles/329524-change-or-forgot-password");
         }
     }
