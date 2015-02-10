@@ -17,6 +17,7 @@ import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.launch.LaunchProcessHandler;
 import com.skcraft.launcher.launch.Runner;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.selfupdate.ComparableVersion;
 import com.skcraft.launcher.selfupdate.SelfUpdater;
 import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.swing.*;
@@ -449,30 +450,42 @@ public class LauncherFrame extends JFrame {
         this.updateUrl = url;
         if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + UpdateChecker.latestVersion + ")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
-                selfUpdate();
-            } else {
+            ComparableVersion current = new ComparableVersion(launcher.getVersion());
+            ComparableVersion latest = new ComparableVersion("0.10.2");
+            if (latest.compareTo(current) >= 1) {
                 try {
-                    Desktop.getDesktop().browse(url.toURI());
-                } catch (IOException ex) {
-                    Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (URISyntaxException ex) {
+                    url = new URL("https://www.lolnet.co.nz/LolnetLauncher.jar");
+                } catch (MalformedURLException ex) {
                     Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                if (Launcher.launcherJarFile.getName().contains(".exe")) {
+                    try {
+                        url = new URL(url.toString().replaceAll(".jar", ".exe"));
+                    } catch (MalformedURLException ex) {
+                        Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                    try {
+                        Desktop.getDesktop().browse(url.toURI());
+                    } catch (IOException | URISyntaxException ex) {
+                        Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    selfUpdate();
+                }
+                
+            } else {
+                // no option
             }
-        } else {
-            // no option
         }
-    }
-
-    /**
-     * Popup the menu for the instances.
-     *
-     * @param component the component
-     * @param x mouse X
-     * @param y mouse Y
-     * @param selected the selected instance, possibly null
-     */
+        /**
+         * Popup the menu for the instances.
+         *
+         * @param component the component
+         * @param x mouse X
+         * @param y mouse Y
+         * @param selected the selected instance, possibly null
+         */
     private void popupInstanceMenu(Component component, int x, int y, final Instance selected) {
         JPopupMenu popup = new JPopupMenu();
         JMenuItem menuItem;
