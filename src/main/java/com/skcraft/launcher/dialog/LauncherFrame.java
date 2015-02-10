@@ -446,7 +446,7 @@ public class LauncherFrame extends JFrame {
         }
     }
 
-    private void requestUpdate(URL url) {
+    public void requestUpdate(URL url) {
         this.updateUrl = url;
         if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + UpdateChecker.latestVersion + ")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {

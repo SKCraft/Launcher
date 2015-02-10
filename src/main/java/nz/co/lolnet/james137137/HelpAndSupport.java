@@ -5,6 +5,8 @@
  */
 package nz.co.lolnet.james137137;
 
+import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.dialog.LauncherFrame;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -12,6 +14,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 
 /**
@@ -51,7 +54,7 @@ public class HelpAndSupport {
     }
 
     private static void LauncherHelp() {
-        Object[] options = {"I found an error/bug", "I have a suggestion for the Launcher", "I would like to submit a modpack"};
+        Object[] options = {"I found an error/bug", "I have a suggestion for the Launcher", "I would like to submit a modpack", "lastest SnapShot please"};
         int answer = JOptionPane.showOptionDialog(null,
                 "What subject on LolnetLauncher",
                 "LolnetLauncher Help",
@@ -66,6 +69,9 @@ public class HelpAndSupport {
             sendToLauncherRequest();
         } else if (answer == 2) {
             goToNewModPackSummition();
+        } else if (answer == 3)
+        {
+            getLatestSnapshot();
         }
     }
     
@@ -227,5 +233,11 @@ public class HelpAndSupport {
         if (answer == 0) {
             openURL("https://minecraft.net/resetpassword");
         }
+    }
+
+    private static void getLatestSnapshot() {
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
+        userNodeForPackage.put("DownloadSnapShot", "true");
+        JOptionPane.showMessageDialog(null, "Restart Launcher to update", "Launcher Update", JOptionPane.INFORMATION_MESSAGE);
     }
 }
