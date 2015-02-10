@@ -450,9 +450,9 @@ public class LauncherFrame extends JFrame {
         this.updateUrl = url;
         if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + UpdateChecker.latestVersion + ")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            ComparableVersion current = new ComparableVersion(launcher.getVersion());
-            ComparableVersion latest = new ComparableVersion("0.10.2");
-            if (latest.compareTo(current) >= 1) {
+            Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
+            String bootstrap = userNodeForPackage.get("LolnetLauncherbootstrap", "");
+            if (bootstrap == null || bootstrap.equals("")) {
                 try {
                     url = new URL("https://www.lolnet.co.nz/LolnetLauncher.jar");
                 } catch (MalformedURLException ex) {
