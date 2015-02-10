@@ -261,15 +261,7 @@ public class LauncherFrame extends JFrame {
         lolnetModPackButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (instanceScroll.isVisible()) {
-
-                    splitPane.setDividerLocation(250);
-                } else {
-                    splitPane.add(instanceScroll);
-                    splitPane.setDividerLocation(250);
-                    instanceScroll.setVisible(true);
-                    simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
-                }
+                showModPackInstances();
             }
         });
 
@@ -329,6 +321,7 @@ public class LauncherFrame extends JFrame {
         lolnetAddCodeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                showModPackInstances();
                 launchPrivatePackPannel();
             }
 
@@ -338,6 +331,8 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                showModPackInstances();
+                
                 if (lolnetPublicPackListButton.getText().equals("Lolnet Packs")) {
                     lolnetPublicPackListButton.setText("Loading Private Packs..");
                     InstanceList.showPublic = false;
@@ -390,6 +385,18 @@ public class LauncherFrame extends JFrame {
                 popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
             }
         });
+    }
+
+    private void showModPackInstances() {
+        if (instanceScroll.isVisible()) {
+
+            splitPane.setDividerLocation(250);
+        } else {
+            splitPane.add(instanceScroll);
+            splitPane.setDividerLocation(250);
+            instanceScroll.setVisible(true);
+            simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
+        }
     }
 
     private void checkLauncherUpdate() {
@@ -465,27 +472,28 @@ public class LauncherFrame extends JFrame {
                         Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                    try {
-                        Desktop.getDesktop().browse(url.toURI());
-                    } catch (IOException | URISyntaxException ex) {
-                        Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    selfUpdate();
+                try {
+                    Desktop.getDesktop().browse(url.toURI());
+                } catch (IOException | URISyntaxException ex) {
+                    Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
             } else {
-                // no option
+                selfUpdate();
             }
+
+        } else {
+            // no option
         }
-        /**
-         * Popup the menu for the instances.
-         *
-         * @param component the component
-         * @param x mouse X
-         * @param y mouse Y
-         * @param selected the selected instance, possibly null
-         */
+    }
+
+    /**
+     * Popup the menu for the instances.
+     *
+     * @param component the component
+     * @param x mouse X
+     * @param y mouse Y
+     * @param selected the selected instance, possibly null
+     */
     private void popupInstanceMenu(Component component, int x, int y, final Instance selected) {
         JPopupMenu popup = new JPopupMenu();
         JMenuItem menuItem;
