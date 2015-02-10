@@ -332,7 +332,7 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 showModPackInstances();
-                
+
                 if (lolnetPublicPackListButton.getText().equals("Lolnet Packs")) {
                     lolnetPublicPackListButton.setText("Loading Private Packs..");
                     InstanceList.showPublic = false;
@@ -477,8 +477,15 @@ public class LauncherFrame extends JFrame {
                 } catch (IOException | URISyntaxException ex) {
                     Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } 
+            }
             selfUpdate();
+            if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
+                if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    Launcher.restartLauncher();
+                }
+
+            }
 
         } else {
             // no option
