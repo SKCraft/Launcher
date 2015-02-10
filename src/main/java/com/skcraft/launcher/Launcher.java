@@ -358,7 +358,6 @@ public final class Launcher {
     }
 
     public static void main(String[] args) {
-
         
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
