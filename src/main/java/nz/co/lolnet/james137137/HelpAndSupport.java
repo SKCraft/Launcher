@@ -125,6 +125,9 @@ public class HelpAndSupport {
         } else if (answer == 1) {
             openURL("https://help.mojang.com/customer/portal/articles/329524-change-or-forgot-password");
         }
+        else if (answer == 2) {
+            openURL("https://help.mojang.com/customer/portal/articles/928638-minecraft-usernames?b_id=5408");
+        }
     }
     
     private static void goToNewModPackSummition() {
