@@ -38,7 +38,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
-import nz.co.lolnet.james137137.Updater;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import org.apache.commons.io.FileUtils;
 
@@ -363,21 +362,7 @@ public final class Launcher {
         
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        File Updater = new File(launcherJarFile.getParent(), "LolnetLauncherUpdater.jar");
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-        String lolnetLauncherLatestUpdatePath = userNodeForPackage.get("LolnetLauncherLatestUpdate", "");
-        if (Launcher.debugmode) {
-            System.out.println("debug" + lolnetLauncherLatestUpdatePath);
-        }
-
-        if (lolnetLauncherLatestUpdatePath != null && !lolnetLauncherLatestUpdatePath.equalsIgnoreCase("")) {
-            new Updater(lolnetLauncherLatestUpdatePath);
-            userNodeForPackage.put("LolnetLauncherLatestUpdate", "");
-        }
-        if (Updater.exists()) {
-
-            new Updater(Updater, "delete");
-        }
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         String property = System.getProperty("java.version");
         Configuration.setImplicitExit();
         if (property.startsWith("1.5") || property.startsWith("1.6") || property.startsWith("1.7")) {

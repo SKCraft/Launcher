@@ -137,7 +137,7 @@ public class ConfigurationDialog extends JDialog {
         changeDataStorageLocationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+                Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
                 String currentPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
                 if (currentPath == null || currentPath.equalsIgnoreCase("")) {
                     currentPath = Launcher.dataDir.getAbsolutePath();

@@ -415,13 +415,6 @@ public class LauncherFrame extends JFrame {
 
     private void selfUpdate() {
         URL url = updateUrl;
-        if (Launcher.launcherJarFile.getName().contains(".exe")) {
-            try {
-                url = new URL(url.toString().replaceAll(".jar", ".exe"));
-            } catch (MalformedURLException ex) {
-                Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
 
         if (url != null) {
             SelfUpdater downloader = new SelfUpdater(launcher, url);
@@ -438,25 +431,6 @@ public class LauncherFrame extends JFrame {
                             _("launcher.selfUpdateCompleteTitle"),
                             null,
                             JOptionPane.INFORMATION_MESSAGE);
-                    if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
-                        if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
-                                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                            try {
-                                Runtime rt = Runtime.getRuntime();
-                                File file = new File(Launcher.launcherJarFile.getAbsolutePath());
-                                String path = file.getAbsolutePath().replaceAll("%20", " ");
-                                String command = "java -jar " + "\"" + path + "\"".replaceAll("%20", " ");
-                                Process pr = rt.exec(command);
-                                System.out.println(command);
-                                // yes option
-                            } catch (IOException ex) {
-                                Logger.getLogger(ConfigurationDialog.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            System.exit(0);
-                        } else {
-                            // no option
-                        }
-                    }
                 }
 
                 @Override
