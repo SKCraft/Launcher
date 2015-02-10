@@ -477,9 +477,8 @@ public class LauncherFrame extends JFrame {
                 } catch (IOException | URISyntaxException ex) {
                     Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } else {
-                selfUpdate();
-            }
+            } 
+            selfUpdate();
 
         } else {
             // no option
