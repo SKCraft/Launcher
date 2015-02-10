@@ -25,12 +25,14 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
@@ -101,6 +103,56 @@ public final class Launcher {
                 cleanupExtractDir();
             }
         });
+    }
+
+    public static boolean restartLauncher() {
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
+        String boot = userNodeForPackage.get("LolnetLauncherbootstrap", "");
+        System.out.println(boot);
+        if (boot != null && boot.equals("true")) {
+            String bootLocation = userNodeForPackage.get("LolnetLauncherbootstrapLocation", "");
+            System.out.println(bootLocation);
+            if (bootLocation.toLowerCase().contains("exe") || bootLocation.toLowerCase().contains("jar")) {
+                Runtime rt = Runtime.getRuntime();
+                String command = "java -jar " + "\"" + bootLocation + "\"";
+                try {
+                    Process pr = rt.exec(command);
+                    System.out.println(command);
+                    System.exit(0);
+                } catch (IOException ex) {
+
+                    Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+        } else {
+            String bootLocation;
+            try {
+                bootLocation = new File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getAbsolutePath();
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+            if (bootLocation.toLowerCase().contains("exe") || bootLocation.toLowerCase().contains("jar")) {
+                Runtime rt = Runtime.getRuntime();
+                String command = "java -jar " + "\"" + bootLocation + "\"";
+                try {
+                    Process pr = rt.exec(command);
+                    System.out.println(command);
+                    System.exit(0);
+                } catch (IOException ex) {
+
+                    Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -351,14 +403,14 @@ public final class Launcher {
         }
         return System.getProperty("user.dir");
     }
-    
+
     public static void main() {
         String[] args = new String[1];
         main(args);
     }
 
     public static void main(String[] args) {
-        
+
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();

@@ -37,7 +37,7 @@ public class HelpAndSupport {
 
     public static void Start() {
         //Custom button text
-        Object[] options = {"LolnetLauncher", "My account"};
+        Object[] options = {"LolnetLauncher", "My account","Restart Launcher"};
         int answer = JOptionPane.showOptionDialog(null,
                 "What can I help you with?",
                 "LolnetLauncher Help",
@@ -50,6 +50,9 @@ public class HelpAndSupport {
             LauncherHelp();
         } else if (answer == 1) {
             AccountHelp();
+        } else if (answer == 2)
+        {
+            System.out.println(Launcher.restartLauncher());;
         }
     }
 
