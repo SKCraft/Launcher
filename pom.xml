@@ -91,37 +91,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.1</version>
-                <executions>
-                    <execution>
-                        <id>l4j-gui</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <dontWrapJar>false</dontWrapJar>
-                            <headerType>gui</headerType>
-                            <outfile>${project.build.directory}/${project.build.finalName}.exe</outfile>
-                            <!--<jar>target/${project.build.finalName}-${project.version}-shaded.jar</jar>-->
-                            <jar>target/${project.build.finalName}.jar</jar>
-                            <icon>${basedir}/src/main/resources/com/skcraft/launcher/icon.ico</icon>
-                            <jre>
-                                <minVersion>1.7.0</minVersion>
-                            </jre>
-                            <splash>
-                                <file>${basedir}/src/main/resources/com/skcraft/launcher/splash.bmp</file>
-                                <waitForWindow>true</waitForWindow>
-                                <timeout>60</timeout>
-                                <timeoutErr>true</timeoutErr>
-                            </splash>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
