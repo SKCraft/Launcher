@@ -79,7 +79,6 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         {
             //new install
             new ThreadInstalledModpack(instance.getTitle(), instance.getVersion());
-            //System.out.println("#### |" + instance.getName() + "| |" + instance.getTitle() + "| |" + instance.getVersion() + "|");
         }
         if(instance.isInstalled() && instance.isUpdatePending())
         {

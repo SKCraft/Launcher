@@ -108,16 +108,13 @@ public final class Launcher {
     public static boolean restartLauncher() {
         Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         String boot = userNodeForPackage.get("LolnetLauncherbootstrap", "");
-        System.out.println(boot);
         if (boot != null && boot.equals("true")) {
             String bootLocation = userNodeForPackage.get("LolnetLauncherbootstrapLocation", "");
-            System.out.println(bootLocation);
             if (bootLocation.toLowerCase().contains("exe") || bootLocation.toLowerCase().contains("jar")) {
                 Runtime rt = Runtime.getRuntime();
                 String command = "java -jar " + "\"" + bootLocation + "\"";
                 try {
                     Process pr = rt.exec(command);
-                    System.out.println(command);
                     System.exit(0);
                 } catch (IOException ex) {
 
@@ -141,7 +138,6 @@ public final class Launcher {
                 String command = "java -jar " + "\"" + bootLocation + "\"";
                 try {
                     Process pr = rt.exec(command);
-                    System.out.println(command);
                     System.exit(0);
                 } catch (IOException ex) {
 

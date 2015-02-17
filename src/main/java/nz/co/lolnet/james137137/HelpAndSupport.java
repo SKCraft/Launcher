@@ -52,7 +52,7 @@ public class HelpAndSupport {
             AccountHelp();
         } else if (answer == 2)
         {
-            System.out.println(Launcher.restartLauncher());;
+            Launcher.restartLauncher();
         }
     }
 
