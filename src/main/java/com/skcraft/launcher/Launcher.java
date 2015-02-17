@@ -439,7 +439,6 @@ public final class Launcher {
         if (!Launcher.dataDir.exists()) {
             Launcher.dataDir = new File(defaultDirectory() + File.separator + "LolnetData/");
         }
-        PrivatePrivatePackagesManager.setDirectory(dataDir);
         if (dataDir != null) {
             log.info("Using given base directory " + dataDir.getAbsolutePath());
         } else {

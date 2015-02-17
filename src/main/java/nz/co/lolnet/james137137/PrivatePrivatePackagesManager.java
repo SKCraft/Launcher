@@ -32,7 +32,6 @@ import java.util.prefs.Preferences;
  */
 public class PrivatePrivatePackagesManager {
 
-    public static File dir;
 
     public static void addPrivatePackages(PackageList packages) {
         List<URL> URLs = getList("all");
@@ -164,7 +163,7 @@ public class PrivatePrivatePackagesManager {
 
     private static List<String> getCodes() {
         List<String> codeList = new ArrayList<String>();
-        File codeFile = new File(dir, "codes.txt");
+        File codeFile = new File(Launcher.dataDir, "codes.txt");
         boolean addedIWantToGoPlaces = false;
         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
         if (codeFile.exists()) {
@@ -197,10 +196,6 @@ public class PrivatePrivatePackagesManager {
         }
 
         return codeList;
-    }
-
-    public static void setDirectory(File dirinput) {
-        dir = dirinput;
     }
 
     private static List<String> getPublicList() {

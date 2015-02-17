@@ -748,7 +748,7 @@ public class LauncherFrame extends JFrame {
                     if (code.equalsIgnoreCase("showmethemoney")) {
                         lolnetPingButton.setVisible(true);
                         try {
-                            File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                            File codeFile = new File(Launcher.dataDir, "codes.txt");
                             if (!codeFile.exists()) {
                                 codeFile.createNewFile();
                             }
@@ -772,7 +772,7 @@ public class LauncherFrame extends JFrame {
                         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
                         userNodeForPackage.put("IWantToGoPlaces", "true");
                         try {
-                            File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                            File codeFile = new File(Launcher.dataDir, "codes.txt");
                             if (!codeFile.exists()) {
                                 codeFile.createNewFile();
                             }
@@ -796,7 +796,7 @@ public class LauncherFrame extends JFrame {
                     } else {
 
                         try {
-                            File codeFile = new File(PrivatePrivatePackagesManager.dir, "codes.txt");
+                            File codeFile = new File(Launcher.dataDir, "codes.txt");
                             if (!codeFile.exists()) {
                                 codeFile.createNewFile();
                             }
