@@ -95,7 +95,7 @@ public class LoginDialog extends JDialog {
 
         loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
 
-        formPanel.addRow(new JLabel(_("login.idPassword")), idCombo);
+        formPanel.addRow(new JLabel(_("login.idEmail")), idCombo);
         formPanel.addRow(new JLabel(_("login.password")), passwordText);
         formPanel.addRow(new JLabel(), rememberIdCheck);
         formPanel.addRow(new JLabel(), rememberPassCheck);
