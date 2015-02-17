@@ -479,12 +479,10 @@ public class LauncherFrame extends JFrame {
                 }
             }
             selfUpdate();
-            if (Launcher.launcherJarFile.getName().contains(".jar") || Launcher.launcherJarFile.getName().contains(".exe")) {
-                if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
-                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    Launcher.restartLauncher();
-                }
 
+            if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                Launcher.restartLauncher();
             }
 
         } else {

@@ -159,11 +159,10 @@ public class ConfigurationDialog extends JDialog {
                         } else {
                             JOptionPane.showMessageDialog(null, "Path Changed from " + oldPath + ".\n New path is now: " + FilePath + "\n Please restart Launcher to take effect", "success", JOptionPane.INFORMATION_MESSAGE);
                         }
-                        if (Launcher.launcherJarFile.getName().contains(".jar")) {
-                            if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
-                                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                                Launcher.restartLauncher();
-                            }
+
+                        if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                            Launcher.restartLauncher();
                         }
 
                     } else {
