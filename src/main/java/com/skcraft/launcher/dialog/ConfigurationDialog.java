@@ -98,7 +98,6 @@ public class ConfigurationDialog extends JDialog {
         SwingHelper.removeOpaqueness(gameSettingsPanel);
         tabbedPane.addTab(_("options.minecraftTab"), SwingHelper.alignTabbedPane(gameSettingsPanel));
 
-        
         //advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
         //buttonsPanel2.addGlue();
         buttonsPanel2.addElement(changeDataStorageLocationButton);
@@ -163,19 +162,7 @@ public class ConfigurationDialog extends JDialog {
                         if (Launcher.launcherJarFile.getName().contains(".jar")) {
                             if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
                                     JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                                try {
-                                    Runtime rt = Runtime.getRuntime();
-                                    String path = Launcher.launcherJarFile.getAbsolutePath().replaceAll("%20", " ");
-                                    String command = "java -jar " + "\"" + path + "\"".replaceAll("%20", " ");
-                                    Process pr = rt.exec(command);
-                                    System.out.println(command);
-                                    // yes option
-                                } catch (IOException ex) {
-                                    Logger.getLogger(ConfigurationDialog.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                System.exit(0);
-                            } else {
-                                // no option
+                                Launcher.restartLauncher();
                             }
                         }
 
