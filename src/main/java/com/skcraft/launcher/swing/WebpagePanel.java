@@ -6,9 +6,11 @@
 
 package com.skcraft.launcher.swing;
 
+import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherUtils;
 import lombok.extern.java.Log;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.event.HyperlinkEvent;
@@ -19,9 +21,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.logging.Level;
 
@@ -99,11 +103,33 @@ public final class WebpagePanel extends JPanel {
                 }
             }
         });
-        
-        JScrollPane scrollPane = new JScrollPane(documentView);
-        panel.add(scrollPane, new Integer(1));
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        
+
+        //Start with the status image
+        String Surl = Launcher.launcher.getConfig().getStatusURL();
+        if( Surl != "") {
+            JScrollPane scrollPane = new JScrollPane(documentView);
+
+            panel.add(scrollPane, new Integer(1));
+            Image image = null;
+            try {
+                URL url = new URL(Surl);
+                URLConnection con = url.openConnection();
+                con.setConnectTimeout(5000);
+                con.setReadTimeout(5000);
+                InputStream in = con.getInputStream();
+                image = ImageIO.read(in);
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Failed to fetch status", e);
+
+            }
+            if (image != null) {
+                JLabel label = new JLabel(new ImageIcon(image));
+                this.add(label, BorderLayout.NORTH);
+            }
+            scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        }
+        //Stop with the status image
+
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         panel.add(progressBar, new Integer(2));

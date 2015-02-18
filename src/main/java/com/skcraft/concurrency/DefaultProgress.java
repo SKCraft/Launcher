@@ -25,4 +25,16 @@ public class DefaultProgress implements ProgressObservable {
         this.progress = progress;
         this.status = status;
     }
+
+	@Override
+	public double getProgress() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

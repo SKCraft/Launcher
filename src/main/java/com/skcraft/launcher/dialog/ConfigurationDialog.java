@@ -46,6 +46,8 @@ public class ConfigurationDialog extends JDialog {
     private final JPasswordField proxyPasswordText = new JPasswordField();
     private final FormPanel advancedPanel = new FormPanel();
     private final JTextField gameKeyText = new JTextField();
+    private final JTextField statusURLText = new JTextField();
+
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(_("button.ok"));
     private final JButton cancelButton = new JButton(_("button.cancel"));
@@ -83,6 +85,7 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(proxyUsernameText, "proxyUsername");
         mapper.map(proxyPasswordText, "proxyPassword");
         mapper.map(gameKeyText, "gameKey");
+        mapper.map(statusURLText, "statusURL");
 
         mapper.copyFromObject();
     }
@@ -112,6 +115,8 @@ public class ConfigurationDialog extends JDialog {
         tabbedPane.addTab(_("options.proxyTab"), SwingHelper.alignTabbedPane(proxySettingsPanel));
 
         advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
+        advancedPanel.addRow(new JLabel(_("options.statusURL")), statusURLText);
+
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(_("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
