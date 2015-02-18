@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -26,7 +26,7 @@ public class VersionManifest {
     private String minecraftArguments;
     private String mainClass;
     private int minimumLauncherVersion;
-    private List<Library> libraries;
+    private LinkedHashSet<Library> libraries;
 
     @JsonIgnore
     public String getAssetsIndex() {
