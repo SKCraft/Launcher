@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * Walks a path and adds hashed path versions to the given
@@ -24,6 +25,8 @@ import java.io.IOException;
  */
 @Log
 public class ClientFileCollector extends DirectoryWalker {
+
+    public static final String URL_FILE_SUFFIX = ".url.txt";
 
     private final Manifest manifest;
     private final PropertiesApplicator applicator;
@@ -51,8 +54,17 @@ public class ClientFileCollector extends DirectoryWalker {
 
     @Override
     protected void onFile(File file, String relPath) throws IOException {
-        if (file.getName().endsWith(FileInfoScanner.FILE_SUFFIX)) {
+        if (file.getName().endsWith(FileInfoScanner.FILE_SUFFIX) || file.getName().endsWith(URL_FILE_SUFFIX)) {
             return;
+        }
+
+        // url.txt override file
+        File urlFile = new File(file.getAbsoluteFile().getParentFile(), file.getName() + URL_FILE_SUFFIX);
+        String to;
+        if (urlFile.exists()) {
+            to = Files.readFirstLine(urlFile, Charset.defaultCharset());
+        } else {
+            to = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(relPath));
         }
 
         FileInstall entry = new FileInstall();
@@ -61,7 +73,7 @@ public class ClientFileCollector extends DirectoryWalker {
         File destPath = new File(destDir, hashedPath);
         entry.setHash(hash);
         entry.setLocation(hashedPath);
-        entry.setTo(FilenameUtils.separatorsToUnix(FilenameUtils.normalize(relPath)));
+        entry.setTo(to);
         entry.setSize(file.length());
         applicator.apply(entry);
         destPath.getParentFile().mkdirs();
