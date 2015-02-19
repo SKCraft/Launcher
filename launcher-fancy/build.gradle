@@ -1,0 +1,20 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+jar {
+    manifest {
+        attributes("Main-Class": "com.skcraft.launcher.FancyLauncher")
+    }
+}
+
+dependencies {
+    compile project(':launcher')
+    compile 'com.github.insubstantial:substance:7.3'
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency('org.projectlombok:lombok'))
+    }
+}
+
+build.dependsOn(shadowJar)

@@ -349,7 +349,18 @@ public final class Launcher {
             @Override
             public void run() {
                 try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    String lafName = System.getProperty("com.skcraft.launcher.laf");
+                    if (lafName != null) {
+                        try {
+                            UIManager.setLookAndFeel(lafName);
+                        } catch (Exception e) {
+                            log.log(Level.WARNING, "Failed to set look and feel to " + lafName, e);
+                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                        }
+                    } else {
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    }
+
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     Launcher launcher = new Launcher(baseDir);
                     new LauncherFrame(launcher).setVisible(true);
