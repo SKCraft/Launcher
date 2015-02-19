@@ -97,6 +97,8 @@ public class PackageBuilder {
     }
 
     public void scan(File dir) throws IOException {
+        logSection("Scanning for .info.json files...");
+
         FileInfoScanner scanner = new FileInfoScanner(mapper);
         scanner.walk(dir);
         for (FeaturePattern pattern : scanner.getPatterns()) {
@@ -105,6 +107,8 @@ public class PackageBuilder {
     }
 
     public void addFiles(File dir, File destDir) throws IOException {
+        logSection("Adding files to modpack...");
+
         ClientFileCollector collector = new ClientFileCollector(this.manifest, applicator, destDir);
         collector.walk(dir);
     }
