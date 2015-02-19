@@ -15,6 +15,7 @@ dependencies {
     compile 'com.beust:jcommander:1.32'
     compile 'org.tukaani:xz:1.0'
     compile 'org.apache.commons:commons-compress:1.9'
+    compile 'com.miglayout:miglayout:3.7.4'
 }
 
 processResources {

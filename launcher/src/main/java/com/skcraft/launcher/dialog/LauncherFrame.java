@@ -27,6 +27,7 @@ import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import net.miginfocom.swing.MigLayout;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
@@ -59,8 +60,6 @@ public class LauncherFrame extends JFrame {
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
     private WebpagePanel webView;
     private JSplitPane splitPane;
-    private final JPanel container = new JPanel();
-    private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
@@ -92,6 +91,8 @@ public class LauncherFrame extends JFrame {
     }
 
     private void initComponents() {
+        setLayout(new MigLayout("fill, insets dialog", "[][]push[][]", "[grow][]"));
+
         webView = WebpagePanel.forURL(launcher.getNewsURL(), false);
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
         selfUpdateButton.setVisible(false);
@@ -101,18 +102,13 @@ public class LauncherFrame extends JFrame {
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
         splitPane.setDividerLocation(200);
         splitPane.setDividerSize(4);
+        add(splitPane, "grow, wrap, span 5, gapbottom unrel");
         SwingHelper.flattenJSplitPane(splitPane);
-        buttonsPanel.addElement(refreshButton);
-        buttonsPanel.addElement(updateCheck);
-        buttonsPanel.addGlue();
-        buttonsPanel.addElement(selfUpdateButton);
-        buttonsPanel.addElement(optionsButton);
-        buttonsPanel.addElement(launchButton);
-        container.setLayout(new BorderLayout());
-        container.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-        container.add(splitPane, BorderLayout.CENTER);
-        add(buttonsPanel, BorderLayout.SOUTH);
-        add(container, BorderLayout.CENTER);
+        add(refreshButton);
+        add(updateCheck);
+        add(selfUpdateButton);
+        add(optionsButton);
+        add(launchButton);
 
         instancesModel.addTableModelListener(new TableModelListener() {
             @Override
