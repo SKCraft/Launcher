@@ -33,6 +33,7 @@ import lombok.extern.java.Log;
 
 import java.io.*;
 import java.net.URL;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarFile;
@@ -116,19 +117,27 @@ public class PackageBuilder {
     public void addLoaders(File dir, File librariesDir) {
         logSection("Checking for mod loaders to install...");
 
+        LinkedHashSet<Library> collected = new LinkedHashSet<Library>();
+
         File[] files = dir.listFiles(new JarFileFilter());
         if (files != null) {
             for (File file : files) {
                 try {
-                    processLoader(file, librariesDir);
+                    processLoader(collected, file, librariesDir);
                 } catch (IOException e) {
                     log.log(Level.WARNING, "Failed to add the loader at " + file.getAbsolutePath(), e);
                 }
             }
         }
+
+        this.loaderLibraries.addAll(collected);
+
+        VersionManifest version = manifest.getVersionManifest();
+        collected.addAll(version.getLibraries());
+        version.setLibraries(collected);
     }
 
-    private void processLoader(File file, File librariesDir) throws IOException {
+    private void processLoader(LinkedHashSet<Library> loaderLibraries, File file, File librariesDir) throws IOException {
         log.info("Installing " + file.getName() + "...");
 
         JarFile jarFile = new JarFile(file);
@@ -162,8 +171,11 @@ public class PackageBuilder {
                 // Add libraries
                 List<Library> libraries = profile.getVersionInfo().getLibraries();
                 if (libraries != null) {
-                    version.getLibraries().addAll(libraries);
-                    loaderLibraries.addAll(libraries);
+                    for (Library library : libraries) {
+                        if (!version.getLibraries().contains(library)) {
+                            loaderLibraries.add(library);
+                        }
+                    }
                 }
 
                 // Copy main class
