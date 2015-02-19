@@ -25,6 +25,8 @@ public class Library {
     private transient String group;
     private transient String artifact;
     private transient String version;
+    @JsonProperty("url")
+    private String baseUrl;
     private Map<String, String> natives;
     private Extract extract;
     private List<Rule> rules;
@@ -120,6 +122,24 @@ public class Library {
         String path = builder.toString();
         path = path.replace("${arch}", environment.getArchBits());
         return path;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Library library = (Library) o;
+
+        if (name != null ? !name.equals(library.name) : library.name != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
     }
 
     @Data
