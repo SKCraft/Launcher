@@ -23,6 +23,7 @@ import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.update.HardResetter;
 import com.skcraft.launcher.update.Remover;
 import com.skcraft.launcher.update.Updater;
+import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -42,7 +43,7 @@ import java.util.Date;
 import java.util.logging.Level;
 
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 
 /**
  * The main launcher frame.
@@ -60,11 +61,11 @@ public class LauncherFrame extends JFrame {
     private JSplitPane splitPane;
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
-    private final JButton launchButton = new JButton(_("launcher.launch"));
-    private final JButton refreshButton = new JButton(_("launcher.checkForUpdates"));
-    private final JButton optionsButton = new JButton(_("launcher.options"));
-    private final JButton selfUpdateButton = new JButton(_("launcher.updateLauncher"));
-    private final JCheckBox updateCheck = new JCheckBox(_("launcher.downloadUpdates"));
+    private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
+    private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
+    private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
+    private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
+    private final JCheckBox updateCheck = new JCheckBox(SharedLocale.tr("launcher.downloadUpdates"));
     private URL updateUrl;
 
     /**
@@ -73,7 +74,7 @@ public class LauncherFrame extends JFrame {
      * @param launcher the launcher
      */
     public LauncherFrame(@NonNull Launcher launcher) {
-        super(_("launcher.title", launcher.getVersion()));
+        super(tr("launcher.title", launcher.getVersion()));
 
         this.launcher = launcher;
         instancesModel = new InstanceTableModel(launcher.getInstances());
@@ -202,8 +203,8 @@ public class LauncherFrame extends JFrame {
                     selfUpdateButton.setVisible(false);
                     SwingHelper.showMessageDialog(
                             LauncherFrame.this,
-                            _("launcher.selfUpdateComplete"),
-                            _("launcher.selfUpdateCompleteTitle"),
+                            SharedLocale.tr("launcher.selfUpdateComplete"),
+                            SharedLocale.tr("launcher.selfUpdateCompleteTitle"),
                             null,
                             JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -213,7 +214,7 @@ public class LauncherFrame extends JFrame {
                 }
             }, SwingExecutor.INSTANCE);
 
-            ProgressDialog.showProgress(this, future, _("launcher.selfUpdatingTitle"), _("launcher.selfUpdatingStatus"));
+            ProgressDialog.showProgress(this, future, SharedLocale.tr("launcher.selfUpdatingTitle"), SharedLocale.tr("launcher.selfUpdatingStatus"));
             SwingHelper.addErrorDialogCallback(this, future);
         } else {
             selfUpdateButton.setVisible(false);
@@ -250,27 +251,27 @@ public class LauncherFrame extends JFrame {
             if (selected.isLocal()) {
                 popup.addSeparator();
 
-                menuItem = new JMenuItem(_("instance.openFolder"));
+                menuItem = new JMenuItem(SharedLocale.tr("instance.openFolder"));
                 menuItem.addActionListener(ActionListeners.browseDir(
                         LauncherFrame.this, selected.getContentDir(), true));
                 popup.add(menuItem);
 
-                menuItem = new JMenuItem(_("instance.openSaves"));
+                menuItem = new JMenuItem(SharedLocale.tr("instance.openSaves"));
                 menuItem.addActionListener(ActionListeners.browseDir(
                         LauncherFrame.this, new File(selected.getContentDir(), "saves"), true));
                 popup.add(menuItem);
 
-                menuItem = new JMenuItem(_("instance.openResourcePacks"));
+                menuItem = new JMenuItem(SharedLocale.tr("instance.openResourcePacks"));
                 menuItem.addActionListener(ActionListeners.browseDir(
                         LauncherFrame.this, new File(selected.getContentDir(), "resourcepacks"), true));
                 popup.add(menuItem);
 
-                menuItem = new JMenuItem(_("instance.openScreenshots"));
+                menuItem = new JMenuItem(SharedLocale.tr("instance.openScreenshots"));
                 menuItem.addActionListener(ActionListeners.browseDir(
                         LauncherFrame.this, new File(selected.getContentDir(), "screenshots"), true));
                 popup.add(menuItem);
 
-                menuItem = new JMenuItem(_("instance.copyAsPath"));
+                menuItem = new JMenuItem(SharedLocale.tr("instance.copyAsPath"));
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -284,7 +285,7 @@ public class LauncherFrame extends JFrame {
                 popup.addSeparator();
 
                 if (!selected.isUpdatePending()) {
-                    menuItem = new JMenuItem(_("instance.forceUpdate"));
+                    menuItem = new JMenuItem(SharedLocale.tr("instance.forceUpdate"));
                     menuItem.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -296,7 +297,7 @@ public class LauncherFrame extends JFrame {
                     popup.add(menuItem);
                 }
 
-                menuItem = new JMenuItem(_("instance.hardForceUpdate"));
+                menuItem = new JMenuItem(SharedLocale.tr("instance.hardForceUpdate"));
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -305,7 +306,7 @@ public class LauncherFrame extends JFrame {
                 });
                 popup.add(menuItem);
 
-                menuItem = new JMenuItem(_("instance.deleteFiles"));
+                menuItem = new JMenuItem(SharedLocale.tr("instance.deleteFiles"));
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -318,7 +319,7 @@ public class LauncherFrame extends JFrame {
             popup.addSeparator();
         }
 
-        menuItem = new JMenuItem(_("launcher.refreshList"));
+        menuItem = new JMenuItem(SharedLocale.tr("launcher.refreshList"));
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -333,7 +334,7 @@ public class LauncherFrame extends JFrame {
 
     private void confirmDelete(Instance instance) {
         if (!SwingHelper.confirmDialog(this,
-                _("instance.confirmDelete", instance.getTitle()), _("confirmTitle"))) {
+                tr("instance.confirmDelete", instance.getTitle()), SharedLocale.tr("confirmTitle"))) {
             return;
         }
 
@@ -344,7 +345,7 @@ public class LauncherFrame extends JFrame {
 
         // Show progress
         ProgressDialog.showProgress(
-                this, future, _("instance.deletingTitle"), _("instance.deletingStatus", instance.getTitle()));
+                this, future, SharedLocale.tr("instance.deletingTitle"), tr("instance.deletingStatus", instance.getTitle()));
         SwingHelper.addErrorDialogCallback(this, future);
 
         // Update the list of instances after updating
@@ -357,7 +358,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void confirmHardUpdate(Instance instance) {
-        if (!SwingHelper.confirmDialog(this, _("instance.confirmHardUpdate"), _("confirmTitle"))) {
+        if (!SwingHelper.confirmDialog(this, SharedLocale.tr("instance.confirmHardUpdate"), SharedLocale.tr("confirmTitle"))) {
             return;
         }
 
@@ -367,8 +368,8 @@ public class LauncherFrame extends JFrame {
                 launcher.getExecutor().submit(resetter), resetter);
 
         // Show progress
-        ProgressDialog.showProgress( this, future, _("instance.resettingTitle"),
-                _("instance.resettingStatus", instance.getTitle()));
+        ProgressDialog.showProgress( this, future, SharedLocale.tr("instance.resettingTitle"),
+                tr("instance.resettingStatus", instance.getTitle()));
         SwingHelper.addErrorDialogCallback(this, future);
 
         // Update the list of instances after updating
@@ -397,7 +398,7 @@ public class LauncherFrame extends JFrame {
             }
         }, SwingExecutor.INSTANCE);
 
-        ProgressDialog.showProgress(this, future, _("launcher.checkingTitle"), _("launcher.checkingStatus"));
+        ProgressDialog.showProgress(this, future, SharedLocale.tr("launcher.checkingTitle"), SharedLocale.tr("launcher.checkingStatus"));
         SwingHelper.addErrorDialogCallback(this, future);
     }
 
@@ -436,7 +437,7 @@ public class LauncherFrame extends JFrame {
 
                 // Show progress
                 ProgressDialog.showProgress(
-                        this, future, _("launcher.updatingTitle"), _("launcher.updatingStatus", instance.getTitle()));
+                        this, future, SharedLocale.tr("launcher.updatingTitle"), tr("launcher.updatingStatus", instance.getTitle()));
                 SwingHelper.addErrorDialogCallback(this, future);
 
                 // Update the list of instances after updating
@@ -462,7 +463,7 @@ public class LauncherFrame extends JFrame {
                 launch(instance, session);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            SwingHelper.showErrorDialog(this, _("launcher.noInstanceError"), _("launcher.noInstanceTitle"));
+            SwingHelper.showErrorDialog(this, SharedLocale.tr("launcher.noInstanceError"), SharedLocale.tr("launcher.noInstanceTitle"));
         }
     }
 
@@ -476,7 +477,7 @@ public class LauncherFrame extends JFrame {
 
         // Show process for the process retrieval
         ProgressDialog.showProgress(
-                this, processFuture, _("launcher.launchingTItle"), _("launcher.launchingStatus", instance.getTitle()));
+                this, processFuture, SharedLocale.tr("launcher.launchingTItle"), tr("launcher.launchingStatus", instance.getTitle()));
 
         // If the process is started, get rid of this window
         Futures.addCallback(processFuture, new FutureCallback<Process>() {

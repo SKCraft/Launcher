@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 
 @Log
 public class FileCopy implements InstallTask {
@@ -41,7 +41,7 @@ public class FileCopy implements InstallTask {
 
     @Override
     public String getStatus() {
-        return _("installer.copyingFile", from, to);
+        return tr("installer.copyingFile", from, to);
     }
 
 }

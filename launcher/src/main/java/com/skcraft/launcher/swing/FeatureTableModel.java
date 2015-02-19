@@ -7,11 +7,10 @@
 package com.skcraft.launcher.swing;
 
 import com.skcraft.launcher.model.modpack.Feature;
+import com.skcraft.launcher.util.SharedLocale;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
-
-import static com.skcraft.launcher.util.SharedLocale._;
 
 public class FeatureTableModel extends AbstractTableModel {
 
@@ -25,7 +24,7 @@ public class FeatureTableModel extends AbstractTableModel {
     public String getColumnName(int columnIndex) {
         switch (columnIndex) {
             case 1:
-                return _("features.nameColumn");
+                return SharedLocale.tr("features.nameColumn");
             default:
                 return null;
         }
@@ -96,9 +95,9 @@ public class FeatureTableModel extends AbstractTableModel {
         }
         switch (feature.getRecommendation()) {
             case STARRED:
-                return " <span style=\"color: #3758DB\">" + _("features.starred") + "</span>";
+                return " <span style=\"color: #3758DB\">" + SharedLocale.tr("features.starred") + "</span>";
             case AVOID:
-                return " <span style=\"color: red\">" + _("features.avoid") + "</span>";
+                return " <span style=\"color: red\">" + SharedLocale.tr("features.avoid") + "</span>";
             default:
                 return "";
         }

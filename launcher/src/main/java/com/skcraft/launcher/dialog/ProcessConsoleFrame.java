@@ -8,6 +8,7 @@ package com.skcraft.launcher.dialog;
 
 import com.skcraft.launcher.swing.LinedBoxPanel;
 import com.skcraft.launcher.swing.SwingHelper;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 
 /**
  * A version of the console window that can manage a process.
@@ -40,7 +41,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
      * @param colorEnabled whether color is enabled in the log
      */
     public ProcessConsoleFrame(int numLines, boolean colorEnabled) {
-        super(_("console.title"), numLines, colorEnabled);
+        super(SharedLocale.tr("console.title"), numLines, colorEnabled);
         processOut = new PrintWriter(
                 getMessageLog().getOutputStream(new Color(0, 0, 255)), true);
         initComponents();
@@ -56,13 +57,13 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         try {
             Process lastProcess = this.process;
             if (lastProcess != null) {
-                processOut.println(_("console.processEndCode", lastProcess.exitValue()));
+                processOut.println(tr("console.processEndCode", lastProcess.exitValue()));
             }
         } catch (IllegalThreadStateException e) {
         }
 
         if (process != null) {
-            processOut.println(_("console.attachedToProcess"));
+            processOut.println(SharedLocale.tr("console.attachedToProcess"));
         }
 
         this.process = process;
@@ -109,7 +110,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
     }
 
     protected void initComponents() {
-        killButton = new JButton(_("console.forceClose"));
+        killButton = new JButton(SharedLocale.tr("console.forceClose"));
         minimizeButton = new JButton(); // Text set later
 
         LinedBoxPanel buttonsPanel = getButtonsPanel();
@@ -143,7 +144,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
 
         trayIcon = new TrayIcon(getTrayRunningIcon());
         trayIcon.setImageAutoSize(true);
-        trayIcon.setToolTip(_("console.trayTooltip"));
+        trayIcon.setToolTip(SharedLocale.tr("console.trayTooltip"));
 
         trayIcon.addActionListener(new ActionListener() {
             @Override
@@ -155,10 +156,10 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         PopupMenu popup = new PopupMenu();
         MenuItem item;
 
-        popup.add(item = new MenuItem(_("console.trayTitle")));
+        popup.add(item = new MenuItem(SharedLocale.tr("console.trayTitle")));
         item.setEnabled(false);
 
-        popup.add(item = new MenuItem(_("console.tray.showWindow")));
+        popup.add(item = new MenuItem(SharedLocale.tr("console.tray.showWindow")));
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -166,7 +167,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
             }
         });
 
-        popup.add(item = new MenuItem(_("console.tray.forceClose")));
+        popup.add(item = new MenuItem(SharedLocale.tr("console.tray.forceClose")));
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -192,9 +193,9 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         killButton.setEnabled(hasProcess());
 
         if (!hasProcess() || trayIcon == null) {
-            minimizeButton.setText(_("console.closeWindow"));
+            minimizeButton.setText(SharedLocale.tr("console.closeWindow"));
         } else {
-            minimizeButton.setText(_("console.hideWindow"));
+            minimizeButton.setText(SharedLocale.tr("console.hideWindow"));
         }
 
         if (trayIcon != null) {
@@ -215,7 +216,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
     }
 
     private boolean confirmKill() {
-        return SwingHelper.confirmDialog(this,  _("console.confirmKill"), _("console.confirmKillTitle"));
+        return SwingHelper.confirmDialog(this,  SharedLocale.tr("console.confirmKill"), SharedLocale.tr("console.confirmKillTitle"));
     }
 
     private void minimize() {

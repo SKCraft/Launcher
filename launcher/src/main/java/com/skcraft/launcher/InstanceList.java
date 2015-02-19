@@ -12,6 +12,7 @@ import com.skcraft.launcher.model.modpack.ManifestInfo;
 import com.skcraft.launcher.model.modpack.PackageList;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.HttpRequest;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.LauncherUtils.concat;
-import static com.skcraft.launcher.util.SharedLocale._;
 
 /**
  * Stores the list of instances.
@@ -108,7 +108,7 @@ public class InstanceList {
         @Override
         public InstanceList call() throws Exception {
             log.info("Enumerating instance list...");
-            progress = new DefaultProgress(0, _("instanceLoader.loadingLocal"));
+            progress = new DefaultProgress(0, SharedLocale.tr("instanceLoader.loadingLocal"));
 
             List<Instance> local = new ArrayList<Instance>();
             List<Instance> remote = new ArrayList<Instance>();
@@ -128,7 +128,7 @@ public class InstanceList {
                 }
             }
 
-            progress = new DefaultProgress(0.3, _("instanceLoader.checkingRemote"));
+            progress = new DefaultProgress(0.3, SharedLocale.tr("instanceLoader.checkingRemote"));
 
             try {
                 URL packagesURL = launcher.getPackagesURL();
@@ -141,7 +141,7 @@ public class InstanceList {
                         .asJson(PackageList.class);
 
                 if (packages.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
-                    throw new LauncherException("Update required", _("errors.updateRequiredError"));
+                    throw new LauncherException("Update required", SharedLocale.tr("errors.updateRequiredError"));
                 }
 
                 for (ManifestInfo manifest : packages.getPackages()) {

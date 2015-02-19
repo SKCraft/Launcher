@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 
 public class HardResetter implements Callable<Instance>, ProgressObservable {
 
@@ -35,7 +35,7 @@ public class HardResetter implements Callable<Instance>, ProgressObservable {
 
     @Override
     public String getStatus() {
-        return _("instanceResetter.resetting", instance.getTitle());
+        return tr("instanceResetter.resetting", instance.getTitle());
     }
 
     @Override

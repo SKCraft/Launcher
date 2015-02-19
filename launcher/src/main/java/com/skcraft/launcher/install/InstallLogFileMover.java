@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 
 @Log
 public class InstallLogFileMover implements InstallTask {
@@ -44,7 +44,7 @@ public class InstallLogFileMover implements InstallTask {
 
     @Override
     public String getStatus() {
-        return _("installer.movingFile", from, to);
+        return tr("installer.movingFile", from, to);
     }
 
 }

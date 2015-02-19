@@ -18,6 +18,7 @@ import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.HttpRequest;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -33,7 +34,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import static com.skcraft.launcher.util.HttpRequest.url;
-import static com.skcraft.launcher.util.SharedLocale._;
 
 @Log
 public class Updater extends BaseUpdater implements Callable<Instance>, ProgressObservable {
@@ -49,7 +49,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
     private List<URL> librarySources = new ArrayList<URL>();
     private List<URL> assetsSources = new ArrayList<URL>();
 
-    private ProgressObservable progress = new DefaultProgress(-1, _("instanceUpdater.preparingUpdate"));
+    private ProgressObservable progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.preparingUpdate"));
 
     public Updater(@NonNull Launcher launcher, @NonNull Instance instance) {
         super(launcher);
@@ -72,14 +72,14 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         if (!online && updateRequired) {
             log.info("Can't update " + instance.getTitle() + " because offline");
-            String message = _("updater.updateRequiredButOffline");
+            String message = SharedLocale.tr("updater.updateRequiredButOffline");
             throw new LauncherException("Update required but currently offline", message);
         }
 
         if (updateDesired && !updateCapable) {
             if (updateRequired) {
                 log.info("Update required for " + instance.getTitle() + " but there is no manifest");
-                String message = _("updater.updateRequiredButNoManifest");
+                String message = SharedLocale.tr("updater.updateRequiredButNoManifest");
                 throw new LauncherException("Update required but no manifest", message);
             } else {
                 log.info("Can't update " + instance.getTitle() + ", but update is not required");
@@ -134,7 +134,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         // Read manifest
         log.info("Reading package manifest...");
-        progress = new DefaultProgress(-1, _("instanceUpdater.readingManifest"));
+        progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.readingManifest"));
         Manifest manifest = installPackage(installer, instance);
 
         // Update instance from manifest
@@ -142,10 +142,10 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         // Read version manifest
         log.info("Reading version manifest...");
-        progress = new DefaultProgress(-1, _("instanceUpdater.readingVersion"));
+        progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.readingVersion"));
         VersionManifest version = readVersionManifest(manifest);
 
-        progress = new DefaultProgress(-1, _("instanceUpdater.buildingDownloadList"));
+        progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.buildingDownloadList"));
 
         // Install the .jar
         File jarPath = launcher.getJarPath(version);
@@ -162,12 +162,12 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
             librarySources.add(url);
         }
 
-        progress = new DefaultProgress(-1, _("instanceUpdater.collectingLibraries"));
+        progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingLibraries"));
         installLibraries(installer, version, launcher.getLibrariesDir(), librarySources);
 
         // Download assets
         log.info("Enumerating assets to download...");
-        progress = new DefaultProgress(-1, _("instanceUpdater.collectingAssets"));
+        progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingAssets"));
         installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
 
         log.info("Executing download phase...");

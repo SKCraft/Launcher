@@ -16,6 +16,7 @@ import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.*;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -28,8 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static com.skcraft.launcher.util.SharedLocale._;
-
 /**
  * The login dialog.
  */
@@ -41,12 +40,12 @@ public class LoginDialog extends JDialog {
 
     private final JComboBox idCombo = new JComboBox();
     private final JPasswordField passwordText = new JPasswordField();
-    private final JCheckBox rememberIdCheck = new JCheckBox(_("login.rememberId"));
-    private final JCheckBox rememberPassCheck = new JCheckBox(_("login.rememberPassword"));
-    private final JButton loginButton = new JButton(_("login.login"));
-    private final LinkButton recoverButton = new LinkButton(_("login.recoverAccount"));
-    private final JButton offlineButton = new JButton(_("login.playOffline"));
-    private final JButton cancelButton = new JButton(_("button.cancel"));
+    private final JCheckBox rememberIdCheck = new JCheckBox(SharedLocale.tr("login.rememberId"));
+    private final JCheckBox rememberPassCheck = new JCheckBox(SharedLocale.tr("login.rememberPassword"));
+    private final JButton loginButton = new JButton(SharedLocale.tr("login.login"));
+    private final LinkButton recoverButton = new LinkButton(SharedLocale.tr("login.recoverAccount"));
+    private final JButton offlineButton = new JButton(SharedLocale.tr("login.playOffline"));
+    private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
     private final FormPanel formPanel = new FormPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
 
@@ -62,7 +61,7 @@ public class LoginDialog extends JDialog {
         this.launcher = launcher;
         this.accounts = launcher.getAccounts();
 
-        setTitle(_("login.title"));
+        setTitle(SharedLocale.tr("login.title"));
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setMinimumSize(new Dimension(420, 0));
@@ -95,8 +94,8 @@ public class LoginDialog extends JDialog {
 
         loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
 
-        formPanel.addRow(new JLabel(_("login.idEmail")), idCombo);
-        formPanel.addRow(new JLabel(_("login.password")), passwordText);
+        formPanel.addRow(new JLabel(SharedLocale.tr("login.idEmail")), idCombo);
+        formPanel.addRow(new JLabel(SharedLocale.tr("login.password")), passwordText);
         formPanel.addRow(new JLabel(), rememberIdCheck);
         formPanel.addRow(new JLabel(), rememberPassCheck);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
@@ -185,7 +184,7 @@ public class LoginDialog extends JDialog {
         if (selected != null && selected instanceof Account) {
             final Account account = (Account) selected;
 
-            menuItem = new JMenuItem(_("login.forgetUser"));
+            menuItem = new JMenuItem(SharedLocale.tr("login.forgetUser"));
             menuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -196,7 +195,7 @@ public class LoginDialog extends JDialog {
             popup.add(menuItem);
 
             if (!Strings.isNullOrEmpty(account.getPassword())) {
-                menuItem = new JMenuItem(_("login.forgetPassword"));
+                menuItem = new JMenuItem(SharedLocale.tr("login.forgetPassword"));
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -208,13 +207,13 @@ public class LoginDialog extends JDialog {
             }
         }
 
-        menuItem = new JMenuItem(_("login.forgetAllPasswords"));
+        menuItem = new JMenuItem(SharedLocale.tr("login.forgetAllPasswords"));
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (SwingHelper.confirmDialog(LoginDialog.this,
-                        _("login.confirmForgetAllPasswords"),
-                        _("login.forgetAllPasswordsTitle"))) {
+                        SharedLocale.tr("login.confirmForgetAllPasswords"),
+                        SharedLocale.tr("login.forgetAllPasswordsTitle"))) {
                     accounts.forgetPasswords();
                     Persistence.commitAndForget(accounts);
                 }
@@ -255,7 +254,7 @@ public class LoginDialog extends JDialog {
             String password = passwordText.getText();
 
             if (password == null || password.isEmpty()) {
-                SwingHelper.showErrorDialog(this, _("login.noPasswordError"), _("login.noPasswordTitle"));
+                SwingHelper.showErrorDialog(this, SharedLocale.tr("login.noPasswordError"), SharedLocale.tr("login.noPasswordTitle"));
             } else {
                 if (rememberPassCheck.isSelected()) {
                     account.setPassword(password);
@@ -276,7 +275,7 @@ public class LoginDialog extends JDialog {
                 attemptLogin(account, password);
             }
         } else {
-            SwingHelper.showErrorDialog(this, _("login.noLoginError"), _("login.noLoginTitle"));
+            SwingHelper.showErrorDialog(this, SharedLocale.tr("login.noLoginError"), SharedLocale.tr("login.noLoginTitle"));
         }
     }
 
@@ -296,7 +295,7 @@ public class LoginDialog extends JDialog {
             }
         }, SwingExecutor.INSTANCE);
 
-        ProgressDialog.showProgress(this, future, _("login.loggingInTitle"), _("login.loggingInStatus"));
+        ProgressDialog.showProgress(this, future, SharedLocale.tr("login.loggingInTitle"), SharedLocale.tr("login.loggingInStatus"));
         SwingHelper.addErrorDialogCallback(this, future);
     }
 
@@ -339,7 +338,7 @@ public class LoginDialog extends JDialog {
                 Persistence.commitAndForget(getAccounts());
                 return identities.get(0);
             } else {
-                throw new AuthenticationException("Minecraft not owned", _("login.minecraftNotOwnedError"));
+                throw new AuthenticationException("Minecraft not owned", SharedLocale.tr("login.minecraftNotOwnedError"));
             }
         }
 
@@ -350,7 +349,7 @@ public class LoginDialog extends JDialog {
 
         @Override
         public String getStatus() {
-            return _("login.loggingInStatus");
+            return SharedLocale.tr("login.loggingInStatus");
         }
     }
 

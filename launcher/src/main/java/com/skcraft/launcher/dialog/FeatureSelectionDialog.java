@@ -8,6 +8,7 @@ package com.skcraft.launcher.dialog;
 
 import com.skcraft.launcher.model.modpack.Feature;
 import com.skcraft.launcher.swing.*;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
 
 import javax.swing.*;
@@ -16,27 +17,26 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.List;
 
-import static com.skcraft.launcher.util.SharedLocale._;
 import static javax.swing.BorderFactory.createEmptyBorder;
 
 public class FeatureSelectionDialog extends JDialog {
 
     private final List<Feature> features;
     private final JPanel container = new JPanel(new BorderLayout());
-    private final JTextArea descText = new JTextArea(_("features.selectForInfo"));
+    private final JTextArea descText = new JTextArea(SharedLocale.tr("features.selectForInfo"));
     private final JScrollPane descScroll = new JScrollPane(descText);
     private final CheckboxTable componentsTable = new CheckboxTable();
     private final JScrollPane componentsScroll = new JScrollPane(componentsTable);
     private final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, componentsScroll, descScroll);
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
-    private final JButton installButton = new JButton(_("features.install"));
+    private final JButton installButton = new JButton(SharedLocale.tr("features.install"));
 
     public FeatureSelectionDialog(Window owner, @NonNull List<Feature> features) {
         super(owner, ModalityType.DOCUMENT_MODAL);
 
         this.features = features;
 
-        setTitle(_("features.title"));
+        setTitle(SharedLocale.tr("features.title"));
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(500, 400));
@@ -66,10 +66,10 @@ public class FeatureSelectionDialog extends JDialog {
         buttonsPanel.addGlue();
         buttonsPanel.addElement(installButton);
 
-        JLabel descLabel = new JLabel(_("features.intro"));
+        JLabel descLabel = new JLabel(SharedLocale.tr("features.intro"));
         descLabel.setBorder(createEmptyBorder(12, 12, 4, 12));
 
-        SwingHelper.equalWidth(installButton, new JButton(_("button.cancel")));
+        SwingHelper.equalWidth(installButton, new JButton(SharedLocale.tr("button.cancel")));
 
         add(descLabel, BorderLayout.NORTH);
         add(container, BorderLayout.CENTER);
@@ -90,7 +90,7 @@ public class FeatureSelectionDialog extends JDialog {
         if (feature != null) {
             descText.setText(feature.getDescription());
         } else {
-            descText.setText(_("features.selectForInfo"));
+            descText.setText(SharedLocale.tr("features.selectForInfo"));
         }
     }
 

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 
 public class Remover implements Callable<Instance>, ProgressObservable {
 
@@ -37,7 +37,7 @@ public class Remover implements Callable<Instance>, ProgressObservable {
 
     @Override
     public String getStatus() {
-        return _("instanceDeleter.deleting", instance.getDir());
+        return tr("instanceDeleter.deleting", instance.getDir());
     }
 
     @Override
@@ -61,7 +61,7 @@ public class Remover implements Callable<Instance>, ProgressObservable {
 
         if (failures.size() > 0) {
             throw new LauncherException(failures.size() + " failed to delete",
-                     _("instanceDeleter.failures", failures.size()));
+                     tr("instanceDeleter.failures", failures.size()));
         }
 
         return instance;

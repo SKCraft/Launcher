@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.launcher.LauncherException;
+import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -35,7 +36,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
 /**
@@ -69,8 +70,8 @@ public final class SwingHelper {
         try {
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(component, _("errors.openDirError", file.getAbsolutePath()),
-                    _("errorTitle"), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(component, tr("errors.openDirError", file.getAbsolutePath()),
+                    SharedLocale.tr("errorTitle"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -97,7 +98,7 @@ public final class SwingHelper {
         try {
             Desktop.getDesktop().browse(url.toURI());
         } catch (IOException e) {
-            showErrorDialog(parentComponent, _("errors.openUrlError", url.toString()), _("errorTitle"));
+            showErrorDialog(parentComponent, tr("errors.openUrlError", url.toString()), SharedLocale.tr("errorTitle"));
         } catch (URISyntaxException e) {
         }
     }
@@ -177,7 +178,7 @@ public final class SwingHelper {
 
             // Add the extra details
             if (detailsText != null) {
-                JTextArea textArea = new JTextArea(_("errors.reportErrorPreface") + detailsText);
+                JTextArea textArea = new JTextArea(SharedLocale.tr("errors.reportErrorPreface") + detailsText);
                 JLabel tempLabel = new JLabel();
                 textArea.setFont(tempLabel.getFont());
                 textArea.setBackground(tempLabel.getBackground());
@@ -358,11 +359,11 @@ public final class SwingHelper {
                 } else {
                     message = t.getLocalizedMessage();
                     if (message == null) {
-                        message = _("errors.genericError");
+                        message = SharedLocale.tr("errors.genericError");
                     }
                 }
                 log.log(Level.WARNING, "Task failed", t);
-                SwingHelper.showErrorDialog(owner, message, _("errorTitle"), t);
+                SwingHelper.showErrorDialog(owner, message, SharedLocale.tr("errorTitle"), t);
             }
         }, SwingExecutor.INSTANCE);
     }

@@ -50,7 +50,7 @@ public class SharedLocale {
      * @param key the key
      * @return the translated string
      */
-    public static String _(String key) {
+    public static String tr(String key) {
         if (bundle != null) {
             try {
                 return bundle.getString(key);
@@ -71,10 +71,10 @@ public class SharedLocale {
      * @param args arguments
      * @return a translated string
      */
-    public static String _(String key, Object... args) {
+    public static String tr(String key, Object... args) {
         if (bundle != null) {
             try {
-                MessageFormat formatter = new MessageFormat(_(key));
+                MessageFormat formatter = new MessageFormat(tr(key));
                 formatter.setLocale(getLocale());
                 return formatter.format(args);
             } catch (MissingResourceException e) {
