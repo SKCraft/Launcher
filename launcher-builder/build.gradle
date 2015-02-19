@@ -1,0 +1,21 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+jar {
+    manifest {
+        attributes("Main-Class": "com.skcraft.launcher.builder.PackageBuilder")
+    }
+}
+
+dependencies {
+    compile project(':launcher')
+    compile 'org.tukaani:xz:1.0'
+    compile 'org.apache.commons:commons-compress:1.9'
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency('org.projectlombok:lombok'))
+    }
+}
+
+build.dependsOn(shadowJar)

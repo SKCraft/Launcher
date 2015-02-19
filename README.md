@@ -4,73 +4,56 @@ SKCraft Launcher
 This project provides an open-source Minecraft launcher platform for downloading,
 installing, and updating modpacks.
 
-Introduction
-------------
+The launcher has its roots in MC Alpha as a launcher for sk89q's server.
 
-This launcher is maintained by sk89q, who writes WorldEdit, WorldGuard, and so on. It has
-been primarily developed for his server, but you can use it for your own modpack or
-server.
+**Note:** "SKMCLauncher" is the *older* version of this launcher. This project is called "SKCraft Launcher."
 
-* One of Minecraft's oldest launchers -- since Minecraft Alpha
+## Introduction
+
 * Requires almost no configuration files to make a modpack
 * Add a new mod by dropping in the .jar (and its configuration)
 * Remove a mod by deleting its .jar (and configuration).
 * Builds **server** modpacks with no extra configuration
 * Advanced download system: incremental, file removal detection, optional feature/mod selection, etc.
 * Very easy for users to use and install modpacks
-* Pretty well-documented with easy-to-understand, well-organized code*
 * Open source!
 
-*Except for the Launcher frame class. That one is pretty bad.
+## Usage
 
-### Previous Versions
-
-This repository only contains code for the launcher versions 4.x and newer.
-
-You can find [the 3.x version on GitHub](https://github.com/sk89q/skmclauncher).
-
-Documentation
--------------
-
-First off, be aware that the launcher in this directory has been branded for sk89q's
-server, so you will have to replace that with your own. There's only a few places that
-you need to do that, and it's all documented on our documentation page.
-
-**You can fork the project on GitHub** and make modifications.
+1. Download the code.
+2. See if you can compile it (see instructions below).
+3. Read the documentation to (1) learn how to change the launcher to use your own website and (2) create modpacks in the right format for the launcher.
 
 * [Documentation](http://wiki.sk89q.com/wiki/Launcher)
+* [Forum to ask for help](http://forum.enginehub.org/forums/launcher.25/)
 
-Note that documentation may be lacking in some places. If you run into problems,
-**do not hesitate to ask**.
+You can also [contact sk89q](http://www.sk89q.com/contact/).
 
-If you want to contact me about some sort of partnership, want to make the launcher
-the official launcher for something, please email me (see
-[my website](http://www.sk89q.com/contact/)). While you do not have to do this, we
-can make future decisions with awareness of what the needs of other users may be.
+## Compiling
 
-Compiling
----------
+First, make sure to install the Java Development Kit (JDK).
 
-The launcher can be compiled using [Maven](http://maven.apache.org/).
+In your command prompt or terminal, run:
 
-    mvn clean package
+	./gradlew clean build
 
-If you wish to import the project into an IDE, you must add support for
-Project Lombok.
+If you are on Windows:
 
-Contributing
-------------
+	gradlew clean build
 
-Pull requests can be submitted on GitHub, but we will accept them
-at our discretion. Please note that your code must follow
-Oracle's Java Code Conventions.
+Once compiled, look for the "-all" .jar files in the following folders:
 
-Contributions by third parties must be dual licensed under the two licenses
-described within LICENSE.txt (GNU General Public License, version 3, and the
-3-clause BSD license).
+* `launcher/build/libs/` - The main launcher
+* `launcher-builder/build/libs/` - Command line app to build modpacks
 
+If you wish to import the project into an IDE, you must add support for Project Lombok (IntelliJ IDEA users: also enable annotation processing in compiler settings).
 
-License
--------
+## Contributing
+
+Pull requests can be submitted on GitHub, but we will accept them at our discretion. Please note that your code must follow Oracle's Java Code Conventions.
+
+Contributions by third parties must be dual licensed under the two licenses described within LICENSE.txt (GNU General Public License, version 3, and the 3-clause BSD license).
+
+## License
 
 The launcher is licensed under the GNU General Public License, version 3.

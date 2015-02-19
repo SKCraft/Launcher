@@ -1,0 +1,3 @@
+rootProject.name = 'launcher-parent'
+
+include 'launcher', 'launcher-builder'
