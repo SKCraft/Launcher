@@ -87,6 +87,7 @@ public final class WebpagePanel extends JPanel {
         panel.setLayout(new WebpageLayoutManager());
         
         documentView = new JEditorPane();
+        documentView.setOpaque(false);
         documentView.setBorder(null);
         documentView.setEditable(false);
         documentView.addHyperlinkListener(new HyperlinkListener() {
@@ -101,6 +102,7 @@ public final class WebpagePanel extends JPanel {
         });
         
         JScrollPane scrollPane = new JScrollPane(documentView);
+        scrollPane.setOpaque(false);
         panel.add(scrollPane, new Integer(1));
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         
