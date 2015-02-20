@@ -95,6 +95,7 @@ public class LauncherFrame extends JFrame {
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
         splitPane.setDividerLocation(200);
         splitPane.setDividerSize(4);
+        splitPane.setOpaque(false);
         add(splitPane, "grow, wrap, span 5, gapbottom unrel");
         SwingHelper.flattenJSplitPane(splitPane);
         add(refreshButton);
