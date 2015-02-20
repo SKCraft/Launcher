@@ -28,7 +28,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URL;
+import java.lang.ref.WeakReference;
 
 import static com.skcraft.launcher.util.SharedLocale.tr;
 
@@ -324,22 +324,38 @@ public class LauncherFrame extends JFrame {
         boolean permitUpdate = updateCheck.isSelected();
         Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
 
-        launcher.getLaunchSupervisor().launch(this, instance, permitUpdate, new LaunchListener() {
-            @Override
-            public void instancesUpdated() {
-                instancesModel.update();
-            }
+        launcher.getLaunchSupervisor().launch(this, instance, permitUpdate, new LaunchListenerImpl(this));
+    }
 
-            @Override
-            public void gameStarted() {
-                dispose();
-            }
+    private static class LaunchListenerImpl implements LaunchListener {
+        private final WeakReference<LauncherFrame> frameRef;
+        private final Launcher launcher;
 
-            @Override
-            public void gameClosed() {
-                new LauncherFrame(launcher).setVisible(true);
+        private LaunchListenerImpl(LauncherFrame frame) {
+            this.frameRef = new WeakReference<LauncherFrame>(frame);
+            this.launcher = frame.launcher;
+        }
+
+        @Override
+        public void instancesUpdated() {
+            LauncherFrame frame = frameRef.get();
+            if (frame != null) {
+                frame.instancesModel.update();
             }
-        });
+        }
+
+        @Override
+        public void gameStarted() {
+            LauncherFrame frame = frameRef.get();
+            if (frame != null) {
+                frame.dispose();
+            }
+        }
+
+        @Override
+        public void gameClosed() {
+            new LauncherFrame(launcher).setVisible(true);
+        }
     }
 
 }
