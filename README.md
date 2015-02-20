@@ -61,6 +61,7 @@ Skinned version (in `launcher-fancy`) -- see ([instructions on enabling](https:/
 
 * [Read the wiki](https://github.com/SKCraft/Launcher/wiki)
 * [Forum to ask for help](http://forum.enginehub.org/forums/launcher.25/)
+* [Join us on IRC: #sklauncher on EsperNet (irc.esper.net)](https://webchat.esper.net/?channels=sklauncher)
 
 ## Compiling
 
