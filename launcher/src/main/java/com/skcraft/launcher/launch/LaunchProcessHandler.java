@@ -64,8 +64,6 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new LauncherFrame(launcher).setVisible(true);
-
                 if (consoleFrame != null) {
                     consoleFrame.setProcess(null);
                     consoleFrame.requestFocus();

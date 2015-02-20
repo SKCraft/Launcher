@@ -6,29 +6,17 @@
 
 package com.skcraft.launcher.dialog;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
-import com.skcraft.launcher.auth.Session;
-import com.skcraft.launcher.launch.Runner;
-import com.skcraft.launcher.launch.LaunchProcessHandler;
-import com.skcraft.launcher.persistence.Persistence;
-import com.skcraft.launcher.selfupdate.UpdateChecker;
-import com.skcraft.launcher.selfupdate.SelfUpdater;
+import com.skcraft.launcher.launch.LaunchListener;
 import com.skcraft.launcher.swing.*;
-import com.skcraft.launcher.update.HardResetter;
-import com.skcraft.launcher.update.Remover;
-import com.skcraft.launcher.update.Updater;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import net.miginfocom.swing.MigLayout;
-import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -37,13 +25,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Date;
-import java.util.logging.Level;
 
-import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static com.skcraft.launcher.util.SharedLocale.tr;
 
 /**
@@ -87,7 +73,6 @@ public class LauncherFrame extends JFrame {
         SwingHelper.setIconImage(this, Launcher.class, "icon.png");
 
         loadInstances();
-        checkLauncherUpdate();
     }
 
     private void initComponents() {
@@ -95,7 +80,17 @@ public class LauncherFrame extends JFrame {
 
         webView = WebpagePanel.forURL(launcher.getNewsURL(), false);
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
-        selfUpdateButton.setVisible(false);
+        selfUpdateButton.setVisible(launcher.getUpdateManager().getPendingUpdate());
+
+        launcher.getUpdateManager().addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("pendingUpdate")) {
+                    selfUpdateButton.setVisible((Boolean) evt.getNewValue());
+
+                }
+            }
+        });
 
         updateCheck.setSelected(true);
         instancesTable.setModel(instancesModel);
@@ -125,14 +120,14 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loadInstances();
-                checkLauncherUpdate();
+                launcher.getUpdateManager().checkForUpdate();
             }
         });
 
         selfUpdateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selfUpdate();
+                launcher.getUpdateManager().performUpdate(LauncherFrame.this);
             }
         });
 
@@ -162,64 +157,6 @@ public class LauncherFrame extends JFrame {
                 popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
             }
         });
-    }
-
-    private void checkLauncherUpdate() {
-        if (SelfUpdater.updatedAlready) {
-            return;
-        }
-
-        ListenableFuture<URL> future = launcher.getExecutor().submit(new UpdateChecker(launcher));
-
-        Futures.addCallback(future, new FutureCallback<URL>() {
-            @Override
-            public void onSuccess(URL result) {
-                if (result != null) {
-                    requestUpdate(result);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        }, SwingExecutor.INSTANCE);
-    }
-
-    private void selfUpdate() {
-        URL url = updateUrl;
-        if (url != null) {
-            SelfUpdater downloader = new SelfUpdater(launcher, url);
-            ObservableFuture<File> future = new ObservableFuture<File>(
-                    launcher.getExecutor().submit(downloader), downloader);
-
-            Futures.addCallback(future, new FutureCallback<File>() {
-                @Override
-                public void onSuccess(File result) {
-                    selfUpdateButton.setVisible(false);
-                    SwingHelper.showMessageDialog(
-                            LauncherFrame.this,
-                            SharedLocale.tr("launcher.selfUpdateComplete"),
-                            SharedLocale.tr("launcher.selfUpdateCompleteTitle"),
-                            null,
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                }
-            }, SwingExecutor.INSTANCE);
-
-            ProgressDialog.showProgress(this, future, SharedLocale.tr("launcher.selfUpdatingTitle"), SharedLocale.tr("launcher.selfUpdatingStatus"));
-            SwingHelper.addErrorDialogCallback(this, future);
-        } else {
-            selfUpdateButton.setVisible(false);
-        }
-    }
-
-    private void requestUpdate(URL url) {
-        this.updateUrl = url;
-        selfUpdateButton.setVisible(true);
     }
 
     /**
@@ -334,15 +271,7 @@ public class LauncherFrame extends JFrame {
             return;
         }
 
-        // Execute the deleter
-        Remover resetter = new Remover(instance);
-        ObservableFuture<Instance> future = new ObservableFuture<Instance>(
-                launcher.getExecutor().submit(resetter), resetter);
-
-        // Show progress
-        ProgressDialog.showProgress(
-                this, future, SharedLocale.tr("instance.deletingTitle"), tr("instance.deletingStatus", instance.getTitle()));
-        SwingHelper.addErrorDialogCallback(this, future);
+        ObservableFuture<Instance> future = launcher.getInstanceTasks().delete(this, instance);
 
         // Update the list of instances after updating
         future.addListener(new Runnable() {
@@ -358,15 +287,7 @@ public class LauncherFrame extends JFrame {
             return;
         }
 
-        // Execute the resetter
-        HardResetter resetter = new HardResetter(instance);
-        ObservableFuture<Instance> future = new ObservableFuture<Instance>(
-                launcher.getExecutor().submit(resetter), resetter);
-
-        // Show progress
-        ProgressDialog.showProgress( this, future, SharedLocale.tr("instance.resettingTitle"),
-                tr("instance.resettingStatus", instance.getTitle()));
-        SwingHelper.addErrorDialogCallback(this, future);
+        ObservableFuture<Instance> future = launcher.getInstanceTasks().hardUpdate(this, instance);
 
         // Update the list of instances after updating
         future.addListener(new Runnable() {
@@ -379,9 +300,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void loadInstances() {
-        InstanceList.Enumerator loader = launcher.getInstances().createEnumerator();
-        ObservableFuture<InstanceList> future = new ObservableFuture<InstanceList>(
-                launcher.getExecutor().submit(loader), loader);
+        ObservableFuture<InstanceList> future = launcher.getInstanceTasks().reloadInstances(this);
 
         future.addListener(new Runnable() {
             @Override
@@ -404,107 +323,25 @@ public class LauncherFrame extends JFrame {
     }
 
     private void launch() {
-        try {
-            final Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
-            boolean update = updateCheck.isSelected() && instance.isUpdatePending();
+        boolean permitUpdate = updateCheck.isSelected();
+        Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
 
-            // Store last access date
-            Date now = new Date();
-            instance.setLastAccessed(now);
-            Persistence.commitAndForget(instance);
-
-            // Perform login
-            final Session session = LoginDialog.showLoginRequest(this, launcher);
-            if (session == null) {
-                return;
-            }
-
-            // If we have to update, we have to update
-            if (!instance.isInstalled()) {
-                update = true;
-            }
-
-            if (update) {
-                // Execute the updater
-                Updater updater = new Updater(launcher, instance);
-                updater.setOnline(session.isOnline());
-                ObservableFuture<Instance> future = new ObservableFuture<Instance>(
-                        launcher.getExecutor().submit(updater), updater);
-
-                // Show progress
-                ProgressDialog.showProgress(
-                        this, future, SharedLocale.tr("launcher.updatingTitle"), tr("launcher.updatingStatus", instance.getTitle()));
-                SwingHelper.addErrorDialogCallback(this, future);
-
-                // Update the list of instances after updating
-                future.addListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        instancesModel.update();
-                    }
-                }, SwingExecutor.INSTANCE);
-
-                // On success, launch also
-                Futures.addCallback(future, new FutureCallback<Instance>() {
-                    @Override
-                    public void onSuccess(Instance result) {
-                        launch(instance, session);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                    }
-                }, SwingExecutor.INSTANCE);
-            } else {
-                launch(instance, session);
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            SwingHelper.showErrorDialog(this, SharedLocale.tr("launcher.noInstanceError"), SharedLocale.tr("launcher.noInstanceTitle"));
-        }
-    }
-
-    private void launch(Instance instance, Session session) {
-        final File extractDir = launcher.createExtractDir();
-
-        // Get the process
-        Runner task = new Runner(launcher, instance, session, extractDir);
-        ObservableFuture<Process> processFuture = new ObservableFuture<Process>(
-                launcher.getExecutor().submit(task), task);
-
-        // Show process for the process retrieval
-        ProgressDialog.showProgress(
-                this, processFuture, SharedLocale.tr("launcher.launchingTItle"), tr("launcher.launchingStatus", instance.getTitle()));
-
-        // If the process is started, get rid of this window
-        Futures.addCallback(processFuture, new FutureCallback<Process>() {
+        launcher.getLaunchSupervisor().launch(this, instance, permitUpdate, new LaunchListener() {
             @Override
-            public void onSuccess(Process result) {
+            public void instancesUpdated() {
+                instancesModel.update();
+            }
+
+            @Override
+            public void gameStarted() {
                 dispose();
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void gameClosed() {
+                new LauncherFrame(launcher).setVisible(true);
             }
         });
-
-        // Watch the created process
-        ListenableFuture<?> future = Futures.transform(
-                processFuture, new LaunchProcessHandler(launcher), launcher.getExecutor());
-        SwingHelper.addErrorDialogCallback(null, future);
-
-        // Clean up at the very end
-        future.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    log.info("Process ended; cleaning up " + extractDir.getAbsolutePath());
-                    FileUtils.deleteDirectory(extractDir);
-                } catch (IOException e) {
-                    log.log(Level.WARNING, "Failed to clean up " + extractDir.getAbsolutePath(), e);
-                }
-                instancesModel.update();
-            }
-        }, sameThreadExecutor());
     }
 
 }

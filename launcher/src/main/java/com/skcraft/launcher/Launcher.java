@@ -15,9 +15,11 @@ import com.skcraft.launcher.auth.AccountList;
 import com.skcraft.launcher.auth.LoginService;
 import com.skcraft.launcher.auth.YggdrasilLoginService;
 import com.skcraft.launcher.dialog.LauncherFrame;
+import com.skcraft.launcher.launch.LaunchSupervisor;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
+import com.skcraft.launcher.update.UpdateManager;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
@@ -54,6 +56,9 @@ public final class Launcher {
     @Getter private final Configuration config;
     @Getter private final AccountList accounts;
     @Getter private final AssetsRoot assets;
+    @Getter private final LaunchSupervisor launchSupervisor = new LaunchSupervisor(this);
+    @Getter private final UpdateManager updateManager = new UpdateManager(this);
+    @Getter private final InstanceTasks instanceTasks = new InstanceTasks(this);
 
     /**
      * Create a new launcher instance with the given base directory.
@@ -82,6 +87,8 @@ public final class Launcher {
                 cleanupExtractDir();
             }
         });
+
+        updateManager.checkForUpdate();
     }
 
     /**
