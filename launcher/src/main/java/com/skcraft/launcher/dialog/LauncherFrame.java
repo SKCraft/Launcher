@@ -14,6 +14,7 @@ import com.skcraft.launcher.launch.LaunchListener;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import net.miginfocom.swing.MigLayout;
@@ -40,8 +41,10 @@ public class LauncherFrame extends JFrame {
 
     private final Launcher launcher;
 
+    @Getter
     private final InstanceTable instancesTable = new InstanceTable();
     private final InstanceTableModel instancesModel;
+    @Getter
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
     private WebpagePanel webView;
     private JSplitPane splitPane;
@@ -79,9 +82,10 @@ public class LauncherFrame extends JFrame {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("fill, insets dialog", "[][]push[][]", "[grow][]"));
+        JPanel container = createContainerPanel();
+        container.setLayout(new MigLayout("fill, insets dialog", "[][]push[][]", "[grow][]"));
 
-        webView = WebpagePanel.forURL(launcher.getNewsURL(), false);
+        webView = createNewsPanel();
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
         selfUpdateButton.setVisible(launcher.getUpdateManager().getPendingUpdate());
 
@@ -101,13 +105,15 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerLocation(200);
         splitPane.setDividerSize(4);
         splitPane.setOpaque(false);
-        add(splitPane, "grow, wrap, span 5, gapbottom unrel");
+        container.add(splitPane, "grow, wrap, span 5, gapbottom unrel");
         SwingHelper.flattenJSplitPane(splitPane);
-        add(refreshButton);
-        add(updateCheck);
-        add(selfUpdateButton);
-        add(optionsButton);
-        add(launchButton);
+        container.add(refreshButton);
+        container.add(updateCheck);
+        container.add(selfUpdateButton);
+        container.add(optionsButton);
+        container.add(launchButton);
+
+        add(container, BorderLayout.CENTER);
 
         instancesModel.addTableModelListener(new TableModelListener() {
             @Override
@@ -161,6 +167,19 @@ public class LauncherFrame extends JFrame {
                 popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
             }
         });
+    }
+
+    protected JPanel createContainerPanel() {
+        return new JPanel();
+    }
+
+    /**
+     * Return the news panel.
+     *
+     * @return the news panel
+     */
+    protected WebpagePanel createNewsPanel() {
+        return WebpagePanel.forURL(launcher.getNewsURL(), false);
     }
 
     /**

@@ -10,6 +10,7 @@ import com.skcraft.launcher.LauncherUtils;
 import lombok.extern.java.Log;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -35,8 +36,10 @@ public final class WebpagePanel extends JPanel {
     private URL url;
     private boolean activated;
     private JEditorPane documentView;
+    private JScrollPane documentScroll;
     private JProgressBar progressBar;
     private Thread thread;
+    private Border browserBorder;
     
     public static WebpagePanel forURL(URL url, boolean lazy) {
         return new WebpagePanel(url, lazy);
@@ -80,6 +83,19 @@ public final class WebpagePanel extends JPanel {
         }
     }
 
+    public Border getBrowserBorder() {
+        return browserBorder;
+    }
+
+    public void setBrowserBorder(Border browserBorder) {
+        synchronized (this) {
+            this.browserBorder = browserBorder;
+            if (documentScroll != null) {
+                documentScroll.setBorder(browserBorder);
+            }
+        }
+    }
+
     private void setDocument() {
         activated = true;
         
@@ -100,15 +116,24 @@ public final class WebpagePanel extends JPanel {
                 }
             }
         });
-        
-        JScrollPane scrollPane = new JScrollPane(documentView);
-        scrollPane.setOpaque(false);
-        panel.add(scrollPane, new Integer(1));
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        documentScroll = new JScrollPane(documentView);
+        documentScroll.setOpaque(false);
+        panel.add(documentScroll, new Integer(1));
+        documentScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        synchronized (this) {
+            if (browserBorder != null) {
+                documentScroll.setBorder(browserBorder);
+            }
+        }
         
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         panel.add(progressBar, new Integer(2));
+
+        SwingHelper.removeOpaqueness(this);
+        SwingHelper.removeOpaqueness(documentView);
+        SwingHelper.removeOpaqueness(documentScroll);
         
         add(panel, BorderLayout.CENTER);
     }

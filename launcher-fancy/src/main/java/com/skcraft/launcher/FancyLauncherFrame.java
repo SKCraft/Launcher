@@ -7,7 +7,11 @@
 package com.skcraft.launcher;
 
 import com.skcraft.launcher.dialog.LauncherFrame;
+import com.skcraft.launcher.swing.SwingHelper;
+import com.skcraft.launcher.swing.WebpagePanel;
 import lombok.NonNull;
+
+import javax.swing.*;
 
 public class FancyLauncherFrame extends LauncherFrame {
 
@@ -19,8 +23,24 @@ public class FancyLauncherFrame extends LauncherFrame {
     public FancyLauncherFrame(@NonNull Launcher launcher) {
         super(launcher);
 
-        setSize(900, 650);
+        setSize(800, 500);
         setLocationRelativeTo(null);
+
+        SwingHelper.removeOpaqueness(getInstancesTable());
+        SwingHelper.removeOpaqueness(getInstanceScroll());
+        getInstanceScroll().setBorder(BorderFactory.createEmptyBorder());
+    }
+
+    @Override
+    protected JPanel createContainerPanel() {
+        return new FancyBackgroundPanel();
+    }
+
+    @Override
+    protected WebpagePanel createNewsPanel() {
+        WebpagePanel panel = super.createNewsPanel();
+        panel.setBrowserBorder(BorderFactory.createEmptyBorder());
+        return panel;
     }
 
 }
