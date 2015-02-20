@@ -14,7 +14,7 @@ The launcher has its roots in MC Alpha as a launcher for sk89q's server.
 
 ![Main Launcher](readme/launcher.png)
 
-Skinned version (in `launcher-fancy`):
+Skinned version (in `launcher-fancy`) -- see ([instructions on enabling](https://github.com/SKCraft/Launcher/wiki/Fancy-Launcher)):
 
 ![Skinned](readme/launcher_skinned.png)
 
