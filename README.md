@@ -1,37 +1,68 @@
 SKCraft Launcher
 ================
 
-This project provides an open-source Minecraft launcher platform for downloading,
-installing, and updating modpacks.
+This project provides an open-source Minecraft launcher platform for downloading, installing, and updating modpacks.
 
 The launcher has its roots in MC Alpha as a launcher for sk89q's server.
 
-**Note:** "SKMCLauncher" is the *older* version of this launcher. This project is called "SKCraft Launcher."
+**Note:** There are two names to the launcher:
 
-## Introduction
+* "SKMCLauncher" is the *older* version of this launcher. It is a more generic all-purpose launcher. It is no longer supported.
+* This project is called "SKCraft Launcher." It is supported and in active use.
 
-* Requires almost no configuration files to make a modpack
-* Add a new mod by dropping in the .jar (and its configuration)
-* Remove a mod by deleting its .jar (and configuration).
-* Builds **server** modpacks with no extra configuration
-* Advanced download system: incremental, file removal detection, optional feature/mod selection, etc.
-* Very easy for users to use and install modpacks
-* Open source!
+## Screenshots
 
-## Usage
+![Main Launcher](readme/launcher.png)
 
-1. Download the code.
-2. See if you can compile it (see instructions below).
-3. Read the documentation to (1) learn how to change the launcher to use your own website and (2) create modpacks in the right format for the launcher.
+Skinned version (in `launcher-fancy`):
 
-* [Documentation](http://wiki.sk89q.com/wiki/Launcher)
+![Skinned](readme/launcher_skinned.png)
+
+![Options](readme/options.png)
+
+![Optional Features](readme/features.png)
+
+![COnsole](readme/log.png)
+
+## Features
+
+### For the modpack creator:
+
+* No config files (aside from two at the start) needed to make a modpack -- you just make a folder with the modpack's files and run the builder tool on it
+* Supports putting default files (config files, etc.) that are not overridden on a future update
+* Supports the removal of files (which, from the PoV of the modpack creator, just involves deleting the file from the folder)
+* Supports "optional" files or file sets that can be toggled on or off by the user
+* The same directory can be used to create both a client modpack and a server modpack simultaneously (with server-only or client-only files) so you don't need to maintain two separate copies of the same files
+
+### Technical features:
+
+* Fast parallel downloads
+* Incremental updates (downloading only changed files)
+* Can update from ANY previous version to the latest version
+* Updates can be resumed if they've failed or have been cancelled
+* Updates also resume from where they left off
+* Static file structure so it can be placed on a CDN without modification
+* Files are deduplicated (on the file host) so you only ever have ONE version of a file across all modpacks and all modpack versions
+* Option for users to enter a special key in the options dialog that can be used to show additional modpacks (i.e. private ones for testing) -- this requires some server-side code
+* Can be used with a continuous integration system so you can combine it with your favorite version control (i.e. Git, SVN) and automatically deploy a new modpack update on push/tag
+
+### Client features:
+
+* Multiple modpacks are supported
+* Custom news page for showing custom information
+* Multiple profile support
+* Log messages dialog with upload log option
+* Options to adjust memory settings and Java flags
+* Everything happens in a background thread so the UI never freezes
+* All tasks have cancel buttons and (reasonably accurate) progress dialogs if things take too long
+* Self-update mechanism (however, this requires a separate bootstrapper project)
+
+## Getting Started
+
+* [Read the wiki](https://github.com/SKCraft/Launcher/wiki)
 * [Forum to ask for help](http://forum.enginehub.org/forums/launcher.25/)
 
-You can also [contact sk89q](http://www.sk89q.com/contact/).
-
 ## Compiling
-
-First, make sure to install the Java Development Kit (JDK).
 
 In your command prompt or terminal, run:
 
@@ -40,11 +71,6 @@ In your command prompt or terminal, run:
 If you are on Windows:
 
 	gradlew clean build
-
-Once compiled, look for the "-all" .jar files in the following folders:
-
-* `launcher/build/libs/` - The main launcher
-* `launcher-builder/build/libs/` - Command line app to build modpacks
 
 If you wish to import the project into an IDE, you must add support for Project Lombok (IntelliJ IDEA users: also enable annotation processing in compiler settings).
 
