@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.launch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -50,7 +50,9 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private final Instance instance;
     private final Session session;
     private final File extractDir;
-    @Getter @Setter private Environment environment = Environment.getInstance();
+    @Getter
+    @Setter
+    private Environment environment = Environment.getInstance();
 
     private VersionManifest versionManifest;
     private AssetsIndex assetsIndex;
@@ -68,7 +70,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
      * @param extractDir the directory to extract to
      */
     public Runner(@NonNull Launcher launcher, @NonNull Instance instance,
-                  @NonNull Session session, @NonNull File extractDir) {
+            @NonNull Session session, @NonNull File extractDir) {
         this.launcher = launcher;
         this.instance = instance;
         this.session = session;
@@ -150,7 +152,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         //cptwin, launcher statistics
         new ThreadLaunchedModpack(instance.getTitle());
-        
+
         return processBuilder.start();
     }
 
@@ -185,7 +187,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
      */
     private void addLibraries() throws LauncherException {
         // Add libraries to classpath or extract the libraries as necessary
-        for (Library library : versionManifest.getLibraries()) {
+        LinkedHashSet<Library> libraries = versionManifest.getLibraries();
+        for (Library library : libraries) {
             if (!library.matches(environment)) {
                 continue;
             }
@@ -275,8 +278,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
             args.add(substitutor.replace(arg));
         }
     }
-
-    
 
     /**
      * Add window arguments.
