@@ -17,6 +17,7 @@ public class InstanceTable extends JTable {
         setRowHeight(Math.max(getRowHeight() + 4, 20));
         setIntercellSpacing(new Dimension(0, 0));
         setFillsViewportHeight(true);
+        setTableHeader(null);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
