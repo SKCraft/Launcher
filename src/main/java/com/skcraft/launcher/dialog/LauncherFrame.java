@@ -70,7 +70,6 @@ public class LauncherFrame extends JFrame {
 
     private final Launcher launcher;
     public static JFXPanel jfxPanel = new JFXPanel();
-    private final HeaderPanel header = new HeaderPanel();
     private final InstanceTable instancesTable = new InstanceTable();
     private final InstanceTableModel instancesModel;
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
