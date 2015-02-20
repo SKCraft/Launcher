@@ -110,21 +110,9 @@ public class InstanceTableModel extends AbstractTableModel {
                 }
             case 1:
                 instance = instances.get(rowIndex);
-                return "<html>" + SwingHelper.htmlEscape(instance.getTitle()) + getAddendum(instance) + "</html>";
+                return instance.getTitle();
             default:
                 return null;
-        }
-    }
-
-    private String getAddendum(Instance instance) {
-        if (!instance.isLocal()) {
-            return " <span style=\"color: #cccccc\">" + SharedLocale.tr("launcher.notInstalledHint") + "</span>";
-        } else if (!instance.isInstalled()) {
-            return " <span style=\"color: red\">" + SharedLocale.tr("launcher.requiresUpdateHint") + "</span>";
-        } else if (instance.isUpdatePending()) {
-            return " <span style=\"color: #3758DB\">" + SharedLocale.tr("launcher.updatePendingHint") + "</span>";
-        } else {
-            return "";
         }
     }
 
