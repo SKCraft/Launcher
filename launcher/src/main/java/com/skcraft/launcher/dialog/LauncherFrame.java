@@ -354,7 +354,7 @@ public class LauncherFrame extends JFrame {
 
         @Override
         public void gameClosed() {
-            new LauncherFrame(launcher).setVisible(true);
+            launcher.showLauncherWindow();
         }
     }
 

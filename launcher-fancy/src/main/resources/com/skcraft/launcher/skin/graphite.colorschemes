@@ -1,0 +1,153 @@
+Graphite Enabled {
+    kind=Dark
+    colorUltraLight=#4A4A4A
+    colorExtraLight=#464646
+    colorLight=#424242
+    colorMid=#3F3F3F
+    colorDark=#353535
+    colorUltraDark=#313131
+    colorForeground=#B4B4B4
+}
+
+Graphite Border {
+    kind=Dark
+    colorUltraLight=#616161
+    colorExtraLight=#5A5A5A
+    colorLight=#4F4F4F
+    colorMid=#414141
+    colorDark=#323232
+    colorUltraDark=#2B2B2B
+    colorForeground=#EDEDED
+}
+
+Graphite Background {
+    kind=Dark
+    colorUltraLight=#555555
+    colorExtraLight=#444444
+    colorLight=#333333
+    colorMid=#222222
+    colorDark=#111111
+    colorUltraDark=#000000
+    colorForeground=#B4B4B4
+}
+
+Graphite Watermark {
+    kind=Dark
+    colorUltraLight=#555555
+    colorExtraLight=#444444
+    colorLight=#333333
+    colorMid=#222222
+    colorDark=#111111
+    colorUltraDark=#000000
+    colorForeground=#B4B4B4
+}
+
+Graphite Active {
+    kind=Dark
+    colorUltraLight=#777777
+    colorExtraLight=#6F6F6F
+    colorLight=#636363
+    colorMid=#535353
+    colorDark=#434343
+    colorUltraDark=#3B3B3B
+    colorForeground=#C8C8C8
+}
+
+Graphite Selected {
+    kind=Dark
+    colorUltraLight=#727272
+    colorExtraLight=#696969
+    colorLight=#606060
+    colorMid=#505050
+    colorDark=#404040
+    colorUltraDark=#383838
+    colorForeground=#C8C8C8
+}
+
+Graphite Selected Disabled {
+    kind=Dark
+    colorUltraLight=#777777
+    colorExtraLight=#6F6F6F
+    colorLight=#636363
+    colorMid=#535353
+    colorDark=#434343
+    colorUltraDark=#3B3B3B
+    colorForeground=#202020
+}
+
+Graphite Disabled {
+    kind=Dark
+    colorUltraLight=#646464
+    colorExtraLight=#5E5E5E
+    colorLight=#545454
+    colorMid=#474747
+    colorDark=#3A3A3A
+    colorUltraDark=#333333
+    colorForeground=#CCCCCC
+}
+
+Graphite Highlight {
+    kind=Dark
+    colorUltraLight=#373737
+    colorExtraLight=#373737
+    colorLight=#373737
+    colorMid=#373737
+    colorDark=#373737
+    colorUltraDark=#373737
+    colorForeground=#CCCCCC
+}
+
+Graphite Tab Highlight {
+    kind=Light
+    colorUltraLight=#FBFCFF
+    colorExtraLight=#F2F6FB
+    colorLight=#CED7E0
+    colorMid=#BCC0C5
+    colorDark=#62666B
+    colorUltraDark=#363B3F
+    colorForeground=#EDEDED
+}
+
+Graphite Highlight Mark {
+    kind=Dark
+    colorUltraLight=#616161
+    colorExtraLight=#5A5A5A
+    colorLight=#4F4F4F
+    colorMid=#414141
+    colorDark=#323232
+    colorUltraDark=#2B2B2B
+    colorForeground=#2B2B2B
+}
+
+Graphite Text Highlight {
+    kind=Light
+    colorUltraLight=#BDBEC0
+    colorExtraLight=#B8BBBD
+    colorLight=#A4A9AE
+    colorMid=#9A9D9F
+    colorDark=#686B6D
+    colorUltraDark=#505355
+    colorForeground=#2B2F33
+}
+
+Graphite Separator {
+    kind=Dark
+    colorUltraLight=#565656
+    colorExtraLight=#525252
+    colorLight=#4F4F4F
+    colorMid=#383838
+    colorDark=#353535
+    colorUltraDark=#333333
+    colorForeground=#B4B4B4
+}
+
+Graphite Aqua {
+    kind=Light
+    colorUltraLight=#6383FF
+    colorExtraLight=#577EFF
+    colorLight=#4A6FFF
+    colorMid=#355FFB
+    colorDark=#1A3DE6
+    colorUltraDark=#153BE1
+    colorForeground=#FFFFFF
+}

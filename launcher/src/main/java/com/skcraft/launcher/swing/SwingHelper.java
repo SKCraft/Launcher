@@ -376,4 +376,15 @@ public final class SwingHelper {
         SwingHelper.removeOpaqueness(container);
         return container;
     }
+
+    public static boolean setLookAndFeel(String lookAndFeel) {
+        try {
+            UIManager.setLookAndFeel(lookAndFeel);
+            return true;
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Failed to set look and feel to " + lookAndFeel, e);
+            return false;
+        }
+    }
+
 }

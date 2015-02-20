@@ -9,12 +9,12 @@ package com.skcraft.launcher;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
+import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.skcraft.launcher.auth.AccountList;
 import com.skcraft.launcher.auth.LoginService;
 import com.skcraft.launcher.auth.YggdrasilLoginService;
-import com.skcraft.launcher.dialog.LauncherFrame;
 import com.skcraft.launcher.launch.LaunchSupervisor;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
@@ -25,10 +25,12 @@ import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.java.Log;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -50,6 +52,7 @@ public final class Launcher {
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
+    @Getter @Setter private Supplier<Window> mainWindowSupplier = new DefaultLauncherSupplier(this);
     @Getter private final File baseDir;
     @Getter private final Properties properties;
     @Getter private final InstanceList instances;
@@ -323,21 +326,23 @@ public final class Launcher {
     }
 
     /**
-     * Bootstrap.
-     *
-     * @param args args
+     * Show the launcher.
      */
-    public static void main(String[] args) {
-        SimpleLogFormatter.configureGlobalLogger();
+    public void showLauncherWindow() {
+        mainWindowSupplier.get().setVisible(true);
+    }
 
+    /**
+     * Create a new launcher from arguments.
+     *
+     * @param args the arguments
+     * @return the launcher
+     * @throws ParameterException thrown on a bad parameter
+     * @throws IOException throw on an I/O error
+     */
+    public static Launcher createFromArguments(String[] args) throws ParameterException, IOException {
         LauncherArguments options = new LauncherArguments();
-        try {
-            new JCommander(options, args);
-        } catch (ParameterException e) {
-            System.err.print(e.getMessage());
-            System.exit(1);
-            return;
-        }
+        new JCommander(options, args);
 
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
@@ -350,27 +355,32 @@ public final class Launcher {
             log.info("Using current directory " + dir.getAbsolutePath());
         }
 
-        final File baseDir = dir;
+        return new Launcher(dir);
+    }
+
+    /**
+     * Setup loggers and perform initialization.
+     */
+    public static void setupLogger() {
+        SimpleLogFormatter.configureGlobalLogger();
+    }
+
+    /**
+     * Bootstrap.
+     *
+     * @param args args
+     */
+    public static void main(final String[] args) {
+        setupLogger();
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String lafName = System.getProperty("com.skcraft.launcher.laf");
-                    if (lafName != null) {
-                        try {
-                            UIManager.setLookAndFeel(lafName);
-                        } catch (Exception e) {
-                            log.log(Level.WARNING, "Failed to set look and feel to " + lafName, e);
-                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                        }
-                    } else {
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    }
-
+                    Launcher launcher = createFromArguments(args);
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
-                    Launcher launcher = new Launcher(baseDir);
-                    new LauncherFrame(launcher).setVisible(true);
+                    launcher.showLauncherWindow();
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);
                     SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a " +
