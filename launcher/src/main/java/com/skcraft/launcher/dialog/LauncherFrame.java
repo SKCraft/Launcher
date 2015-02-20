@@ -40,7 +40,6 @@ public class LauncherFrame extends JFrame {
 
     private final Launcher launcher;
 
-    private final HeaderPanel header = new HeaderPanel();
     private final InstanceTable instancesTable = new InstanceTable();
     private final InstanceTableModel instancesModel;
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
@@ -51,7 +50,6 @@ public class LauncherFrame extends JFrame {
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(SharedLocale.tr("launcher.downloadUpdates"));
-    private URL updateUrl;
 
     /**
      * Create a new frame.
