@@ -70,7 +70,12 @@ public class LauncherFrame extends JFrame {
 
         SwingHelper.setIconImage(this, Launcher.class, "icon.png");
 
-        loadInstances();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                loadInstances();
+            }
+        });
     }
 
     private void initComponents() {
