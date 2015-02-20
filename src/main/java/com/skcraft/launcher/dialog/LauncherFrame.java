@@ -667,7 +667,18 @@ public class LauncherFrame extends JFrame {
         }, SwingExecutor.INSTANCE);
     }
 
-    private void loadInstances(boolean showProgress) {
+    private void loadInstances(final boolean showProgress) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                loadInstancesThreaded(showProgress);
+            }
+
+        });
+    }
+
+    private void loadInstancesThreaded(boolean showProgress) {
         simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
         InstanceList.Enumerator loader = launcher.getInstances().createEnumerator();
         ObservableFuture<InstanceList> future = new ObservableFuture<InstanceList>(
