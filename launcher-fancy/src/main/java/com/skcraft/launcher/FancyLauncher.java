@@ -24,6 +24,7 @@ public class FancyLauncher {
             @Override
             public void run() {
                 try {
+                    Thread.currentThread().setContextClassLoader(FancyLauncher.class.getClassLoader());
                     UIManager.getLookAndFeelDefaults().put("ClassLoader", FancyLauncher.class.getClassLoader());
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     JFrame.setDefaultLookAndFeelDecorated(true);
