@@ -8,11 +8,13 @@ package com.skcraft.launcher;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.io.Files;
 import com.skcraft.launcher.launch.JavaProcessBuilder;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
 import lombok.Data;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
@@ -69,8 +71,10 @@ public class Instance implements Comparable<Instance> {
     @JsonIgnore
     public File getContentDir() {
         File dir = new File(this.dir, "minecraft");
-        if (!dir.exists()) {
-            dir.mkdirs();
+        try {
+            Files.createParentDirs(dir);
+            dir.mkdir();
+        } catch (IOException ignored) {
         }
         return dir;
     }

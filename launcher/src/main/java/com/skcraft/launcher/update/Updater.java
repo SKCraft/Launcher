@@ -66,6 +66,9 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
     public Instance call() throws Exception {
         log.info("Checking for an update for '" + instance.getName() + "'...");
 
+        // Force the directory to be created
+        instance.getContentDir();
+
         boolean updateRequired = !instance.isInstalled();
         boolean updateDesired = (instance.isUpdatePending() || updateRequired);
         boolean updateCapable = (instance.getManifestURL() != null);
