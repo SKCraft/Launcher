@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.update;
 
 import com.google.common.base.Strings;
@@ -40,14 +39,14 @@ import static com.skcraft.launcher.LauncherUtils.concat;
 import static com.skcraft.launcher.util.SharedLocale._;
 
 /**
- * The base implementation of the various routines involved in downloading
- * and updating Minecraft (including the launcher's modpacks), such as asset
+ * The base implementation of the various routines involved in downloading and
+ * updating Minecraft (including the launcher's modpacks), such as asset
  * downloading, .jar downloading, and so on.
  * </p>
  * Updating actually starts in {@link com.skcraft.launcher.update.Updater},
  * which is the update worker. This class exists to allow updaters that don't
- * use the launcher's default modpack format to reuse these update
- * routines. (It also makes the size of the <code>Updater</code> class smaller.)
+ * use the launcher's default modpack format to reuse these update routines. (It
+ * also makes the size of the <code>Updater</code> class smaller.)
  */
 @Log
 public abstract class BaseUpdater {
@@ -145,8 +144,8 @@ public abstract class BaseUpdater {
     }
 
     protected void installJar(@NonNull Installer installer,
-                              @NonNull File jarFile,
-                              @NonNull URL url) throws InterruptedException {
+            @NonNull File jarFile,
+            @NonNull URL url) throws InterruptedException {
         // If the JAR does not exist, install it
         if (!jarFile.exists()) {
             List<File> targets = new ArrayList<File>();
@@ -158,9 +157,9 @@ public abstract class BaseUpdater {
     }
 
     protected void installAssets(@NonNull Installer installer,
-                                 @NonNull VersionManifest versionManifest,
-                                 @NonNull URL indexUrl,
-                                 @NonNull List<URL> sources) throws IOException, InterruptedException {
+            @NonNull VersionManifest versionManifest,
+            @NonNull URL indexUrl,
+            @NonNull List<URL> sources) throws IOException, InterruptedException {
         AssetsRoot assetsRoot = launcher.getAssets();
 
         AssetsIndex index = HttpRequest
@@ -201,11 +200,12 @@ public abstract class BaseUpdater {
     }
 
     protected void installLibraries(@NonNull Installer installer,
-                                    @NonNull VersionManifest versionManifest,
-                                    @NonNull File librariesDir,
-                                    @NonNull List<URL> sources) throws InterruptedException {
-
-        for (Library library : versionManifest.getLibraries()) {
+            @NonNull VersionManifest versionManifest,
+            @NonNull File librariesDir,
+            @NonNull List<URL> sources) throws InterruptedException {
+        
+        LinkedHashSet<Library> libraries = versionManifest.getLibraries();
+        for (Library library : libraries) {
             if (library.matches(environment)) {
                 checkInterrupted();
 
@@ -224,7 +224,7 @@ public abstract class BaseUpdater {
 
                     File tempFile = installer.getDownloader().download(urls, "", LIBRARY_SIZE_ESTIMATE,
                             library.getName() + ".jar");
-                    installer.queue(new FileMover( tempFile, targetFile));
+                    installer.queue(new FileMover(tempFile, targetFile));
                     log.info("Fetching " + path + " from " + urls);
                 }
             }
@@ -235,8 +235,8 @@ public abstract class BaseUpdater {
         try {
             Persistence.write(path, object);
         } catch (IOException e) {
-            log.log(Level.WARNING, "Failed to write to " + path.getAbsolutePath() +
-                    " for object " + object.getClass().getCanonicalName(), e);
+            log.log(Level.WARNING, "Failed to write to " + path.getAbsolutePath()
+                    + " for object " + object.getClass().getCanonicalName(), e);
         }
     }
 
