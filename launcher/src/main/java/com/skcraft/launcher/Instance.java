@@ -63,6 +63,21 @@ public class Instance implements Comparable<Instance> {
     }
 
     /**
+     * Get the instance directory, creating it if possible.
+     *
+     * @return the directory
+     * @see #getContentDir() where game files are stored
+     */
+    public File getDir() {
+        try {
+            Files.createParentDirs(dir);
+            dir.mkdir();
+        } catch (IOException ignored) {
+        }
+        return dir;
+    }
+
+    /**
      * Get the file for the directory where Minecraft's game files are
      * stored, including user files (screenshots, etc.).
      *
@@ -86,7 +101,7 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getManifestPath() {
-        return new File(dir, "manifest.json");
+        return new File(getDir(), "manifest.json");
     }
 
     /**
@@ -96,7 +111,7 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getVersionPath() {
-        return new File(dir, "version.json");
+        return new File(getDir(), "version.json");
     }
 
     /**
