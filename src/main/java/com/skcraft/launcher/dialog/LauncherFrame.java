@@ -79,7 +79,7 @@ public class LauncherFrame extends JFrame {
     private final JButton launchButton = new JButton(_("launcher.launch"));
     public static final JButton lolnetPingButton = new JButton("Check Servers...");
     private final JButton lolnetAddCodeButton = new JButton("Add code...");
-    private final JButton lolnetModPackButton = new JButton("ModPacks");
+    private final JButton lolnetModPackButton = new JButton("ModPacks"); // = getButtonFromImage("button1");
     private final JButton lolnetNewsButton = new JButton("News");
     private final JButton lolnetForumButton = new JButton("Forum");
     private final JButton lolnetWikiButton = new JButton("Wiki");
@@ -956,6 +956,36 @@ public class LauncherFrame extends JFrame {
                 instancesModel.update();
             }
         }, sameThreadExecutor());
+    }
+
+    public static JButton getButtonFromImage(final String fileName) {
+        ImageIcon imageIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "button/"+ fileName + ".png"));
+        final JButton jButton = new JButton(imageIcon);
+        jButton.setBorder(BorderFactory.createEmptyBorder());
+        jButton.setContentAreaFilled(false);
+        
+        jButton.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                jButton.setIcon(new ImageIcon(SwingHelper.readIconImage(Launcher.class, "button/"+ fileName + "_clicked.png")));
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            jButton.setIcon(new ImageIcon(SwingHelper.readIconImage(Launcher.class, "Launcher_button1.png")));}
+
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+
+            @Override
+            public void mouseExited(MouseEvent e) {}
+            
+        });
+        return jButton;
     }
 
 }
