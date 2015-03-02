@@ -89,9 +89,9 @@ public class HelpAndSupport {
                 options,
                 null);
         if (answer == 0) {
-            openURL("https://lolnet.co.nz/viewtopic.php?f=135&t=5684");
+            openURL("https://www.lolnet.co.nz/viewtopic.php?f=135&t=5684");
         } else if (answer == 1) {
-            openURL("https://lolnet.co.nz/posting.php?mode=post&f=135");
+            openURL("https://www.lolnet.co.nz/posting.php?mode=post&f=135");
         }
     }
 
@@ -106,7 +106,7 @@ public class HelpAndSupport {
                 options,
                 null);
         if (answer == 0) {
-            openURL("https://lolnet.co.nz/viewforum.php?f=135");
+            openURL("https://www.lolnet.co.nz/viewforum.php?f=135");
         }
     }
 
@@ -186,7 +186,7 @@ public class HelpAndSupport {
                 options,
                 null);
         if (answer == 0) {
-            openURL("https://lolnet.co.nz/viewforum.php?f=34");
+            openURL("https://www.lolnet.co.nz/viewforum.php?f=34");
         } else if (answer == 1) {
             sendToMinecraftSupportPage();
         } else if (answer == 2) {
@@ -222,7 +222,7 @@ public class HelpAndSupport {
                 options,
                 null);
         if (answer == 0) {
-            openURL("https://lolnet.co.nz/posting.php?mode=post&f=134");
+            openURL("https://www.lolnet.co.nz/posting.php?mode=post&f=134");
         }
     }
 
