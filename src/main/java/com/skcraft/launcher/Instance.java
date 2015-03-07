@@ -8,11 +8,13 @@ package com.skcraft.launcher;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.io.Files;
 import com.skcraft.launcher.launch.JavaProcessBuilder;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
 import lombok.Data;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
@@ -62,6 +64,21 @@ public class Instance implements Comparable<Instance> {
     }
 
     /**
+     * Get the instance directory, creating it if possible.
+     *
+     * @return the directory
+     * @see #getContentDir() where game files are stored
+     */
+    public File getDir() {
+        try {
+            Files.createParentDirs(dir);
+            dir.mkdir();
+        } catch (IOException ignored) {
+        }
+        return dir;
+    }
+    
+    /**
      * Get the file for the directory where Minecraft's game files are
      * stored, including user files (screenshots, etc.).
      *
@@ -83,7 +100,7 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getManifestPath() {
-        return new File(dir, "manifest.json");
+        return new File(getDir(), "manifest.json");
     }
 
     /**
@@ -93,7 +110,7 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getVersionPath() {
-        return new File(dir, "version.json");
+        return new File(getDir(), "version.json");
     }
 
     /**
