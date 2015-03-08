@@ -551,12 +551,14 @@ public class LauncherFrame extends JFrame {
                     public void actionPerformed(ActionEvent e) {
                         try {
                             URL url = new URL("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
+                            url = Launcher.checkURL(url);
                             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                             int responseCode = huc.getResponseCode();
                             if (responseCode != 404) {
                                 simpleSwingBrowser.loadURL(url.toString());
                             } else {
-                                simpleSwingBrowser.loadURL("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html");
+                                simpleSwingBrowser.loadURL(Launcher.checkURL(
+                                        new URL("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html")).toString());
                             }
 
                         } catch (IOException ex) {
@@ -821,6 +823,7 @@ public class LauncherFrame extends JFrame {
 
                             if (!alreadyAdded) {
                                 URL oracle = new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s");
+                                oracle = Launcher.checkURL(oracle);
                                 BufferedReader in = new BufferedReader(
                                         new InputStreamReader(oracle.openStream()));
 

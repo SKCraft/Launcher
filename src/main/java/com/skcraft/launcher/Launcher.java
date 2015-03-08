@@ -25,6 +25,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -70,6 +71,9 @@ public final class Launcher {
     public static File dataDir;
     public static File launcherJarFile;
 
+    public static String mainServerURL;
+    public static String backupServerURL;
+
     /**
      * Create a new launcher instance with the given base directory.
      *
@@ -91,6 +95,8 @@ public final class Launcher {
         config.setupJVMPath();
         config.setupJVMargs();
         config.setupMemory();
+        mainServerURL = getProperties().getProperty("mainServerURL");
+        backupServerURL = getProperties().getProperty("backupServerURL");
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
 
         if (accounts.getSize() > 0) {
@@ -103,6 +109,18 @@ public final class Launcher {
                 cleanupExtractDir();
             }
         });
+    }
+
+    public static URL checkURL(URL url) {
+        try {
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+            if (huc.getResponseCode() == 404) {
+                url = new URL(url.toString().replace(Launcher.mainServerURL, Launcher.backupServerURL));
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return url;
     }
 
     public static boolean restartLauncher() {
@@ -316,9 +334,9 @@ public final class Launcher {
      */
     public URL getNewsURL() {
         try {
-            return HttpRequest.url(
+            return Launcher.checkURL(HttpRequest.url(
                     String.format(getProperties().getProperty("newsUrl"),
-                            URLEncoder.encode(getVersion(), "UTF-8")));
+                            URLEncoder.encode(getVersion(), "UTF-8"))));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -332,9 +350,9 @@ public final class Launcher {
     public URL getPackagesURL() {
         try {
             String key = Strings.nullToEmpty(getConfig().getGameKey());
-            return HttpRequest.url(
+            return Launcher.checkURL(HttpRequest.url(
                     String.format(getProperties().getProperty("packageListUrl"),
-                            URLEncoder.encode(key, "UTF-8")));
+                            URLEncoder.encode(key, "UTF-8"))));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

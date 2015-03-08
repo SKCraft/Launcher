@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.util.SharedLocale._;
+import java.net.HttpURLConnection;
 
 /**
  * A worker that checks for an update to the launcher. A URL is returned
@@ -37,7 +38,7 @@ public class UpdateChecker implements Callable<URL> {
             UpdateChecker.log.info("Checking for update...");
 
             URL url = HttpRequest.url(launcher.getProperties().getProperty("selfUpdateUrl"));
-
+            url = Launcher.checkURL(url);
             LatestVersionInfo versionInfo = HttpRequest.get(url)
                     .execute()
                     .expectResponseCode(200)
@@ -50,8 +51,8 @@ public class UpdateChecker implements Callable<URL> {
             UpdateChecker.log.info("Latest version is " + latest + ", while current is " + current);
             latestVersion = latest.toString();
             if (latest.compareTo(current) >= 1) {
-                UpdateChecker.log.info("Update available at " + versionInfo.getUrl());
-                return versionInfo.getUrl();
+                UpdateChecker.log.info("Update available at " + Launcher.checkURL(versionInfo.getUrl()));
+                return Launcher.checkURL(versionInfo.getUrl());
             } else {
                 UpdateChecker.log.info("No update required.");
                 return null;

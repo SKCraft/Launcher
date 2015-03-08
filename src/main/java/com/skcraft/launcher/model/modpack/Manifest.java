@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.install.Installer;
@@ -51,7 +52,7 @@ public class Manifest extends BaseManifest {
         }
 
         try {
-            return LauncherUtils.concat(baseUrl, Strings.nullToEmpty(getLibrariesLocation()) + "/");
+            return Launcher.checkURL(LauncherUtils.concat(baseUrl, Strings.nullToEmpty(getLibrariesLocation()) + "/"));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -60,11 +61,11 @@ public class Manifest extends BaseManifest {
     @JsonIgnore
     public URL getObjectsUrl() {
         if (Strings.nullToEmpty(getObjectsLocation()) == null) {
-            return baseUrl;
+            return Launcher.checkURL(baseUrl);
         }
 
         try {
-            return LauncherUtils.concat(baseUrl, Strings.nullToEmpty(getObjectsLocation()) + "/");
+            return Launcher.checkURL(LauncherUtils.concat(baseUrl, Strings.nullToEmpty(getObjectsLocation()) + "/"));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

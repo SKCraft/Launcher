@@ -141,6 +141,7 @@ public class InstanceTableModel extends AbstractTableModel {
             BufferedImage image;
             try {
                 URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/download_icon.png");
+                url = Launcher.checkURL(url);
                 if (exists(url.toString())) {
                     image = ImageIO.read(url);
                     icon = new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
@@ -164,6 +165,7 @@ public class InstanceTableModel extends AbstractTableModel {
             BufferedImage image;
             try {
                 URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/instance_icon.png");
+                url = Launcher.checkURL(url);
                 if (exists(url.toString())) {
                     image = ImageIO.read(url);
                     icon = new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
@@ -188,6 +190,7 @@ public class InstanceTableModel extends AbstractTableModel {
             BufferedImage image;
             try {
                 URL url = new URL("https://www.lolnet.co.nz/modpack/instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/custom_instance_icon.png");
+                url = Launcher.checkURL(url);
                 if (exists(url.toString())) {
                     image = ImageIO.read(url);
                     icon = new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
