@@ -1,1 +1,1 @@
-mvn test
+language: java
