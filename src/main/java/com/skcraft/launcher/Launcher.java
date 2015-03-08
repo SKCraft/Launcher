@@ -112,6 +112,10 @@ public final class Launcher {
     }
 
     public static URL checkURL(URL url) {
+        if (true)
+        {
+            return url;
+        }
         try {
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             if (huc.getResponseCode() == 404) {
