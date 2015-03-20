@@ -55,7 +55,7 @@ Skinned version (in `launcher-fancy`) -- see ([instructions on enabling](https:/
 * Options to adjust memory settings and Java flags
 * Everything happens in a background thread so the UI never freezes
 * All tasks have cancel buttons and (reasonably accurate) progress dialogs if things take too long
-* Self-update mechanism (however, this requires a separate bootstrapper project)
+* Self-update mechanism
 
 ## Getting Started
 
