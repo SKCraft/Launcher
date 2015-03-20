@@ -28,7 +28,7 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Configuration {
 
-    private boolean offlineEnabled = true;
+    private boolean offlineEnabled = false;
     private String jvmPath;
     private String jvmArgs;
     private int minMemory = 1024;
