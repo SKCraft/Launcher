@@ -40,7 +40,6 @@ import javax.swing.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nz.co.lolnet.james137137.PrivatePrivatePackagesManager;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import org.apache.commons.io.FileUtils;
 
@@ -51,6 +50,7 @@ import org.apache.commons.io.FileUtils;
 public final class Launcher {
 
     public static final boolean debugmode = false;
+    public static boolean java8OrAbove = false;
     public static final int PROTOCOL_VERSION = 2;
 
     @Getter
@@ -112,8 +112,7 @@ public final class Launcher {
     }
 
     public static URL checkURL(URL url) {
-        if (true)
-        {
+        if (true) {
             return url;
         }
         try {
@@ -433,11 +432,10 @@ public final class Launcher {
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         String property = System.getProperty("java.version");
-        Configuration.setImplicitExit();
-        if (property.startsWith("1.5") || property.startsWith("1.6") || property.startsWith("1.7")) {
-            JOptionPane.showMessageDialog(null, "LolnetLauncher requires java 8 or above", "Please update Java", JOptionPane.WARNING_MESSAGE);
-            System.exit(0);
-            return;
+
+        if (!property.startsWith("1.5") && !property.startsWith("1.6") && !property.startsWith("1.7")) {
+            java8OrAbove = true;
+            Configuration.setImplicitExit();
         }
         LauncherArguments options = new LauncherArguments();
         try {
