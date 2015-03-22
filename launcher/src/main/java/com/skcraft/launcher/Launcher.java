@@ -351,7 +351,8 @@ public final class Launcher {
         if (dir != null) {
             log.info("Using given base directory " + dir.getAbsolutePath());
         } else {
-            dir = new File(".");
+        	dir = new File(System.getProperty("user.home") + "\\skcraft\\");
+        	dir.mkdirs(); // Make the folder
             log.info("Using current directory " + dir.getAbsolutePath());
         }
 
