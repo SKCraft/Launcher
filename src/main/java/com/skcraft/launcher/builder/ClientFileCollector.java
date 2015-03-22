@@ -58,21 +58,22 @@ public class ClientFileCollector extends DirectoryWalker {
             return;
         }
 
-        // url.txt override file
-        File urlFile = new File(file.getAbsoluteFile().getParentFile(), file.getName() + URL_FILE_SUFFIX);
-        String to;
-        if (urlFile.exists()) {
-            to = Files.readFirstLine(urlFile, Charset.defaultCharset());
-        } else {
-            to = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(relPath));
-        }
-
         FileInstall entry = new FileInstall();
         String hash = Files.hash(file, hf).toString();
-        String hashedPath = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;
-        File destPath = new File(destDir, hashedPath);
+        String to = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(relPath));
+        
+        // url.txt override file
+        File urlFile = new File(file.getAbsoluteFile().getParentFile(), file.getName() + URL_FILE_SUFFIX);
+        String location;
+        if (urlFile.exists()) {
+            location = Files.readFirstLine(urlFile, Charset.defaultCharset());
+        } else {
+            location = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;
+        }
+        
+        File destPath = new File(destDir, location);
         entry.setHash(hash);
-        entry.setLocation(hashedPath);
+        entry.setLocation(location);
         entry.setTo(to);
         entry.setSize(file.length());
         applicator.apply(entry);
