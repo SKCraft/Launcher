@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.swing;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -103,33 +102,35 @@ public final class SwingHelper {
     }
 
     /**
-     * Shows an popup error dialog, with potential extra details shown either immediately
-     * or available on the dialog.
+     * Shows an popup error dialog, with potential extra details shown either
+     * immediately or available on the dialog.
      *
-     * @param parentComponent the frame from which the dialog is displayed, otherwise
-     *                        null to use the default frame
+     * @param parentComponent the frame from which the dialog is displayed,
+     * otherwise null to use the default frame
      * @param message the message to display
      * @param title the title string for the dialog
-     * @see #showMessageDialog(java.awt.Component, String, String, String, int) for details
+     * @see #showMessageDialog(java.awt.Component, String, String, String, int)
+     * for details
      */
     public static void showErrorDialog(Component parentComponent, @NonNull String message,
-                                       @NonNull String title) {
+            @NonNull String title) {
         showErrorDialog(parentComponent, message, title, null);
     }
 
     /**
-     * Shows an popup error dialog, with potential extra details shown either immediately
-     * or available on the dialog.
+     * Shows an popup error dialog, with potential extra details shown either
+     * immediately or available on the dialog.
      *
-     * @param parentComponent the frame from which the dialog is displayed, otherwise
-     *                        null to use the default frame
+     * @param parentComponent the frame from which the dialog is displayed,
+     * otherwise null to use the default frame
      * @param message the message to display
      * @param title the title string for the dialog
      * @param throwable the exception, or null if there is no exception to show
-     * @see #showMessageDialog(java.awt.Component, String, String, String, int) for details
+     * @see #showMessageDialog(java.awt.Component, String, String, String, int)
+     * for details
      */
     public static void showErrorDialog(Component parentComponent, @NonNull String message,
-                                       @NonNull String title, Throwable throwable) {
+            @NonNull String title, Throwable throwable) {
         String detailsText = null;
 
         // Get a string version of the exception and use that for
@@ -149,22 +150,25 @@ public final class SwingHelper {
      * Show a message dialog using
      * {@link javax.swing.JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)}.
      *
-     * <p>The dialog will be shown from the Event Dispatch Thread, regardless of the
-     * thread it is called from. In either case, the method will block until the
-     * user has closed the dialog (or dialog creation fails for whatever reason).</p>
+     * <p>
+     * The dialog will be shown from the Event Dispatch Thread, regardless of
+     * the thread it is called from. In either case, the method will block until
+     * the user has closed the dialog (or dialog creation fails for whatever
+     * reason).</p>
      *
-     * @param parentComponent the frame from which the dialog is displayed, otherwise
-     *                        null to use the default frame
+     * @param parentComponent the frame from which the dialog is displayed,
+     * otherwise null to use the default frame
      * @param message the message to display
      * @param title the title string for the dialog
-     * @param messageType see {@link javax.swing.JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)}
-     *                    for available message types
+     * @param messageType see
+     * {@link javax.swing.JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)}
+     * for available message types
      */
     public static void showMessageDialog(final Component parentComponent,
-                                         @NonNull final String message,
-                                         @NonNull final String title,
-                                         final String detailsText,
-                                         final int messageType) {
+            @NonNull final String message,
+            @NonNull final String title,
+            final String detailsText,
+            final int messageType) {
 
         if (SwingUtilities.isEventDispatchThread()) {
             // To force the label to wrap, convert the message to broken HTML
@@ -220,12 +224,12 @@ public final class SwingHelper {
      * @return whether 'yes' was selected
      */
     public static boolean confirmDialog(final Component parentComponent,
-                                        @NonNull final String message,
-                                        @NonNull final String title) {
+            @NonNull final String message,
+            @NonNull final String title) {
         if (SwingUtilities.isEventDispatchThread()) {
             return JOptionPane.showConfirmDialog(
-                    parentComponent, message, title, JOptionPane.YES_NO_OPTION) ==
-                    JOptionPane.YES_OPTION;
+                    parentComponent, message, title, JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION;
         } else {
             // Use an AtomicBoolean to pass the result back from the
             // Event Dispatcher Thread
@@ -253,7 +257,7 @@ public final class SwingHelper {
      *
      * @param component component
      */
-    public static void equalWidth(Component ... component) {
+    public static void equalWidth(Component... component) {
         double widest = 0;
         for (Component comp : component) {
             Dimension dim = comp.getPreferredSize();
@@ -273,7 +277,7 @@ public final class SwingHelper {
      *
      * @param components list of components
      */
-    public static void removeOpaqueness(@NonNull Component ... components) {
+    public static void removeOpaqueness(@NonNull Component... components) {
         for (Component component : components) {
             if (component instanceof JComponent) {
                 JComponent jComponent = (JComponent) component;
@@ -307,8 +311,10 @@ public final class SwingHelper {
     /**
      * Focus a component.
      *
-     * <p>The focus call happens in {@link javax.swing.SwingUtilities#invokeLater(Runnable)}.</p>
-     * 
+     * <p>
+     * The focus call happens in
+     * {@link javax.swing.SwingUtilities#invokeLater(Runnable)}.</p>
+     *
      * @param component the component
      */
     public static void focusLater(@NonNull final Component component) {
