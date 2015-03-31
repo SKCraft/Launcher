@@ -472,12 +472,14 @@ public final class Launcher {
             @Override
             public void run() {
                 try {
-                    UIManager.setLookAndFeel("com.skcraft.launcher.skin.LauncherLookAndFeel");
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                        if ("Nimbus".equals(info.getName())) {
+                            UIManager.setLookAndFeel(info.getClassName());
+                            break;
+                        }
+                    }
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
-                    JFrame.setDefaultLookAndFeelDecorated(true);
-                    JDialog.setDefaultLookAndFeelDecorated(true);
-                    System.setProperty("sun.awt.noerasebackground", "true");
-                    System.setProperty("substancelaf.windowRoundedCorners", "false");
                     Launcher launcher = new Launcher(baseDir);
                     new LauncherFrame(launcher).setVisible(true);
                 } catch (Throwable t) {
