@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import com.skcraft.launcher.skin.LauncherLookAndFeel;
 import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
