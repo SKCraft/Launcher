@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import com.skcraft.concurrency.ObservableFuture;
+import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
@@ -102,10 +103,19 @@ public class LauncherFrame extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         //setSize(850, 550);
-        setSize(Toolkit.getDefaultToolkit().getScreenSize().width - Toolkit.getDefaultToolkit().getScreenSize().width / 6, Toolkit.getDefaultToolkit().getScreenSize().height - Toolkit.getDefaultToolkit().getScreenSize().height / 6);
+
+        Configuration config = launcher.getConfig();
+        System.out.println(config.getLauncherWindowHeight());
+        System.out.println(config.getLauncherWindowWidth());
+        if (config.getLauncherWindowHeight() < 0 || config.getLauncherWindowWidth() < 0) {
+            setSize(Toolkit.getDefaultToolkit().getScreenSize().width - Toolkit.getDefaultToolkit().getScreenSize().width / 6, Toolkit.getDefaultToolkit().getScreenSize().height - Toolkit.getDefaultToolkit().getScreenSize().height / 6);
+            setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        } else {
+            setSize(config.getLauncherWindowWidth(), config.getLauncherWindowHeight());
+            setExtendedState(getExtendedState() | config.getLauncherExtendedState());
+        }
         setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - getSize().width / 2 - 50, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - getSize().height / 2);
         setMinimumSize(new Dimension(400, 300));
-        setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         initComponents();
         setLocationRelativeTo(null);
 
@@ -170,7 +180,7 @@ public class LauncherFrame extends JFrame {
             add(topBar, BorderLayout.NORTH);
         }
         topBar.setVisible(Launcher.java8OrAbove);
-        
+
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
 
@@ -876,6 +886,14 @@ public class LauncherFrame extends JFrame {
 
     private void launch() {
         try {
+            Configuration config = launcher.getConfig();
+            if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
+                config.setLauncherWindowHeight(getSize().height);
+                config.setLauncherWindowWidth(getSize().width);
+            }
+
+            config.setLauncherExtendedState(getExtendedState());
+            Persistence.commitAndForget(config);
             final Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
             boolean update = updateCheck.isSelected() && instance.isUpdatePending();
 

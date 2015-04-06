@@ -34,6 +34,9 @@ public class Configuration {
     private int minMemory = 1024;
     private int maxMemory = 2048;
     private int permGen = 256;
+    private int launcherWindowWidth = -1;
+    private int launcherWindowHeight = -1;
+    private int launcherExtendedState = 0;
     private int windowWidth = 854;
     private int widowHeight = 480;
     private String gameKey;
