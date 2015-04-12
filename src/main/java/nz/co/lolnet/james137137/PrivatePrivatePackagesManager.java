@@ -32,6 +32,7 @@ import java.util.prefs.Preferences;
  */
 public class PrivatePrivatePackagesManager {
 
+    private static String AllPrivatePacksCode = null;
 
     public static void addPrivatePackages(PackageList packages) {
         List<URL> URLs = getList("all");
@@ -127,11 +128,12 @@ public class PrivatePrivatePackagesManager {
     }
 
     private static List<URL> getList(String mode) {
-        List<String> codeList = getCodes();
-        List<String> publicList = getPublicList();
-        List<String> publicPrivateList = getPublicPrivateList();
+
+        
+        
         List<URL> packagesURL = new ArrayList<URL>();
         if (mode.equals("public") || mode.equals("all")) {
+            List<String> publicList = getPublicList();
             for (String code : publicList) {
                 try {
                     packagesURL.add(Launcher.checkURL(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s")));
@@ -142,13 +144,18 @@ public class PrivatePrivatePackagesManager {
             }
         }
         if (mode.equals("private") || mode.equals("all")) {
-            for (String code : codeList) {
+            List<String> privateCodeList = getCodes();
+            if (AllPrivatePacksCode != null) {
+                privateCodeList = getPrivateList(AllPrivatePacksCode);
+            }
+            for (String code : privateCodeList) {
                 try {
                     packagesURL.add(Launcher.checkURL(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            List<String> publicPrivateList = getPublicPrivateList();
             for (String code : publicPrivateList) {
                 try {
                     packagesURL.add(Launcher.checkURL(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s")));
@@ -171,17 +178,24 @@ public class PrivatePrivatePackagesManager {
             try {
                 br = new BufferedReader(new FileReader(codeFile));
 
-                
                 for (String line; (line = br.readLine()) != null;) {
                     if (line.startsWith("lolnet:")) {
                         codeList.add(line.split(":")[1]);
                     } else if (line.startsWith("launcher:")) {
-                        if (line.split(":")[1].equals("showmethemoney")) {
-                            lolnetPingButton.setVisible(true);
-                        } else if (line.split(":")[1].equals("IWantToGoPlaces")) {
-
-                            userNodeForPackage.put("IWantToGoPlaces", "true");
-                            addedIWantToGoPlaces = true;
+                        switch (line.split(":")[1]) {
+                            case "showmethemoney":
+                                lolnetPingButton.setVisible(true);
+                                break;
+                            case "IWantToGoPlaces":
+                                userNodeForPackage.put("IWantToGoPlaces", "true");
+                                addedIWantToGoPlaces = true;
+                                break;
+                        }
+                    } else if (line.startsWith("EveryPrivatePack:")) {
+                        String[] split1 = line.split(":");
+                        if (split1.length == 2) {
+                            String code = split1[1];
+                            PrivatePrivatePackagesManager.AllPrivatePacksCode = code;
                         }
                     }
                 }
@@ -196,6 +210,37 @@ public class PrivatePrivatePackagesManager {
         }
 
         return codeList;
+    }
+
+    private static List<String> getPrivateList(String key) {
+        List<String> publicList = new ArrayList<String>();
+        try {
+            URL url = new URL("https://www.lolnet.co.nz/modpack/" + key + ".php");
+            url = Launcher.checkURL(url);
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.flush();
+
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                String[] split = line.split("~~");
+                for (String string : split) {
+                    if (string.length() >= 2) {
+                        publicList.add(string.replaceAll(".json", ""));
+                    }
+                }
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+            return publicList;
+        }
+
+        return publicList;
     }
 
     private static List<String> getPublicList() {

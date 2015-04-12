@@ -832,6 +832,55 @@ public class LauncherFrame extends JFrame {
                         } catch (Exception e1) {
                             split[i] = "error";
                         }
+                    } else if (code.contains("EveryPrivatePack:")) {
+                        String[] split1 = code.split(":");
+                        if (split1.length == 2) {
+                            String code2 = split1[1];
+
+                            try {
+                                File codeFile = new File(Launcher.dataDir, "codes.txt");
+                                if (!codeFile.exists()) {
+                                    codeFile.createNewFile();
+                                }
+                                br = new BufferedReader(new FileReader(codeFile));
+                                for (String line; (line = br.readLine()) != null;) {
+                                    if (line.startsWith("EveryPrivatePack:")) {
+                                        if (line.split(":")[1].equalsIgnoreCase(code2.replaceAll(" ", ""))) {
+                                            alreadyAdded = true;
+                                        }
+                                    }
+                                }
+
+                                if (!alreadyAdded) {
+                                    URL oracle = new URL("https://www.lolnet.co.nz/modpack/" + code2 + ".php");
+                                    oracle = Launcher.checkURL(oracle);
+                                    BufferedReader in = new BufferedReader(
+                                            new InputStreamReader(oracle.openStream()));
+
+                                    String inputLine;
+                                    while ((inputLine = in.readLine()) != null) {
+                                        if (inputLine.length() >= 1) {
+                                            break;
+                                        }
+                                    }
+                                    in.close();
+
+                                    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                                    out.println("EveryPrivatePack:" + code2);
+                                    out.close();
+                                    split[i] = "Done";
+                                    newPackAdded = true;
+                                } else {
+                                    split[i] = "alreadyAdded";
+                                }
+                            } catch (IOException ex) {
+                                split[i] = "WrongCode";
+                            }
+                        }
+                        else
+                        {
+                            split[i] = "WrongCode";
+                        }
                     } else {
 
                         try {
