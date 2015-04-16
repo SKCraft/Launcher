@@ -77,9 +77,6 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(permGenSpinner, "permGen");
         mapper.map(widthSpinner, "windowWidth");
         mapper.map(heightSpinner, "widowHeight");
-        mapper.map(heightSpinner, "launcherWindowWidth");
-        mapper.map(heightSpinner, "launcherWindowHeight");
-        mapper.map(heightSpinner, "launcherExtendedState");
         mapper.map(gameKeyText, "gameKey");
 
         mapper.copyFromObject();

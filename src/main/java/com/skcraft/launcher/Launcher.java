@@ -95,6 +95,7 @@ public final class Launcher {
         config.setupJVMPath();
         config.setupJVMargs();
         config.setupMemory();
+        config.checkVaules();
         mainServerURL = getProperties().getProperty("mainServerURL");
         backupServerURL = getProperties().getProperty("backupServerURL");
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);

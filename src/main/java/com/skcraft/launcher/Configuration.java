@@ -44,6 +44,19 @@ public class Configuration {
     public static void setImplicitExit() {
        javafx.application.Platform.setImplicitExit(false); 
     }
+    
+    public void checkVaules()
+    {
+        if (windowWidth <= 100)
+        {
+            windowWidth = 854;
+        }
+        
+        if (widowHeight <= 50)
+        {
+            windowWidth = 480;
+        }
+    }
     public void setupMemory() {
         if (minMemory <= 32) {
             minMemory = 256;
