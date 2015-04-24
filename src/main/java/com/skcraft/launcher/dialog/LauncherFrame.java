@@ -105,8 +105,6 @@ public class LauncherFrame extends JFrame {
         //setSize(850, 550);
 
         Configuration config = launcher.getConfig();
-        System.out.println(config.getLauncherWindowHeight());
-        System.out.println(config.getLauncherWindowWidth());
         if (config.getLauncherWindowHeight() < 0 || config.getLauncherWindowWidth() < 0) {
             setSize(Toolkit.getDefaultToolkit().getScreenSize().width - Toolkit.getDefaultToolkit().getScreenSize().width / 6, Toolkit.getDefaultToolkit().getScreenSize().height - Toolkit.getDefaultToolkit().getScreenSize().height / 6);
             setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);

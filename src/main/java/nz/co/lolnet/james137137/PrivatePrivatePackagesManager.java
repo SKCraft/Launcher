@@ -5,6 +5,8 @@
  */
 package nz.co.lolnet.james137137;
 
+import static com.skcraft.launcher.InstanceList.showPrivate;
+import static com.skcraft.launcher.InstanceList.showPublic;
 import com.skcraft.launcher.Launcher;
 import static com.skcraft.launcher.dialog.LauncherFrame.lolnetPingButton;
 import com.skcraft.launcher.model.modpack.ManifestInfo;
@@ -35,7 +37,15 @@ public class PrivatePrivatePackagesManager {
     private static String AllPrivatePacksCode = null;
 
     public static void addPrivatePackages(PackageList packages) {
-        List<URL> URLs = getList("all");
+        List<URL> URLs = new ArrayList<>();
+        if (showPrivate)
+        {
+            URLs.addAll(getList("private"));
+        }
+         if (showPublic)
+        {
+            URLs.addAll(getList("public"));
+        }
         for (URL packagesURL : URLs) {
             if (exists(packagesURL.toString())) {
                 try {
