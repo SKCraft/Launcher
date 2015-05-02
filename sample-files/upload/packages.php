@@ -20,7 +20,7 @@ foreach ($files as $file) {
         if(isset($_GET['user'], $_GET['user'])){
             $user = $_GET['user'];
             $mdp = $_GET['mdp'];
-            if(isset($login[$user]) && $login[$user] == $mdp){
+            if(isset($login[$user]) && $login[$user] == $mdp && $user == $data->name){
                 $document['packages'][] = [
                     'name' => $data->name,
                     'title' => isset($data->title) ? $data->title : $data->name,
