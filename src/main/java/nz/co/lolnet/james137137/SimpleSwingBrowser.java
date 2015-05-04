@@ -37,7 +37,7 @@ import javafx.stage.FileChooser;
 
 public class SimpleSwingBrowser extends JFrame {
 
-    public static JFXPanel jfxPanel;
+    public static final JFXPanel jfxPanel = new JFXPanel();
     private static WebEngine engine;
 
     private final JPanel panel = new JPanel(new BorderLayout());
@@ -53,9 +53,7 @@ public class SimpleSwingBrowser extends JFrame {
     public SimpleSwingBrowser(JTextField txtURL) {
         
         super();
-        jfxPanel = new JFXPanel();
         this.txtURL = txtURL;
-        this.jfxPanel = jfxPanel;
         initComponents();
     }
 
@@ -233,7 +231,7 @@ public class SimpleSwingBrowser extends JFrame {
         }
     }
 
-    public JSplitPane splitPane(JScrollPane instanceScroll) {
+    public static JSplitPane splitPane(JScrollPane instanceScroll) {
         return new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, jfxPanel);
     }
 }

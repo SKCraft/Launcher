@@ -436,7 +436,6 @@ public final class Launcher {
 
         if (!property.startsWith("1.5") && !property.startsWith("1.6") && !property.startsWith("1.7")) {
             java8OrAbove = true;
-            Configuration.setImplicitExit();
         }
         LauncherArguments options = new LauncherArguments();
         try {

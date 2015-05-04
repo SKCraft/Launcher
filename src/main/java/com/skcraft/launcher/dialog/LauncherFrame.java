@@ -127,9 +127,8 @@ public class LauncherFrame extends JFrame {
 
         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
         if (Launcher.java8OrAbove) {
-            SimpleSwingBrowser simpleSwingBrowser = new SimpleSwingBrowser(txtURL);
-            simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
-            splitPane = simpleSwingBrowser.splitPane(instanceScroll);
+            new SimpleSwingBrowser(txtURL);
+            splitPane = SimpleSwingBrowser.splitPane(instanceScroll);
         } else {
             splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, null);
         }
@@ -575,6 +574,7 @@ public class LauncherFrame extends JFrame {
                                 }
                             } else {
                                 if (Launcher.java8OrAbove) {
+                                    
                                     SimpleSwingBrowser.loadURL(Launcher.checkURL(
                                             new URL("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html")).toString());
                                 } else {
