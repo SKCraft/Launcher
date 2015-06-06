@@ -1,78 +1,86 @@
 SKCraft Launcher
 ================
 
-This project provides an open-source Minecraft launcher platform for downloading,
-installing, and updating modpacks.
+This project provides an open-source Minecraft launcher platform for downloading, installing, and updating modpacks.
 
-Introduction
-------------
+The launcher has its roots in MC Alpha as a launcher for sk89q's server.
 
-This launcher is maintained by sk89q, who writes WorldEdit, WorldGuard, and so on. It has
-been primarily developed for his server, but you can use it for your own modpack or
-server.
+**Note:** There are two names to the launcher:
 
-* One of Minecraft's oldest launchers -- since Minecraft Alpha
-* Requires almost no configuration files to make a modpack
-* Add a new mod by dropping in the .jar (and its configuration)
-* Remove a mod by deleting its .jar (and configuration).
-* Builds **server** modpacks with no extra configuration
-* Advanced download system: incremental, file removal detection, optional feature/mod selection, etc.
-* Very easy for users to use and install modpacks
-* Pretty well-documented with easy-to-understand, well-organized code*
-* Open source!
+* "SKMCLauncher" is the *older* version of this launcher. It is a more generic all-purpose launcher. It is no longer supported.
+* This project is called "SKCraft Launcher." It is supported and in active use.
 
-*Except for the Launcher frame class. That one is pretty bad.
+## Screenshots
 
-### Previous Versions
+![Main Launcher](readme/launcher.png)
 
-This repository only contains code for the launcher versions 4.x and newer.
+Skinned version (in `launcher-fancy`) -- see ([instructions on enabling](https://github.com/SKCraft/Launcher/wiki/Fancy-Launcher)):
 
-You can find [the 3.x version on GitHub](https://github.com/sk89q/skmclauncher).
+![Skinned](readme/launcher_skinned.png)
 
-Documentation
--------------
+![Options](readme/options.png)
 
-First off, be aware that the launcher in this directory has been branded for sk89q's
-server, so you will have to replace that with your own. There's only a few places that
-you need to do that, and it's all documented on our documentation page.
+![Optional Features](readme/features.png)
 
-**You can fork the project on GitHub** and make modifications.
+![COnsole](readme/log.png)
 
-* [Home page](http://opensource.skcraft.com/)
-* [Documentation](http://confluence.skcraft.com/display/LAUN/Launcher)
-* [Issue tracker](http://issues.skcraft.com/browse/LAUN)
+## Features
 
-Note that documentation may be lacking in some places. If you run into problems,
-**do not hesitate to ask**.
+### For the modpack creator:
 
-If you want to contact me about some sort of partnership, want to make the launcher
-the official launcher for something, please email me (see
-[my website](http://www.sk89q.com/contact/)). While you do not have to do this, we
-can make future decisions with awareness of what the needs of other users may be.
+* No config files (aside from two at the start) needed to make a modpack -- you just make a folder with the modpack's files and run the builder tool on it
+* Supports putting default files (config files, etc.) that are not overridden on a future update
+* Supports the removal of files (which, from the PoV of the modpack creator, just involves deleting the file from the folder)
+* Supports "optional" files or file sets that can be toggled on or off by the user
+* The same directory can be used to create both a client modpack and a server modpack simultaneously (with server-only or client-only files) so you don't need to maintain two separate copies of the same files
 
-Compiling
----------
+### Technical features:
 
-The launcher can be compiled using [Maven](http://maven.apache.org/).
+* Fast parallel downloads
+* Incremental updates (downloading only changed files)
+* Can update from ANY previous version to the latest version
+* Updates can be resumed if they've failed or have been cancelled
+* Updates also resume from where they left off
+* Static file structure so it can be placed on a CDN without modification
+* Files are deduplicated (on the file host) so you only ever have ONE version of a file across all modpacks and all modpack versions
+* Option for users to enter a special key in the options dialog that can be used to show additional modpacks (i.e. private ones for testing) -- this requires some server-side code
+* Can be used with a continuous integration system so you can combine it with your favorite version control (i.e. Git, SVN) and automatically deploy a new modpack update on push/tag
 
-    mvn clean package
+### Client features:
 
-If you wish to import the project into an IDE, you must add support for
-Project Lombok.
+* Multiple modpacks are supported
+* Custom news page for showing custom information
+* Multiple profile support
+* Log messages dialog with upload log option
+* Options to adjust memory settings and Java flags
+* Everything happens in a background thread so the UI never freezes
+* All tasks have cancel buttons and (reasonably accurate) progress dialogs if things take too long
+* Self-update mechanism
 
-Contributing
-------------
+## Getting Started
 
-Pull requests can be submitted on GitHub, but we will accept them
-at our discretion. Please note that your code must follow
-Oracle's Java Code Conventions.
+* [Read the wiki](https://github.com/SKCraft/Launcher/wiki)
+* [Forum to ask for help](http://forum.enginehub.org/forums/launcher.25/)
+* [Join us on IRC: #sklauncher on EsperNet (irc.esper.net)](https://webchat.esper.net/?channels=sklauncher)
 
-Contributions by third parties must be dual licensed under the two licenses
-described within LICENSE.txt (GNU General Public License, version 3, and the
-3-clause BSD license).
+## Compiling
 
+In your command prompt or terminal, run:
 
-License
--------
+	./gradlew clean build
+
+If you are on Windows:
+
+	gradlew clean build
+
+If you wish to import the project into an IDE, you must add support for Project Lombok (IntelliJ IDEA users: also enable annotation processing in compiler settings).
+
+## Contributing
+
+Pull requests can be submitted on GitHub, but we will accept them at our discretion. Please note that your code must follow Oracle's Java Code Conventions.
+
+Contributions by third parties must be dual licensed under the two licenses described within LICENSE.txt (GNU General Public License, version 3, and the 3-clause BSD license).
+
+## License
 
 The launcher is licensed under the GNU General Public License, version 3.
