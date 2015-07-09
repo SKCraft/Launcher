@@ -830,6 +830,31 @@ public class LauncherFrame extends JFrame {
                         } catch (Exception e1) {
                             split[i] = "error";
                         }
+                    } else if (code.equalsIgnoreCase("IDontOwnMicrosoft")) {
+                        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+                        userNodeForPackage.put("IDontOwnMicrosoft", "true");
+                        try {
+                            File codeFile = new File(Launcher.dataDir, "codes.txt");
+                            if (!codeFile.exists()) {
+                                codeFile.createNewFile();
+                            }
+                            br = new BufferedReader(new FileReader(codeFile));
+                            for (String line; (line = br.readLine()) != null;) {
+                                if (line.equalsIgnoreCase("launcher:IDontOwnMicrosoft")) {
+                                    alreadyAdded = true;
+                                }
+                            }
+                            if (!alreadyAdded) {
+                                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(codeFile, true)));
+                                out.println("launcher:" + code);
+                                out.close();
+                                split[i] = "Done.";
+
+                            }
+
+                        } catch (Exception e1) {
+                            split[i] = "error";
+                        }
                     } else if (code.contains("EveryPrivatePack:")) {
                         String[] split1 = code.split(":");
                         if (split1.length == 2) {

@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.dialog;
 
 import com.google.common.base.Strings;
@@ -29,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.util.SharedLocale._;
+import java.util.prefs.Preferences;
 
 /**
  * The login dialog.
@@ -36,8 +36,10 @@ import static com.skcraft.launcher.util.SharedLocale._;
 public class LoginDialog extends JDialog {
 
     private final Launcher launcher;
-    @Getter private final AccountList accounts;
-    @Getter private Session session;
+    @Getter
+    private final AccountList accounts;
+    @Getter
+    private Session session;
 
     private final JComboBox idCombo = new JComboBox();
     private final JPasswordField passwordText = new JPasswordField();
@@ -101,7 +103,9 @@ public class LoginDialog extends JDialog {
         formPanel.addRow(new JLabel(), rememberPassCheck);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 
-        if (launcher.getConfig().isOfflineEnabled()) {
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        String showURLBar = userNodeForPackage.get("IDontOwnMicrosoft", "");
+        if ((showURLBar != null && showURLBar.equals("true")) || launcher.getConfig().isOfflineEnabled()) {
             buttonsPanel.addElement(offlineButton);
             buttonsPanel.addElement(Box.createHorizontalStrut(2));
         }
@@ -144,7 +148,7 @@ public class LoginDialog extends JDialog {
         offlineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
                 removeListeners();
                 dispose();
@@ -313,7 +317,8 @@ public class LoginDialog extends JDialog {
         return dialog.getSession();
     }
 
-    private class LoginCallable implements Callable<Session>,ProgressObservable {
+    private class LoginCallable implements Callable<Session>, ProgressObservable {
+
         private final Account account;
         private final String password;
 

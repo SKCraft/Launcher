@@ -182,6 +182,7 @@ public class PrivatePrivatePackagesManager {
         List<String> codeList = new ArrayList<String>();
         File codeFile = new File(Launcher.dataDir, "codes.txt");
         boolean addedIWantToGoPlaces = false;
+        boolean addedIDontOwnMicrosoft = false;
         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
         if (codeFile.exists()) {
             BufferedReader br;
@@ -200,6 +201,10 @@ public class PrivatePrivatePackagesManager {
                                 userNodeForPackage.put("IWantToGoPlaces", "true");
                                 addedIWantToGoPlaces = true;
                                 break;
+                                case "IDontOwnMicrosoft":
+                                userNodeForPackage.put("IDontOwnMicrosoft", "true");
+                                addedIDontOwnMicrosoft = true;
+                                break;
                         }
                     } else if (line.startsWith("EveryPrivatePack:")) {
                         String[] split1 = line.split(":");
@@ -217,6 +222,10 @@ public class PrivatePrivatePackagesManager {
         }
         if (!addedIWantToGoPlaces) {
             userNodeForPackage.put("IWantToGoPlaces", "false");
+        }
+        
+        if (!addedIDontOwnMicrosoft) {
+            userNodeForPackage.put("IDontOwnMicrosoft", "false");
         }
 
         return codeList;

@@ -11,7 +11,7 @@
 
     <groupId>nz.co.lolnet</groupId>
     <artifactId>lolnetLauncher</artifactId>
-    <version>1.0.3-SNAPSHOT-7</version>
+    <version>1.0.3-SNAPSHOT-8</version>
 
     <dependencies>
         <dependency>
