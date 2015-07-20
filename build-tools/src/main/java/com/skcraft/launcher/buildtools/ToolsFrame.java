@@ -25,6 +25,7 @@ public class ToolsFrame extends JFrame {
     private final JButton clearInstanceButton = new JButton("Delete Instance from Test Launcher", SwingHelper.readImageIcon(ToolsFrame.class, "clean.png"));
     private final JButton clearWebRootButton = new JButton("Delete Generated Modpack Files", SwingHelper.readImageIcon(ToolsFrame.class, "clean.png"));
     private final JButton openConsoleButton = new JButton("Re-open Console", SwingHelper.readImageIcon(ToolsFrame.class, "log.png"));
+    private final JButton docsButton = new JButton("View Documentation", SwingHelper.readImageIcon(ToolsFrame.class, "help.png"));
 
     public ToolsFrame() {
         super("Modpack Build Tools");
@@ -52,6 +53,7 @@ public class ToolsFrame extends JFrame {
         container.add(clearInstanceButton, "grow, tag ok");
         container.add(clearWebRootButton, "grow, tag ok");
         container.add(openConsoleButton, "grow, tag ok");
+        container.add(docsButton, "grow, tag ok");
 
         add(container, BorderLayout.CENTER);
     }

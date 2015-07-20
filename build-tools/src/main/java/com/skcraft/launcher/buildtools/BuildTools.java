@@ -222,6 +222,13 @@ public class BuildTools {
             }
         });
 
+        frame.getDocsButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingHelper.openURL("https://github.com/SKCraft/Launcher/wiki", frame);
+            }
+        });
+
         frame.setVisible(true);
     }
 
