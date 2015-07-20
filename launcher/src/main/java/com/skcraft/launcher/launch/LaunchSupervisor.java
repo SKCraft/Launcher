@@ -15,6 +15,7 @@ import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.dialog.LoginDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
+import com.skcraft.launcher.launch.LaunchOptions.UpdatePolicy;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.update.Updater;
@@ -42,9 +43,13 @@ public class LaunchSupervisor {
         this.launcher = launcher;
     }
 
-    public void launch(final Window window, final Instance instance, boolean permitUpdate, final LaunchListener listener) {
+    public void launch(LaunchOptions options) {
+        final Window window = options.getWindow();
+        final Instance instance = options.getInstance();
+        final LaunchListener listener = options.getListener();
+
         try {
-            boolean update = permitUpdate && instance.isUpdatePending();
+            boolean update = options.getUpdatePolicy().isUpdateEnabled() && instance.isUpdatePending();
 
             // Store last access date
             Date now = new Date();
@@ -52,9 +57,14 @@ public class LaunchSupervisor {
             Persistence.commitAndForget(instance);
 
             // Perform login
-            final Session session = LoginDialog.showLoginRequest(window, launcher);
-            if (session == null) {
-                return;
+            final Session session;
+            if (options.getSession() != null) {
+                session = options.getSession();
+            } else {
+                session = LoginDialog.showLoginRequest(window, launcher);
+                if (session == null) {
+                    return;
+                }
             }
 
             // If we have to update, we have to update
@@ -65,7 +75,7 @@ public class LaunchSupervisor {
             if (update) {
                 // Execute the updater
                 Updater updater = new Updater(launcher, instance);
-                updater.setOnline(session.isOnline());
+                updater.setOnline(options.getUpdatePolicy() == UpdatePolicy.ALWAYS_UPDATE || session.isOnline());
                 ObservableFuture<Instance> future = new ObservableFuture<Instance>(
                         launcher.getExecutor().submit(updater), updater);
 

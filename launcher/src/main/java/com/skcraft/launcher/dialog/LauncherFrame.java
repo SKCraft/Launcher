@@ -11,6 +11,8 @@ import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.launch.LaunchListener;
+import com.skcraft.launcher.launch.LaunchOptions;
+import com.skcraft.launcher.launch.LaunchOptions.UpdatePolicy;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
@@ -349,7 +351,13 @@ public class LauncherFrame extends JFrame {
         boolean permitUpdate = updateCheck.isSelected();
         Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
 
-        launcher.getLaunchSupervisor().launch(this, instance, permitUpdate, new LaunchListenerImpl(this));
+        LaunchOptions options = new LaunchOptions.Builder()
+                .setInstance(instance)
+                .setListener(new LaunchListenerImpl(this))
+                .setUpdatePolicy(permitUpdate ? UpdatePolicy.UPDATE_IF_SESSION_ONLINE : UpdatePolicy.NO_UPDATE)
+                .setWindow(this)
+                .build();
+        launcher.getLaunchSupervisor().launch(options);
     }
 
     private static class LaunchListenerImpl implements LaunchListener {
