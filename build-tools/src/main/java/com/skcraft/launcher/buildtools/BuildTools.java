@@ -68,7 +68,9 @@ public class BuildTools {
         wwwDir.mkdirs();
 
         launcher = new Launcher(launcherDir);
+        launcher.getProperties().setProperty("newsUrl", "http://localhost:" + port + "/news.html");
         launcher.getProperties().setProperty("packageListUrl", "http://localhost:" + port + "/packages.json");
+        launcher.getProperties().setProperty("selfUpdateUrl", "http://localhost:" + port + "/latest.json");
     }
 
     public String generateManifestName() {
