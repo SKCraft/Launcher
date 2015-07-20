@@ -305,6 +305,15 @@ public final class SwingHelper {
         }
     }
 
+    public static ImageIcon readImageIcon(Class<?> clazz, String path) {
+        BufferedImage image = readIconImage(clazz, path);
+        if (image != null) {
+            return new ImageIcon(image);
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Focus a component.
      *
