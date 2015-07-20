@@ -1,0 +1,32 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile project(':launcher-builder')
+    compile 'org.eclipse.jetty:jetty-server:9.3.1.v20150714'
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency('org.projectlombok:lombok'))
+    }
+}
+
+task createDist(type: Copy) {
+    dependsOn jar, shadowJar
+
+    def destDir = file("${buildDir}/dist/stagingtool")
+    destDir.parentFile.deleteDir()
+    destDir.mkdirs()
+
+    destinationDir destDir
+
+    from("${buildDir}/libs/${shadowJar.baseName}-${version}-all.jar") {
+        rename { f -> "staging-tool.jar" }
+    }
+
+    from("${projectDir}/scripts")
+
+}
+
+build.dependsOn(shadowJar)
+build.dependsOn(createDist)

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>How to Use</title>
+<style>
+body { margin: 0; padding: 20px; }
+body { font-family: Calibri, Arial, sans-serif; font-size: 12pt; }
+#content { max-width: 600px; }
+code { background: #ccc; font-family: Consolas, monospace; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<div id="content">
+<h1>How to Use</h1>
+
+<p>This tool lets you test the modpack locally.</p>
+
+<p>It should be a <code>stagingtool</code> folder within the modpack folder.</p>
+
+<h2>Usage</h2>
+
+<p>Basically, whenever you want to test the modpack, use <code>build_and_launch.bat</code> to build the modpack output files, start a local web server, and open the launcher.</p>
+
+<p>There are other files that you can run too:</p>
+
+<ul>
+    <li><code>build.bat</code> just builds the modpack output files only</li>
+    <li><code>http_server.bat</code> just runs the local web server only</li>
+    <li><code>launch.bat</code> just runs the staging launcher only</li>
+    <li><code>reset_build.bat</code> deletes all the generated modpack output files, but there is rarely a situation where you would need to do this</li>
+    <li><code>reset_launcher.bat</code> deletes downloaded instances, so you can use the launcher as someone who hasn't yet downloaded the modpack yet</li>
+</ul>
+</div>
+</body>
+</html>
