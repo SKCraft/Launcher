@@ -154,4 +154,11 @@ public class ConsoleFrame extends JFrame {
         }
     }
 
+    public static void hideMessages() {
+        ConsoleFrame frame = globalFrame;
+        if (frame != null) {
+            frame.setVisible(false);
+        }
+    }
+
 }
