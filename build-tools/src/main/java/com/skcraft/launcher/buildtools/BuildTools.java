@@ -60,7 +60,7 @@ public class BuildTools {
         File launcherDir = new File(baseDir, "staging/launcher");
         inputDir = baseDir;
         wwwDir = new File(baseDir, "staging/www");
-        distDir = new File(baseDir, "dist");
+        distDir = new File(baseDir, "upload");
 
         this.port = port;
 
