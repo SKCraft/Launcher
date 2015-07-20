@@ -4,7 +4,7 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.staging;
+package com.skcraft.launcher.buildtools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.launcher.selfupdate.LatestVersionInfo;

@@ -4,7 +4,7 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.staging;
+package com.skcraft.launcher.buildtools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.server.Handler;
@@ -47,6 +47,7 @@ public class LocalHttpServerBuilder {
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setResourceBase(baseDir.getAbsolutePath());
+        resourceHandler.setMinMemoryMappedContentLength(-1); // Causes file locking on Windows
 
         ContextHandler rootContext = new ContextHandler();
         rootContext.setContextPath("/");

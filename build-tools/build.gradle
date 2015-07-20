@@ -1,0 +1,20 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile project(':launcher-builder')
+    compile 'org.eclipse.jetty:jetty-server:9.3.1.v20150714'
+}
+
+jar {
+    manifest {
+        attributes("Main-Class": "com.skcraft.launcher.buildtools.BuildTools")
+    }
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency('org.projectlombok:lombok'))
+    }
+}
+
+build.dependsOn(shadowJar)
