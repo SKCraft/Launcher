@@ -27,6 +27,7 @@ import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
 import lombok.extern.java.Log;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,7 +51,7 @@ public class BuildTools {
 
     private final Launcher launcher;
     private String configFilename = "modpack.json";
-    private final int port;
+    private int port;
     private final File inputDir;
     private final File wwwDir;
     private final File distDir;
@@ -68,6 +69,11 @@ public class BuildTools {
         wwwDir.mkdirs();
 
         launcher = new Launcher(launcherDir);
+        setPort(port);
+    }
+
+    private void setPort(int port) {
+        this.port = port;
         launcher.getProperties().setProperty("newsUrl", "http://localhost:" + port + "/news.html");
         launcher.getProperties().setProperty("packageListUrl", "http://localhost:" + port + "/packages.json");
         launcher.getProperties().setProperty("selfUpdateUrl", "http://localhost:" + port + "/latest.json");
@@ -115,13 +121,15 @@ public class BuildTools {
         return null;
     }
 
-    public void startHttpServer() throws Exception {
+    public Server startHttpServer() throws Exception {
         LocalHttpServerBuilder builder = new LocalHttpServerBuilder();
         builder.setBaseDir(wwwDir);
         builder.setPort(port);
 
         Server server = builder.build();
         server.start();
+        setPort(((ServerConnector) server.getConnectors()[0]).getLocalPort());
+        return server;
     }
 
     private void showMainWindow() {
@@ -256,21 +264,41 @@ public class BuildTools {
     }
 
     public static void main(String[] args) throws Exception {
+        Launcher.setupLogger();
+
         ToolArguments options = new ToolArguments();
         new JCommander(options, args);
 
+        SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } catch (Exception ignored) {
+                }
+            }
+        });
+
         final BuildTools main = new BuildTools(options.getDir(), options.getPort());
-        main.startHttpServer();
+
+        try {
+            main.startHttpServer();
+        } catch (Throwable t) {
+            log.log(Level.WARNING, "Web server start failure", t);
+            SwingHelper.showErrorDialog(null, "Couldn't start the local web server on a free TCP port! " +
+                    "The web server is required to temporarily host the modpack files for the launcher.", "Build Tools Error", t);
+            System.exit(1);
+            return;
+        }
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     main.showMainWindow();
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);
-                    SwingHelper.showErrorDialog(null, "Failed to launch build tools!", "Build tools error", t);
+                    SwingHelper.showErrorDialog(null, "Failed to launch build tools!", "Build Tools Error", t);
                 }
             }
         });

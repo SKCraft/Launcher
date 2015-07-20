@@ -18,6 +18,6 @@ public class ToolArguments {
     private File dir = new File(".");
 
     @Parameter(names = "--port")
-    private int port = 28888;
+    private int port = 0;
 
 }
