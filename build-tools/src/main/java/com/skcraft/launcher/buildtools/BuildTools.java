@@ -272,6 +272,7 @@ public class BuildTools {
 
     public static void main(String[] args) throws Exception {
         Launcher.setupLogger();
+        System.setProperty("skcraftLauncher.killWithoutConfirm", "true");
 
         ToolArguments options = new ToolArguments();
         new JCommander(options, args);
