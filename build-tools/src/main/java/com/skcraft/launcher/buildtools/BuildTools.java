@@ -7,7 +7,11 @@
 package com.skcraft.launcher.buildtools;
 
 import com.beust.jcommander.JCommander;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter.Lf2SpacesIndenter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.skcraft.concurrency.ObservableFuture;
@@ -17,14 +21,22 @@ import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.OfflineSession;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.builder.BuilderConfig;
-import com.skcraft.launcher.buildtools.BuildDialog.BuildOptions;
+import com.skcraft.launcher.builder.BuilderOptions;
+import com.skcraft.launcher.builder.FnPatternList;
+import com.skcraft.launcher.buildtools.build.*;
+import com.skcraft.launcher.buildtools.build.BuildDialog.BuildOptions;
+import com.skcraft.launcher.buildtools.project.BuilderConfigDialog;
+import com.skcraft.launcher.buildtools.http.LocalHttpServerBuilder;
+import com.skcraft.launcher.buildtools.build.DeployServerDialog.DeployOptions;
 import com.skcraft.launcher.dialog.ConfigurationDialog;
 import com.skcraft.launcher.dialog.ConsoleFrame;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.launch.LaunchOptions;
 import com.skcraft.launcher.launch.LaunchOptions.UpdatePolicy;
+import com.skcraft.launcher.model.modpack.LaunchModifier;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
+import lombok.Getter;
 import lombok.extern.java.Log;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -46,25 +58,39 @@ import java.util.regex.Pattern;
 @Log
 public class BuildTools {
 
-    private static DateFormat VERSION_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-    private static Pattern FILENAME_SANITIZE = Pattern.compile("[^a-z0-9_\\-\\.]+");
+    private static final DateFormat VERSION_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+    private static final Pattern FILENAME_SANITIZE = Pattern.compile("[^a-z0-9_\\-\\.]+");
+    private static final DefaultPrettyPrinter lf2ListPrettyPrinter;
 
     private final Launcher launcher;
-    private String configFilename = "modpack.json";
+    @Getter
     private int port;
+    @Getter
     private final File inputDir;
+    @Getter
+    private final File srcDir;
+    @Getter
     private final File wwwDir;
+    @Getter
     private final File distDir;
+
+    static {
+        lf2ListPrettyPrinter = new DefaultPrettyPrinter();
+        lf2ListPrettyPrinter.indentArraysWith(Lf2SpacesIndenter.instance);
+    }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public BuildTools(File baseDir, int port) throws IOException {
         File launcherDir = new File(baseDir, "staging/launcher");
         inputDir = baseDir;
+        srcDir = new File(baseDir, BuilderOptions.DEFAULT_SRC_DIRNAME);
         wwwDir = new File(baseDir, "staging/www");
         distDir = new File(baseDir, "upload");
 
         this.port = port;
 
+        srcDir.mkdirs();
+        new File(baseDir, BuilderOptions.DEFAULT_LOADERS_DIRNAME).mkdir();
         launcherDir.mkdirs();
         wwwDir.mkdirs();
 
@@ -79,8 +105,12 @@ public class BuildTools {
         launcher.getProperties().setProperty("selfUpdateUrl", "http://localhost:" + port + "/latest.json");
     }
 
+    public File getConfigFile() {
+        return new File(inputDir, BuilderOptions.DEFAULT_CONFIG_FILENAME);
+    }
+
     public String generateManifestName() {
-        File file = new File(inputDir, configFilename);
+        File file = getConfigFile();
         if (file.exists()) {
             BuilderConfig config = Persistence.read(file, BuilderConfig.class, true);
             if (config != null) {
@@ -98,7 +128,7 @@ public class BuildTools {
     }
 
     public String getCurrentModpackName() {
-        File file = new File(inputDir, configFilename);
+        File file = getConfigFile();
         if (file.exists()) {
             BuilderConfig config = Persistence.read(file, BuilderConfig.class, true);
             if (config != null) {
@@ -109,7 +139,7 @@ public class BuildTools {
         return null;
     }
 
-    public Instance findCurrentInstsance(List<Instance> instances) {
+    public Instance findCurrentInstance(List<Instance> instances) {
         String expected = getCurrentModpackName();
 
         for (Instance instance : instances) {
@@ -119,6 +149,21 @@ public class BuildTools {
         }
 
         return null;
+    }
+
+    private void addDefaultConfig(BuilderConfig config) {
+        config.setName("My Modpack");
+        config.setTitle("My Modpack");
+        config.setGameVersion("1.8");
+
+        LaunchModifier launchModifier = new LaunchModifier();
+        launchModifier.setFlags(ImmutableList.of("-Dfml.ignoreInvalidMinecraftCertificates=true"));
+        config.setLaunchModifier(launchModifier);
+
+        FnPatternList userFiles = new FnPatternList();
+        userFiles.setInclude(Lists.newArrayList("options.txt", "optionsshaders.txt", "mods/VoxelMods/*"));
+        userFiles.setExclude(Lists.<String>newArrayList());
+        config.setUserFiles(userFiles);
     }
 
     public Server startHttpServer() throws Exception {
@@ -135,22 +180,105 @@ public class BuildTools {
     private void showMainWindow() {
         final ToolsFrame frame = new ToolsFrame();
 
+        frame.getEditConfigButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                File file = getConfigFile();
+                boolean existed = file.exists();
+
+                BuilderConfig config = Persistence.read(file, BuilderConfig.class);
+                if (!existed) {
+                    addDefaultConfig(config);
+                }
+
+                if (BuilderConfigDialog.showEditor(frame, config)) {
+                    try {
+                        Persistence.write(file, config, lf2ListPrettyPrinter);
+                    } catch (IOException e) {
+                        SwingHelper.showErrorDialog(frame, "Couldn't write modpack.json to disk due to an error", "Write Error", e);
+                    }
+                }
+            }
+        });
+
+        frame.getOpenFolderButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingHelper.browseDir(getInputDir(), frame);
+            }
+        });
+
+        frame.getCheckProblemsButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ProblemChecker runnable = new ProblemChecker(BuildTools.this);
+                ObservableFuture<List<Problem>> future = new ObservableFuture<List<Problem>>(launcher.getExecutor().submit(runnable), runnable);
+                ProgressDialog.showProgress(frame, future, "Checking for problems...", "Checking for problems...");
+
+                Futures.addCallback(future, new FutureCallback<List<Problem>>() {
+                    @Override
+                    public void onSuccess(List<Problem> problems) {
+                        if (problems.isEmpty()) {
+                            SwingHelper.showMessageDialog(frame, "No potential problems found!", "Success", null, JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            ProblemViewer viewer = new ProblemViewer(frame, problems);
+                            viewer.setVisible(true);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                    }
+                });
+
+                SwingHelper.addErrorDialogCallback(frame, future);
+            }
+        });
+
         frame.getBuildButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BuildOptions options = BuildDialog.showBuildDialog(frame, generateVersionFromDate(), generateManifestName());
+                final BuildOptions options = BuildDialog.showBuildDialog(frame, generateVersionFromDate(), generateManifestName(), distDir);
                 if (options != null) {
                     ConsoleFrame.showMessages();
 
-                    distDir.mkdirs();
-                    ModpackBuilder runnable = new ModpackBuilder(inputDir, distDir, options.getVersion(), options.getManifestFilename(), options.isClean());
+                    options.getDestDir().mkdirs();
+                    ModpackBuilder runnable = new ModpackBuilder(inputDir, options.getDestDir(), options.getVersion(), options.getManifestFilename(), options.isClean());
                     ObservableFuture<ModpackBuilder> future = new ObservableFuture<ModpackBuilder>(launcher.getExecutor().submit(runnable), runnable);
                     ProgressDialog.showProgress(frame, future, "Building modpack...", "Building modpack for release...");
 
                     Futures.addCallback(future, new FutureCallback<ModpackBuilder>() {
                         @Override
                         public void onSuccess(ModpackBuilder result) {
-                            SwingHelper.browseDir(distDir, frame);
+                            SwingHelper.browseDir(options.getDestDir(), frame);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                        }
+                    });
+
+                    SwingHelper.addErrorDialogCallback(frame, future);
+                }
+            }
+        });
+
+        frame.getDeployServerButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final DeployOptions options = DeployServerDialog.showDeployDialog(frame);
+                if (options != null) {
+                    ConsoleFrame.showMessages();
+
+                    distDir.mkdirs();
+                    ServerDeployer runnable = new ServerDeployer(srcDir, options);
+                    ObservableFuture<ServerDeployer> future = new ObservableFuture<ServerDeployer>(launcher.getExecutor().submit(runnable), runnable);
+                    ProgressDialog.showProgress(frame, future, "Deploying files...", "Deploying server files...");
+
+                    Futures.addCallback(future, new FutureCallback<ServerDeployer>() {
+                        @Override
+                        public void onSuccess(ServerDeployer result) {
+                            SwingHelper.showMessageDialog(frame, "Server deployment complete!", "Success", null, JOptionPane.INFORMATION_MESSAGE);
                         }
 
                         @Override
@@ -229,12 +357,18 @@ public class BuildTools {
             }
         });
 
+        frame.getQuitButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                System.exit(0);
+            }
+        });
+
         frame.setVisible(true);
     }
 
     private void launchInstance(final Window window) {
-        String expectedName = getCurrentModpackName();
-
         final InstanceList instanceList = launcher.getInstances();
         InstanceList.Enumerator loader = instanceList.createEnumerator();
         ObservableFuture<InstanceList> future = new ObservableFuture<InstanceList>(launcher.getExecutor().submit(loader), loader);
@@ -246,7 +380,7 @@ public class BuildTools {
             public void onSuccess(InstanceList result) {
                 Session session = new OfflineSession("Player");
 
-                Instance instance = findCurrentInstsance(instanceList.getInstances());
+                Instance instance = findCurrentInstance(instanceList.getInstances());
 
                 if (instance != null) {
                     LaunchOptions options = new LaunchOptions.Builder()
@@ -280,6 +414,7 @@ public class BuildTools {
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
+                UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                 try {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                 } catch (Exception ignored) {
@@ -287,7 +422,14 @@ public class BuildTools {
             }
         });
 
-        final BuildTools main = new BuildTools(options.getDir(), options.getPort());
+        File inputDir = new ProjectDirectoryChooser(options.getDir()).choose();
+
+        if (inputDir == null) {
+            System.exit(100);
+            return;
+        }
+
+        final BuildTools main = new BuildTools(inputDir, options.getPort());
 
         try {
             main.startHttpServer();

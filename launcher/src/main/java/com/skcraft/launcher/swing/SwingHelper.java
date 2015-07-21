@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.swing;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -32,6 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -386,6 +388,29 @@ public final class SwingHelper {
         return container;
     }
 
+    public static void setTextAndResetCaret(JTextComponent component, String text) {
+        component.setText(text);
+        component.setCaretPosition(0);
+    }
+
+    public static JScrollPane wrapScrollPane(Component component) {
+        JScrollPane scrollPane = new JScrollPane(component);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        return scrollPane;
+    }
+
+    public static List<String> linesToList(String text) {
+        String[] tokens = text.replace("\r", "\n").split("\n");
+        List<String> values = Lists.newArrayList();
+        for (String token : tokens) {
+            String value = token.trim();
+            if (!value.isEmpty()) {
+                values.add(value);
+            }
+        }
+        return values;
+    }
+
     public static boolean setLookAndFeel(String lookAndFeel) {
         try {
             UIManager.setLookAndFeel(lookAndFeel);
@@ -395,5 +420,4 @@ public final class SwingHelper {
             return false;
         }
     }
-
 }

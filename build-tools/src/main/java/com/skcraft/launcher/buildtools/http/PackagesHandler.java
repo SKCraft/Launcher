@@ -4,7 +4,7 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.buildtools;
+package com.skcraft.launcher.buildtools.http;
 
 import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +22,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.List;
 
-public class PackagesHandler extends AbstractHandler {
+class PackagesHandler extends AbstractHandler {
 
     private final ObjectMapper mapper;
     private final File baseDir;

@@ -16,7 +16,7 @@ public class FeaturePattern {
     @JsonProperty("properties")
     private Feature feature;
     @JsonProperty("files")
-    private FnPatternList filePatterns;
+    private FnPatternList filePatterns = new FnPatternList();
 
     public boolean matches(String path) {
         return filePatterns != null && filePatterns.matches(path);

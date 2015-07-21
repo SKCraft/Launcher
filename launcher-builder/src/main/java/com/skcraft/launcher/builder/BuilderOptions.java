@@ -15,6 +15,11 @@ import java.io.File;
 @Data
 public class BuilderOptions {
 
+    public static final String DEFAULT_CONFIG_FILENAME = "modpack.json";
+    public static final String DEFAULT_VERSION_FILENAME = "version.json";
+    public static final String DEFAULT_SRC_DIRNAME = "src";
+    public static final String DEFAULT_LOADERS_DIRNAME = "loaders";
+
     // Configuration
 
     // Override config
@@ -65,22 +70,22 @@ public class BuilderOptions {
     public void choosePaths() throws ParameterException {
         if (configPath == null) {
             requireInputPath("--config");
-            configPath = new File(inputPath, "modpack.json");
+            configPath = new File(inputPath, DEFAULT_CONFIG_FILENAME);
         }
 
         if (versionManifestPath == null) {
             requireInputPath("--version");
-            versionManifestPath = new File(inputPath, "version.json");
+            versionManifestPath = new File(inputPath, DEFAULT_VERSION_FILENAME);
         }
 
         if (filesDir == null) {
             requireInputPath("--files");
-            filesDir = new File(inputPath, "src");
+            filesDir = new File(inputPath, DEFAULT_SRC_DIRNAME);
         }
 
         if (loadersDir == null) {
             requireInputPath("--loaders");
-            loadersDir = new File(inputPath, "loaders");
+            loadersDir = new File(inputPath, DEFAULT_LOADERS_DIRNAME);
         }
 
         if (objectsDir == null) {

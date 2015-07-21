@@ -12,10 +12,10 @@ import lombok.Data;
 import java.io.File;
 
 @Data
-public class ToolArguments {
+class ToolArguments {
 
     @Parameter(names = "--dir")
-    private File dir = new File(".");
+    private File dir;
 
     @Parameter(names = "--port")
     private int port = 0;

@@ -4,8 +4,10 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.buildtools;
+package com.skcraft.launcher.buildtools.http;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.skcraft.launcher.selfupdate.LatestVersionInfo;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
@@ -13,25 +15,25 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.URL;
 
-public class NewsHandler extends AbstractHandler {
+class LatestHandler extends AbstractHandler {
+
+    private final ObjectMapper mapper;
+
+    public LatestHandler(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        response.setContentType("text/html; charset=utf-8");
+        response.setContentType("text/plain; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        PrintWriter writer = response.getWriter();
-        writer.write("<!DOCTYPE html>");
-        writer.write("<html>");
-        writer.write("<head>");
-        writer.write("<title>Staging Tool</title>");
-        writer.write("</head>");
-        writer.write("<body>");
-        writer.write("<p>Welcome to the staging tool!</p>");
-        writer.write("</body>");
-        writer.write("</html>");
+        LatestVersionInfo info = new LatestVersionInfo();
+        info.setVersion("0.0.0");
+        info.setUrl(new URL("http://localhost"));
+        mapper.writeValue(response.getWriter(), info);
 
         baseRequest.setHandled(true);
     }
