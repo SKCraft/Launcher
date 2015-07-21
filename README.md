@@ -22,7 +22,23 @@ Skinned version (in `launcher-fancy`) -- see ([instructions on enabling](https:/
 
 ![Optional Features](readme/features.png)
 
-![COnsole](readme/log.png)
+![Console](readme/log.png)
+
+Creating modpacks is easy with the provided Build Tools GUI:
+
+![Build Tools : Create](readme/build_tools_create.png)
+
+![Build Tools : Optional Features](readme/build_tools_features.png)
+
+![Build Tools : Optional Features](readme/build_tools_problem_checker.png)
+
+Test your modpack easily:
+
+![Build Tools : Test](readme/build_tools_test.png)
+
+Then release it:
+
+![Build Tools : Release](readme/build_tools_release.png)
 
 ## Features
 
