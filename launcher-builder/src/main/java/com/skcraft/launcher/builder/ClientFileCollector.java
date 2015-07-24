@@ -66,7 +66,7 @@ public class ClientFileCollector extends DirectoryWalker {
         File urlFile = new File(file.getAbsoluteFile().getParentFile(), file.getName() + URL_FILE_SUFFIX);
         String location;
         boolean copy = true;
-        if (urlFile.exists()) {
+        if (urlFile.exists() && !System.getProperty("com.skcraft.builder.ignoreURLOverrides", "false").equalsIgnoreCase("true")) {
             location = Files.readFirstLine(urlFile, Charset.defaultCharset());
             copy = false;
         } else {
