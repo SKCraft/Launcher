@@ -93,7 +93,7 @@ public class PackManagerController {
         launcherConfigDir.mkdirs();
         webRoot.mkdirs();
 
-        this.launcher = new Launcher(launcherDir, creator.getDataDir());
+        this.launcher = new Launcher(launcherDir, launcherConfigDir);
         this.executor = launcher.getExecutor();
         this.frame = frame;
 
