@@ -9,13 +9,15 @@ package com.skcraft.launcher.builder;
 import com.beust.jcommander.internal.Lists;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public final class BuilderUtils {
+
+    private static final DateFormat VERSION_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
     private BuilderUtils() {
     }
@@ -47,6 +49,11 @@ public final class BuilderUtils {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    public static String generateVersionFromDate() {
+        Date today = Calendar.getInstance().getTime();
+        return VERSION_DATE_FORMAT.format(today);
     }
 
 }

@@ -41,6 +41,8 @@ public class DirectoryField extends JPanel {
                 browse();
             }
         });
+
+        textField.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
     }
 
     public JTextField getTextField() {

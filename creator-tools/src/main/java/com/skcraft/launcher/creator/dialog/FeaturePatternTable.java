@@ -4,20 +4,21 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.swing;
+package com.skcraft.launcher.creator.dialog;
 
-import javax.swing.*;
+import com.skcraft.launcher.swing.DefaultTable;
+
 import javax.swing.table.TableModel;
 
-public class CheckboxTable extends DefaultTable {
+class FeaturePatternTable extends DefaultTable {
 
     @Override
     public void setModel(TableModel dataModel) {
         super.setModel(dataModel);
         try {
-            getColumnModel().getColumn(0).setMaxWidth((int) new JCheckBox().getPreferredSize().getWidth());
-        } catch (ArrayIndexOutOfBoundsException e) {
+            getColumnModel().getColumn(1).setMaxWidth(80);
+            getColumnModel().getColumn(2).setMaxWidth(80);
+        } catch (ArrayIndexOutOfBoundsException ignored) {
         }
     }
-
 }

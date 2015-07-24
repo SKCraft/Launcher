@@ -7,6 +7,8 @@
 package com.skcraft.launcher.persistence;
 
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter.Lf2SpacesIndenter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteSink;
 import com.google.common.io.ByteSource;
@@ -36,8 +38,13 @@ import java.util.logging.Level;
 public final class Persistence {
 
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final WeakHashMap<Object, ByteSink> bound =
-            new WeakHashMap<Object, ByteSink>();
+    private static final WeakHashMap<Object, ByteSink> bound = new WeakHashMap<Object, ByteSink>();
+    public static final DefaultPrettyPrinter L2F_LIST_PRETTY_PRINTER;
+
+    static {
+        L2F_LIST_PRETTY_PRINTER = new DefaultPrettyPrinter();
+        L2F_LIST_PRETTY_PRINTER.indentArraysWith(Lf2SpacesIndenter.instance);
+    }
 
     private Persistence() {
     }
@@ -224,6 +231,21 @@ public final class Persistence {
             mapper.writer(prettyPrinter).writeValue(file, object);
         } else {
             mapper.writeValue(file, object);
+        }
+    }
+
+    /**
+     * Write an object to a string.
+     *
+     * @param object the object
+     * @param prettyPrinter a pretty printer to use, or null
+     * @throws java.io.IOException on I/O error
+     */
+    public static String writeValueAsString(Object object, PrettyPrinter prettyPrinter) throws IOException {
+        if (prettyPrinter != null) {
+            return mapper.writer(prettyPrinter).writeValueAsString(object);
+        } else {
+            return mapper.writeValueAsString(object);
         }
     }
 

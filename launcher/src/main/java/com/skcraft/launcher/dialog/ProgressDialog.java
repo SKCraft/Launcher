@@ -8,6 +8,7 @@ package com.skcraft.launcher.dialog;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.swing.LinedBoxPanel;
@@ -156,6 +157,10 @@ public class ProgressDialog extends JDialog {
     }
 
     public static void showProgress(final Window owner, final ObservableFuture<?> future, String title, String message) {
+        showProgress(owner, future, future, title, message);
+    }
+
+    public static void showProgress(final Window owner, final ListenableFuture<?> future, ProgressObservable observable, String title, String message) {
         final ProgressDialog dialog = new ProgressDialog(owner, title, message) {
             @Override
             protected void cancel() {
@@ -166,7 +171,7 @@ public class ProgressDialog extends JDialog {
         lastDialogRef = new WeakReference<ProgressDialog>(dialog);
 
         final Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new UpdateProgress(dialog, future), 400, 400);
+        timer.scheduleAtFixedRate(new UpdateProgress(dialog, observable), 400, 400);
 
         Futures.addCallback(future, new FutureCallback<Object>() {
             @Override

@@ -4,13 +4,15 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.swing;
+package com.skcraft.launcher.creator.dialog;
+
+import com.skcraft.launcher.swing.DefaultTable;
 
 import javax.swing.table.TableModel;
 
-public class InstanceTable extends DefaultTable {
+class ProblemTable extends DefaultTable {
 
-    public InstanceTable() {
+    public ProblemTable() {
         super();
         setTableHeader(null);
     }
@@ -19,8 +21,10 @@ public class InstanceTable extends DefaultTable {
     public void setModel(TableModel dataModel) {
         super.setModel(dataModel);
         try {
-            getColumnModel().getColumn(0).setMaxWidth(24);
-        } catch (ArrayIndexOutOfBoundsException e) {
+            getColumnModel().getColumn(0).setMaxWidth(20);
+        } catch (ArrayIndexOutOfBoundsException ignored) {
         }
     }
+
+
 }

@@ -6,12 +6,14 @@
 
 package com.skcraft.launcher.util;
 
+import com.google.common.util.concurrent.AbstractListeningExecutorService;
+
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 
-public final class SwingExecutor extends AbstractExecutorService {
+public final class SwingExecutor extends AbstractListeningExecutorService {
 
     public static final SwingExecutor INSTANCE = new SwingExecutor();
 
@@ -21,20 +23,6 @@ public final class SwingExecutor extends AbstractExecutorService {
     @Override
     public void execute(Runnable runnable) {
         SwingUtilities.invokeLater(runnable);
-    }
-
-    @Override
-    protected <T> RunnableFuture<T> newTaskFor(final Callable<T> callable) {
-        return new FutureTask<T>(callable) {
-            @Override
-            public void run() {
-                try {
-                    super.run();
-                } catch (Throwable e) {
-                    setException(e);
-                }
-            }
-        };
     }
 
     @Override
