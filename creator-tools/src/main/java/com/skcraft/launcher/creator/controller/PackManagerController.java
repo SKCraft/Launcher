@@ -564,6 +564,8 @@ public class PackManagerController {
 
         frame.getOpenOutputFolderMenuItem().addActionListener(e -> SwingHelper.browseDir(distDir, frame));
 
+        frame.getOpenWorkspaceFolderMenuItem().addActionListener(e1 -> SwingHelper.browseDir(workspaceDir, frame));
+
         frame.getOpenLauncherFolderMenuItem().addActionListener(e1 -> SwingHelper.browseDir(launcherDir, frame));
 
         frame.getOpenWebRootMenuItem().addActionListener(e1 -> SwingHelper.browseDir(webRoot, frame));

@@ -47,6 +47,7 @@ public class PackManagerFrame extends JFrame {
     @Getter private final JMenuItem deployServerMenuItem = new JMenuItem("Deploy Server...");
     @Getter private final JMenuItem generatePackagesMenuItem = new JMenuItem("Generate packages.json...");
     @Getter private final JMenuItem openOutputFolderMenuItem = new JMenuItem("Open Upload Folder");
+    @Getter private final JMenuItem openWorkspaceFolderMenuItem = new JMenuItem("Open Workspace Folder");
     @Getter private final JMenuItem openLauncherFolderMenuItem = new JMenuItem("Open Test Launcher Folder");
     @Getter private final JMenuItem openWebRootMenuItem = new JMenuItem("Open Test Web Server Folder");
     @Getter private final JMenuItem openConsoleMenuItem = new JMenuItem("Open Console");
@@ -167,6 +168,7 @@ public class PackManagerFrame extends JFrame {
         menu = new JMenu("Tools");
         menu.setMnemonic('t');
         menuBar.add(menu);
+        menu.add(openWorkspaceFolderMenuItem);
         menu.add(openLauncherFolderMenuItem);
         menu.add(openWebRootMenuItem);
         menu.addSeparator();
