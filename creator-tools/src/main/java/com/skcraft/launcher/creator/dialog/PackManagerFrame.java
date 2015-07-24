@@ -120,8 +120,12 @@ public class PackManagerFrame extends JFrame {
         JMenu menu;
 
         menuBar = new JMenuBar();
+        menuBar.setBorder(BorderFactory.createEmptyBorder());
+
+        Insets menuInset = new Insets(2, 3, 2, 3);
 
         menu = new JMenu("File");
+        menu.setMargin(menuInset);
         menu.setMnemonic('f');
         menuBar.add(menu);
         menu.add(newPackMenuItem);
@@ -137,6 +141,7 @@ public class PackManagerFrame extends JFrame {
         menu.add(quitMenuItem);
 
         menu = new JMenu("Edit");
+        menu.setMargin(menuInset);
         menu.setMnemonic('e');
         menuBar.add(menu);
         menu.add(editConfigMenuItem);
@@ -145,6 +150,7 @@ public class PackManagerFrame extends JFrame {
         menu.add(checkProblemsMenuItem);
 
         menu = new JMenu("Test");
+        menu.setMargin(menuInset);
         menu.setMnemonic('t');
         menuBar.add(menu);
         menu.add(testMenuItem);
@@ -156,6 +162,7 @@ public class PackManagerFrame extends JFrame {
         menu.add(clearWebRootMenuItem);
 
         menu = new JMenu("Build");
+        menu.setMargin(menuInset);
         menu.setMnemonic('b');
         menuBar.add(menu);
         menu.add(buildMenuItem);
@@ -166,6 +173,7 @@ public class PackManagerFrame extends JFrame {
         menu.add(openOutputFolderMenuItem);
 
         menu = new JMenu("Tools");
+        menu.setMargin(menuInset);
         menu.setMnemonic('t');
         menuBar.add(menu);
         menu.add(openWorkspaceFolderMenuItem);
@@ -175,6 +183,7 @@ public class PackManagerFrame extends JFrame {
         menu.add(openConsoleMenuItem);
 
         menu = new JMenu("Help");
+        menu.setMargin(menuInset);
         menu.setMnemonic('h');
         menuBar.add(menu);
         menu.add(docsMenuItem);
