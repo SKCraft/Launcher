@@ -1,22 +1,17 @@
 SKCraft Launcher
 ================
 
-This project provides an open-source Minecraft launcher platform for downloading, installing, and updating modpacks.
+This project provides an open-source Minecraft launcher platform for creating, testing, distributing, installing, and updating modpacks. It has maintained for sk89q's server since Minecraft Alpha, but you are free to use it. [The older 3.x version was can be found elsewhere](https://github.com/sk89q/SKMCLauncher).
 
-The launcher has its roots in MC Alpha as a launcher for sk89q's server.
-
-**Note:** There are two names to the launcher:
-
-* "SKMCLauncher" is the *older* version of this launcher. It is a more generic all-purpose launcher. It is no longer supported.
-* This project is called "SKCraft Launcher." It is supported and in active use.
+Unlike other launchers, modpacks for this launcher follow Minecraft's directory structure: just config/ and mods/ folders and you're good to go — no need to edit complicated files. You can use the provided GUI or build everything through command line tools.
 
 ## Screenshots
 
-![Main Launcher](readme/launcher.png)
-
-Skinned version (in `launcher-fancy`) -- see ([instructions on enabling](https://github.com/SKCraft/Launcher/wiki/Fancy-Launcher)):
-
 ![Skinned](readme/launcher_skinned.png)
+
+Or if you prefer it plain:
+
+![Main Launcher](readme/launcher.png)
 
 ![Options](readme/options.png)
 
@@ -24,21 +19,15 @@ Skinned version (in `launcher-fancy`) -- see ([instructions on enabling](https:/
 
 ![Console](readme/log.png)
 
-Creating modpacks is easy with the provided Build Tools GUI:
+Creating modpacks is easy with the provided Modpack Creator:
 
-![Build Tools : Create](readme/build_tools_create.png)
+![Modpack Creator](readme/modpack_creator.png)
 
-![Build Tools : Optional Features](readme/build_tools_features.png)
+![Modpack Creator](readme/pack_manager.png)
 
-![Build Tools : Optional Features](readme/build_tools_problem_checker.png)
+![Optional Features Configuration](readme/configure_features.png)
 
-Test your modpack easily:
-
-![Build Tools : Test](readme/build_tools_test.png)
-
-Then release it:
-
-![Build Tools : Release](readme/build_tools_release.png)
+![Build Modpacks](readme/packages_generator.png)
 
 ## Features
 
