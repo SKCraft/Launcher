@@ -67,6 +67,7 @@ public class PackManagerController {
     @Getter private final File workspaceFile;
     @Getter private final File dataDir;
     @Getter private final File distDir;
+    @Getter private final File launcherDir;
     @Getter private File webRoot;
     @Getter private Workspace workspace;
     @Getter private final Launcher launcher;
@@ -85,7 +86,7 @@ public class PackManagerController {
         workspaceFile = Workspace.getWorkspaceFile(workspaceDir);
 
         this.distDir = new File(workspaceDir, "_upload");
-        File launcherDir = new File(dataDir, "staging/launcher");
+        launcherDir = new File(dataDir, "staging/launcher");
         File launcherConfigDir = new File(creator.getDataDir(), "launcher");
         this.webRoot = new File(dataDir, "staging/www");
 
@@ -562,6 +563,10 @@ public class PackManagerController {
         });
 
         frame.getOpenOutputFolderMenuItem().addActionListener(e -> SwingHelper.browseDir(distDir, frame));
+
+        frame.getOpenLauncherFolderMenuItem().addActionListener(e1 -> SwingHelper.browseDir(launcherDir, frame));
+
+        frame.getOpenWebRootMenuItem().addActionListener(e1 -> SwingHelper.browseDir(webRoot, frame));
 
         frame.getOpenConsoleMenuItem().addActionListener(e -> {
             ConsoleFrame.showMessages();
