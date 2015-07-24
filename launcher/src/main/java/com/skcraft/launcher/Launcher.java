@@ -42,6 +42,8 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
+import static com.skcraft.launcher.util.SharedLocale.tr;
+
 /**
  * The main entry point for the launcher.
  */
@@ -390,8 +392,8 @@ public final class Launcher {
             public void run() {
                 try {
                     Launcher launcher = createFromArguments(args);
+                    SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     launcher.showLauncherWindow();
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);

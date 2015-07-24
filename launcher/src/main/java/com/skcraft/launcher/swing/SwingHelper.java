@@ -452,4 +452,10 @@ public final class SwingHelper {
             return false;
         }
     }
+
+    public static void setSwingProperties(String appName) {
+        UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+    }
 }

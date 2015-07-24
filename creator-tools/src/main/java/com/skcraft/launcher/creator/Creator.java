@@ -70,7 +70,7 @@ public class Creator {
         final Creator creator = new Creator();
 
         SwingUtilities.invokeAndWait(() -> {
-            UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
+            SwingHelper.setSwingProperties("Modpack Creator");
             SwingHelper.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
             try {
