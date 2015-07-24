@@ -48,6 +48,7 @@ public class ConfigurationDialog extends JDialog {
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(SharedLocale.tr("button.ok"));
     private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
+    private final JButton aboutButton = new JButton(SharedLocale.tr("options.about"));
     private final JButton logButton = new JButton(SharedLocale.tr("options.launcherConsole"));
 
     /**
@@ -115,6 +116,7 @@ public class ConfigurationDialog extends JDialog {
         tabbedPane.addTab(SharedLocale.tr("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
         buttonsPanel.addElement(logButton);
+        buttonsPanel.addElement(aboutButton);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(okButton);
         buttonsPanel.addElement(cancelButton);
@@ -127,6 +129,13 @@ public class ConfigurationDialog extends JDialog {
         SwingHelper.equalWidth(okButton, cancelButton);
 
         cancelButton.addActionListener(ActionListeners.dispose(this));
+
+        aboutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AboutDialog.showAboutDialog(ConfigurationDialog.this);
+            }
+        });
 
         okButton.addActionListener(new ActionListener() {
             @Override
