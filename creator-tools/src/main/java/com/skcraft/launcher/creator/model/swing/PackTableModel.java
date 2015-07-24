@@ -24,7 +24,7 @@ public class PackTableModel extends AbstractTableModel {
     public PackTableModel(List<Pack> packs) {
         this.packs = packs;
 
-        instanceIcon = SwingHelper.readImageIconScaled(Creator.class, "pack.png", 16, 16);
+        instanceIcon = SwingHelper.readImageIcon(Creator.class, "pack_icon.png");
         warningIcon = SwingHelper.readImageIcon(Creator.class, "warning_icon.png");
     }
 
