@@ -38,7 +38,8 @@ public class PackManagerFrame extends JFrame {
     @Getter private final JMenuItem editConfigMenuItem = new JMenuItem("Edit modpack.json...");
     @Getter private final JMenuItem openFolderMenuItem = new JMenuItem("Open Directory");
     @Getter private final JMenuItem checkProblemsMenuItem = new JMenuItem("Scan for Problems...");
-    @Getter private final JMenuItem testMenuItem = new JMenuItem("Test Pack");
+    @Getter private final JMenuItem testMenuItem = new JMenuItem("Test");
+    @Getter private final JMenuItem testOnlineMenuItem = new JMenuItem("Test Online");
     @Getter private final JMenuItem optionsMenuItem = new JMenuItem("Test Launcher Options...");
     @Getter private final JMenuItem clearInstanceMenuItem = new JMenuItem("Delete Test Launcher Instances");
     @Getter private final JMenuItem clearWebRootMenuItem = new JMenuItem("Empty Test Web Server");
@@ -105,6 +106,7 @@ public class PackManagerFrame extends JFrame {
         editConfigMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK));
         openFolderMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.SHIFT_MASK));
         testMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+        testOnlineMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
         buildMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F10, Event.SHIFT_MASK));
         deployServerMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F9, Event.SHIFT_MASK));
         docsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
@@ -141,6 +143,7 @@ public class PackManagerFrame extends JFrame {
         menu.setMnemonic('t');
         menuBar.add(menu);
         menu.add(testMenuItem);
+        menu.add(testOnlineMenuItem);
         menu.addSeparator();
         menu.add(optionsMenuItem);
         menu.addSeparator();

@@ -53,7 +53,7 @@ public class WelcomeController {
     private boolean openWorkspace(File dir) {
         try {
             PackManagerFrame frame = new PackManagerFrame();
-            PackManagerController controller = new PackManagerController(frame, dir);
+            PackManagerController controller = new PackManagerController(frame, dir, creator);
             addRecentEntry(dir);
             controller.show();
             return true;

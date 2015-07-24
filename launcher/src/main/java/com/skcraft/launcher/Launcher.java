@@ -70,6 +70,18 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir) throws IOException {
+        this(baseDir, baseDir);
+    }
+
+    /**
+     * Create a new launcher instance with the given base and configuration
+     * directories.
+     *
+     * @param baseDir the base directory
+     * @param configDir the config directory
+     * @throws java.io.IOException on load error
+     */
+    public Launcher(@NonNull File baseDir, @NonNull File configDir) throws IOException {
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;
@@ -77,8 +89,8 @@ public final class Launcher {
                 "launcher.properties", "com.skcraft.launcher.propertiesFile");
         this.instances = new InstanceList(this);
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
-        this.config = Persistence.load(new File(baseDir, "config.json"), Configuration.class);
-        this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
+        this.config = Persistence.load(new File(configDir, "config.json"), Configuration.class);
+        this.accounts = Persistence.load(new File(configDir, "accounts.dat"), AccountList.class);
 
         if (accounts.getSize() > 0) {
             accounts.setSelectedItem(accounts.getElementAt(0));

@@ -20,20 +20,19 @@ import com.skcraft.launcher.auth.OfflineSession;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.builder.BuilderConfig;
 import com.skcraft.launcher.builder.FnPatternList;
-import com.skcraft.launcher.creator.model.creator.Pack;
+import com.skcraft.launcher.creator.Creator;
+import com.skcraft.launcher.creator.model.creator.*;
 import com.skcraft.launcher.creator.controller.task.*;
 import com.skcraft.launcher.creator.dialog.*;
 import com.skcraft.launcher.creator.dialog.BuildDialog.BuildOptions;
 import com.skcraft.launcher.creator.dialog.DeployServerDialog.DeployOptions;
-import com.skcraft.launcher.creator.model.creator.ManifestEntry;
-import com.skcraft.launcher.creator.model.creator.Problem;
-import com.skcraft.launcher.creator.model.creator.Workspace;
 import com.skcraft.launcher.creator.model.swing.PackTableModel;
 import com.skcraft.launcher.creator.server.TestServer;
 import com.skcraft.launcher.creator.server.TestServerBuilder;
 import com.skcraft.launcher.creator.swing.PackDirectoryFilter;
 import com.skcraft.launcher.dialog.ConfigurationDialog;
 import com.skcraft.launcher.dialog.ConsoleFrame;
+import com.skcraft.launcher.dialog.LoginDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
 import com.skcraft.launcher.persistence.Persistence;
@@ -64,6 +63,7 @@ public class PackManagerController {
     private static final Pattern FILENAME_SANITIZE = Pattern.compile("[^a-z0-9_\\-\\.]+");
 
     @Getter private final File workspaceDir;
+    @Getter private final Creator creator;
     @Getter private final File workspaceFile;
     @Getter private final File dataDir;
     @Getter private final File distDir;
@@ -78,19 +78,22 @@ public class PackManagerController {
     private final PackManagerFrame frame;
     private PackTableModel packTableModel;
 
-    public PackManagerController(PackManagerFrame frame, File workspaceDir) throws IOException {
+    public PackManagerController(PackManagerFrame frame, File workspaceDir, Creator creator) throws IOException {
         this.workspaceDir = workspaceDir;
+        this.creator = creator;
         this.dataDir = Workspace.getDataDir(workspaceDir);
         workspaceFile = Workspace.getWorkspaceFile(workspaceDir);
 
         this.distDir = new File(workspaceDir, "_upload");
         File launcherDir = new File(dataDir, "staging/launcher");
+        File launcherConfigDir = new File(creator.getDataDir(), "launcher");
         this.webRoot = new File(dataDir, "staging/www");
 
         launcherDir.mkdirs();
+        launcherConfigDir.mkdirs();
         webRoot.mkdirs();
 
-        this.launcher = new Launcher(launcherDir);
+        this.launcher = new Launcher(launcherDir, creator.getDataDir());
         this.executor = launcher.getExecutor();
         this.frame = frame;
 
@@ -215,6 +218,23 @@ public class PackManagerController {
         }
     }
 
+    private boolean isOfflineEnabled() {
+        CreatorConfig config = creator.getConfig();
+
+        if (config.isOfflineEnabled()) {
+            return true;
+        } else {
+            Session session = LoginDialog.showLoginRequest(frame, launcher);
+            if (session != null) {
+                config.setOfflineEnabled(true);
+                Persistence.commitAndForget(config);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     public boolean canAddPackDir(File dir) {
         try {
             if (dir.exists() && !dir.isDirectory()) {
@@ -315,7 +335,7 @@ public class PackManagerController {
                             if (e.isControlDown()) {
                                 SwingHelper.browseDir(optional.get().getDirectory(), frame);
                             } else {
-                                startTest(optional.get());
+                                startTest(optional.get(), false);
                             }
                         }
                     }
@@ -459,7 +479,16 @@ public class PackManagerController {
 
             if (optional.isPresent()) {
                 Pack pack = optional.get();
-                startTest(pack);
+                startTest(pack, false);
+            }
+        });
+
+        frame.getTestOnlineMenuItem().addActionListener(e -> {
+            Optional<Pack> optional = getSelectedPack(true);
+
+            if (optional.isPresent()) {
+                Pack pack = optional.get();
+                startTest(pack, true);
             }
         });
 
@@ -508,7 +537,8 @@ public class PackManagerController {
                     ServerDeploy deploy = new ServerDeploy(pack.getSourceDir(), options);
                     Deferred<?> deferred = Deferreds.makeDeferred(executor.submit(deploy), executor)
                             .handleAsync(r -> SwingHelper.showMessageDialog(frame, "Server deployment complete!", "Success", null, JOptionPane.INFORMATION_MESSAGE),
-                                    ex -> {},
+                                    ex -> {
+                                    },
                                     SwingExecutor.INSTANCE);
                     ProgressDialog.showProgress(frame, deferred, deploy, "Deploying files...", "Deploying server files...");
                     SwingHelper.addErrorDialogCallback(frame, deferred);
@@ -525,7 +555,8 @@ public class PackManagerController {
                         GenerateListingController controller = new GenerateListingController(dialog, workspace, loaded, executor);
                         controller.setOutputDir(distDir);
                         controller.show();
-                    }, ex -> {}, SwingExecutor.INSTANCE);
+                    }, ex -> {
+                    }, SwingExecutor.INSTANCE);
             ProgressDialog.showProgress(frame, deferred, new SettableProgress("Searching...", -1), "Searching for manifests...", "Searching for manifests...");
             SwingHelper.addErrorDialogCallback(frame, deferred);
         });
@@ -573,6 +604,10 @@ public class PackManagerController {
 
         menuItem = new JMenuItem("Test");
         menuItem.addActionListener(e -> frame.getTestMenuItem().doClick());
+        popup.add(menuItem);
+
+        menuItem = new JMenuItem("Test Online");
+        menuItem.addActionListener(e -> frame.getTestOnlineMenuItem().doClick());
         popup.add(menuItem);
 
         menuItem = new JMenuItem("Build...");
@@ -676,8 +711,22 @@ public class PackManagerController {
         }
     }
 
-    private void startTest(Pack pack) {
-        Session session = new OfflineSession("Player");
+    private void startTest(Pack pack, boolean online) {
+        Session session;
+
+        if (online) {
+            session = LoginDialog.showLoginRequest(frame, launcher);
+            if (session == null) {
+                return;
+            }
+        } else {
+            if (!isOfflineEnabled()) {
+                return;
+            }
+
+            session = new OfflineSession("Player");
+        }
+
         String version = generateVersionFromDate();
 
         PackBuilder builder = new PackBuilder(pack, webRoot, version, "staging.json", false);
