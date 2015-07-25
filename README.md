@@ -1,21 +1,21 @@
 SKCraft Launcher
 ================
 
-SKCraft Launcher provides a platform for creating, testing, and distributing modpacks for groups of all sizes. It is 100% open source too.
+SKCraft Launcher provides a platform for creating, testing, and distributing mudpacks for groups of all sizes. It 100% open source and works on Windows, Mac OS X and Linux/BSD.
 
 With this platform, you have **full control** of the modpacks that you choose to release.
 
-### Simple Requirements
+### Many Features, Few Requirements
 
-The only requirement is to **have a website to host files — even Dropbox will work.** All files that you upload are "de-duplicated" so even if you have a dozen modpacks that use the same mod, you only have to host one copy of the file.
+The only requirement is **have a website to host files — even Dropbox will work.** All files that you upload are "de-duplicated" so even if you have a dozen modpacks that use the same mod, you only have to host one copy of the file.
 
 Yet you still have access to powerful features like:
 
 * optional mods/files
-* pre-installed default configuration
+* pre-installed default configuration files
 * modpack-added Java flags
 * JAR mods
-* resource pack suppor
+* resource pack support
 * non-standard modpack file support
 * "hidden" modpacks that require a special access key **
 
@@ -23,7 +23,7 @@ Yet you still have access to powerful features like:
 
 ### Making Modpacks
 
-Making modpacks is extremely easy: you can use our creator tools with integrated testing tools:
+Making modpacks is extremely easy: you can use our creator tools with 1-click modpack testing:
 
 ![Modpack Creator](readme/pack_manager.png)
 
@@ -56,9 +56,9 @@ As a plus, the launcher can **even update itself**.
 
 All of the modpack tools can be used to create a server modpack alongside the client modpack!
 
-You can optionally use **command line tools** to generate all the files that you host. Combine the launcher with Git and Jenkins (or whatever you prefer) to automatically build modpack releases when you push a new version. Use of the GUI is completely up to your discretion.
+You can optionally use **command line tools** only, without the GUI entirely. Combine the launcher with Git and Jenkins (or whatever you prefer) to automatically build modpack releases when you push a new version.
 
-### Royal Line
+### History
 
 The launcher has been in development since the early days of Minecraft Alpha. It has powered and always has powered sk89q's own server, SKCraft.
 
