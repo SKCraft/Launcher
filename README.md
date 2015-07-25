@@ -1,7 +1,7 @@
 SKCraft Launcher
 ================
 
-SKCraft Launcher provides a platform for creating, testing, and distributing mudpacks for groups of all sizes. It 100% open source and works on Windows, Mac OS X and Linux/BSD.
+SKCraft Launcher provides a platform for creating, testing, and distributing modpacks for groups of all sizes. It 100% open source and works on Windows, Mac OS X and Linux/BSD.
 
 With this platform, you have **full control** of the modpacks that you choose to release.
 
@@ -42,15 +42,19 @@ Now let's see how easy it is to create an "optional feature" that can turn off n
 
 ### Great Client
 
-When it comes to launching your modpacks, users can start, abort, and resume updates at any time. Files are downloaded in parallel, and the launcher knows how to handle the removal of files from the modpack. There's even a fancy dark launcher that you can use and customize to your heart's desires:
+The launcher has a beautiful dark UI that's elegant and easy to use (although a native UI is also available). Display your own webpages so users always know what's up when they start the game.
 
 ![Skinned](readme/launcher_skinned.png)
+
+When it comes to launching your modpacks, users can start, abort, and resume updates at any time. Files are downloaded in parallel, and the launcher knows how to handle the removal of files from the modpack.
 
 Users can select those optional features that you have added:
 
 ![Optional Features](readme/features.png)
 
-As a plus, the launcher can **even update itself**.
+The launcher can **even update itself**.
+
+...and you can use it in portable mode too.
 
 ### More Features
 
