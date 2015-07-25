@@ -122,7 +122,7 @@ public class PackManagerFrame extends JFrame {
         menuBar = new JMenuBar();
         menuBar.setBorder(BorderFactory.createEmptyBorder());
 
-        Insets menuInset = new Insets(2, 3, 2, 3);
+        Insets menuInset = new Insets(2, 2, 2, 2);
 
         menu = new JMenu("File");
         menu.setMargin(menuInset);
