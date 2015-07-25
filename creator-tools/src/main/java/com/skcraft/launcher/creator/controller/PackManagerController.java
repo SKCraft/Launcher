@@ -766,7 +766,6 @@ public class PackManagerController {
                     .handleAsync(result -> {
                         ConsoleFrame.hideMessages();
                         SwingHelper.showMessageDialog(frame, "Successfully generated the package files.", "Success", null, JOptionPane.INFORMATION_MESSAGE);
-                        SwingHelper.browseDir(options.getDestDir(), frame);
                     }, ex -> {}, SwingExecutor.INSTANCE);
             ProgressDialog.showProgress(frame, deferred, builder, "Building modpack...", "Building modpack...");
             SwingHelper.addErrorDialogCallback(frame, deferred);
