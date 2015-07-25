@@ -1,72 +1,94 @@
 SKCraft Launcher
 ================
 
-This project provides an open-source Minecraft launcher platform for creating, testing, distributing, installing, and updating modpacks. It has maintained for sk89q's server since Minecraft Alpha, but you are free to use it. [The older 3.x version was can be found elsewhere](https://github.com/sk89q/SKMCLauncher).
+SKCraft Launcher provides a platform for creating, testing, and distributing modpacks for groups of all sizes. It is 100% open source too.
 
-Unlike other launchers, modpacks for this launcher follow Minecraft's directory structure: just config/ and mods/ folders and you're good to go — no need to edit complicated files. You can use the provided GUI or build everything through command line tools.
+With this platform, you have **full control** of the modpacks that you choose to release.
 
-## Screenshots
+### Simple Requirements
+
+The only requirement is to **have a website to host files — even Dropbox will work.** All files that you upload are "de-duplicated" so even if you have a dozen modpacks that use the same mod, you only have to host one copy of the file.
+
+Yet you still have access to powerful features like:
+
+* optional mods/files
+* pre-installed default configuration
+* modpack-added Java flags
+* JAR mods
+* resource pack suppor
+* non-standard modpack file support
+* "hidden" modpacks that require a special access key **
+
+** requires PHP support on your website
+
+### Making Modpacks
+
+Making modpacks is extremely easy: you can use our creator tools with integrated testing tools:
+
+![Modpack Creator](readme/pack_manager.png)
+
+You *don't* have to click a bunch of buttons or edit several cryptic config files to add a mod. All you need to do is create a folder that resembles the Minecraft data folder:
+
+* src/**config**/
+* src/**mods**/
+* src/**resourcepacks**/
+* loaders/
+
+There's support for Minecraft Forge and LiteLoader too — just put their installer .jars into the loaders folder.
+
+Now let's see how easy it is to create an "optional feature" that can turn off not only mods, but configuration files too:
+
+![Optional Features Configuration](readme/configure_features.png)
+
+### Great Client
+
+When it comes to launching your modpacks, users can start, abort, and resume updates at any time. Files are downloaded in parallel, and the launcher knows how to handle the removal of files from the modpack. There's even a fancy dark launcher that you can use and customize to your heart's desires:
 
 ![Skinned](readme/launcher_skinned.png)
 
-Or if you prefer it plain:
+Users can select those optional features that you have added:
+
+![Optional Features](readme/features.png)
+
+As a plus, the launcher can **even update itself**.
+
+### More Features
+
+All of the modpack tools can be used to create a server modpack alongside the client modpack!
+
+You can optionally use **command line tools** to generate all the files that you host. Combine the launcher with Git and Jenkins (or whatever you prefer) to automatically build modpack releases when you push a new version. Use of the GUI is completely up to your discretion.
+
+### Royal Line
+
+The launcher has been in development since the early days of Minecraft Alpha. It has powered and always has powered sk89q's own server, SKCraft.
+
+[The older 3.x version was can be found elsewhere](https://github.com/sk89q/SKMCLauncher).
+
+## Additional Screenshots
+
+You can also use the "plain" version of the launcher:
 
 ![Main Launcher](readme/launcher.png)
 
 ![Options](readme/options.png)
 
-![Optional Features](readme/features.png)
-
 ![Console](readme/log.png)
 
-Creating modpacks is easy with the provided Modpack Creator:
+More of the Modpack Creator:
 
 ![Modpack Creator](readme/modpack_creator.png)
 
-![Modpack Creator](readme/pack_manager.png)
-
-![Optional Features Configuration](readme/configure_features.png)
-
 ![Build Modpacks](readme/packages_generator.png)
-
-## Features
-
-### For the modpack creator:
-
-* No config files (aside from two at the start) needed to make a modpack -- you just make a folder with the modpack's files and run the builder tool on it
-* Supports putting default files (config files, etc.) that are not overridden on a future update
-* Supports the removal of files (which, from the PoV of the modpack creator, just involves deleting the file from the folder)
-* Supports "optional" files or file sets that can be toggled on or off by the user
-* The same directory can be used to create both a client modpack and a server modpack simultaneously (with server-only or client-only files) so you don't need to maintain two separate copies of the same files
-
-### Technical features:
-
-* Fast parallel downloads
-* Incremental updates (downloading only changed files)
-* Can update from ANY previous version to the latest version
-* Updates can be resumed if they've failed or have been cancelled
-* Updates also resume from where they left off
-* Static file structure so it can be placed on a CDN without modification
-* Files are deduplicated (on the file host) so you only ever have ONE version of a file across all modpacks and all modpack versions
-* Option for users to enter a special key in the options dialog that can be used to show additional modpacks (i.e. private ones for testing) -- this requires some server-side code
-* Can be used with a continuous integration system so you can combine it with your favorite version control (i.e. Git, SVN) and automatically deploy a new modpack update on push/tag
-
-### Client features:
-
-* Multiple modpacks are supported
-* Custom news page for showing custom information
-* Multiple profile support
-* Log messages dialog with upload log option
-* Options to adjust memory settings and Java flags
-* Everything happens in a background thread so the UI never freezes
-* All tasks have cancel buttons and (reasonably accurate) progress dialogs if things take too long
-* Self-update mechanism
 
 ## Getting Started
 
 * [Read the wiki](https://github.com/SKCraft/Launcher/wiki)
 * [Forum to ask for help](http://forum.enginehub.org/forums/launcher.25/)
 * [Join us on IRC: #sklauncher on EsperNet (irc.esper.net)](https://webchat.esper.net/?channels=sklauncher)
+
+If you find the launcher useful, you can [support me on Patreon](https://www.patreon.com/sk89q).
+
+[![Support Me on Patreon](https://i.imgur.com/Sg03Bzc.png)](https://www.patreon.com/sk89q)
 
 ## Compiling
 
