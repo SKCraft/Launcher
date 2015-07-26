@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.skcraft.concurrency.Deferred;
 import com.skcraft.concurrency.Deferreds;
+import com.skcraft.concurrency.SettableProgress;
 import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.creator.dialog.AboutDialog;
 import com.skcraft.launcher.creator.dialog.PackManagerFrame;
@@ -64,6 +65,7 @@ public class WelcomeController {
             return controller;
         }), executor)
                 .handleAsync(PackManagerController::show, ex -> {}, SwingExecutor.INSTANCE);
+        ProgressDialog.showProgress(frame, deferred, new SettableProgress("Loading...", -1), "Loading workspace...", "Loading workspace...");
         SwingHelper.addErrorDialogCallback(frame, deferred);
 
         return true;
