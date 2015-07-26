@@ -8,6 +8,9 @@ package com.skcraft.launcher.creator.controller;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.skcraft.concurrency.Deferred;
+import com.skcraft.concurrency.Deferreds;
 import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.creator.dialog.AboutDialog;
 import com.skcraft.launcher.creator.dialog.PackManagerFrame;
@@ -16,10 +19,12 @@ import com.skcraft.launcher.creator.model.creator.RecentEntry;
 import com.skcraft.launcher.creator.model.creator.Workspace;
 import com.skcraft.launcher.creator.model.swing.RecentListModel;
 import com.skcraft.launcher.creator.swing.WorkspaceDirectoryFilter;
+import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.PopupMouseAdapter;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.util.MorePaths;
+import com.skcraft.launcher.util.SwingExecutor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,16 +56,17 @@ public class WelcomeController {
     }
 
     private boolean openWorkspace(File dir) {
-        try {
-            PackManagerFrame frame = new PackManagerFrame();
+        ListeningExecutorService executor = creator.getExecutor();
+        PackManagerFrame frame = new PackManagerFrame();
+        Deferred<?> deferred = Deferreds.makeDeferred(executor.submit(() -> {
             PackManagerController controller = new PackManagerController(frame, dir, creator);
             addRecentEntry(dir);
-            controller.show();
-            return true;
-        } catch (IOException e) {
-            SwingHelper.showErrorDialog(dialog, "An unexpected error has occurred.", "Error", e);
-            return false;
-        }
+            return controller;
+        }), executor)
+                .handleAsync(PackManagerController::show, ex -> {}, SwingExecutor.INSTANCE);
+        SwingHelper.addErrorDialogCallback(frame, deferred);
+
+        return true;
     }
 
     private void addRecentEntry(File dir) {
