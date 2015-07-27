@@ -110,8 +110,8 @@ If you wish to import the project into an IDE, you must add support for Project 
 
 Pull requests can be submitted on GitHub, but we will accept them at our discretion. Please note that your code must follow Oracle's Java Code Conventions.
 
-Contributions by third parties must be dual licensed under the two licenses described within LICENSE.txt (GNU General Public License, version 3, and the 3-clause BSD license).
+Contributions by third parties must be dual licensed under the two licenses described within LICENSE.txt (GNU Lesser General Public License, version 3, and the 3-clause BSD license).
 
 ## License
 
-The launcher is licensed under the GNU General Public License, version 3.
+The launcher is licensed under the GNU Lesser General Public License, version 3.
