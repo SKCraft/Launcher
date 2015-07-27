@@ -6,6 +6,8 @@
 
 package com.skcraft.launcher.creator.dialog;
 
+import com.jidesoft.swing.SearchableUtils;
+import com.jidesoft.swing.TableSearchable;
 import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.swing.DefaultTable;
 import com.skcraft.launcher.swing.SwingHelper;
@@ -81,6 +83,9 @@ public class PackManagerFrame extends JFrame {
 
         container.add(createToolbar(), "dock north");
         container.add(SwingHelper.wrapScrollPane(packTable), "grow, span, w null:800:null");
+
+        TableSearchable tableSearchable = SearchableUtils.installSearchable(packTable);
+        tableSearchable.setMainIndex(-1);
 
         add(container, BorderLayout.CENTER);
     }

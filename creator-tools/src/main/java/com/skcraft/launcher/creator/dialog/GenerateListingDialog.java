@@ -6,6 +6,8 @@
 
 package com.skcraft.launcher.creator.dialog;
 
+import com.jidesoft.swing.SearchableUtils;
+import com.jidesoft.swing.TableSearchable;
 import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.creator.model.swing.ListingType;
 import com.skcraft.launcher.creator.model.swing.ListingTypeComboBoxModel;
@@ -72,6 +74,9 @@ public class GenerateListingDialog extends JDialog {
 
         getRootPane().setDefaultButton(generateButton);
         getRootPane().registerKeyboardAction(e -> cancelButton.doClick(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        TableSearchable tableSearchable = SearchableUtils.installSearchable(manifestsTable);
+        tableSearchable.setMainIndex(-1);
     }
 
 }
