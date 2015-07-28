@@ -9,7 +9,6 @@ package com.skcraft.launcher.creator.model.creator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.skcraft.launcher.builder.BuilderConfig;
 import com.skcraft.launcher.builder.BuilderOptions;
-import com.skcraft.launcher.creator.model.creator.Workspace;
 import com.skcraft.launcher.persistence.Persistence;
 import lombok.Data;
 
@@ -40,6 +39,11 @@ public class Pack {
     @JsonIgnore
     public File getSourceDir() {
         return new File(getDirectory(), "src");
+    }
+
+    @JsonIgnore
+    public File getModsDir() {
+        return new File(getSourceDir(), "mods");
     }
 
     @JsonIgnore
