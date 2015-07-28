@@ -562,6 +562,18 @@ public class PackManagerController {
             SwingHelper.addErrorDialogCallback(frame, deferred);
         });
 
+        frame.getVersionCheckMenuItem().addActionListener(e -> {
+            Optional<Pack> optional = getSelectedPack(true);
+
+            if (optional.isPresent()) {
+                Pack pack = optional.get();
+
+                VersionCheckDialog dialog = new VersionCheckDialog(frame);
+                VersionCheckController controller = new VersionCheckController(dialog, executor);
+                    controller.showUpdates(pack.getModsDir(), pack.getCachedConfig().getGameVersion(), frame);
+            }
+        });
+
         frame.getOpenOutputFolderMenuItem().addActionListener(e -> SwingHelper.browseDir(distDir, frame));
 
         frame.getOpenWorkspaceFolderMenuItem().addActionListener(e1 -> SwingHelper.browseDir(workspaceDir, frame));
