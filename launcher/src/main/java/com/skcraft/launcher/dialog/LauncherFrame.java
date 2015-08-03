@@ -197,7 +197,7 @@ public class LauncherFrame extends JFrame {
         JMenuItem menuItem;
 
         if (selected != null) {
-            menuItem = new JMenuItem(!selected.isLocal() ? "Install" : "Launch");
+            menuItem = new JMenuItem(!selected.isLocal() ? tr("instance.install") : tr("instance.launch"));
             menuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
