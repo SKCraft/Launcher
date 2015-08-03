@@ -25,8 +25,8 @@ public class Configuration {
     private String jvmPath;
     private String jvmArgs;
     private int minMemory = 1024;
-    private int maxMemory = 1024;
-    private int permGen = 128;
+    private int maxMemory = 0; // Updated in Launcher
+    private int permGen = 256;
     private int windowWidth = 854;
     private int widowHeight = 480;
     private boolean proxyEnabled = false;
