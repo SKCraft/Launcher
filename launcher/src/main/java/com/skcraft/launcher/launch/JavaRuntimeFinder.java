@@ -38,7 +38,7 @@ public final class JavaRuntimeFinder {
         try {
             getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
             getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
         Collections.sort(entries);
         
@@ -49,10 +49,8 @@ public final class JavaRuntimeFinder {
         return null;
     }
     
-    private static void getEntriesFromRegistry(List<JREEntry> entries, String basePath)
-            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        List<String> subKeys = WinRegistry.readStringSubKeys(
-                WinRegistry.HKEY_LOCAL_MACHINE, basePath);
+    private static void getEntriesFromRegistry(List<JREEntry> entries, String basePath) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        List<String> subKeys = WinRegistry.readStringSubKeys(WinRegistry.HKEY_LOCAL_MACHINE, basePath);
         for (String subKey : subKeys) {
             JREEntry entry = getEntryFromRegistry(basePath, subKey);
             if (entry != null) {
@@ -61,11 +59,9 @@ public final class JavaRuntimeFinder {
         }
     }
     
-    private static JREEntry getEntryFromRegistry(String basePath, String version) 
-            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private static JREEntry getEntryFromRegistry(String basePath, String version) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         String regPath = basePath + "\\" + version;
-        String path = WinRegistry.readString(
-                WinRegistry.HKEY_LOCAL_MACHINE, regPath, "JavaHome");
+        String path = WinRegistry.readString(WinRegistry.HKEY_LOCAL_MACHINE, regPath, "JavaHome");
         File dir = new File(path);
         if (dir.exists() && new File(dir, "bin/java.exe").exists()) {
             JREEntry entry = new JREEntry();
@@ -80,10 +76,7 @@ public final class JavaRuntimeFinder {
     
     private static boolean guessIf64Bit(File path) {
         String programFilesX86 = System.getenv("ProgramFiles(x86)");
-        if (programFilesX86 == null) {
-            return true;
-        }
-        return !path.toString().startsWith(new File(programFilesX86).toString());
+        return programFilesX86 == null || !path.toString().startsWith(new File(programFilesX86).toString());
     }
     
     private static class JREEntry implements Comparable<JREEntry> {
