@@ -11,6 +11,7 @@ import com.skcraft.launcher.util.Platform;
 import com.skcraft.launcher.util.WinRegistry;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +50,8 @@ public final class JavaRuntimeFinder {
         return null;
     }
     
-    private static void getEntriesFromRegistry(List<JREEntry> entries, String basePath) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private static void getEntriesFromRegistry(List<JREEntry> entries, String basePath)
+            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         List<String> subKeys = WinRegistry.readStringSubKeys(WinRegistry.HKEY_LOCAL_MACHINE, basePath);
         for (String subKey : subKeys) {
             JREEntry entry = getEntryFromRegistry(basePath, subKey);
@@ -59,7 +61,7 @@ public final class JavaRuntimeFinder {
         }
     }
     
-    private static JREEntry getEntryFromRegistry(String basePath, String version) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private static JREEntry getEntryFromRegistry(String basePath, String version)  throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         String regPath = basePath + "\\" + version;
         String path = WinRegistry.readString(WinRegistry.HKEY_LOCAL_MACHINE, regPath, "JavaHome");
         File dir = new File(path);
@@ -75,8 +77,12 @@ public final class JavaRuntimeFinder {
     }
     
     private static boolean guessIf64Bit(File path) {
-        String programFilesX86 = System.getenv("ProgramFiles(x86)");
-        return programFilesX86 == null || !path.toString().startsWith(new File(programFilesX86).toString());
+        try {
+            String programFilesX86 = System.getenv("ProgramFiles(x86)");
+            return programFilesX86 == null || !path.getCanonicalPath().startsWith(new File(programFilesX86).getCanonicalPath());
+        } catch (IOException ignored) {
+            return false;
+        }
     }
     
     private static class JREEntry implements Comparable<JREEntry> {
