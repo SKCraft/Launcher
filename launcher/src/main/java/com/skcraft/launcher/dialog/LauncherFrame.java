@@ -68,9 +68,9 @@ public class LauncherFrame extends JFrame {
         instancesModel = new InstanceTableModel(launcher.getInstances());
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setSize(700, 450);
         setMinimumSize(new Dimension(400, 300));
         initComponents();
+        pack();
         setLocationRelativeTo(null);
 
         SwingHelper.setIconImage(this, Launcher.class, "icon.png");
@@ -107,7 +107,7 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerLocation(200);
         splitPane.setDividerSize(4);
         splitPane.setOpaque(false);
-        container.add(splitPane, "grow, wrap, span 5, gapbottom unrel");
+        container.add(splitPane, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:350");
         SwingHelper.flattenJSplitPane(splitPane);
         container.add(refreshButton);
         container.add(updateCheck);
