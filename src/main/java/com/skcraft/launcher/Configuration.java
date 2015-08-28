@@ -41,7 +41,9 @@ public class Configuration {
     private int widowHeight = 480;
     private String gameKey;
     
-    
+    public static void setImplicitExit() {
+       javafx.application.Platform.setImplicitExit(false); 
+    }
     
     public void checkVaules()
     {
