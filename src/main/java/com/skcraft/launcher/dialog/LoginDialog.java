@@ -151,7 +151,7 @@ public class LoginDialog extends JDialog {
 
                 Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
                 String showURLBar = userNodeForPackage.get("IDontOwnMicrosoft", "");
-                if ((showURLBar != null && showURLBar.equals("true")) || launcher.getConfig().isOfflineEnabled()) {
+                if ((showURLBar != null && showURLBar.equals("true"))) {
                     setResult(new OfflineSession(idCombo.getSelectedItem().toString()));
                 } else {
                     setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
