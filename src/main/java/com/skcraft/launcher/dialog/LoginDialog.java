@@ -149,7 +149,15 @@ public class LoginDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
+                Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+                String showURLBar = userNodeForPackage.get("IDontOwnMicrosoft", "");
+                if ((showURLBar != null && showURLBar.equals("true")) || launcher.getConfig().isOfflineEnabled()) {
+                    setResult(new OfflineSession(idCombo.getSelectedItem().toString()));
+                } else {
+                    setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
+                }
+
+
                 removeListeners();
                 dispose();
             }
