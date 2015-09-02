@@ -111,7 +111,7 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getVersionPath() {
-        if (title.equalsIgnoreCase("Vanilla")) {
+        if (title.equalsIgnoreCase("Vanilla") || title.equalsIgnoreCase("Resurrection")) {
             return new File(getDir(), "version.json");
         } else {
             try {
