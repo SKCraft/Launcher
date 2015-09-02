@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
+import org.apache.commons.io.FileUtils;
 
 /**
  * An instance is a profile that represents one particular installation
@@ -110,7 +111,18 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getVersionPath() {
-        return new File(getDir(), "version.json");
+        if (title.equalsIgnoreCase("Vanilla")) {
+            return new File(getDir(), "version.json");
+        } else {
+            try {
+                URL url = new URL("https://www.lolnet.co.nz/modpack/latestForge_"+version+".json");
+                File f = new File(getDir(), "version.json");
+                FileUtils.copyURLToFile(url,f);
+                return f;
+            } catch (Exception ex) {
+                return new File(getDir(), "version.json");
+            }
+        }
     }
 
     /**
