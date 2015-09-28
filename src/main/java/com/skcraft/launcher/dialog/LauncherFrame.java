@@ -256,11 +256,11 @@ public class LauncherFrame extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (instanceScroll.isVisible()) {
-                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/");
+                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/forum");
                         splitPane.remove(instanceScroll);
                         instanceScroll.setVisible(false);
                     } else {
-                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/");
+                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/forum");
                     }
                 }
             });
