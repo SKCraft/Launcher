@@ -9,6 +9,7 @@ package com.skcraft.launcher;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.io.Files;
+import com.skcraft.launcher.dialog.LauncherFrame;
 import com.skcraft.launcher.launch.JavaProcessBuilder;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
 import lombok.Data;
@@ -118,8 +119,10 @@ public class Instance implements Comparable<Instance> {
                 URL url = new URL("https://www.lolnet.co.nz/modpack/latestForge_"+version+".json");
                 File f = new File(getDir(), "version.json");
                 FileUtils.copyURLToFile(url,f);
+                System.out.println("Using version.json from:" + url.toString());
                 return f;
             } catch (Exception ex) {
+                ex.printStackTrace();
                 return new File(getDir(), "version.json");
             }
         }
