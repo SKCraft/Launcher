@@ -12,12 +12,16 @@ import com.google.common.io.Files;
 import com.skcraft.launcher.dialog.LauncherFrame;
 import com.skcraft.launcher.launch.JavaProcessBuilder;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
+import com.skcraft.launcher.model.modpack.Manifest;
+import com.skcraft.launcher.util.HttpRequest;
 import lombok.Data;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -112,11 +116,23 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getVersionPath() {
-        if (title.equalsIgnoreCase("Vanilla") || title.equalsIgnoreCase("Resurrection")) {
+        String gameVersion = "NULL";
+        try {
+            com.skcraft.launcher.model.modpack.Manifest manifest = HttpRequest
+                    .get(this.getManifestURL())
+                    .execute()
+                    .expectResponseCode(200)
+                    .returnContent()
+                    .asJson(Manifest.class);
+            gameVersion = manifest.getGameVersion();
+        } catch (IOException | InterruptedException ex) {
+            Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (title.equalsIgnoreCase("Vanilla") || title.equalsIgnoreCase("Resurrection") && !gameVersion.equals("NULL")) {
             return new File(getDir(), "version.json");
         } else {
             try {
-                URL url = new URL("https://www.lolnet.co.nz/modpack/latestForge_"+version+".json");
+                URL url = new URL("https://www.lolnet.co.nz/modpack/latestForge_"+gameVersion+".json");
                 File f = new File(getDir(), "version.json");
                 FileUtils.copyURLToFile(url,f);
                 System.out.println("Using version.json from:" + url.toString());
