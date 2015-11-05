@@ -3,8 +3,13 @@
 /.project
 /.settings
 
+# gradle
+/.gradle
+/.nb-gradle
+
 # netbeans
 /nbproject
+
 
 # we use maven!
 /build.xml
