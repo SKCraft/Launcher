@@ -128,20 +128,7 @@ public class Instance implements Comparable<Instance> {
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (title.equalsIgnoreCase("Vanilla") || title.equalsIgnoreCase("Resurrection") && !gameVersion.equals("NULL")) {
-            return new File(getDir(), "version.json");
-        } else {
-            try {
-                URL url = new URL("https://www.lolnet.co.nz/modpack/latestForge_"+gameVersion+".json");
-                File f = new File(getDir(), "version.json");
-                FileUtils.copyURLToFile(url,f);
-                System.out.println("Using version.json from:" + url.toString());
-                return f;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return new File(getDir(), "version.json");
-            }
-        }
+        return new File(getDir(), "version.json");
     }
 
     /**
