@@ -9,13 +9,14 @@ package com.skcraft.launcher.selfupdate;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.util.HttpRequest;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
 import java.net.URL;
 import java.util.concurrent.Callable;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 import java.net.HttpURLConnection;
 
 /**
@@ -58,7 +59,7 @@ public class UpdateChecker implements Callable<URL> {
                 return null;
             }
         } catch (Exception e) {
-            throw new LauncherException(e, _("errors.selfUpdateCheckError"));
+            throw new LauncherException(e, SharedLocale.tr("errors.selfUpdateCheckError"));
         }
     }
 

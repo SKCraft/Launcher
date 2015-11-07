@@ -6,13 +6,14 @@
 
 package com.skcraft.launcher.swing;
 
+import com.skcraft.launcher.util.SharedLocale;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 
 public class TextFieldPopupMenu extends JPopupMenu implements ActionListener {
 
@@ -25,12 +26,12 @@ public class TextFieldPopupMenu extends JPopupMenu implements ActionListener {
     private final JMenuItem selectAllItem;
 
     private TextFieldPopupMenu() {
-        cutItem = addMenuItem(new JMenuItem(_("context.cut"), 'T'));
-        copyItem = addMenuItem(new JMenuItem(_("context.copy"), 'C'));
-        pasteItem = addMenuItem(new JMenuItem(_("context.paste"), 'P'));
-        deleteItem = addMenuItem(new JMenuItem(_("context.delete"), 'D'));
+        cutItem = addMenuItem(new JMenuItem(SharedLocale.tr("context.cut"), 'T'));
+        copyItem = addMenuItem(new JMenuItem(SharedLocale.tr("context.copy"), 'C'));
+        pasteItem = addMenuItem(new JMenuItem(SharedLocale.tr("context.paste"), 'P'));
+        deleteItem = addMenuItem(new JMenuItem(SharedLocale.tr("context.delete"), 'D'));
         addSeparator();
-        selectAllItem = addMenuItem(new JMenuItem(_("context.selectAll"), 'A'));
+        selectAllItem = addMenuItem(new JMenuItem(SharedLocale.tr("context.selectAll"), 'A'));
     }
 
     private JMenuItem addMenuItem(JMenuItem item) {

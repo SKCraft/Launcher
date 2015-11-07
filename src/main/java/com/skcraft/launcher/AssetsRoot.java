@@ -12,6 +12,7 @@ import com.skcraft.launcher.model.minecraft.Asset;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 
 /**
  * Represents a directory that stores assets for Minecraft. The class has
@@ -79,7 +80,7 @@ public class AssetsRoot {
         File path = getIndexPath(versionManifest);
         AssetsIndex index = Persistence.read(path, AssetsIndex.class, true);
         if (index == null || index.getObjects() == null) {
-            throw new LauncherException("Missing index at " + path, _("assets.missingIndex", path.getAbsolutePath()));
+            throw new LauncherException("Missing index at " + path, SharedLocale.tr("assets.missingIndex", path.getAbsolutePath()));
         }
         File treeDir = new File(dir, "virtual/" + indexId);
         treeDir.mkdirs();
@@ -110,7 +111,7 @@ public class AssetsRoot {
                             objectPath.getAbsolutePath(), virtualPath.getAbsolutePath()});
 
                     if (!objectPath.exists()) {
-                        String message = _("assets.missingObject", objectPath.getAbsolutePath());
+                        String message = SharedLocale.tr("assets.missingObject", objectPath.getAbsolutePath());
                         throw new LauncherException("Missing object " + objectPath.getAbsolutePath(), message);
                     }
 
@@ -134,9 +135,9 @@ public class AssetsRoot {
         @Override
         public String getStatus() {
             if (count == 0) {
-                return _("assets.expanding1", count, count - processed);
+                return SharedLocale.tr("assets.expanding1", count, count - processed);
             } else {
-                return _("assets.expandingN", count, count - processed);
+                return SharedLocale.tr("assets.expandingN", count, count - processed);
             }
         }
     }

@@ -11,6 +11,7 @@ import com.skcraft.launcher.swing.LinedBoxPanel;
 import com.skcraft.launcher.swing.MessageLog;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.util.PastebinPoster;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -21,7 +22,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 
 /**
  * A frame capable of showing messages.
@@ -45,7 +46,7 @@ public class ConsoleFrame extends JFrame {
      * @param colorEnabled true to enable a colored console
      */
     public ConsoleFrame(int numLines, boolean colorEnabled) {
-        this(_("console.title"), numLines, colorEnabled);
+        this(SharedLocale.tr("console.title"), numLines, colorEnabled);
     }
 
     /**
@@ -79,7 +80,7 @@ public class ConsoleFrame extends JFrame {
      * Add components to the frame.
      */
     private void initComponents() {
-        JButton pastebinButton = new JButton(_("console.uploadLog"));
+        JButton pastebinButton = new JButton(SharedLocale.tr("console.uploadLog"));
         buttonsPanel = new LinedBoxPanel(true);
 
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -122,18 +123,18 @@ public class ConsoleFrame extends JFrame {
     private void pastebinLog() {
         String text = messageLog.getPastableText();
         // Not really bytes!
-        messageLog.log(_("console.pasteUploading", text.length()), messageLog.asHighlighted());
+        messageLog.log(SharedLocale.tr("console.pasteUploading", text.length()), messageLog.asHighlighted());
 
         PastebinPoster.paste(text, new PastebinPoster.PasteCallback() {
             @Override
             public void handleSuccess(String url) {
-                messageLog.log(_("console.pasteUploaded", url), messageLog.asHighlighted());
+                messageLog.log(SharedLocale.tr("console.pasteUploaded", url), messageLog.asHighlighted());
                 SwingHelper.openURL(url, messageLog);
             }
 
             @Override
             public void handleError(String err) {
-                messageLog.log(_("console.pasteFailed", err), messageLog.asError());
+                messageLog.log(SharedLocale.tr("console.pasteFailed", err), messageLog.asError());
             }
         });
     }
@@ -143,13 +144,20 @@ public class ConsoleFrame extends JFrame {
         if (frame == null) {
             frame = new ConsoleFrame(10000, false);
             globalFrame = frame;
-            frame.setTitle(_("console.launcherConsoleTitle"));
+            frame.setTitle(SharedLocale.tr("console.launcherConsoleTitle"));
             frame.registerLoggerHandler();
             frame.setVisible(true);
         } else {
             frame.setVisible(true);
             frame.registerLoggerHandler();
             frame.requestFocus();
+        }
+    }
+
+    public static void hideMessages() {
+        ConsoleFrame frame = globalFrame;
+        if (frame != null) {
+            frame.setVisible(false);
         }
     }
 

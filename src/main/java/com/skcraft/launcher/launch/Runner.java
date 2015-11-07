@@ -21,7 +21,8 @@ import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
-import static com.skcraft.launcher.util.SharedLocale._;
+import com.skcraft.launcher.util.SharedLocale;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,7 +44,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 @Log
 public class Runner implements Callable<Process>, ProgressObservable {
 
-    private ProgressObservable progress = new DefaultProgress(0, _("runner.preparing"));
+    private ProgressObservable progress = new DefaultProgress(0, SharedLocale.tr("runner.preparing"));
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Launcher launcher;
@@ -93,7 +94,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
     @Override
     public Process call() throws Exception {
         if (!instance.isInstalled()) {
-            throw new LauncherException("Update required", _("runner.updateRequired"));
+            throw new LauncherException("Update required", SharedLocale.tr("runner.updateRequired"));
         }
 
         config = launcher.getConfig();
@@ -111,12 +112,12 @@ public class Runner implements Callable<Process>, ProgressObservable {
             instance.setInstalled(false);
             Persistence.commitAndForget(instance);
             throw new LauncherException("Missing assets index " + assetsFile.getAbsolutePath(),
-                    _("runner.missingAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
+                    SharedLocale.tr("runner.missingAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
         } catch (IOException e) {
             instance.setInstalled(false);
             Persistence.commitAndForget(instance);
             throw new LauncherException("Corrupt assets index " + assetsFile.getAbsolutePath(),
-                    _("runner.corruptAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
+                    SharedLocale.tr("runner.corruptAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
         }
 
         // Copy over assets to the tree
@@ -130,7 +131,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
             throw e;
         }
 
-        progress = new DefaultProgress(0.9, _("runner.collectingArgs"));
+        progress = new DefaultProgress(0.9, SharedLocale.tr("runner.collectingArgs"));
 
         addJvmArgs();
         addLibraries();
@@ -148,7 +149,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         Runner.log.info("Launching: " + builder);
         checkInterrupted();
 
-        progress = new DefaultProgress(1, _("runner.startingJava"));
+        progress = new DefaultProgress(1, SharedLocale.tr("runner.startingJava"));
 
         //cptwin, launcher statistics
         new ThreadLaunchedModpack(instance.getTitle());
@@ -208,7 +209,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 instance.setInstalled(false);
                 Persistence.commitAndForget(instance);
                 throw new LauncherException("Missing library " + library.getName(),
-                        _("runner.missingLibrary", instance.getTitle(), library.getName()));
+                        SharedLocale.tr("runner.missingLibrary", instance.getTitle(), library.getName()));
             }
         }
 

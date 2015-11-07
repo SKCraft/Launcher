@@ -12,6 +12,7 @@ import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.swing.LinedBoxPanel;
 import com.skcraft.launcher.swing.SwingHelper;
+import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.extern.java.Log;
 
@@ -25,7 +26,7 @@ import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 
 @Log
 public class ProgressDialog extends JDialog {
@@ -42,8 +43,8 @@ public class ProgressDialog extends JDialog {
     private final JTextArea logText = new JTextArea();
     private final JScrollPane logScroll = new JScrollPane(logText);
     private final JButton detailsButton = new JButton();
-    private final JButton logButton = new JButton(_("progress.viewLog"));
-    private final JButton cancelButton = new JButton(_("button.cancel"));
+    private final JButton logButton = new JButton(SharedLocale.tr("progress.viewLog"));
+    private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
 
     public ProgressDialog(Window owner, String title, String message) {
         super(owner, title, ModalityType.DOCUMENT_MODAL);
@@ -69,14 +70,14 @@ public class ProgressDialog extends JDialog {
     }
 
     private void setCompactSize() {
-        detailsButton.setText(_("progress.details"));
+        detailsButton.setText(SharedLocale.tr("progress.details"));
         logButton.setVisible(false);
         setMinimumSize(new Dimension(400, 100));
         pack();
     }
 
     private void setDetailsSize() {
-        detailsButton.setText(_("progress.less"));
+        detailsButton.setText(SharedLocale.tr("progress.less"));
         logButton.setVisible(true);
         setSize(400, 350);
     }
@@ -137,7 +138,7 @@ public class ProgressDialog extends JDialog {
     }
 
     private boolean confirmCancel() {
-        return SwingHelper.confirmDialog(this, _("progress.confirmCancel"), _("progress.confirmCancelTitle"));
+        return SwingHelper.confirmDialog(this, SharedLocale.tr("progress.confirmCancel"), SharedLocale.tr("progress.confirmCancelTitle"));
     }
 
     protected void cancel() {
@@ -213,7 +214,7 @@ public class ProgressDialog extends JDialog {
 
                     double progress = observable.getProgress();
                     if (progress >= 0) {
-                        dialog.setTitle(_("progress.percentTitle",
+                        dialog.setTitle(SharedLocale.tr("progress.percentTitle",
                                 Math.round(progress * 100 * 100) / 100.0, dialog.defaultTitle));
                         progressBar.setValue((int) (progress * 1000));
                         progressBar.setIndeterminate(false);
@@ -224,7 +225,7 @@ public class ProgressDialog extends JDialog {
 
                     String status = observable.getStatus();
                     if (status == null) {
-                        status = _("progress.defaultStatus");
+                        status = SharedLocale.tr("progress.defaultStatus");
                         label.setText(dialog.defaultMessage);
                     } else {
                         int index = status.indexOf('\n');

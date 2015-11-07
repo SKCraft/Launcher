@@ -4,14 +4,10 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.builder;
+package com.skcraft.concurrency;
 
-import com.skcraft.launcher.model.modpack.Feature;
-import lombok.Data;
+public interface Callback<T> {
 
-@Data
-public class FileInfo {
-
-    private Feature feature;
+    void handle(T value);
 
 }

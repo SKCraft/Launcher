@@ -10,6 +10,7 @@ import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
 
 import java.io.File;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 
 public class HardResetter implements Callable<Instance>, ProgressObservable {
 
@@ -35,7 +36,7 @@ public class HardResetter implements Callable<Instance>, ProgressObservable {
 
     @Override
     public String getStatus() {
-        return _("instanceResetter.resetting", instance.getTitle());
+        return SharedLocale.tr("instanceResetter.resetting", instance.getTitle());
     }
 
     @Override

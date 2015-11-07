@@ -18,7 +18,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
-import static com.skcraft.launcher.util.SharedLocale._;
+import com.skcraft.launcher.util.SharedLocale;
+
 
 @Log
 public class Installer implements ProgressObservable {
@@ -77,9 +78,9 @@ public class Installer implements ProgressObservable {
             if (status == null) {
                 status = running.toString();
             }
-            return _("installer.executing", count - finished) + "\n" + status;
+            return SharedLocale.tr("installer.executing", count - finished) + "\n" + status;
         } else {
-            return _("installer.installing");
+            return SharedLocale.tr("installer.installing");
         }
     }
 }

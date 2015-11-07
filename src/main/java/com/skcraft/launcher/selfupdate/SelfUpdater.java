@@ -11,6 +11,7 @@ import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.install.FileMover;
 import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
 
 import java.io.File;
@@ -19,7 +20,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 import java.util.prefs.Preferences;
 
 public class SelfUpdater implements Callable<File>, ProgressObservable {
@@ -29,7 +30,7 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
     private final Launcher launcher;
     private final URL url;
     private final Installer installer;
-    private ProgressObservable progress = new DefaultProgress(0, _("updater.updating"));
+    private ProgressObservable progress = new DefaultProgress(0, SharedLocale.tr("updater.updating"));
 
     public SelfUpdater(@NonNull Launcher launcher, @NonNull URL url) {
         this.launcher = launcher;

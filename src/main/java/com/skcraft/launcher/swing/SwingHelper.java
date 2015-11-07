@@ -6,10 +6,13 @@
 
 package com.skcraft.launcher.swing;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.launcher.LauncherException;
+import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -25,17 +28,19 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+import static com.skcraft.launcher.util.SharedLocale.tr;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
 /**
@@ -50,6 +55,8 @@ public final class SwingHelper {
 
         }
     };
+
+    private static final Joiner NEW_LINE_JOINER = Joiner.on("\n");
 
     private SwingHelper() {
     }
@@ -69,8 +76,8 @@ public final class SwingHelper {
         try {
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(component, _("errors.openDirError", file.getAbsolutePath()),
-                    _("errorTitle"), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(component, tr("errors.openDirError", file.getAbsolutePath()),
+                    SharedLocale.tr("errorTitle"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -97,7 +104,7 @@ public final class SwingHelper {
         try {
             Desktop.getDesktop().browse(url.toURI());
         } catch (IOException e) {
-            showErrorDialog(parentComponent, _("errors.openUrlError", url.toString()), _("errorTitle"));
+            showErrorDialog(parentComponent, tr("errors.openUrlError", url.toString()), SharedLocale.tr("errorTitle"));
         } catch (URISyntaxException e) {
         }
     }
@@ -177,7 +184,7 @@ public final class SwingHelper {
 
             // Add the extra details
             if (detailsText != null) {
-                JTextArea textArea = new JTextArea(_("errors.reportErrorPreface") + detailsText);
+                JTextArea textArea = new JTextArea(SharedLocale.tr("errors.reportErrorPreface") + detailsText);
                 JLabel tempLabel = new JLabel();
                 textArea.setFont(tempLabel.getFont());
                 textArea.setBackground(tempLabel.getBackground());
@@ -296,11 +303,41 @@ public final class SwingHelper {
         }
         return null;
     }
+    
+    
+    public static ImageIcon readImageIcon(Class<?> clazz, String path) {
+        BufferedImage image = readIconImage(clazz, path);
+        if (image != null) {
+            return new ImageIcon(image);
+        } else {
+            return null;
+        }
+    }
+    
+    
+    public static Image readIconImageScaled(Class<?> clazz, String path, int w, int h) {
+        BufferedImage image = readIconImage(clazz, path);
+        if (image != null) {
+            return image.getScaledInstance(w, h, Image.SCALE_SMOOTH);
+        } else {
+            return null;
+        }
+    }
 
     public static void setIconImage(JFrame frame, Class<?> clazz, String path) {
         BufferedImage image = readIconImage(clazz, path);
         if (image != null) {
             frame.setIconImage(image);
+        }
+    }
+    
+
+    public static ImageIcon readImageIconScaled(Class<?> clazz, String path, int w, int h) {
+        Image image = readIconImageScaled(clazz, path, w, h);
+        if (image != null) {
+            return new ImageIcon(image);
+        } else {
+            return null;
         }
     }
 
@@ -358,11 +395,11 @@ public final class SwingHelper {
                 } else {
                     message = t.getLocalizedMessage();
                     if (message == null) {
-                        message = _("errors.genericError");
+                        message = SharedLocale.tr("errors.genericError");
                     }
                 }
                 log.log(Level.WARNING, "Task failed", t);
-                SwingHelper.showErrorDialog(owner, message, _("errorTitle"), t);
+                SwingHelper.showErrorDialog(owner, message, SharedLocale.tr("errorTitle"), t);
             }
         }, SwingExecutor.INSTANCE);
     }
@@ -374,5 +411,54 @@ public final class SwingHelper {
         container.add(new Box.Filler(new Dimension(0, 0), new Dimension(0, 10000), new Dimension(0, 10000)));
         SwingHelper.removeOpaqueness(container);
         return container;
+    }
+
+    public static void setTextAndResetCaret(JTextComponent component, String text) {
+        component.setText(text);
+        component.setCaretPosition(0);
+    }
+
+    public static JScrollPane wrapScrollPane(Component component) {
+        JScrollPane scrollPane = new JScrollPane(component);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        return scrollPane;
+    }
+
+    public static String listToLines(List<String> lines) {
+        return SwingHelper.NEW_LINE_JOINER.join(lines);
+    }
+
+    public static List<String> linesToList(String text) {
+        String[] tokens = text.replace("\r", "\n").split("\n");
+        List<String> values = Lists.newArrayList();
+        for (String token : tokens) {
+            String value = token.trim();
+            if (!value.isEmpty()) {
+                values.add(value);
+            }
+        }
+        return values;
+    }
+
+    public static void addActionListeners(AbstractButton button, ActionListener[] listeners) {
+        for (ActionListener listener : listeners) {
+            button.addActionListener(listener);
+        }
+    }
+
+    public static boolean setLookAndFeel(String lookAndFeel) {
+        try {
+            UIManager.setLookAndFeel(lookAndFeel);
+            return true;
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Failed to set look and feel to " + lookAndFeel, e);
+            return false;
+        }
+    }
+
+    public static void setSwingProperties(String appName) {
+        UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
     }
 }

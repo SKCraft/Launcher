@@ -7,6 +7,7 @@
 package com.skcraft.launcher.install;
 
 import com.google.common.io.Files;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
@@ -14,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 
 @Log
 public class FileCopy implements InstallTask {
@@ -41,7 +42,7 @@ public class FileCopy implements InstallTask {
 
     @Override
     public String getStatus() {
-        return _("installer.copyingFile", from, to);
+        return SharedLocale.tr("installer.copyingFile", from, to);
     }
 
 }

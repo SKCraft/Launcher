@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.util.HttpRequest;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -29,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 
 @Log
 public class HttpDownloader implements Downloader {
@@ -158,9 +159,9 @@ public class HttpDownloader implements Downloader {
 
     @Override
     public synchronized String getStatus() {
-        String failMessage = _("downloader.failedCount", failed.size());
+        String failMessage = SharedLocale.tr("downloader.failedCount", failed.size());
         if (running.size() == 1) {
-            return _("downloader.downloadingItem", running.get(0).getName()) +
+            return SharedLocale.tr("downloader.downloadingItem", running.get(0).getName()) +
                     "\n" + running.get(0).getStatus() +
                     "\n" + failMessage;
         } else if (running.size() > 0) {
@@ -169,11 +170,11 @@ public class HttpDownloader implements Downloader {
                 builder.append("\n");
                 builder.append(job.getStatus());
             }
-            return _("downloader.downloadingList", queue.size(), left, failed.size()) +
+            return SharedLocale.tr("downloader.downloadingList", queue.size(), left, failed.size()) +
                     builder.toString() +
                     "\n" + failMessage;
         } else {
-            return _("downloader.noDownloads");
+            return SharedLocale.tr("downloader.noDownloads");
         }
     }
 
@@ -270,9 +271,9 @@ public class HttpDownloader implements Downloader {
         public String getStatus() {
             double progress = getProgress();
             if (progress >= 0) {
-                return _("downloader.jobProgress", name, Math.round(progress * 100 * 100) / 100.0);
+                return SharedLocale.tr("downloader.jobProgress", name, Math.round(progress * 100 * 100) / 100.0);
             } else {
-                return _("downloader.jobPending", name);
+                return SharedLocale.tr("downloader.jobPending", name);
             }
         }
     }

@@ -9,6 +9,7 @@ import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -46,9 +47,9 @@ public class ConfigurationDialog extends JDialog {
     private final JTextField gameKeyText = new JTextField();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final LinedBoxPanel buttonsPanel2 = new LinedBoxPanel(true);
-    private final JButton okButton = new JButton(_("button.ok"));
-    private final JButton cancelButton = new JButton(_("button.cancel"));
-    private final JButton logButton = new JButton(_("options.launcherConsole"));
+    private final JButton okButton = new JButton(SharedLocale.tr("button.ok"));
+    private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
+    private final JButton logButton = new JButton(SharedLocale.tr("options.launcherConsole"));
     private final JButton changeDataStorageLocationButton = new JButton("Change Data Directory...");
 
     /**
@@ -63,7 +64,7 @@ public class ConfigurationDialog extends JDialog {
         this.config = launcher.getConfig();
         mapper = new ObjectSwingMapper(config);
 
-        setTitle(_("options.title"));
+        setTitle(SharedLocale.tr("options.title"));
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 500));
@@ -83,27 +84,27 @@ public class ConfigurationDialog extends JDialog {
     }
 
     private void initComponents() {
-        javaSettingsPanel.addRow(new JLabel(_("options.jvmPath")), jvmPathText);
-        javaSettingsPanel.addRow(new JLabel(_("options.jvmArguments")), jvmArgsText);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmPath")), jvmPathText);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmArguments")), jvmArgsText);
         javaSettingsPanel.addRow(Box.createVerticalStrut(15));
-        javaSettingsPanel.addRow(new JLabel(_("options.64BitJavaWarning")));
-        javaSettingsPanel.addRow(new JLabel(_("options.minMemory")), minMemorySpinner);
-        javaSettingsPanel.addRow(new JLabel(_("options.maxMemory")), maxMemorySpinner);
-        javaSettingsPanel.addRow(new JLabel(_("options.permGen")), permGenSpinner);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.64BitJavaWarning")));
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.minMemory")), minMemorySpinner);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.maxMemory")), maxMemorySpinner);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.permGen")), permGenSpinner);
         SwingHelper.removeOpaqueness(javaSettingsPanel);
-        tabbedPane.addTab(_("options.javaTab"), SwingHelper.alignTabbedPane(javaSettingsPanel));
+        tabbedPane.addTab(SharedLocale.tr("options.javaTab"), SwingHelper.alignTabbedPane(javaSettingsPanel));
 
-        gameSettingsPanel.addRow(new JLabel(_("options.windowWidth")), widthSpinner);
-        gameSettingsPanel.addRow(new JLabel(_("options.windowHeight")), heightSpinner);
+        gameSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.windowWidth")), widthSpinner);
+        gameSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.windowHeight")), heightSpinner);
         SwingHelper.removeOpaqueness(gameSettingsPanel);
-        tabbedPane.addTab(_("options.minecraftTab"), SwingHelper.alignTabbedPane(gameSettingsPanel));
+        tabbedPane.addTab(SharedLocale.tr("options.minecraftTab"), SwingHelper.alignTabbedPane(gameSettingsPanel));
 
-        //advancedPanel.addRow(new JLabel(_("options.gameKey")), gameKeyText);
+        //advancedPanel.addRow(new JLabel(SharedLocale.tr("options.gameKey")), gameKeyText);
         //buttonsPanel2.addGlue();
         buttonsPanel2.addElement(changeDataStorageLocationButton);
         advancedPanel.add(buttonsPanel2);
         SwingHelper.removeOpaqueness(advancedPanel);
-        tabbedPane.addTab(_("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
+        tabbedPane.addTab(SharedLocale.tr("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
         buttonsPanel.addElement(logButton);
         buttonsPanel.addGlue();

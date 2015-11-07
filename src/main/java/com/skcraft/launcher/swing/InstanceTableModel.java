@@ -8,12 +8,13 @@ package com.skcraft.launcher.swing;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.util.SharedLocale;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 
-import static com.skcraft.launcher.util.SharedLocale._;
+
 import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -49,7 +50,7 @@ public class InstanceTableModel extends AbstractTableModel {
             case 0:
                 return "";
             case 1:
-                return _("launcher.modpackColumn");
+                return SharedLocale.tr("launcher.modpackColumn");
             default:
                 return null;
         }
@@ -124,11 +125,11 @@ public class InstanceTableModel extends AbstractTableModel {
 
     private String getAddendum(Instance instance) {
         if (!instance.isLocal()) {
-            return " <span style=\"color: #cccccc\">" + _("launcher.notInstalledHint") + "</span>";
+            return " <span style=\"color: #cccccc\">" + SharedLocale.tr("launcher.notInstalledHint") + "</span>";
         } else if (!instance.isInstalled()) {
-            return " <span style=\"color: red\">" + _("launcher.requiresUpdateHint") + "</span>";
+            return " <span style=\"color: red\">" + SharedLocale.tr("launcher.requiresUpdateHint") + "</span>";
         } else if (instance.isUpdatePending()) {
-            return " <span style=\"color: #3758DB\">" + _("launcher.updatePendingHint") + "</span>";
+            return " <span style=\"color: #3758DB\">" + SharedLocale.tr("launcher.updatePendingHint") + "</span>";
         } else {
             return "";
         }

@@ -36,7 +36,8 @@ import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.LauncherUtils.concat;
-import static com.skcraft.launcher.util.SharedLocale._;
+import com.skcraft.launcher.util.SharedLocale;
+
 
 /**
  * The base implementation of the various routines involved in downloading and
@@ -89,7 +90,7 @@ public abstract class BaseUpdater {
                 .asJson(Manifest.class);
 
         if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
-            throw new LauncherException("Update required", _("errors.updateRequiredError"));
+            throw new LauncherException("Update required", SharedLocale.tr("errors.updateRequiredError"));
         }
 
         if (manifest.getBaseUrl() == null) {
