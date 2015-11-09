@@ -489,6 +489,32 @@ public final class Launcher {
         }
         return "https://www.lolnet.co.nz/modpack";
     }
+    
+    
+    public static String getBootstrapLink()
+    {
+        try {
+            URL url;
+            url = new URL("https://www.lolnet.co.nz/modpack/bootstraplink.txt");
+            url = Launcher.checkURL(url);
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.flush();
+
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                return line;
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+        }
+        return "https://www.lolnet.co.nz/modpack";
+    }
 
     public static void main() {
         String[] args = new String[1];

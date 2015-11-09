@@ -474,7 +474,7 @@ public class LauncherFrame extends JFrame {
             String bootstrap = userNodeForPackage.get("LolnetLauncherbootstrap", "");
             if (bootstrap == null || bootstrap.equals("")) {
                 try {
-                    url = new URL("http://anderson.lolnet.co.nz:8081/job/LolnetLauncherBootstrap/lastSuccessfulBuild/artifact/target/LolnetLauncher.jar");
+                    url = new URL(Launcher.getBootstrapLink());
                 } catch (MalformedURLException ex) {
                     Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
