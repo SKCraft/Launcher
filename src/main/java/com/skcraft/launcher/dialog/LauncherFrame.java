@@ -212,7 +212,7 @@ public class LauncherFrame extends JFrame {
                 public void mouseClicked(MouseEvent e) {
                     final Instance selected = launcher.getInstances().get(instancesTable.getSelectedRow());
                     try {
-                        URL url = new URL("https://www.lolnet.co.nz/modpack/news/" + selected.getName().replaceAll(" ", "_") + "/index.html");
+                        URL url = new URL(Launcher.modPackURL+ "news/" + selected.getName().replaceAll(" ", "_") + "/index.html");
                         HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                         int responseCode = huc.getResponseCode();
                         if (responseCode != 404) {
@@ -564,7 +564,7 @@ public class LauncherFrame extends JFrame {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            URL url = new URL("https://www.lolnet.co.nz/modpack/changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
+                            URL url = new URL(Launcher.modPackURL+ "changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
                             url = Launcher.checkURL(url);
                             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                             int responseCode = huc.getResponseCode();
@@ -577,10 +577,10 @@ public class LauncherFrame extends JFrame {
                             } else {
                                 if (Launcher.java8OrAbove) {
                                     SimpleSwingBrowser.loadURL(Launcher.checkURL(
-                                            new URL("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html")).toString());
+                                            new URL(Launcher.modPackURL+ "changelog/noChngeLogExist.html")).toString());
                                 } else {
                                     SwingHelper.openURL(Launcher.checkURL(
-                                            new URL("https://www.lolnet.co.nz/modpack/changelog/noChngeLogExist.html")).toString(), rootPane);
+                                            new URL(Launcher.modPackURL+ "changelog/noChngeLogExist.html")).toString(), rootPane);
                                 }
 
                             }
@@ -876,7 +876,7 @@ public class LauncherFrame extends JFrame {
                                 }
 
                                 if (!alreadyAdded) {
-                                    URL oracle = new URL("https://www.lolnet.co.nz/modpack/" + code2 + ".php");
+                                    URL oracle = new URL(Launcher.modPackURL+ "" + code2 + ".php");
                                     oracle = Launcher.checkURL(oracle);
                                     BufferedReader in = new BufferedReader(
                                             new InputStreamReader(oracle.openStream()));
@@ -922,7 +922,7 @@ public class LauncherFrame extends JFrame {
                             }
 
                             if (!alreadyAdded) {
-                                URL oracle = new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s");
+                                URL oracle = new URL(Launcher.modPackURL+ "private/" + code + ".json" + "?key=%s");
                                 oracle = Launcher.checkURL(oracle);
                                 BufferedReader in = new BufferedReader(
                                         new InputStreamReader(oracle.openStream()));

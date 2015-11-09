@@ -132,7 +132,7 @@ public class HelpAndSupport {
     
     private static void goToNewModPackSummition() {
         try {
-            URL url = new URL("https://www.lolnet.co.nz/modpack/modPackSummition.html");
+            URL url = new URL(Launcher.modPackURL+ "modPackSummition.html");
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             int responseCode = huc.getResponseCode();
             if (responseCode != 404) {

@@ -146,7 +146,7 @@ public class PrivatePrivatePackagesManager {
             List<String> publicList = getPublicList();
             for (String code : publicList) {
                 try {
-                    packagesURL.add(Launcher.checkURL(new URL("https://www.lolnet.co.nz/modpack/public/" + code + "?key=%s")));
+                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL+ "public/" + code + "?key=%s")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -160,7 +160,7 @@ public class PrivatePrivatePackagesManager {
             }
             for (String code : privateCodeList) {
                 try {
-                    packagesURL.add(Launcher.checkURL(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s")));
+                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL+ "private/" + code + ".json" + "?key=%s")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -168,7 +168,7 @@ public class PrivatePrivatePackagesManager {
             List<String> publicPrivateList = getPublicPrivateList();
             for (String code : publicPrivateList) {
                 try {
-                    packagesURL.add(Launcher.checkURL(new URL("https://www.lolnet.co.nz/modpack/private/" + code + ".json" + "?key=%s")));
+                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL+ "private/" + code + ".json" + "?key=%s")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -234,7 +234,7 @@ public class PrivatePrivatePackagesManager {
     private static List<String> getPrivateList(String key) {
         List<String> publicList = new ArrayList<String>();
         try {
-            URL url = new URL("https://www.lolnet.co.nz/modpack/" + key + ".php");
+            URL url = new URL(Launcher.modPackURL+ "" + key + ".php");
             url = Launcher.checkURL(url);
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
@@ -265,7 +265,7 @@ public class PrivatePrivatePackagesManager {
     private static List<String> getPublicList() {
         List<String> publicList = new ArrayList<String>();
         try {
-            URL url = new URL("https://www.lolnet.co.nz/modpack/listpackages.php");
+            URL url = new URL(Launcher.modPackURL+ "listpackages.php");
             url = Launcher.checkURL(url);
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
@@ -296,7 +296,7 @@ public class PrivatePrivatePackagesManager {
     private static List<String> getPublicPrivateList() {
         List<String> publicList = new ArrayList<String>();
         try {
-            URL url = new URL("https://www.lolnet.co.nz/modpack/listpublicprivatepackages.php");
+            URL url = new URL(Launcher.modPackURL+ "listpublicprivatepackages.php");
             Launcher.checkURL(url);
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);

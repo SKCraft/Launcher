@@ -31,14 +31,18 @@ import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Properties;
@@ -63,6 +67,7 @@ public final class Launcher {
     public static final boolean debugmode = false;
     public static boolean java8OrAbove = false;
     public static final int PROTOCOL_VERSION = 2;
+    public static String modPackURL;
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
@@ -459,14 +464,41 @@ public final class Launcher {
         }
         return System.getProperty("user.dir");
     }
+    
+    public static String getModpackURL()
+    {
+        try {
+            URL url;
+            url = new URL("https://www.lolnet.co.nz/modpack/modpackurl.txt");
+            url = Launcher.checkURL(url);
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.flush();
+
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                return line;
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+        }
+        return "https://www.lolnet.co.nz/modpack";
+    }
 
     public static void main() {
         String[] args = new String[1];
         main(args);
     }
+    
 
     public static void main(String[] args) {
-
+        
+        Launcher.modPackURL = getModpackURL();
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
