@@ -399,10 +399,6 @@ public class LauncherFrame extends JFrame {
             }
         });
     }
-    
-    public void removeWebpanel() {
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, null);
-    }
 
     public void showModPackInstances(boolean showNewsPage) {
         if (instanceScroll.isVisible()) {
