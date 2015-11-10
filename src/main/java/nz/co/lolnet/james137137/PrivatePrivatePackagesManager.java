@@ -144,6 +144,7 @@ public class PrivatePrivatePackagesManager {
         List<URL> packagesURL = new ArrayList<URL>();
         if (mode.equals("public") || mode.equals("all")) {
             List<String> publicList = getPublicList();
+            System.out.println(publicList.size());
             for (String code : publicList) {
                 try {
                     packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL+ "public/" + code + "?key=%s")));
@@ -266,6 +267,7 @@ public class PrivatePrivatePackagesManager {
         List<String> publicList = new ArrayList<String>();
         try {
             URL url = new URL(Launcher.modPackURL+ "listpackages.php");
+            System.out.println(url.toString());
             url = Launcher.checkURL(url);
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
@@ -277,6 +279,7 @@ public class PrivatePrivatePackagesManager {
 
             String line;
             while ((line = rd.readLine()) != null) {
+                System.out.println(line);
                 String[] split = line.split("~~");
                 for (String string : split) {
                     if (string.length() >= 2) {
@@ -287,6 +290,7 @@ public class PrivatePrivatePackagesManager {
             wr.close();
             rd.close();
         } catch (Exception e) {
+            e.printStackTrace();
             return publicList;
         }
 

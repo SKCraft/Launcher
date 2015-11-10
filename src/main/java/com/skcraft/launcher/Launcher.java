@@ -469,7 +469,7 @@ public final class Launcher {
     {
         try {
             URL url;
-            url = new URL("https://www.lolnet.co.nz/modpack/modpackurl.txt");
+            url = new URL("https://www.lolnet.co.nz/modpack/modpackurl.php");
             url = Launcher.checkURL(url);
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
@@ -486,6 +486,7 @@ public final class Launcher {
             wr.close();
             rd.close();
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return "https://www.lolnet.co.nz/modpack";
     }
@@ -495,7 +496,7 @@ public final class Launcher {
     {
         try {
             URL url;
-            url = new URL("https://www.lolnet.co.nz/modpack/bootstraplink.txt");
+            url = new URL("https://www.lolnet.co.nz/modpack/bootstraplink.php");
             url = Launcher.checkURL(url);
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
