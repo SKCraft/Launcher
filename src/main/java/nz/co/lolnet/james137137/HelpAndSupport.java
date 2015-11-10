@@ -1,4 +1,4 @@
-    /*
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -24,20 +24,32 @@ import javax.swing.JOptionPane;
 public class HelpAndSupport {
 
     public static boolean openURL(String toURL) {
-
-        try {
-            URL url = new URL(toURL);
-            Desktop.getDesktop().browse(url.toURI());
+        if (Launcher.java8OrAbove) {
+            if (LauncherFrame.instance.instanceScroll.isVisible()) {
+                SimpleSwingBrowser.loadURL(toURL);
+                LauncherFrame.instance.splitPane.remove(LauncherFrame.instance.instanceScroll);
+                LauncherFrame.instance.instanceScroll.setVisible(false);
+            } else {
+                SimpleSwingBrowser.loadURL(toURL);
+            }
             return true;
-        } catch (URISyntaxException | IOException ex) {
-            Logger.getLogger(HelpAndSupport.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
+        } else {
+            try {
+                URL url = new URL(toURL);
+                Desktop.getDesktop().browse(url.toURI());
+                return true;
+            } catch (URISyntaxException | IOException ex) {
+                Logger.getLogger(HelpAndSupport.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
         }
+
     }
 
     public static void Start() {
+        LauncherFrame.instance.showModPackInstances(false);
         //Custom button text
-        Object[] options = {"LolnetLauncher", "My account","Restart Launcher"};
+        Object[] options = {"LolnetLauncher", "My account", "Restart Launcher", "Vote"};
         int answer = JOptionPane.showOptionDialog(null,
                 "What can I help you with?",
                 "LolnetLauncher Help",
@@ -50,9 +62,10 @@ public class HelpAndSupport {
             LauncherHelp();
         } else if (answer == 1) {
             AccountHelp();
-        } else if (answer == 2)
-        {
+        } else if (answer == 2) {
             Launcher.restartLauncher();
+        } else if (answer == 3) {
+            voteLinks();
         }
     }
 
@@ -72,12 +85,11 @@ public class HelpAndSupport {
             sendToLauncherRequest();
         } else if (answer == 2) {
             goToNewModPackSummition();
-        } else if (answer == 3)
-        {
+        } else if (answer == 3) {
             getLatestSnapshot();
         }
     }
-    
+
     private static void sendToLauncherBugHelp() {
         Object[] options = {"Take me there", "Make a post now", "Cancel"};
         int answer = JOptionPane.showOptionDialog(null,
@@ -124,21 +136,20 @@ public class HelpAndSupport {
             CantLogin();
         } else if (answer == 1) {
             openURL("https://help.mojang.com/customer/portal/articles/329524-change-or-forgot-password");
-        }
-        else if (answer == 2) {
+        } else if (answer == 2) {
             openURL("https://help.mojang.com/customer/portal/articles/928638-minecraft-usernames?b_id=5408");
         }
     }
-    
+
     private static void goToNewModPackSummition() {
         try {
-            URL url = new URL(Launcher.modPackURL+ "modPackSummition.html");
+            URL url = new URL(Launcher.modPackURL + "modPackSummition.html");
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             int responseCode = huc.getResponseCode();
             if (responseCode != 404) {
                 Object[] options = {"Take me there", "Cancel"};
                 int answer = JOptionPane.showOptionDialog(null,
-                        "If you have forgeten your password you might need to reset it.",
+                        "",
                         "Launcher Help",
                         JOptionPane.YES_NO_CANCEL_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
@@ -245,5 +256,25 @@ public class HelpAndSupport {
         Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         userNodeForPackage.put("DownloadSnapShot", "true");
         JOptionPane.showMessageDialog(null, "Restart Launcher to update", "Launcher Update", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static void voteLinks() {
+        Object[] options = {"Site 1: ftbservers", "Site 2: minecraft-mp"};
+        int answer = JOptionPane.showOptionDialog(null,
+                "Vote links:",
+                "Vote links",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                null);
+        if (answer == 0) {
+            openURL("http://ftbservers.com/server/5456/vote");
+
+        } else if (answer == 1) {
+            openURL("http://minecraft-mp.com/server/2177/vote/");
+
+        }
+
     }
 }

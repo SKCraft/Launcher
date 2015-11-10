@@ -66,11 +66,12 @@ import org.apache.commons.io.FileUtils;
 @Log
 public class LauncherFrame extends JFrame {
 
+    public static LauncherFrame instance;
     private final Launcher launcher;
     private final InstanceTable instancesTable = new InstanceTable();
     private final InstanceTableModel instancesModel;
-    private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
-    private JSplitPane splitPane;
+    public  final JScrollPane instanceScroll = new JScrollPane(instancesTable);
+    public JSplitPane splitPane;
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
@@ -99,6 +100,7 @@ public class LauncherFrame extends JFrame {
     public LauncherFrame(@NonNull Launcher launcher) {
         super(SharedLocale.tr("launcher.title", launcher.getVersion()));
 
+        instance = this;
         this.launcher = launcher;
         instancesModel = new InstanceTableModel(launcher.getInstances());
 
@@ -212,7 +214,7 @@ public class LauncherFrame extends JFrame {
                 public void mouseClicked(MouseEvent e) {
                     final Instance selected = launcher.getInstances().get(instancesTable.getSelectedRow());
                     try {
-                        URL url = new URL(Launcher.modPackURL+ "news/" + selected.getName().replaceAll(" ", "_") + "/index.html");
+                        URL url = new URL(Launcher.modPackURL + "news/" + selected.getName().replaceAll(" ", "_") + "/index.html");
                         HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                         int responseCode = huc.getResponseCode();
                         if (responseCode != 404) {
@@ -311,7 +313,7 @@ public class LauncherFrame extends JFrame {
         lolnetModPackButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showModPackInstances();
+                showModPackInstances(true);
             }
         });
 
@@ -332,7 +334,7 @@ public class LauncherFrame extends JFrame {
         lolnetAddCodeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showModPackInstances();
+                showModPackInstances(true);
                 launchPrivatePackPannel();
             }
 
@@ -342,7 +344,7 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                showModPackInstances();
+                showModPackInstances(true);
 
                 if (lolnetPublicPackListButton.getText().equals("Lolnet Packs")) {
                     lolnetPublicPackListButton.setText("Loading Private Packs..");
@@ -397,8 +399,12 @@ public class LauncherFrame extends JFrame {
             }
         });
     }
+    
+    public void removeWebpanel() {
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, null);
+    }
 
-    private void showModPackInstances() {
+    public void showModPackInstances(boolean showNewsPage) {
         if (instanceScroll.isVisible()) {
 
             splitPane.setDividerLocation(250);
@@ -406,7 +412,7 @@ public class LauncherFrame extends JFrame {
             splitPane.add(instanceScroll);
             splitPane.setDividerLocation(250);
             instanceScroll.setVisible(true);
-            if (Launcher.java8OrAbove) {
+            if (Launcher.java8OrAbove && showNewsPage) {
                 SimpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
             }
         }
@@ -564,7 +570,7 @@ public class LauncherFrame extends JFrame {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            URL url = new URL(Launcher.modPackURL+ "changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
+                            URL url = new URL(Launcher.modPackURL + "changelog/" + selected.getName().replaceAll(" ", "_") + ".html");
                             url = Launcher.checkURL(url);
                             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                             int responseCode = huc.getResponseCode();
@@ -574,15 +580,12 @@ public class LauncherFrame extends JFrame {
                                 } else {
                                     SwingHelper.openURL(url.toString(), rootPane);
                                 }
+                            } else if (Launcher.java8OrAbove) {
+                                SimpleSwingBrowser.loadURL(Launcher.checkURL(
+                                        new URL(Launcher.modPackURL + "changelog/noChngeLogExist.html")).toString());
                             } else {
-                                if (Launcher.java8OrAbove) {
-                                    SimpleSwingBrowser.loadURL(Launcher.checkURL(
-                                            new URL(Launcher.modPackURL+ "changelog/noChngeLogExist.html")).toString());
-                                } else {
-                                    SwingHelper.openURL(Launcher.checkURL(
-                                            new URL(Launcher.modPackURL+ "changelog/noChngeLogExist.html")).toString(), rootPane);
-                                }
-
+                                SwingHelper.openURL(Launcher.checkURL(
+                                        new URL(Launcher.modPackURL + "changelog/noChngeLogExist.html")).toString(), rootPane);
                             }
 
                         } catch (IOException ex) {
@@ -876,7 +879,7 @@ public class LauncherFrame extends JFrame {
                                 }
 
                                 if (!alreadyAdded) {
-                                    URL oracle = new URL(Launcher.modPackURL+ "" + code2 + ".php");
+                                    URL oracle = new URL(Launcher.modPackURL + "" + code2 + ".php");
                                     oracle = Launcher.checkURL(oracle);
                                     BufferedReader in = new BufferedReader(
                                             new InputStreamReader(oracle.openStream()));
@@ -900,9 +903,7 @@ public class LauncherFrame extends JFrame {
                             } catch (IOException ex) {
                                 split[i] = "WrongCode";
                             }
-                        }
-                        else
-                        {
+                        } else {
                             split[i] = "WrongCode";
                         }
                     } else {
@@ -922,7 +923,7 @@ public class LauncherFrame extends JFrame {
                             }
 
                             if (!alreadyAdded) {
-                                URL oracle = new URL(Launcher.modPackURL+ "private/" + code + ".json" + "?key=%s");
+                                URL oracle = new URL(Launcher.modPackURL + "private/" + code + ".json" + "?key=%s");
                                 oracle = Launcher.checkURL(oracle);
                                 BufferedReader in = new BufferedReader(
                                         new InputStreamReader(oracle.openStream()));
