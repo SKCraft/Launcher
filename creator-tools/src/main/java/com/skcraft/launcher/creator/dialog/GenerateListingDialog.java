@@ -27,7 +27,7 @@ public class GenerateListingDialog extends JDialog {
     @Getter private final DirectoryField destDirField = new DirectoryField();
     @Getter private final JComboBox<ListingType> listingTypeCombo = new JComboBox<>(new ListingTypeComboBoxModel());
     @Getter private final JTable manifestsTable = new DefaultTable();
-    @Getter private final JLabel gameKeyWarning = new JLabel("Selected listing type won't support adding modpacks using 'game keys'.", SwingHelper.readImageIcon(Creator.class, "warning_icon.png"), SwingConstants.LEFT);
+    @Getter private final JLabel gameKeyWarning = new JLabel("Selected listing type won't support adding modpacks using 'game keys'.", SwingHelper.createIcon(Creator.class, "warning_icon.png"), SwingConstants.LEFT);
 
     @Getter private final JButton editManifestButton = new JButton("Modify...");
 

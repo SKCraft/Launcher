@@ -16,10 +16,10 @@ import java.util.List;
 
 public class ProblemTableModel extends AbstractTableModel {
 
-    private static final ImageIcon WARNING_ICON;
+    private static final Icon WARNING_ICON;
 
     static {
-        WARNING_ICON = SwingHelper.readImageIcon(Creator.class, "warning_icon.png");
+        WARNING_ICON = SwingHelper.createIcon(Creator.class, "warning_icon.png");
     }
 
     private final List<Problem> problems;
@@ -44,7 +44,7 @@ public class ProblemTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return ImageIcon.class;
+                return Icon.class;
             case 1:
                 return Problem.class;
             default:

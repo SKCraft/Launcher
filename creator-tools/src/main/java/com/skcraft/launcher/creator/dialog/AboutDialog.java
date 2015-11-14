@@ -46,7 +46,7 @@ public class AboutDialog extends JDialog {
         JPanel container = new JPanel();
         container.setLayout(new MigLayout("insets dialog"));
 
-        container.add(new JLabel(SwingHelper.readImageIcon(Creator.class, "about_header.png")), "dock north");
+        container.add(new JLabel(SwingHelper.createIcon(Creator.class, "about_header.png")), "dock north");
         container.add(new JLabel("<html>Version " + version), "wrap");
         container.add(new JLabel("<html>Licensed under GNU Lesser General Public License, version 3."), "wrap, gapbottom unrel");
         container.add(new JLabel("<html>Created by the SKCraft team. Visit our website!"), "wrap, gapbottom unrel");

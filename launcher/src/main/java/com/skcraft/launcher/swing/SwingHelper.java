@@ -290,7 +290,35 @@ public final class SwingHelper {
         }
     }
 
-    public static BufferedImage readIconImage(Class<?> clazz, String path) {
+    public static Image createImage(Class<?> clazz, String name) {
+        URL resource = clazz.getResource(name);
+        if (resource != null) {
+            return Toolkit.getDefaultToolkit().createImage(resource);
+        } else {
+            log.log(Level.WARNING, "Failed to read image from resource: " + name);
+            return null;
+        }
+    }
+
+    public static Icon createIcon(Class<?> clazz, String name) {
+        Image image = createImage(clazz, name);
+        if (image != null) {
+            return new ImageIcon(image);
+        } else {
+            return new EmptyIcon(16, 16);
+        }
+    }
+
+    public static Icon createIcon(Class<?> clazz, String name, int width, int height) {
+        Image image = createImage(clazz, name);
+        if (image != null) {
+            return new ImageIcon(image.getScaledInstance(width, height, Image.SCALE_SMOOTH));
+        } else {
+            return new EmptyIcon(width, height);
+        }
+    }
+
+    public static BufferedImage readBufferedImage(Class<?> clazz, String path) {
         InputStream in = null;
         try {
             in = clazz.getResourceAsStream(path);
@@ -304,37 +332,10 @@ public final class SwingHelper {
         return null;
     }
 
-    public static Image readIconImageScaled(Class<?> clazz, String path, int w, int h) {
-        BufferedImage image = readIconImage(clazz, path);
-        if (image != null) {
-            return image.getScaledInstance(w, h, Image.SCALE_SMOOTH);
-        } else {
-            return null;
-        }
-    }
-
-    public static void setIconImage(JFrame frame, Class<?> clazz, String path) {
-        BufferedImage image = readIconImage(clazz, path);
+    public static void setFrameIcon(JFrame frame, Class<?> clazz, String path) {
+        BufferedImage image = readBufferedImage(clazz, path);
         if (image != null) {
             frame.setIconImage(image);
-        }
-    }
-
-    public static ImageIcon readImageIcon(Class<?> clazz, String path) {
-        BufferedImage image = readIconImage(clazz, path);
-        if (image != null) {
-            return new ImageIcon(image);
-        } else {
-            return null;
-        }
-    }
-
-    public static ImageIcon readImageIconScaled(Class<?> clazz, String path, int w, int h) {
-        Image image = readIconImageScaled(clazz, path, w, h);
-        if (image != null) {
-            return new ImageIcon(image);
-        } else {
-            return null;
         }
     }
 

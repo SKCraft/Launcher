@@ -21,13 +21,13 @@ import java.awt.event.KeyEvent;
 
 public class PackManagerFrame extends JFrame {
 
-    @Getter private final JButton newPackButton = new JButton("New Pack", SwingHelper.readImageIcon(Creator.class, "new.png"));
-    @Getter private final JButton importButton = new JButton("Add Existing", SwingHelper.readImageIcon(Creator.class, "import.png"));
-    @Getter private final JButton editConfigButton = new JButton("Modify", SwingHelper.readImageIcon(Creator.class, "edit.png"));
-    @Getter private final JButton openFolderButton = new JButton("Open", SwingHelper.readImageIcon(Creator.class, "open_folder.png"));
-    @Getter private final JButton checkProblemsButton = new JButton("Check", SwingHelper.readImageIcon(Creator.class, "check.png"));
-    @Getter private final JButton testButton = new JButton("Test", SwingHelper.readImageIcon(Creator.class, "test.png"));
-    @Getter private final JButton buildButton = new JButton("Build", SwingHelper.readImageIcon(Creator.class, "build.png"));
+    @Getter private final JButton newPackButton = new JButton("New Pack", SwingHelper.createIcon(Creator.class, "new.png"));
+    @Getter private final JButton importButton = new JButton("Add Existing", SwingHelper.createIcon(Creator.class, "import.png"));
+    @Getter private final JButton editConfigButton = new JButton("Modify", SwingHelper.createIcon(Creator.class, "edit.png"));
+    @Getter private final JButton openFolderButton = new JButton("Open", SwingHelper.createIcon(Creator.class, "open_folder.png"));
+    @Getter private final JButton checkProblemsButton = new JButton("Check", SwingHelper.createIcon(Creator.class, "check.png"));
+    @Getter private final JButton testButton = new JButton("Test", SwingHelper.createIcon(Creator.class, "test.png"));
+    @Getter private final JButton buildButton = new JButton("Build", SwingHelper.createIcon(Creator.class, "build.png"));
 
     @Getter private final JMenuItem newPackMenuItem = new JMenuItem("New Pack...");
     @Getter private final JMenuItem newPackAtLocationMenuItem = new JMenuItem("New Pack at Location...");
@@ -68,7 +68,7 @@ public class PackManagerFrame extends JFrame {
         pack();
         setLocationRelativeTo(null);
 
-        SwingHelper.setIconImage(this, Creator.class, "icon.png");
+        SwingHelper.setFrameIcon(this, Creator.class, "icon.png");
     }
 
     private void initComponents() {

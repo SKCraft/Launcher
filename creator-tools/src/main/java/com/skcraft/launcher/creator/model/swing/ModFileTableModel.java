@@ -19,11 +19,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ModFileTableModel extends AbstractTableModel {
 
-    private static final ImageIcon WWW_ICON;
+    private static final Icon WWW_ICON;
     private final List<ModFile> mods;
 
     static {
-        WWW_ICON = SwingHelper.readImageIcon(Creator.class, "www_icon.png");
+        WWW_ICON = SwingHelper.createIcon(Creator.class, "www_icon.png");
     }
 
     public ModFileTableModel(List<ModFile> mods) {
@@ -49,7 +49,7 @@ public class ModFileTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return ImageIcon.class;
+                return Icon.class;
             default:
                 return String.class;
         }

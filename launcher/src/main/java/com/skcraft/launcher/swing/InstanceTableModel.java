@@ -13,23 +13,19 @@ import com.skcraft.launcher.util.SharedLocale;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
 
 public class InstanceTableModel extends AbstractTableModel {
 
     private final InstanceList instances;
-    private final ImageIcon instanceIcon;
-    private final ImageIcon customInstanceIcon;
-    private final ImageIcon downloadIcon;
+    private final Icon instanceIcon;
+    private final Icon customInstanceIcon;
+    private final Icon downloadIcon;
 
     public InstanceTableModel(InstanceList instances) {
         this.instances = instances;
-        instanceIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "instance_icon.png")
-                .getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-        customInstanceIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "custom_instance_icon.png")
-                .getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-        downloadIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "download_icon.png")
-                .getScaledInstance(14, 14, Image.SCALE_SMOOTH));
+        instanceIcon = SwingHelper.createIcon(Launcher.class, "instance_icon.png", 16, 16);
+        customInstanceIcon = SwingHelper.createIcon(Launcher.class, "custom_instance_icon.png", 16, 16);
+        downloadIcon = SwingHelper.createIcon(Launcher.class, "download_icon.png", 14, 14);
     }
 
     public void update() {

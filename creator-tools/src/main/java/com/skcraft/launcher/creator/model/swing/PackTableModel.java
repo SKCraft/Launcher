@@ -17,15 +17,15 @@ import java.util.List;
 
 public class PackTableModel extends AbstractTableModel {
 
-    private final ImageIcon instanceIcon;
-    private final ImageIcon warningIcon;
+    private final Icon instanceIcon;
+    private final Icon warningIcon;
     private final List<Pack> packs;
 
     public PackTableModel(List<Pack> packs) {
         this.packs = packs;
 
-        instanceIcon = SwingHelper.readImageIcon(Creator.class, "pack_icon.png");
-        warningIcon = SwingHelper.readImageIcon(Creator.class, "warning_icon.png");
+        instanceIcon = SwingHelper.createIcon(Creator.class, "pack_icon.png");
+        warningIcon = SwingHelper.createIcon(Creator.class, "warning_icon.png");
     }
 
     @Override
@@ -50,7 +50,7 @@ public class PackTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return ImageIcon.class;
+                return Icon.class;
             default:
                 return String.class;
         }

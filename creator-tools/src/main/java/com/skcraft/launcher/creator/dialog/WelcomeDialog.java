@@ -19,8 +19,8 @@ import java.awt.event.KeyEvent;
 
 public class WelcomeDialog extends JFrame {
 
-    @Getter private final JButton newButton = new JButton("New Workspace...", SwingHelper.readImageIcon(Creator.class, "new.png"));
-    @Getter private final JButton openButton = new JButton("Open Workspace...", SwingHelper.readImageIcon(Creator.class, "open_folder.png"));
+    @Getter private final JButton newButton = new JButton("New Workspace...", SwingHelper.createIcon(Creator.class, "new.png"));
+    @Getter private final JButton openButton = new JButton("Open Workspace...", SwingHelper.createIcon(Creator.class, "open_folder.png"));
     @Getter private final JButton helpButton = new JButton("Help");
     @Getter private final JButton aboutButton = new JButton("About");
     @Getter private final JButton quitButton = new JButton("Quit");
@@ -35,7 +35,7 @@ public class WelcomeDialog extends JFrame {
         pack();
         setLocationRelativeTo(null);
 
-        SwingHelper.setIconImage(this, Creator.class, "icon.png");
+        SwingHelper.setFrameIcon(this, Creator.class, "icon.png");
     }
 
     private void initComponents() {
@@ -44,7 +44,7 @@ public class WelcomeDialog extends JFrame {
         JPanel container = new JPanel();
         container.setLayout(new MigLayout("insets 50 20"));
 
-        container.add(new JLabel(SwingHelper.readImageIcon(Creator.class, "welcome_logo.png")), "wrap, gap 20 20, gapbottom 30");
+        container.add(new JLabel(SwingHelper.createIcon(Creator.class, "welcome_logo.png")), "wrap, gap 20 20, gapbottom 30");
 
         container.add(newButton, "grow, gap 50 50, wrap");
         container.add(openButton, "grow, gap 50 50, wrap");

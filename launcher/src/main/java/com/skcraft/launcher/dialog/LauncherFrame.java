@@ -73,7 +73,7 @@ public class LauncherFrame extends JFrame {
         pack();
         setLocationRelativeTo(null);
 
-        SwingHelper.setIconImage(this, Launcher.class, "icon.png");
+        SwingHelper.setFrameIcon(this, Launcher.class, "icon.png");
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
