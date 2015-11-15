@@ -154,9 +154,14 @@ public class LauncherFrame extends JFrame {
             @Override
             protected void showPopup(MouseEvent e) {
                 //noinspection unchecked
-                Instance selected = ((JList<Instance>) e.getSource()).getSelectedValue();
-                if (selected != null) {
+                JList<Instance> list = ((JList<Instance>) e.getSource());
+                int index = list.locationToIndex(new Point(e.getX(), e.getY()));
+                if (index >= 0) {
+                    list.setSelectedIndex(list.locationToIndex(new Point(e.getX(), e.getY())));
+                    Instance selected = list.getSelectedValue();
                     popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
+                } else {
+                    list.setSelectedValue(null, false);
                 }
             }
         });
