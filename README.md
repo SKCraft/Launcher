@@ -7,16 +7,22 @@ With this platform, you have **full control** of the modpacks that you choose to
 
 ### Many Features, Few Requirements
 
-The only requirement is **have a website to host files — even Dropbox will work.** All files that you upload are "de-duplicated" so even if you have a dozen modpacks that use the same mod, you only have to host one copy of the file.
+The only requirement is **have a website to host files**.
 
-Yet you still have access to powerful features like:
-
+* zero times where you ever have to edit XML or JSON files
+* multiple modpack support
+* deduplication of files (only upload a mod once for all modpacks)
+* delta downloads when updating (only download changed files)
+* download resume
+* no need to host old versions; users can always update
+* no PHP or server setup necessary
+* compatible with all standard website hosting and CDNs
 * optional mods/files
-* pre-installed default configuration files
-* modpack-added Java flags
-* JAR mods
-* resource pack support
-* non-standard modpack file support
+* support for default configuration files
+* modpack-specific Java flags
+* support for LiteLoader, Forge, and JAR mods
+* support for resource packs
+* support for all and any files
 * "hidden" modpacks that require a special access key **
 
 ** requires PHP support on your website
