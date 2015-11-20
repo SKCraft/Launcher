@@ -40,23 +40,21 @@ public class Configuration {
     private int windowWidth = 854;
     private int widowHeight = 480;
     private String gameKey;
-    
+
     public static void setImplicitExit() {
-       javafx.application.Platform.setImplicitExit(false); 
+        javafx.application.Platform.setImplicitExit(false);
     }
-    
-    public void checkVaules()
-    {
-        if (windowWidth <= 100)
-        {
+
+    public void checkVaules() {
+        if (windowWidth <= 100) {
             windowWidth = 854;
         }
-        
-        if (widowHeight <= 50)
-        {
+
+        if (widowHeight <= 50) {
             windowWidth = 480;
         }
     }
+
     public void setupMemory() {
         if (minMemory <= 32) {
             minMemory = 256;
@@ -74,7 +72,7 @@ public class Configuration {
             maxMemory = minMemory;
         }
 
-        long value = -1;
+        long currnetAmmount = -1;
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
             method.setAccessible(true);
@@ -82,17 +80,17 @@ public class Configuration {
                     && Modifier.isPublic(method.getModifiers())) {
 
                 try {
-                    value = (Long) method.invoke(operatingSystemMXBean);
+                    currnetAmmount = (Long) method.invoke(operatingSystemMXBean);
                 } catch (Exception e) {
                 }
             } // if
         } // for
 
-        if (value > 0) {
-            int memoryMB = (int) (value / (1024 * 1024));
-            if (memoryMB <= maxMemory) {
-                memoryMB = (memoryMB / 256) * 256;
-                maxMemory = memoryMB;
+        if (currnetAmmount > 0) {
+            int memoryMB = (int) (currnetAmmount / (1024 * 1024));
+            if (memoryMB <= minMemory) {
+                memoryMB = ((memoryMB / 2) / 256) * 256;
+                minMemory = memoryMB;
                 if (memoryMB <= 512) {
                     minMemory = 128;
                 }
@@ -100,8 +98,26 @@ public class Configuration {
             }
         }
 
-        
+        long maxAmmount = -1;
+        operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
+            method.setAccessible(true);
+            if (method.getName().startsWith("getTotalPhysicalMemorySize")
+                    && Modifier.isPublic(method.getModifiers())) {
 
+                try {
+                    maxAmmount = (Long) method.invoke(operatingSystemMXBean);
+                } catch (Exception e) {
+                }
+            } // if
+        } // for
+
+        if (maxAmmount > 0) {
+            int memoryMB = (int) (maxAmmount / (1024 * 1024));
+            if (memoryMB <= maxMemory) {
+                maxMemory = memoryMB;
+            }
+        }
     }
 
     public void setupJVMPath() {
