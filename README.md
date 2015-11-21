@@ -5,46 +5,48 @@ SKCraft Launcher provides a platform for creating, testing, and distributing mod
 
 With this platform, you have **full control** of the modpacks that you choose to release.
 
-### Many Features, Few Requirements
+Every other launcher platform either requires you to maintain cryptic JSON/XML files (error prone and a lot of extra work), requires distributing a .zip of your modpack (therefore not supporting delta downloads and wasting disk space), or requires a complicated server setup where you have to install certain software on your server. In our case, we **(1)** threw away any need for JSON/XML files when making modpacks, **(2)** don't require a .zip and yet still can support delta downloads and **(3)** require absolutely zero server setup (if you only know FTP, that's enough).
 
-The only requirement is **have a website to host files**.
+What to be aware of? You'll probably need a few hours to get everything working. Fortunately, we have a [detailed wiki](https://github.com/SKCraft/Launcher/wiki) with screenshots for every step, intended for someone with minimal technical experience.
 
-* zero times where you ever have to edit XML or JSON files
-* multiple modpack support
-* deduplication of files (only upload a mod once for all modpacks)
-* delta downloads when updating (only download changed files)
-* download resume
-* no need to host old versions; users can always update
-* no PHP or server setup necessary
-* compatible with all standard website hosting and CDNs
-* optional mods/files
-* support for default configuration files
-* modpack-specific Java flags
-* support for LiteLoader, Forge, and JAR mods
-* support for resource packs
-* support for all and any files
-* "hidden" modpacks that require a special access key **
+### Features
 
-** requires PHP support on your website
+* No XML/JSON files involved to create or update a modpack
+* Create a modpack by dragging and dropping mod .jars into a mods/ folder
+* Support for LiteLoader, Forge, and JAR mods
+* Support for resource packs
+* Support for all and any modpack files
+* Test modpacks without even needing a separate launcher
+* Multiple modpacks in the launcher
+* Deduplication of files (only upload a mod once for all modpacks)
+* Delta downloads when updating (only changed files)
+* Download resume
+* No need to host old versions; users can update from any previous version
+* No PHP or complex server setup necessary
+* Compatible with all standard website hosting and CDNs
+* Optional mods/files support
+* Support for default configuration files
+* Modpack-specific Java flags
+* "Hidden" modpacks that require a special access key (this *does* require PHP support)
+
+The wiki provides a detailed tutorial for configuring the launcher. You will need a website or an older Dropbox account to host your modpack's files, but there are several free website hosting options (with PHP support) listed on the wiki (with tutorials).
 
 ### Making Modpacks
 
-Making modpacks is extremely easy: you can use our creator tools with 1-click modpack testing:
+Making modpacks is extremely easy: you can use our modpack creator tools:
 
 ![Modpack Creator](readme/pack_manager.png)
 
-You *don't* have to click a bunch of buttons or edit several cryptic config files to add a mod. All you need to do is create a folder that resembles the Minecraft data folder:
+If installing mods for your own game only requires putting a .jar file into a mods folder, why should making a modpack be any harder?
+
+To get started, you just make a folder that looks like your Minecraft installation folder:
 
 * src/**config**/
 * src/**mods**/
 * src/**resourcepacks**/
 * loaders/
 
-There's support for Minecraft Forge and LiteLoader too — just put their installer .jars into the loaders folder.
-
-Now let's see how easy it is to create an "optional feature" that can turn off not only mods, but configuration files too:
-
-![Optional Features Configuration](readme/configure_features.png)
+Support for Minecraft Forge and LiteLoader merely involves putting their installer .jars into the loaders folder.
 
 ### Great Client
 
