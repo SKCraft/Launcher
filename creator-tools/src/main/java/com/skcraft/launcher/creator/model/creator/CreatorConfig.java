@@ -15,6 +15,7 @@ import java.util.List;
 public class CreatorConfig {
 
     private List<RecentEntry> recentEntries = Lists.newArrayList();
+    private boolean offlineEnabled;
 
     public void setRecentEntries(List<RecentEntry> recentEntries) {
         this.recentEntries = recentEntries != null ? recentEntries : Lists.newArrayList();

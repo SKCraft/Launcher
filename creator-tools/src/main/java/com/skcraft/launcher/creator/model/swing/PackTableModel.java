@@ -6,10 +6,9 @@
 
 package com.skcraft.launcher.creator.model.swing;
 
-import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.builder.BuilderConfig;
+import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.creator.model.creator.Pack;
-import com.skcraft.launcher.creator.dialog.ProblemViewer;
 import com.skcraft.launcher.swing.SwingHelper;
 
 import javax.swing.*;
@@ -18,15 +17,15 @@ import java.util.List;
 
 public class PackTableModel extends AbstractTableModel {
 
-    private final ImageIcon instanceIcon;
-    private final ImageIcon warningIcon;
+    private final Icon instanceIcon;
+    private final Icon warningIcon;
     private final List<Pack> packs;
 
     public PackTableModel(List<Pack> packs) {
         this.packs = packs;
 
-        instanceIcon = SwingHelper.readImageIconScaled(Launcher.class, "instance_icon.png", 16, 16);
-        warningIcon = SwingHelper.readImageIcon(ProblemViewer.class, "warning_icon.png");
+        instanceIcon = SwingHelper.createIcon(Creator.class, "pack_icon.png");
+        warningIcon = SwingHelper.createIcon(Creator.class, "warning_icon.png");
     }
 
     @Override
@@ -51,7 +50,7 @@ public class PackTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return ImageIcon.class;
+                return Icon.class;
             default:
                 return String.class;
         }

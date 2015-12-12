@@ -278,6 +278,14 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 
             setColumnProperties();
             adjustColumns();
+
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    setColumnProperties();
+                    adjustColumns();
+                }
+            });
         }
     }
 

@@ -6,6 +6,8 @@
 
 package com.skcraft.launcher.creator;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.creator.controller.WelcomeController;
 import com.skcraft.launcher.creator.dialog.WelcomeDialog;
@@ -21,15 +23,19 @@ import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class Creator {
 
     @Getter private final File dataDir;
     @Getter private final CreatorConfig config;
+    @Getter private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
     public Creator() {
         this.dataDir = getAppDataDir();
         this.config = Persistence.load(new File(dataDir, "config.json"), CreatorConfig.class);
+
+        System.setProperty("com.skcraft.builder.ignoreURLOverrides", "true");
 
         // Remove deleted workspaces
         List<RecentEntry> recentEntries = config.getRecentEntries();
@@ -70,7 +76,7 @@ public class Creator {
         final Creator creator = new Creator();
 
         SwingUtilities.invokeAndWait(() -> {
-            UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
+            SwingHelper.setSwingProperties("Modpack Creator");
             SwingHelper.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
             try {

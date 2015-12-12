@@ -39,18 +39,18 @@ public enum ListingType {
         public String generate(List<ManifestEntry> entries) throws IOException {
             StringBuilder builder = new StringBuilder();
             builder.append("<?php\r\n");
-            builder.append("$keys = isset($_GET['key']) ? array_map('trim', explode(',', strtolower($_GET['key']))) : [];\r\n");
-            builder.append("$packages = [];\r\n\r\n");
+            builder.append("$keys = isset($_GET['key']) ? array_map('trim', explode(',', strtolower($_GET['key']))) : array();\r\n");
+            builder.append("$packages = array();\r\n\r\n");
 
             for (ManifestEntry entry : entries) {
                 ManifestInfo info = entry.getManifestInfo();
                 List<String> keys = entry.getGameKeys();
 
                 if (!keys.isEmpty()) {
-                    builder.append("if (count(array_intersect([").append(escapeKeys(keys)).append("], $keys)) > 0)\r\n");
+                    builder.append("if (count(array_intersect(array(").append(escapeKeys(keys)).append("), $keys)) > 0)\r\n");
                 }
 
-                builder.append("$packages[] = [\r\n");
+                builder.append("$packages[] = array(\r\n");
                 builder.append("    'name' => '").append(escape(info.getName())).append("',\r\n");
                 if (info.getTitle() != null) {
                     builder.append("    'title' => '").append(escape(info.getTitle())).append("',\r\n");
@@ -58,10 +58,10 @@ public enum ListingType {
                 builder.append("    'version' => '").append(escape(info.getVersion())).append("',\r\n");
                 builder.append("    'priority' => ").append(info.getPriority()).append(",\r\n");
                 builder.append("    'location' => '").append(escape(info.getLocation())).append("',\r\n");
-                builder.append("];\r\n\r\n");
+                builder.append(");\r\n\r\n");
             }
 
-            builder.append("$out = ['minimumVersion' => ").append(PackageList.MIN_VERSION).append(", 'packages' => $packages];\r\n");
+            builder.append("$out = array('minimumVersion' => ").append(PackageList.MIN_VERSION).append(", 'packages' => $packages);\r\n");
             builder.append("header('Content-Type: text/plain; charset=utf-8');\r\n");
             builder.append("echo json_encode($out);\r\n");
             return builder.toString();

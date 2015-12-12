@@ -79,10 +79,12 @@ public class LoginDialog extends JDialog {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private void removeListeners() {
         idCombo.setModel(new DefaultComboBoxModel());
     }
 
+    @SuppressWarnings("unchecked")
     private void initComponents() {
         idCombo.setModel(getAccounts());
         updateSelection();

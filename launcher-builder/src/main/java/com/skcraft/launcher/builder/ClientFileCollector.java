@@ -65,8 +65,10 @@ public class ClientFileCollector extends DirectoryWalker {
         // url.txt override file
         File urlFile = new File(file.getAbsoluteFile().getParentFile(), file.getName() + URL_FILE_SUFFIX);
         String location;
-        if (urlFile.exists()) {
+        boolean copy = true;
+        if (urlFile.exists() && !System.getProperty("com.skcraft.builder.ignoreURLOverrides", "false").equalsIgnoreCase("true")) {
             location = Files.readFirstLine(urlFile, Charset.defaultCharset());
+            copy = false;
         } else {
             location = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;
         }
@@ -79,7 +81,9 @@ public class ClientFileCollector extends DirectoryWalker {
         applicator.apply(entry);
         destPath.getParentFile().mkdirs();
         ClientFileCollector.log.info(String.format("Adding %s from %s...", relPath, file.getAbsolutePath()));
-        Files.copy(file, destPath);
+        if (copy) {
+            Files.copy(file, destPath);
+        }
         manifest.getTasks().add(entry);
     }
 

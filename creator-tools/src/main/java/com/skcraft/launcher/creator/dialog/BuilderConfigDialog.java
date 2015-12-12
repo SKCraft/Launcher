@@ -7,6 +7,8 @@
 package com.skcraft.launcher.creator.dialog;
 
 import com.google.common.base.Strings;
+import com.jidesoft.swing.SearchableUtils;
+import com.jidesoft.swing.TableSearchable;
 import com.skcraft.launcher.builder.BuilderConfig;
 import com.skcraft.launcher.builder.FeaturePattern;
 import com.skcraft.launcher.builder.FnPatternList;
@@ -101,6 +103,9 @@ public class BuilderConfigDialog extends JDialog {
         });
 
         cancelButton.addActionListener(e -> dispose());
+
+        TableSearchable tableSearchable = SearchableUtils.installSearchable(featuresTable);
+        tableSearchable.setMainIndex(-1);
     }
 
     private JPanel createMainPanel() {

@@ -58,8 +58,8 @@ public class ConsoleFrame extends JFrame {
      */
     public ConsoleFrame(@NonNull String title, int numLines, boolean colorEnabled) {
         messageLog = new MessageLog(numLines, colorEnabled);
-        trayRunningIcon = SwingHelper.readIconImage(Launcher.class, "tray_ok.png");
-        trayClosedIcon = SwingHelper.readIconImage(Launcher.class, "tray_closed.png");
+        trayRunningIcon = SwingHelper.createImage(Launcher.class, "tray_ok.png");
+        trayClosedIcon = SwingHelper.createImage(Launcher.class, "tray_closed.png");
 
         setTitle(title);
         setIconImage(trayRunningIcon);

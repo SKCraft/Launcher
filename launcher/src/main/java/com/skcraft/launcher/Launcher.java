@@ -23,6 +23,7 @@ import com.skcraft.launcher.update.UpdateManager;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
+import com.sun.management.OperatingSystemMXBean;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -35,12 +36,15 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+
+import static com.skcraft.launcher.util.SharedLocale.tr;
 
 /**
  * The main entry point for the launcher.
@@ -70,15 +74,28 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir) throws IOException {
+        this(baseDir, baseDir);
+    }
+
+    /**
+     * Create a new launcher instance with the given base and configuration
+     * directories.
+     *
+     * @param baseDir the base directory
+     * @param configDir the config directory
+     * @throws java.io.IOException on load error
+     */
+    public Launcher(@NonNull File baseDir, @NonNull File configDir) throws IOException {
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
         this.baseDir = baseDir;
-        this.properties = LauncherUtils.loadProperties(Launcher.class,
-                "launcher.properties", "com.skcraft.launcher.propertiesFile");
+        this.properties = LauncherUtils.loadProperties(Launcher.class, "launcher.properties", "com.skcraft.launcher.propertiesFile");
         this.instances = new InstanceList(this);
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
-        this.config = Persistence.load(new File(baseDir, "config.json"), Configuration.class);
-        this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
+        this.config = Persistence.load(new File(configDir, "config.json"), Configuration.class);
+        this.accounts = Persistence.load(new File(configDir, "accounts.dat"), AccountList.class);
+
+        setDefaultConfig();
 
         if (accounts.getSize() > 0) {
             accounts.setSelectedItem(accounts.getElementAt(0));
@@ -92,6 +109,30 @@ public final class Launcher {
         });
 
         updateManager.checkForUpdate();
+    }
+
+    /**
+     * Updates any incorrect / unset configuration settings with defaults.
+     */
+    public void setDefaultConfig() {
+        double configMax = config.getMaxMemory() / 1024.0;
+        double suggestedMax = 2;
+        double available = Double.MAX_VALUE;
+
+        try {
+            OperatingSystemMXBean bean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            available = bean.getTotalPhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0;
+            if (available <= 6) {
+                suggestedMax = available * 0.48;
+            } else {
+                suggestedMax = 4;
+            }
+        } catch (Exception ignored) {
+        }
+
+        if (config.getMaxMemory() <= 0 || configMax >= available - 1) {
+            config.setMaxMemory((int) (suggestedMax * 1024));
+        }
     }
 
     /**
@@ -378,8 +419,8 @@ public final class Launcher {
             public void run() {
                 try {
                     Launcher launcher = createFromArguments(args);
+                    SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     launcher.showLauncherWindow();
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);
