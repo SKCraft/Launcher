@@ -49,6 +49,7 @@ public class LauncherFrame extends JFrame {
     @Getter private final JList<Instance> instancesList = new JList<Instance>();
     @Getter private final JScrollPane instanceScroll = new JScrollPane(instancesList);
     private WebpagePanel webView;
+    private JPanel panel;
     private JSplitPane splitPane;
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
@@ -67,7 +68,7 @@ public class LauncherFrame extends JFrame {
         this.launcher = launcher;
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(400, 300));
+        setMinimumSize(new Dimension(550, 300));
         initComponents();
         pack();
         setLocationRelativeTo(null);
@@ -87,7 +88,8 @@ public class LauncherFrame extends JFrame {
         container.setLayout(new MigLayout("fill, insets dialog", "[][]push[][]", "[grow][]"));
 
         webView = createNewsPanel();
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
+        panel = new JPanel();
+    //    splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
         selfUpdateButton.setVisible(launcher.getUpdateManager().getPendingUpdate());
 
         launcher.getUpdateManager().addPropertyChangeListener(new PropertyChangeListener() {
@@ -102,15 +104,17 @@ public class LauncherFrame extends JFrame {
 
         updateCheck.setSelected(true);
         instancesList.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        instancesList.setVisible(false);
         instancesList.setDragEnabled(false);
         instancesList.setCellRenderer(new InstanceCellRenderer());
         instancesList.setModel(launcher.getInstances());
         launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
-        splitPane.setDividerLocation(200);
-        splitPane.setDividerSize(4);
-        splitPane.setOpaque(false);
-        container.add(splitPane, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:350");
-        SwingHelper.flattenJSplitPane(splitPane);
+//        panel.setDividerLocation(200);
+// 	panel.setDividerSize(4);
+	panel.setOpaque(false);
+//        container.add(webView);
+        container.add(webView, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:350");
+//	SwingHelper.flattenJSplitPane(splitPane);
         container.add(refreshButton);
         container.add(updateCheck);
         container.add(selfUpdateButton);
@@ -339,7 +343,7 @@ public class LauncherFrame extends JFrame {
 
     private void launch() {
         boolean permitUpdate = updateCheck.isSelected();
-        Instance instance = instancesList.getSelectedValue();
+        Instance instance = launcher.getInstances().getElementAt(0);
 
         LaunchOptions options = new LaunchOptions.Builder()
                 .setInstance(instance)

@@ -102,7 +102,7 @@ public class LoginDialog extends JDialog {
         formPanel.addRow(new JLabel(), rememberPassCheck);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 
-        if (launcher.getConfig().isOfflineEnabled()) {
+        if (true || launcher.getConfig().isOfflineEnabled()) {
             buttonsPanel.addElement(offlineButton);
             buttonsPanel.addElement(Box.createHorizontalStrut(2));
         }
@@ -145,9 +145,14 @@ public class LoginDialog extends JDialog {
         offlineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
-                removeListeners();
-                dispose();
+                Object selected = idCombo.getSelectedItem();
+
+	        if (selected != null && selected instanceof Account) {
+                      final Account account = (Account) selected;
+                      setResult(new OfflineSession(account.getId()));
+                      removeListeners();
+                      dispose();
+                }
             }
         });
 
@@ -329,7 +334,7 @@ public class LoginDialog extends JDialog {
 
             // The list of identities (profiles in Mojang terms) corresponds to whether the account
             // owns the game, so we need to check that
-            if (identities.size() > 0) {
+            if (true || identities.size() > 0) {
                 // Set offline enabled flag to true
                 Configuration config = launcher.getConfig();
                 if (!config.isOfflineEnabled()) {
