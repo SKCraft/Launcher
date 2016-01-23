@@ -165,7 +165,7 @@ public final class Launcher {
                     path = file.getAbsolutePath();
                 }
 
-                String command = "java -jar " + "\"" + bootLocation + "\"";
+                String command = path + " -jar " + "\"" + bootLocation + "\"";
                 try {
                     Process pr = rt.exec(command);
                     System.exit(0);
