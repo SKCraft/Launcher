@@ -125,8 +125,10 @@ public class Configuration {
         if (!Strings.isNullOrEmpty(jvmPath) && new File(jvmPath).exists()) {
             return;
         }
-        
-        jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
+        File file = JavaRuntimeFinder.findBestJavaPath();
+        if (file != null) {
+            jvmPath = file.getAbsolutePath();
+        }
 
     }
 
