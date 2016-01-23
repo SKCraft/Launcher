@@ -153,6 +153,18 @@ public final class Launcher {
             String bootLocation = userNodeForPackage.get("LolnetLauncherbootstrapLocation", "");
             if (bootLocation.toLowerCase().contains("exe") || bootLocation.toLowerCase().contains("jar")) {
                 Runtime rt = Runtime.getRuntime();
+
+                String path = "java";
+                String javaHome = System.getProperty("java.home");
+                File file = new File(javaHome, "bin" + File.separator + "java.exe");
+                if (!file.exists()) {
+                    file = new File(javaHome, "bin" + File.separator + "java");
+
+                }
+                if (file.exists()) {
+                    path = file.getAbsolutePath();
+                }
+
                 String command = "java -jar " + "\"" + bootLocation + "\"";
                 try {
                     Process pr = rt.exec(command);
@@ -464,9 +476,8 @@ public final class Launcher {
         }
         return System.getProperty("user.dir");
     }
-    
-    public static String getModpackURL()
-    {
+
+    public static String getModpackURL() {
         try {
             URL url;
             url = new URL("https://www.lolnet.co.nz/modpack/modpackurl.php");
@@ -490,10 +501,8 @@ public final class Launcher {
         }
         return "https://www.lolnet.co.nz/modpack/";
     }
-    
-    
-    public static String getBootstrapLink()
-    {
+
+    public static String getBootstrapLink() {
         try {
             URL url;
             url = new URL("https://www.lolnet.co.nz/modpack/bootstraplink.php");
@@ -521,10 +530,9 @@ public final class Launcher {
         String[] args = new String[1];
         main(args);
     }
-    
 
     public static void main(String[] args) {
-        
+
         Launcher.modPackURL = getModpackURL();
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
