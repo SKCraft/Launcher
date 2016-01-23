@@ -488,7 +488,7 @@ public final class Launcher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "https://www.lolnet.co.nz/modpack";
+        return "https://www.lolnet.co.nz/modpack/";
     }
     
     
@@ -514,7 +514,7 @@ public final class Launcher {
             rd.close();
         } catch (Exception e) {
         }
-        return "https://www.lolnet.co.nz/modpack";
+        return "http://jenkins.lolnet.co.nz/job/LolnetLauncherBootstrap/lastSuccessfulBuild/artifact/target/LolnetLauncher.jar";
     }
 
     public static void main() {

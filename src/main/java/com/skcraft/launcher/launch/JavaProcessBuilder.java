@@ -40,8 +40,19 @@ public class JavaProcessBuilder {
     public void tryJvmPath(File path) throws IOException {
         // Try the parent directory
         if (!path.exists()) {
-            throw new IOException(
+            path = JavaRuntimeFinder.findBestJavaPath();
+            if (!path.exists()) {
+                throw new IOException(
                     "The configured Java runtime path '" + path + "' doesn't exist.");
+            }
+            if (path.isFile()) {
+                path = path.getParentFile();
+            }
+            if (path.isFile()) {
+                path = path.getParentFile();
+            }
+            
+            
         } else if (path.isFile()) {
             path = path.getParentFile();
         }

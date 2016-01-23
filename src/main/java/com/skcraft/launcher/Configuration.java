@@ -125,59 +125,8 @@ public class Configuration {
         if (!Strings.isNullOrEmpty(jvmPath) && new File(jvmPath).exists()) {
             return;
         }
-
-        String OS = System.getProperty("os.name").toUpperCase();
-        if (OS.contains("WIN")) {
-            jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
-            File file = new File(System.getenv("ProgramFiles").charAt(0) + ":/Program Files/Java/");
-            if (!file.exists()) {
-                return;
-            }
-            File[] listFiles = file.listFiles();
-
-            for (File file1 : listFiles) {
-                if (file1.getName().toLowerCase().contains("jre7")) {
-                    jvmPath = file1.getAbsolutePath();
-                    return;
-                }
-            }
-
-            String best = null;
-            for (File file1 : listFiles) {
-
-                if (file1.getName().toLowerCase().contains("jre1.8")) {
-                    if (best == null) {
-                        best = file1.getName();
-                    } else {
-                        ComparableVersion version1 = new ComparableVersion(best);
-                        ComparableVersion version2 = new ComparableVersion(file.getName());
-                        if (version1.compareTo(version2) < 0) {
-                            best = file1.getName();
-                        }
-                    }
-                }
-
-            }
-            if (best != null) {
-                jvmPath = new File(file, best).getAbsolutePath();
-                return;
-            }
-
-            for (File file1 : listFiles) {
-                if (file1.getName().toLowerCase().contains("jre6")) {
-                    jvmPath = file1.getAbsolutePath();
-                    return;
-                }
-            }
-
-            //C:\Program Files\Java\jre7\bin\javaw.exe
-            //return System.getenv("APPDATA");
-        } else if (OS.contains("MAC")) {
-            //return System.getProperty("user.home") + "/Library/Application " + "Support" + "/";
-        } else if (OS.contains("NUX")) {
-            //return System.getProperty("user.home");
-        }
-        // return System.getProperty("user.dir");
+        
+        jvmPath = JavaRuntimeFinder.findBestJavaPath().getAbsolutePath();
 
     }
 
