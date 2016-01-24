@@ -217,7 +217,7 @@ public class InstanceList {
 
         @Override
         public double getProgress() {
-            return 0.5;
+            return -1;
         }
 
         @Override
