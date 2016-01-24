@@ -33,9 +33,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
  */
 @Log
 public class InstanceList {
-
-    public static boolean showPublic = true;
-    public static boolean showPrivate = false;
+    
     private final Launcher launcher;
     @Getter
     private final List<Instance> instances = new ArrayList<Instance>();
@@ -131,13 +129,7 @@ public class InstanceList {
                     } else {
                         instance.isPublic = false;
                     }
-                    if (showPublic && instance.isPublic) {
-                        local.add(instance);
-                    }
-
-                    if (showPrivate && !instance.isPublic) {
-                        local.add(instance);
-                    }
+                    local.add(instance);
 
                     log.info(instance.getName() + " local instance found at " + dir.getAbsolutePath());
                 }
@@ -202,13 +194,7 @@ public class InstanceList {
                         } else {
                             instance.isPublic = false;
                         }
-                        if (showPublic && instance.isPublic) {
-                            remote.add(instance);
-                        }
-
-                        if (showPrivate && !instance.isPublic) {
-                            remote.add(instance);
-                        }
+                        remote.add(instance);
 
                         log.info("Available remote instance: '" + instance.getName()
                                 + "' at version " + instance.getVersion());
@@ -231,7 +217,7 @@ public class InstanceList {
 
         @Override
         public double getProgress() {
-            return -1;
+            return 0.5;
         }
 
         @Override

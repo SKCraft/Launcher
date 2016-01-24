@@ -82,8 +82,7 @@ public class LauncherFrame extends JFrame {
     private final JButton lolnetForumButton = new JButton("Forum");
     private final JButton lolnetWikiButton = new JButton("Wiki");
     private final JButton launcherHelpButton = new JButton("Help");
-
-    private final JButton lolnetPublicPackListButton = new JButton("Lolnet Packs");
+    
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
@@ -148,7 +147,6 @@ public class LauncherFrame extends JFrame {
         splitPane.setDividerLocation(250);
         splitPane.setDividerSize(4);
         SwingHelper.flattenJSplitPane(splitPane);
-        buttonsPanel.addElement(lolnetPublicPackListButton);
         buttonsPanel.addElement(launcherHelpButton);
         buttonsPanel.addElement(lolnetAddCodeButton);
         buttonsPanel.addElement(refreshButton);
@@ -336,37 +334,6 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 showModPackInstances(true);
                 launchPrivatePackPannel();
-            }
-
-        });
-
-        lolnetPublicPackListButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                showModPackInstances(true);
-
-                if (lolnetPublicPackListButton.getText().equals("Lolnet Packs")) {
-                    lolnetPublicPackListButton.setText("Loading Private Packs..");
-                    InstanceList.showPublic = false;
-                    InstanceList.showPrivate = true;
-                    loadInstances(false);
-                    checkLauncherUpdate();
-                } else if (lolnetPublicPackListButton.getText().equals("Private Packs")) {
-                    lolnetPublicPackListButton.setText("Loading Every Pack..");
-                    InstanceList.showPublic = true;
-                    InstanceList.showPrivate = true;
-                    loadInstances(false);
-                    checkLauncherUpdate();
-                } else {
-                    lolnetPublicPackListButton.setText("Loading Lolnet Packs..");
-                    InstanceList.showPublic = true;
-                    InstanceList.showPrivate = false;
-                    loadInstances(false);
-                    checkLauncherUpdate();
-
-                }
-
             }
 
         });
@@ -718,13 +685,6 @@ public class LauncherFrame extends JFrame {
                     instancesTable.setRowSelectionInterval(0, 0);
                 }
                 requestFocus();
-                if (InstanceList.showPublic && InstanceList.showPrivate) {
-                    lolnetPublicPackListButton.setText("All Packs");
-                } else if (InstanceList.showPublic && !InstanceList.showPrivate) {
-                    lolnetPublicPackListButton.setText("Lolnet Packs");
-                } else {
-                    lolnetPublicPackListButton.setText("Private Packs");
-                }
 
             }
         }, SwingExecutor.INSTANCE);
