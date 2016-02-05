@@ -49,7 +49,10 @@ public class DBoxUtil {
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (DbxException | IOException e1) {
+		} catch (DbxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} 

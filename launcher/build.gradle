@@ -15,6 +15,9 @@ dependencies {
     compile 'com.beust:jcommander:1.32'
     compile 'com.miglayout:miglayout:3.7.4'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
+    compile group: 'com.dropbox.core', name: 'dropbox-core-sdk', version: '2.0-beta-5'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.6.1'
+
 }
 
 processResources {

@@ -146,6 +146,12 @@ public class InstanceList extends AbstractListModel<Instance> {
             try {
                 URL packagesURL = launcher.getPackagesURL();
                 DBoxUtil dBoxUtil = new DBoxUtil();
+                /*PackageList packages = HttpRequest
+                		.get(packagesURL)
+                	     .execute()
+                	     .expectResponseCode(200)
+                	    .returnContent()
+                	     .asJson(PackageList.class);*/
                PackageList packages = dBoxUtil.DBoxasJson("/packages.json", PackageList.class);///////////
                
 
