@@ -1,4 +1,5 @@
 /*
+ /*
  * SK's Minecraft Launcher
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+import com.skcraft.dropbox.DBoxUtil;
 import com.skcraft.launcher.install.InstallLog;
 import com.skcraft.launcher.install.InstallLogFileMover;
 import com.skcraft.launcher.install.Installer;
@@ -58,15 +60,16 @@ public class FileInstall extends ManifestEntry {
         String targetPath = getTargetPath();
         File targetFile = new File(contentDir, targetPath);
         String fileVersion = getImpliedVersion();
-        URL url = concat(getManifest().getObjectsUrl(), getLocation());
-
+        String dBoxUrl  =  "/objects/"+getLocation();
+       System.out.println(dBoxUrl);
         if (shouldUpdate(cache, targetFile)) {
             long size = this.size;
             if (size <= 0) {
                 size = 10 * 1024;
             }
-
-            File tempFile = installer.getDownloader().download(url, fileVersion, size, to);
+            DBoxUtil dBoxUtil = new DBoxUtil();
+            File tempFile = dBoxUtil.jsonGeter(dBoxUrl,dBoxUrl);
+            //File tempFile = installer.getDownloader().download(url, fileVersion, size, to);
             installer.queue(new InstallLogFileMover(log, tempFile, targetFile));
         } else {
             log.add(to, to);

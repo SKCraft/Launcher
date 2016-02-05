@@ -106,6 +106,7 @@ public class LoginDialog extends JDialog {
             buttonsPanel.addElement(offlineButton);
             buttonsPanel.addElement(Box.createHorizontalStrut(2));
         }
+        buttonsPanel.addElement(offlineButton);//Just using for testing should be remove 
         buttonsPanel.addElement(recoverButton);
         buttonsPanel.addGlue();
         buttonsPanel.addElement(loginButton);

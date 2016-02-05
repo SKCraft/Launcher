@@ -7,6 +7,7 @@
 package com.skcraft.launcher.update;
 
 import com.google.common.base.Strings;
+import com.skcraft.dropbox.DBoxUtil;
 import com.skcraft.launcher.AssetsRoot;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
@@ -80,14 +81,17 @@ public abstract class BaseUpdater {
         currentLog.setBaseDir(contentDir);
         final UpdateCache updateCache = Persistence.read(cachePath, UpdateCache.class);
         final FeatureCache featuresCache = Persistence.read(featuresPath, FeatureCache.class);
-
-        Manifest manifest = HttpRequest
+        System.out.println(instance.getManifestPath().getCanonicalPath().substring(6));
+        DBoxUtil dBoxUtil = new DBoxUtil();
+        Manifest manifest = dBoxUtil.DBoxasJson("/javamans-mods.json", Manifest.class);//need to make it get the current mod pack
+        
+      /*  Manifest manifest = HttpRequest 
                 .get(instance.getManifestURL())
                 .execute()
                 .expectResponseCode(200)
                 .returnContent()
                 .saveContent(instance.getManifestPath())
-                .asJson(Manifest.class);
+                .asJson(Manifest.class);*/
 
         if (manifest.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
             throw new LauncherException("Update required", SharedLocale.tr("errors.updateRequiredError"));

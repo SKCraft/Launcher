@@ -8,6 +8,7 @@ package com.skcraft.launcher;
 
 import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
+import com.skcraft.dropbox.DBoxUtil;
 import com.skcraft.launcher.model.modpack.ManifestInfo;
 import com.skcraft.launcher.model.modpack.PackageList;
 import com.skcraft.launcher.persistence.Persistence;
@@ -144,13 +145,9 @@ public class InstanceList extends AbstractListModel<Instance> {
 
             try {
                 URL packagesURL = launcher.getPackagesURL();
-
-                PackageList packages = HttpRequest
-                        .get(packagesURL)
-                        .execute()
-                        .expectResponseCode(200)
-                        .returnContent()
-                        .asJson(PackageList.class);
+                DBoxUtil dBoxUtil = new DBoxUtil();
+               PackageList packages = dBoxUtil.DBoxasJson("/packages.json", PackageList.class);///////////
+               
 
                 if (packages.getMinimumVersion() > Launcher.PROTOCOL_VERSION) {
                     throw new LauncherException("Update required", SharedLocale.tr("errors.updateRequiredError"));
