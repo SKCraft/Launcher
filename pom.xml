@@ -11,7 +11,7 @@
 
     <groupId>nz.co.lolnet</groupId>
     <artifactId>lolnetLauncher</artifactId>
-    <version>1.0.5-SNAPSHOT-2</version>
+    <version>1.0.5-SNAPSHOT-3</version>
 
     <dependencies>
         <dependency>
@@ -53,6 +53,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 

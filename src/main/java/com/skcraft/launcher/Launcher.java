@@ -23,14 +23,9 @@ import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
 
 import com.sun.management.OperatingSystemMXBean;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import lombok.extern.java.Log;
-import org.apache.commons.io.FileUtils;
 
+import org.apache.commons.codec.binary.Base64;
 import javax.swing.*;
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -40,18 +35,36 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
-import javax.swing.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -477,6 +490,87 @@ public final class Launcher {
         return System.getProperty("user.dir");
     }
 
+    public static void doTrustToCertificates() throws Exception {
+        Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                    return;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                    return;
+                }
+            }
+        };
+
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        HostnameVerifier hv = new HostnameVerifier() {
+            public boolean verify(String urlHostName, SSLSession session) {
+                if (!urlHostName.equalsIgnoreCase(session.getPeerHost())) {
+                    System.out.println("Warning: URL host '" + urlHostName + "' is different to SSLSession host '" + session.getPeerHost() + "'.");
+                }
+                return true;
+            }
+        };
+        HttpsURLConnection.setDefaultHostnameVerifier(hv);
+    }
+
+    public static boolean hasExpiredCertificate(URL url) throws MalformedURLException, Exception {
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.connect();
+        Certificate[] certs = conn.getServerCertificates();
+        for (Certificate cert : certs) {
+            if (cert.toString().contains("DNSName: " + url.getHost())) {
+                if (cert instanceof X509Certificate) {
+                    System.out.println(cert.getPublicKey().toString());
+                    cert.verify(getKey("31986410681007246501228118878356283928752026334882957847521500716415782446561974978860821241234961758079699749720153327532185743692695547823776078489817438857409585046721290245859976394238671442241144604783246997068794807660673025947118410819633276006580289715004307800823188903510881382320273559126964762969736964841897985696993723254375312755231732903094132532173330155324537311255680826112342001019637283492900719667755104892194311686468005101112422743611678336663889607493642310125157868274273858727526928806248969529337280090953823050971168207414606691198405715695960773782837692815488441424698501405805364672601"));
+                    try {
+                        ((X509Certificate) cert).checkValidity();
+                        System.out.println("Certificate is active for current date");
+                        return false;
+                    } catch (CertificateExpiredException cee) {
+                        System.out.println("Certificate is expired");
+                        return true;
+                    }
+                }
+            }
+
+        }
+        System.out.println("Certificate not found for: " + url.getHost());
+        return true;
+    }
+
+    public static PublicKey getKey(String key) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        byte[] publicBytes = Base64.decodeBase64(key);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey pubKey = keyFactory.generatePublic(keySpec);
+        return pubKey;
+    }
+
+    public static void connectToUrl(URL url) throws MalformedURLException, Exception {
+        doTrustToCertificates();
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        System.out.println("ResponseCoede =" + conn.getResponseCode());
+
+        URLConnection connection = url.openConnection();
+        try {
+            connection.connect();
+            System.out.println("Headers of " + url + " => "
+                    + connection.getHeaderFields());
+        } catch (SSLHandshakeException e) {
+            System.out.println("Untrusted: " + url);
+        }
+        hasExpiredCertificate(url);
+    }
+
     public static String getModpackURL() {
         try {
             URL url;
@@ -492,6 +586,9 @@ public final class Launcher {
 
             String line;
             while ((line = rd.readLine()) != null) {
+                if (line.startsWith("https:")) {
+                    connectToUrl(new URL(line));
+                }
                 return line;
             }
             wr.close();
@@ -499,7 +596,51 @@ public final class Launcher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "https://www.lolnet.co.nz/modpack/";
+        String line = "https://www.lolnet.co.nz/modpack/";
+        try {
+            if (line.startsWith("https:")) {
+                connectToUrl(new URL(line));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return line;
+    }
+
+    public static String getPublicKey() {
+        try {
+            URL url;
+            url = new URL("https://www.lolnet.co.nz/modpack/modpackurl.php");
+            url = Launcher.checkURL(url);
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.flush();
+
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                if (line.startsWith("https:")) {
+                    connectToUrl(new URL(line));
+                }
+                return line;
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String line = "https://www.lolnet.co.nz/modpack/";
+        try {
+            if (line.startsWith("https:")) {
+                connectToUrl(new URL(line));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return line;
     }
 
     public static String getBootstrapLink() {
