@@ -1,4 +1,5 @@
-Lolnet Launcher
+Lolnet Launcher 
+[![Build Status](https://travis-ci.org/James137137/LolnetLauncher.svg?branch=master)](https://travis-ci.org/James137137/LolnetLauncher)
 ================
 
 This project is forked from SKCraft Launcher that provides an open-source Minecraft launcher platform for downloading,
