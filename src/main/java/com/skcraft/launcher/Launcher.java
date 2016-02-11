@@ -29,8 +29,12 @@ import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
@@ -68,6 +72,7 @@ import javax.net.ssl.X509TrustManager;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.LolnetLookAndFeel;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import org.apache.commons.io.FileUtils;
 
@@ -529,8 +534,6 @@ public final class Launcher {
         for (Certificate cert : certs) {
             if (cert.toString().contains("DNSName: " + url.getHost())) {
                 if (cert instanceof X509Certificate) {
-                    System.out.println(cert.getPublicKey().toString());
-                    cert.verify(getKey("31986410681007246501228118878356283928752026334882957847521500716415782446561974978860821241234961758079699749720153327532185743692695547823776078489817438857409585046721290245859976394238671442241144604783246997068794807660673025947118410819633276006580289715004307800823188903510881382320273559126964762969736964841897985696993723254375312755231732903094132532173330155324537311255680826112342001019637283492900719667755104892194311686468005101112422743611678336663889607493642310125157868274273858727526928806248969529337280090953823050971168207414606691198405715695960773782837692815488441424698501405805364672601"));
                     try {
                         ((X509Certificate) cert).checkValidity();
                         System.out.println("Certificate is active for current date");
@@ -545,14 +548,6 @@ public final class Launcher {
         }
         System.out.println("Certificate not found for: " + url.getHost());
         return true;
-    }
-
-    public static PublicKey getKey(String key) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        byte[] publicBytes = Base64.decodeBase64(key);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PublicKey pubKey = keyFactory.generatePublic(keySpec);
-        return pubKey;
     }
 
     public static void connectToUrl(URL url) throws MalformedURLException, Exception {
@@ -719,13 +714,20 @@ public final class Launcher {
             @Override
             public void run() {
                 try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                        if ("Nimbus".equals(info.getName())) {
-                            UIManager.setLookAndFeel(info.getClassName());
-                            break;
+                    try {
+                        // Setup the look and feel properties
+                        new LolnetLookAndFeel();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                            if ("Nimbus".equals(info.getName())) {
+                                UIManager.setLookAndFeel(info.getClassName());
+                                break;
+                            }
                         }
                     }
+
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     Launcher launcher = new Launcher(baseDir);
                     new LauncherFrame(launcher).setVisible(true);
@@ -735,6 +737,7 @@ public final class Launcher {
                             + "problem was encountered.", "Launcher error", t);
                 }
             }
+
         });
 
     }

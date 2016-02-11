@@ -11,8 +11,13 @@
 
     <groupId>nz.co.lolnet</groupId>
     <artifactId>lolnetLauncher</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6-SNAPSHOT-1</version>
     <dependencies>
+        <dependency>
+            <groupId>com.jtattoo</groupId>
+            <artifactId>JTattoo</artifactId>
+            <version>1.6.7</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
