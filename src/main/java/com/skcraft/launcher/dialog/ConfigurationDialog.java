@@ -190,7 +190,7 @@ public class ConfigurationDialog extends JDialog {
                 JComboBox combo = new JComboBox(items);
                 JPanel panel = new JPanel(new GridLayout(0, 1));
                 panel.add(combo);
-                int result = JOptionPane.showConfirmDialog(null, panel, "Change Snapshot",
+                int result = JOptionPane.showConfirmDialog(null, panel, "Change Theme",
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
                     Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
