@@ -17,9 +17,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -47,10 +47,12 @@ public class ConfigurationDialog extends JDialog {
     private final JTextField gameKeyText = new JTextField();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final LinedBoxPanel buttonsPanel2 = new LinedBoxPanel(true);
+    private final LinedBoxPanel buttonsPanel3 = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(SharedLocale.tr("button.ok"));
     private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
     private final JButton logButton = new JButton(SharedLocale.tr("options.launcherConsole"));
     private final JButton changeDataStorageLocationButton = new JButton("Change Data Directory...");
+    private final JButton changeLauncherThemeButton = new JButton("Change Launcher Theme");
 
     /**
      * Create a new configuration dialog.
@@ -102,7 +104,13 @@ public class ConfigurationDialog extends JDialog {
         //advancedPanel.addRow(new JLabel(SharedLocale.tr("options.gameKey")), gameKeyText);
         //buttonsPanel2.addGlue();
         buttonsPanel2.addElement(changeDataStorageLocationButton);
-        advancedPanel.add(buttonsPanel2);
+        advancedPanel.addRow(buttonsPanel2);
+        File dir = new File(Launcher.dataDir, "themes");
+        if (dir.exists()) {
+            buttonsPanel3.addElement(changeLauncherThemeButton);
+            advancedPanel.addRow(buttonsPanel3);
+        }
+
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(SharedLocale.tr("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
@@ -173,6 +181,43 @@ public class ConfigurationDialog extends JDialog {
                     JOptionPane.showMessageDialog(null, "File Path does not exist: " + file.getPath(), "Error: No Path Found", JOptionPane.ERROR_MESSAGE);
                 }
             }
+        });
+
+        changeLauncherThemeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String[] items = getThemes();
+                JComboBox combo = new JComboBox(items);
+                JPanel panel = new JPanel(new GridLayout(0, 1));
+                panel.add(combo);
+                int result = JOptionPane.showConfirmDialog(null, panel, "Change Snapshot",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (result == JOptionPane.OK_OPTION) {
+                    Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
+                    String currentSkin = userNodeForPackage.get("LolnetLauncherSkin", "");
+                    String newSkin = combo.getSelectedItem().toString();
+                    if (!currentSkin.equals(newSkin))
+                    {
+                        userNodeForPackage.put("LolnetLauncherSkin", newSkin);
+                        JOptionPane.showMessageDialog(null, "Changed. New Theme is now: " + newSkin  + " Theme", "success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);
+                        if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                            Launcher.restartLauncher();
+                        }
+                    }
+                }
+            }
+
+            private String[] getThemes() {
+                java.util.List<String> list = new ArrayList<>();
+                list.add("defualt");
+                File dir = new File(Launcher.dataDir, "themes");
+                for (File file : dir.listFiles()) {
+                    list.add(file.getName().replaceAll(".theme", ""));
+                }
+                return (String[]) list.toArray(new String[list.size()]);
+            }
+
         });
     }
 
