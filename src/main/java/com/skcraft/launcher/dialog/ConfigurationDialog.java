@@ -210,7 +210,7 @@ public class ConfigurationDialog extends JDialog {
 
             private String[] getThemes() {
                 java.util.List<String> list = new ArrayList<>();
-                list.add("defualt");
+                list.add("Default");
                 File dir = new File(Launcher.dataDir, "themes");
                 for (File file : dir.listFiles()) {
                     list.add(file.getName().replaceAll(".theme", ""));
