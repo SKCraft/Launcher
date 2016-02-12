@@ -72,7 +72,6 @@ import javax.net.ssl.X509TrustManager;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import nz.co.lolnet.james137137.LolnetLookAndFeel;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import org.apache.commons.io.FileUtils;
 
@@ -672,7 +671,7 @@ public final class Launcher {
         Launcher.modPackURL = getModpackURL();
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
+        final Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         String property = System.getProperty("java.version");
 
         if (!property.startsWith("1.5") && !property.startsWith("1.6") && !property.startsWith("1.7")) {
@@ -713,12 +712,8 @@ public final class Launcher {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                try {
+                if (userNodeForPackage.get("LolnetLauncherDataPath", "") == null || userNodeForPackage.get("LolnetLauncherDataPath", "").equals("default")) {
                     try {
-                        // Setup the look and feel properties
-                        new LolnetLookAndFeel();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
                         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                             if ("Nimbus".equals(info.getName())) {
@@ -726,8 +721,10 @@ public final class Launcher {
                                 break;
                             }
                         }
+                    } catch (Exception e) {
                     }
-
+                }
+                try {
                     UIManager.getDefaults().put("SplitPane.border", BorderFactory.createEmptyBorder());
                     Launcher launcher = new Launcher(baseDir);
                     new LauncherFrame(launcher).setVisible(true);
