@@ -196,10 +196,9 @@ public class ConfigurationDialog extends JDialog {
                     Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
                     String currentSkin = userNodeForPackage.get("LolnetLauncherSkin", "");
                     String newSkin = combo.getSelectedItem().toString();
-                    if (!currentSkin.equals(newSkin))
-                    {
+                    if (!currentSkin.equals(newSkin)) {
                         userNodeForPackage.put("LolnetLauncherSkin", newSkin);
-                        JOptionPane.showMessageDialog(null, "Changed. New Theme is now: " + newSkin  + " Theme", "success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Changed. New Theme is now: " + newSkin + " Theme", "success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);
                         if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
                                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                             Launcher.restartLauncher();
@@ -213,7 +212,9 @@ public class ConfigurationDialog extends JDialog {
                 list.add("Default");
                 File dir = new File(Launcher.dataDir, "themes");
                 for (File file : dir.listFiles()) {
-                    list.add(file.getName().replaceAll(".theme", ""));
+                    if (file.getName().contains(".loltheme")) {
+                        list.add(file.getName().replaceAll(".loltheme", ""));
+                    }
                 }
                 return (String[]) list.toArray(new String[list.size()]);
             }
