@@ -712,7 +712,7 @@ public final class Launcher {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                if (userNodeForPackage.get("LolnetLauncherDataPath", "") == null || userNodeForPackage.get("LolnetLauncherDataPath", "").equals("default")) {
+                if (userNodeForPackage.get("LolnetLauncherSkin", "") == null || userNodeForPackage.get("LolnetLauncherSkin", "").equals("default")) {
                     try {
                         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
