@@ -96,9 +96,10 @@ public abstract class BaseUpdater {
         if (manifest.getBaseUrl() == null) {
             manifest.setBaseUrl(instance.getManifestURL());
         }
-
+        log.info("Get Features ...");
         final List<Feature> features = manifest.getFeatures();
         if (!features.isEmpty()) {
+            log.info("Features not empty!");
             for (Feature feature : features) {
                 Boolean last = featuresCache.getSelected().get(feature.getName());
                 if (last != null) {

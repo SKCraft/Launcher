@@ -28,7 +28,7 @@ public class Instance implements Comparable<Instance> {
     private String title;
     private String name;
     private String version;
-    private boolean updatePending;
+    public boolean updatePending;
     private boolean installed;
     private Date lastAccessed;
     @JsonProperty("launch")

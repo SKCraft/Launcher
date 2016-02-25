@@ -68,7 +68,8 @@ public class LauncherFrame extends JFrame {
         this.launcher = launcher;
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(550, 300));
+        setMinimumSize(new Dimension(875, 100));
+        setMaximumSize(new Dimension(875, 100));
         initComponents();
         pack();
         setLocationRelativeTo(null);
@@ -113,7 +114,7 @@ public class LauncherFrame extends JFrame {
 // 	panel.setDividerSize(4);
 	panel.setOpaque(false);
 //        container.add(webView);
-        container.add(webView, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:350");
+        container.add(webView, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:150");
 //	SwingHelper.flattenJSplitPane(splitPane);
         container.add(refreshButton);
         container.add(updateCheck);
@@ -343,7 +344,7 @@ public class LauncherFrame extends JFrame {
 
     private void launch() {
         boolean permitUpdate = updateCheck.isSelected();
-        Instance instance = launcher.getInstances().getElementAt(0);
+        Instance instance = launcher.getInstances().getElementAt(launcher.getInstances().getSize()-1);
 
         LaunchOptions options = new LaunchOptions.Builder()
                 .setInstance(instance)

@@ -57,14 +57,21 @@ public class LaunchSupervisor {
             Persistence.commitAndForget(instance);
 
             // Perform login
+            final LoginDialog ld;
             final Session session;
             if (options.getSession() != null) {
                 session = options.getSession();
             } else {
-                session = LoginDialog.showLoginRequest(window, launcher);
-                if (session == null) {
-                    return;
+                ld = LoginDialog.showLoginRequest(window, launcher);
+                session = ld.session;
+                if(ld.force_update){
+                  update = true;
+                  instance.updatePending = true;
                 }
+                update = ld.force_update;
+                // if (session == null) {
+                //     return;
+                // }
             }
 
             // If we have to update, we have to update
@@ -73,6 +80,7 @@ public class LaunchSupervisor {
             }
 
             if (update) {
+                log.info("Execute the updater ...");
                 // Execute the updater
                 Updater updater = new Updater(launcher, instance);
                 updater.setOnline(options.getUpdatePolicy() == UpdatePolicy.ALWAYS_UPDATE || session.isOnline());

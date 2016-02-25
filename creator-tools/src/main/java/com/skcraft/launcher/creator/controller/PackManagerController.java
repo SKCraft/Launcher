@@ -225,7 +225,7 @@ public class PackManagerController {
         if (config.isOfflineEnabled()) {
             return true;
         } else {
-            Session session = LoginDialog.showLoginRequest(frame, launcher);
+            Session session = LoginDialog.showLoginRequest(frame, launcher).session;
             if (session != null) {
                 config.setOfflineEnabled(true);
                 Persistence.commitAndForget(config);
@@ -734,7 +734,7 @@ public class PackManagerController {
         Session session;
 
         if (online) {
-            session = LoginDialog.showLoginRequest(frame, launcher);
+            session = LoginDialog.showLoginRequest(frame, launcher).session;
             if (session == null) {
                 return;
             }

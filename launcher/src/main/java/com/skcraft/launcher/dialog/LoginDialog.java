@@ -36,7 +36,8 @@ public class LoginDialog extends JDialog {
 
     private final Launcher launcher;
     @Getter private final AccountList accounts;
-    @Getter private Session session;
+    @Getter public Session session;
+    @Getter public Boolean force_update;
 
     private final JComboBox idCombo = new JComboBox();
     private final JPasswordField passwordText = new JPasswordField();
@@ -44,7 +45,8 @@ public class LoginDialog extends JDialog {
     private final JCheckBox rememberPassCheck = new JCheckBox(SharedLocale.tr("login.rememberPassword"));
     private final JButton loginButton = new JButton(SharedLocale.tr("login.login"));
     private final LinkButton recoverButton = new LinkButton(SharedLocale.tr("login.recoverAccount"));
-    private final JButton offlineButton = new JButton(SharedLocale.tr("login.playOffline"));
+    private final JButton off_update = new JButton("Einstellungen & Spielen");
+    private final JButton offlineButton = new JButton("Spielen");
     private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
     private final FormPanel formPanel = new FormPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
@@ -96,25 +98,27 @@ public class LoginDialog extends JDialog {
 
         loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
 
-        formPanel.addRow(new JLabel(SharedLocale.tr("login.idEmail")), idCombo);
-        formPanel.addRow(new JLabel(SharedLocale.tr("login.password")), passwordText);
+        formPanel.addRow(new JLabel("Name"), idCombo);
+        //formPanel.addRow(new JLabel(SharedLocale.tr("login.password")), passwordText);
         formPanel.addRow(new JLabel(), rememberIdCheck);
-        formPanel.addRow(new JLabel(), rememberPassCheck);
+        //formPanel.addRow(new JLabel(), rememberPassCheck);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 
-        if (true || launcher.getConfig().isOfflineEnabled()) {
-            buttonsPanel.addElement(offlineButton);
-            buttonsPanel.addElement(Box.createHorizontalStrut(2));
-        }
-        buttonsPanel.addElement(recoverButton);
+        // if (true || launcher.getConfig().isOfflineEnabled()) {
+        //     buttonsPanel.addElement(offlineButton);
+        //     buttonsPanel.addElement(Box.createHorizontalStrut(2));
+        // }
+        //buttonsPanel.addElement(recoverButton);
         buttonsPanel.addGlue();
-        buttonsPanel.addElement(loginButton);
+        buttonsPanel.addElement(off_update);
+        buttonsPanel.addElement(offlineButton);
+        // buttonsPanel.addElement(loginButton);
         buttonsPanel.addElement(cancelButton);
 
         add(formPanel, BorderLayout.CENTER);
         add(buttonsPanel, BorderLayout.SOUTH);
 
-        getRootPane().setDefaultButton(loginButton);
+        getRootPane().setDefaultButton(offlineButton);
 
         passwordText.setComponentPopupMenu(TextFieldPopupMenu.INSTANCE);
 
@@ -142,6 +146,20 @@ public class LoginDialog extends JDialog {
             }
         });
 
+        off_update.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object selected = idCombo.getSelectedItem();
+
+	        if (selected != null && selected instanceof Account) {
+                      final Account account = (Account) selected;
+                      setResult(new OfflineSession(account.getId()), true);
+                      removeListeners();
+                      dispose();
+                }
+            }
+        });
+
         offlineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -149,7 +167,7 @@ public class LoginDialog extends JDialog {
 
 	        if (selected != null && selected instanceof Account) {
                       final Account account = (Account) selected;
-                      setResult(new OfflineSession(account.getId()));
+                      setResult(new OfflineSession(account.getId()), false);
                       removeListeners();
                       dispose();
                 }
@@ -294,7 +312,7 @@ public class LoginDialog extends JDialog {
         Futures.addCallback(future, new FutureCallback<Session>() {
             @Override
             public void onSuccess(Session result) {
-                setResult(result);
+                setResult(result, false);
             }
 
             @Override
@@ -306,16 +324,17 @@ public class LoginDialog extends JDialog {
         SwingHelper.addErrorDialogCallback(this, future);
     }
 
-    private void setResult(Session session) {
+    private void setResult(Session session, Boolean forceUpdate) {
         this.session = session;
+        this.force_update = forceUpdate;
         removeListeners();
         dispose();
     }
 
-    public static Session showLoginRequest(Window owner, Launcher launcher) {
+    public static LoginDialog showLoginRequest(Window owner, Launcher launcher) {
         LoginDialog dialog = new LoginDialog(owner, launcher);
         dialog.setVisible(true);
-        return dialog.getSession();
+        return dialog;
     }
 
     private class LoginCallable implements Callable<Session>,ProgressObservable {
