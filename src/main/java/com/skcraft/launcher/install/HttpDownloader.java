@@ -181,7 +181,9 @@ public class HttpDownloader implements Downloader {
             }
             double remainingMB = ((double) ((downloaded) / 1024)) / 1024.0;
             double speed = (double) downloaded / (double) (System.currentTimeMillis() - downloadStartTime);
-            return "Downloading: " + round(remainingMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB (" + round(speed/1024,2) + " MB/s)"
+            System.out.println(downloaded);
+            System.out.println(speed);
+            return "Downloading: " + round(remainingMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB (" + round(speed/1024.0,2) + " MB/s)"
                     + builder.toString()
                     + "\n" + failMessage;
         } else {
