@@ -164,7 +164,7 @@ public class HttpDownloader implements Downloader {
 
     @Override
     public synchronized String getStatus() {
-        if (downloaded <= 0)
+        if (downloaded <= 1000)
         {
             downloadStartTime = System.currentTimeMillis();
         }
@@ -183,7 +183,7 @@ public class HttpDownloader implements Downloader {
             double speed = (double) downloaded / (double) (System.currentTimeMillis() - downloadStartTime);
             System.out.println(downloaded);
             System.out.println(speed);
-            return "Downloading: " + round(remainingMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB (" + round(speed/1024.0,2) + " MB/s)"
+            return "Downloading: " + round(remainingMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB (" + speed + " MB/s)"
                     + builder.toString()
                     + "\n" + failMessage;
         } else {
