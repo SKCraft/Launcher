@@ -56,7 +56,6 @@ import javax.swing.event.TableModelListener;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.HelpAndSupport;
-import nz.co.lolnet.james137137.SimpleSwingBrowser;
 import nz.co.lolnet.james137137.ThreadLolnetPingWindow;
 import org.apache.commons.io.FileUtils;
 
@@ -77,18 +76,12 @@ public class LauncherFrame extends JFrame {
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
     public static final JButton lolnetPingButton = new JButton("Check Servers...");
     private final JButton lolnetAddCodeButton = new JButton("Add code...");
-    private final JButton lolnetModPackButton = new JButton("ModPacks"); // = getButtonFromImage("button1");
-    private final JButton lolnetNewsButton = new JButton("News");
-    private final JButton lolnetForumButton = new JButton("Forum");
-    private final JButton lolnetWikiButton = new JButton("Wiki");
     private final JButton launcherHelpButton = new JButton("Help");
     
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(SharedLocale.tr("launcher.downloadUpdates"));
-    private final JTextField txtURL = new JTextField();
-    private final JButton btnGo = new JButton("Go");
     private URL updateUrl;
 
     /**
@@ -128,14 +121,7 @@ public class LauncherFrame extends JFrame {
     private void initComponents() {
 
         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-        Launcher.java8OrAbove = false;
-        if (Launcher.java8OrAbove) {
-            SimpleSwingBrowser simpleSwingBrowser = new SimpleSwingBrowser(txtURL);
-            simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
-            splitPane = simpleSwingBrowser.splitPane(instanceScroll);
-        } else {
-            splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, null);
-        }
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, null);
 
         selfUpdateButton.setVisible(false);
 
@@ -152,13 +138,6 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addElement(lolnetAddCodeButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
-        if (launcher.java8OrAbove) {
-            buttonsPanel.addGlue();
-            buttonsPanel.addElement(lolnetModPackButton);
-            buttonsPanel.addElement(lolnetNewsButton);
-            buttonsPanel.addElement(lolnetForumButton);
-            buttonsPanel.addElement(lolnetWikiButton);
-        }
 
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
@@ -171,16 +150,6 @@ public class LauncherFrame extends JFrame {
 
         container.add(splitPane, BorderLayout.CENTER);
 
-        JPanel topBar = new JPanel(new BorderLayout(5, 0));
-        topBar.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
-        topBar.add(txtURL, BorderLayout.CENTER);
-        topBar.add(btnGo, BorderLayout.EAST);
-        String showURLBar = userNodeForPackage.get("IWantToGoPlaces", "");
-        if (showURLBar != null && showURLBar.equals("true")) {
-            add(topBar, BorderLayout.NORTH);
-        }
-        topBar.setVisible(Launcher.java8OrAbove);
-
         add(buttonsPanel, BorderLayout.SOUTH);
         add(container, BorderLayout.CENTER);
 
@@ -190,96 +159,6 @@ public class LauncherFrame extends JFrame {
                 HelpAndSupport.Start();
             }
         });
-        if (Launcher.java8OrAbove) {
-            btnGo.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    SimpleSwingBrowser.loadURL(txtURL.getText());
-                }
-            });
-
-            txtURL.addKeyListener(new KeyAdapter() {
-                public void keyPressed(KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                        SimpleSwingBrowser.loadURL(txtURL.getText());
-                    }
-                }
-
-            });
-
-            instancesTable.addMouseListener(new MouseListener() {
-
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    final Instance selected = launcher.getInstances().get(instancesTable.getSelectedRow());
-                    try {
-                        URL url = new URL(Launcher.modPackURL + "news/" + selected.getName().replaceAll(" ", "_") + "/index.html");
-                        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-                        int responseCode = huc.getResponseCode();
-                        if (responseCode != 404) {
-                            SimpleSwingBrowser.loadURL(url.toString());
-                        }
-                    } catch (IOException ex) {
-                        Logger.getLogger(LauncherFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                }
-
-                @Override
-                public void mousePressed(MouseEvent e) {
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                }
-            });
-            lolnetNewsButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (instanceScroll.isVisible()) {
-                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/forum/viewforum.php?f=4");
-                        splitPane.remove(instanceScroll);
-                        instanceScroll.setVisible(false);
-                    } else {
-                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/forum/viewforum.php?f=4");
-                    }
-                }
-            });
-
-            lolnetForumButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (instanceScroll.isVisible()) {
-                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/forum");
-                        splitPane.remove(instanceScroll);
-                        instanceScroll.setVisible(false);
-                    } else {
-                        SimpleSwingBrowser.loadURL("https://www.lolnet.co.nz/forum");
-                    }
-                }
-            });
-
-            lolnetWikiButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (instanceScroll.isVisible()) {
-                        SimpleSwingBrowser.loadURL("http://wiki.lolnet.co.nz/");
-                        splitPane.remove(instanceScroll);
-                        instanceScroll.setVisible(false);
-                    } else {
-                        SimpleSwingBrowser.loadURL("http://wiki.lolnet.co.nz/");
-                    }
-                }
-            });
-        }
 
         instancesModel.addTableModelListener(new TableModelListener() {
             @Override
@@ -306,13 +185,6 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 loadInstances(true);
                 checkLauncherUpdate();
-            }
-        });
-
-        lolnetModPackButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showModPackInstances(true);
             }
         });
 
@@ -376,9 +248,6 @@ public class LauncherFrame extends JFrame {
             splitPane.add(instanceScroll);
             splitPane.setDividerLocation(250);
             instanceScroll.setVisible(true);
-            if (Launcher.java8OrAbove && showNewsPage) {
-                SimpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
-            }
         }
     }
 
@@ -539,14 +408,7 @@ public class LauncherFrame extends JFrame {
                             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
                             int responseCode = huc.getResponseCode();
                             if (responseCode != 404) {
-                                if (Launcher.java8OrAbove) {
-                                    SimpleSwingBrowser.loadURL(url.toString());
-                                } else {
-                                    SwingHelper.openURL(url.toString(), rootPane);
-                                }
-                            } else if (Launcher.java8OrAbove) {
-                                SimpleSwingBrowser.loadURL(Launcher.checkURL(
-                                        new URL(Launcher.modPackURL + "changelog/noChngeLogExist.html")).toString());
+                                HelpAndSupport.openURL(url.toString());
                             } else {
                                 SwingHelper.openURL(Launcher.checkURL(
                                         new URL(Launcher.modPackURL + "changelog/noChngeLogExist.html")).toString(), rootPane);
@@ -671,9 +533,6 @@ public class LauncherFrame extends JFrame {
     }
 
     private void loadInstancesThreaded(boolean showProgress) {
-        if (Launcher.java8OrAbove) {
-            SimpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
-        }
         InstanceList.Enumerator loader = launcher.getInstances().createEnumerator();
         ObservableFuture<InstanceList> future = new ObservableFuture<InstanceList>(
                 launcher.getExecutor().submit(loader), loader);

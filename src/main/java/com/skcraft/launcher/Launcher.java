@@ -82,7 +82,6 @@ import org.apache.commons.io.FileUtils;
 public final class Launcher {
 
     public static final boolean debugmode = false;
-    public static boolean java8OrAbove = false;
     public static final int PROTOCOL_VERSION = 2;
     public static String modPackURL;
 
@@ -673,11 +672,7 @@ public final class Launcher {
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         final Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         String property = System.getProperty("java.version");
-
-        if (!property.startsWith("1.5") && !property.startsWith("1.6") && !property.startsWith("1.7")) {
-            java8OrAbove = true;
-            Configuration.setImplicitExit();
-        }
+        
         LauncherArguments options = new LauncherArguments();
         try {
             new JCommander(options, args);

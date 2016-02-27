@@ -24,24 +24,13 @@ import javax.swing.JOptionPane;
 public class HelpAndSupport {
 
     public static boolean openURL(String toURL) {
-        if (Launcher.java8OrAbove) {
-            if (LauncherFrame.instance.instanceScroll.isVisible()) {
-                SimpleSwingBrowser.loadURL(toURL);
-                LauncherFrame.instance.splitPane.remove(LauncherFrame.instance.instanceScroll);
-                LauncherFrame.instance.instanceScroll.setVisible(false);
-            } else {
-                SimpleSwingBrowser.loadURL(toURL);
-            }
+        try {
+            URL url = new URL(toURL);
+            Desktop.getDesktop().browse(url.toURI());
             return true;
-        } else {
-            try {
-                URL url = new URL(toURL);
-                Desktop.getDesktop().browse(url.toURI());
-                return true;
-            } catch (URISyntaxException | IOException ex) {
-                Logger.getLogger(HelpAndSupport.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
+        } catch (URISyntaxException | IOException ex) {
+            Logger.getLogger(HelpAndSupport.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
 
     }
