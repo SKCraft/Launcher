@@ -170,6 +170,9 @@ public class InstanceTableModel extends AbstractTableModel {
         if (count > 0) {
             return "<font size=\"4\" color=\"Green\">(Players Online: " + count + ")</font>";
         }
+        if (count < 0) {
+            return "<font size=\"4\" color=\"Red\">(Server Offline)</font>";
+        }
 
         return "";
     }
@@ -367,14 +370,16 @@ public class InstanceTableModel extends AbstractTableModel {
             while (true) {
 
                 for (int i = 0; i < InstanceTableModel.instanceTableModel.instances.size(); i++) {
+                    boolean isOnline = false;
                     Instance instance = InstanceTableModel.instanceTableModel.instances.get(i);
                     int count = 0;
                     for (int j = 1; j <= 2; j++) {
 
                         try {
                             int num = Integer.parseInt(getPlayerCountFromServer(instance, j));
-                            if (num > 0) {
+                            if (num >= 0) {
                                 count += num;
+                                isOnline = true;
                             }
                         } catch (IOException ex) {
                             Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
@@ -383,7 +388,11 @@ public class InstanceTableModel extends AbstractTableModel {
                         }
 
                     }
-                    playerCount.put(instance.getTitle(), count);
+                    if (isOnline) {
+                        playerCount.put(instance.getTitle(), count);
+                    } else {
+                        playerCount.put(instance.getTitle(), -1);
+                    }
                 }
                 InstanceTableModel.instanceTableModel.update();
                 try {
