@@ -15,26 +15,37 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 
 import java.awt.image.BufferedImage;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import javax.imageio.ImageIO;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Random;
-import javax.imageio.ImageIO;
+import java.net.URLEncoder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.json.simple.parser.ParseException;
 
 public class InstanceTableModel extends AbstractTableModel {
 
     private static HashMap<String, ImageIcon> imageIconMap = new HashMap<>();
     private static HashMap<String, String> instanceInfo = new HashMap<>();
+    boolean firstTimeRun = false;
+    private static HashMap<String, Integer> playerCount = new HashMap<>();
     private final InstanceList instances;
     private final ImageIcon instanceIcon;
     private final ImageIcon customInstanceIcon;
     private final ImageIcon downloadIcon;
+    public static InstanceTableModel instanceTableModel;
 
     public InstanceTableModel(InstanceList instances) {
+        instanceTableModel = this;
         this.instances = instances;
         instanceIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "instance_icon.png")
                 .getScaledInstance(64, 64, Image.SCALE_SMOOTH));
@@ -42,6 +53,7 @@ public class InstanceTableModel extends AbstractTableModel {
                 .getScaledInstance(64, 64, Image.SCALE_SMOOTH));
         downloadIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "download_icon.png")
                 .getScaledInstance(14, 14, Image.SCALE_SMOOTH));
+        new ThreadPlayerCount();
     }
 
     public void update() {
@@ -128,9 +140,38 @@ public class InstanceTableModel extends AbstractTableModel {
                 return null;
         }
     }
-    
+
+    public static String getPlayerCountFromServer(Instance instance, int server) throws UnsupportedEncodingException, IOException, ParseException {
+        String data = URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(instance.getTitle(), "UTF-8");
+        URL url = new URL("https://www.lolnet.co.nz/api/v1.0/lolstats/getPlayerCount" + server + ".php");
+        URLConnection conn = url.openConnection();
+        conn.setDoOutput(true);
+        conn.setConnectTimeout(10000);
+        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+        wr.write(data);
+        wr.flush();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String output = rd.readLine();
+        wr.close();
+        rd.close();
+        return output;
+    }
+
+    private HashMap<String, Integer> getNumberOfPlayers() {
+        return playerCount;
+    }
+
     private String getNumberOfPlayers(Instance instance) {
-        return "<font size=\"4\" color=\"Green\">(Players online: "+new Random().nextInt(1000)+")</font>";
+        int count = 0;
+        if (getNumberOfPlayers().get(instance.getTitle()) != null) {
+            count = getNumberOfPlayers().get(instance.getTitle());
+        }
+
+        if (count > 0) {
+            return "<font size=\"4\" color=\"Green\">(Players Online: " + count + ")</font>";
+        }
+
+        return "";
     }
 
     private String getAddendum(Instance instance) {
@@ -167,7 +208,7 @@ public class InstanceTableModel extends AbstractTableModel {
                     BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
                     while ((line = rd.readLine()) != null) {
-                        instanceInfo.put(instance.getTitle(),line);
+                        instanceInfo.put(instance.getTitle(), line);
                         return line;
                     }
                     wr.close();
@@ -177,7 +218,7 @@ public class InstanceTableModel extends AbstractTableModel {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            instanceInfo.put(instance.getTitle(),line);
+            instanceInfo.put(instance.getTitle(), line);
         }
         return line;
     }
@@ -300,6 +341,59 @@ public class InstanceTableModel extends AbstractTableModel {
         g2d.dispose();
 
         return new ImageIcon(img);
+    }
+
+    private static class ThreadPlayerCount implements Runnable {
+
+        public ThreadPlayerCount() {
+            start();
+        }
+
+        private void start() {
+            Thread t = new Thread(this);
+            t.start();
+        }
+
+        @Override
+        public void run() {
+            while (InstanceTableModel.instanceTableModel.instances.size() <= 0) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            while (true) {
+
+                for (int i = 0; i < InstanceTableModel.instanceTableModel.instances.size(); i++) {
+                    Instance instance = InstanceTableModel.instanceTableModel.instances.get(i);
+                    int count = 0;
+                    for (int j = 1; j <= 2; j++) {
+
+                        try {
+                            int num = Integer.parseInt(getPlayerCountFromServer(instance, j));
+                            if (num > 0) {
+                                count += num;
+                            }
+                        } catch (IOException ex) {
+                            Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ParseException ex) {
+                            Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                    }
+                    playerCount.put(instance.getTitle(), count);
+                }
+                InstanceTableModel.instanceTableModel.update();
+                try {
+                    Thread.sleep(30 * 1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        }
     }
 
 }
