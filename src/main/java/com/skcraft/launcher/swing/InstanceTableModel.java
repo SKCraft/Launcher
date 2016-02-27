@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
+import java.util.Random;
 import javax.imageio.ImageIO;
 
 public class InstanceTableModel extends AbstractTableModel {
@@ -121,11 +122,15 @@ public class InstanceTableModel extends AbstractTableModel {
                 }
             case 1:
                 instance = instances.get(rowIndex);
-                return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + "</b></font></p>" + "<p>" + getAddendum(instance) + "</p>"
+                return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + "</b></font> " + getNumberOfPlayers(instance) + "</p>" + "<p>" + getAddendum(instance) + "</p>"
                         + "<p><font size=\"3\">" + getInstanceInfomation(instance) + "</font></p>" + "</html>";
             default:
                 return null;
         }
+    }
+    
+    private String getNumberOfPlayers(Instance instance) {
+        return "(Players online: <font size=\"4\" color=\"Green\">"+new Random().nextInt(1000)+"</font>";
     }
 
     private String getAddendum(Instance instance) {
