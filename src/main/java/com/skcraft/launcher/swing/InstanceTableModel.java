@@ -130,7 +130,7 @@ public class InstanceTableModel extends AbstractTableModel {
     }
     
     private String getNumberOfPlayers(Instance instance) {
-        return "(Players online: <font size=\"4\" color=\"Green\">"+new Random().nextInt(1000)+"</font>";
+        return "<font size=\"4\" color=\"Green\">(Players online: "+new Random().nextInt(1000)+")</font>";
     }
 
     private String getAddendum(Instance instance) {
