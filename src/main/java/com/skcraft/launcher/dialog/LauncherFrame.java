@@ -128,6 +128,7 @@ public class LauncherFrame extends JFrame {
     private void initComponents() {
 
         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        Launcher.java8OrAbove = false;
         if (Launcher.java8OrAbove) {
             SimpleSwingBrowser simpleSwingBrowser = new SimpleSwingBrowser(txtURL);
             simpleSwingBrowser.loadURL(launcher.getNewsURL().toString());
