@@ -77,6 +77,8 @@ public class LauncherFrame extends JFrame {
     public static final JButton lolnetPingButton = new JButton("Check Servers...");
     private final JButton lolnetAddCodeButton = new JButton("Add code...");
     private final JButton launcherHelpButton = new JButton("Help");
+    private final JButton launcherVoteButton = new JButton("Vote");
+    private final JButton launcherDonateButton = new JButton("Donate");
     
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
@@ -119,8 +121,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void initComponents() {
-
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, null);
 
         selfUpdateButton.setVisible(false);
@@ -138,7 +139,13 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addElement(lolnetAddCodeButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
-
+        
+        buttonsPanel.addGlue();
+        
+        buttonsPanel.addElement(launcherDonateButton);
+        buttonsPanel.addElement(launcherVoteButton);
+        
+        
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
         buttonsPanel.addElement(lolnetPingButton);
@@ -157,6 +164,20 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 HelpAndSupport.Start();
+            }
+        });
+        
+        launcherVoteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HelpAndSupport.voteLinks();
+            }
+        });
+        
+        launcherDonateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HelpAndSupport.openURL("https://www.lolnet.co.nz/donate/");
             }
         });
 

@@ -47,14 +47,21 @@ public class HelpAndSupport {
                 null,
                 options,
                 null);
-        if (answer == 0) {
-            LauncherHelp();
-        } else if (answer == 1) {
-            AccountHelp();
-        } else if (answer == 2) {
-            Launcher.restartLauncher();
-        } else if (answer == 3) {
-            voteLinks();
+        switch (answer) {
+            case 0:
+                LauncherHelp();
+                break;
+            case 1:
+                AccountHelp();
+                break;
+            case 2:
+                Launcher.restartLauncher();
+                break;
+            case 3:
+                voteLinks();
+                break;
+            default:
+                break;
         }
     }
 
@@ -247,11 +254,11 @@ public class HelpAndSupport {
         JOptionPane.showMessageDialog(null, "Restart Launcher to update", "Launcher Update", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private static void voteLinks() {
+    public static void voteLinks() {
         Object[] options = {"Site 1: ftbservers", "Site 2: minecraft-mp"};
         int answer = JOptionPane.showOptionDialog(null,
                 "Vote links:",
-                "Vote links",
+                "Vote and earn Lolnet Coins!",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
