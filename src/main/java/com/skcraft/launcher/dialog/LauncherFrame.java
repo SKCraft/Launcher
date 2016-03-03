@@ -85,6 +85,7 @@ public class LauncherFrame extends JFrame {
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(SharedLocale.tr("launcher.downloadUpdates"));
     private URL updateUrl;
+    private static boolean firstTimeRun = true;
 
     /**
      * Create a new frame.
@@ -115,9 +116,13 @@ public class LauncherFrame extends JFrame {
         setLocationRelativeTo(null);
 
         SwingHelper.setIconImage(this, Launcher.class, "icon.png");
-
-        loadInstances(true);
+        if (firstTimeRun) {
+            firstTimeRun = false;
+            loadInstances(true);
+        }
         checkLauncherUpdate();
+        
+        
     }
 
     private void initComponents() {
