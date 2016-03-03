@@ -385,7 +385,13 @@ public class LauncherFrame extends JFrame {
             popup.add(menuItem);
 
             if (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending()) {
-                menuItem = new JMenuItem("Install/Update Only");
+                if (selected.isLocal()) {
+                    menuItem = new JMenuItem("Update Only");
+                }
+                else
+                {
+                     menuItem = new JMenuItem("Install Only");
+                }
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
