@@ -259,13 +259,12 @@ public class ConfigurationDialog extends JDialog {
                         }
 
                     }
-                    if (updateCount > 0) {
-                        JOptionPane.showMessageDialog(null, "Update complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                    else
-                    {
-                        JOptionPane.showMessageDialog(null, "Everything is up to date", "Updater", JOptionPane.INFORMATION_MESSAGE);
-                    }
+
+                }
+                if (updateCount > 0) {
+                    JOptionPane.showMessageDialog(null, "Update complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Everything is up to date", "Updater", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
 
