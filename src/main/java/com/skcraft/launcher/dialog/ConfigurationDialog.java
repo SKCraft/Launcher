@@ -5,11 +5,15 @@
  */
 package com.skcraft.launcher.dialog;
 
+import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.Configuration;
+import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.persistence.Persistence;
+import com.skcraft.launcher.update.Updater;
 import com.skcraft.launcher.util.SharedLocale;
+import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
 
 import javax.swing.*;
@@ -48,10 +52,12 @@ public class ConfigurationDialog extends JDialog {
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
     private final LinedBoxPanel buttonsPanel2 = new LinedBoxPanel(true);
     private final LinedBoxPanel buttonsPanel3 = new LinedBoxPanel(true);
+    private final LinedBoxPanel buttonsPanel4 = new LinedBoxPanel(true);
     private final JButton okButton = new JButton(SharedLocale.tr("button.ok"));
     private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
     private final JButton logButton = new JButton(SharedLocale.tr("options.launcherConsole"));
     private final JButton changeDataStorageLocationButton = new JButton("Change Data Directory...");
+    private final JButton UpdateAllPacksButton = new JButton("Update All Packs...");
     private final JButton changeLauncherThemeButton = new JButton("Change Launcher Theme");
 
     /**
@@ -103,12 +109,14 @@ public class ConfigurationDialog extends JDialog {
 
         //advancedPanel.addRow(new JLabel(SharedLocale.tr("options.gameKey")), gameKeyText);
         //buttonsPanel2.addGlue();
-        buttonsPanel2.addElement(changeDataStorageLocationButton);
-        advancedPanel.addRow(buttonsPanel2);
+        changeDataStorageLocationButton.setPreferredSize(new Dimension(170, 25));
+        UpdateAllPacksButton.setPreferredSize(new Dimension(170, 25));
+        changeLauncherThemeButton.setPreferredSize(new Dimension(170, 25));
+        advancedPanel.addRow(changeDataStorageLocationButton);
+        advancedPanel.addRow(UpdateAllPacksButton);
         File dir = new File(Launcher.dataDir, "themes");
         if (dir.exists()) {
-            buttonsPanel3.addElement(changeLauncherThemeButton);
-            advancedPanel.addRow(buttonsPanel3);
+            advancedPanel.addRow(changeLauncherThemeButton);
         }
 
         SwingHelper.removeOpaqueness(advancedPanel);
@@ -217,6 +225,39 @@ public class ConfigurationDialog extends JDialog {
                     }
                 }
                 return (String[]) list.toArray(new String[list.size()]);
+            }
+
+        });
+
+        UpdateAllPacksButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                for (Instance instance : Launcher.instance.getInstances().getInstances()) {
+                    if (instance.isLocal()) {
+                        if (!instance.isInstalled() || instance.isUpdatePending()) {
+                            Updater updater = new Updater(Launcher.instance, instance);
+                            updater.setOnline(true);
+                            ObservableFuture<Instance> future = new ObservableFuture<Instance>(
+                                    Launcher.instance.getExecutor().submit(updater), updater);
+
+                            // Show progress
+                            ProgressDialog.showProgress(
+                                    LauncherFrame.instance, future, SharedLocale.tr("launcher.updatingTitle"), SharedLocale.tr("launcher.updatingStatus", instance.getTitle()));
+                            SwingHelper.addErrorDialogCallback(LauncherFrame.instance, future);
+
+                            // Update the list of instances after updating
+                            future.addListener(new Runnable() {
+                                @Override
+                                public void run() {
+                                    InstanceTableModel.instanceTableModel.update();
+                                }
+                            }, SwingExecutor.INSTANCE);
+                            JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
+                        }
+
+                    }
+                }
             }
 
         });

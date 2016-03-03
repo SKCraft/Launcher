@@ -387,10 +387,8 @@ public class LauncherFrame extends JFrame {
             if (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending()) {
                 if (selected.isLocal()) {
                     menuItem = new JMenuItem("Update Only");
-                }
-                else
-                {
-                     menuItem = new JMenuItem("Install Only");
+                } else {
+                    menuItem = new JMenuItem("Install Only");
                 }
                 menuItem.addActionListener(new ActionListener() {
                     @Override
@@ -512,9 +510,6 @@ public class LauncherFrame extends JFrame {
     private void InstallOnly() {
         final Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
         if (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending()) {
-            JOptionPane.showMessageDialog(null, "Modpack doesn't need updating", "Updater", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-
             Updater updater = new Updater(launcher, instance);
             updater.setOnline(true);
             ObservableFuture<Instance> future = new ObservableFuture<Instance>(
@@ -533,6 +528,9 @@ public class LauncherFrame extends JFrame {
                 }
             }, SwingExecutor.INSTANCE);
             JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, "Modpack doesn't need updating", "Updater", JOptionPane.INFORMATION_MESSAGE);
+
         }
 
     }
