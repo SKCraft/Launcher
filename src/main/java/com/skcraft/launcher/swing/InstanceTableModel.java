@@ -134,7 +134,14 @@ public class InstanceTableModel extends AbstractTableModel {
                 }
             case 1:
                 instance = instances.get(rowIndex);
-                return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + "</b></font> " + getNumberOfPlayers(instance) + "</p>" + "<p>" + getAddendum(instance) + "</p>"
+                String version = instance.getVersion();
+                String[] split = version.split("\\.");
+                version = "";
+                for (int i = 0; i < split.length - 1; i++) {
+                    version += split[i] + ".";
+                }
+                version = version.substring(0, version.length() - 1);
+                return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + " (" + version + ")</b></font> " + getNumberOfPlayers(instance) + "</p>" + "<p>" + getAddendum(instance) + "</p>"
                         + "<p><font size=\"3\">" + getInstanceInfomation(instance) + "</font></p>" + "</html>";
             default:
                 return null;

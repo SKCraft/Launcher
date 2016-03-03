@@ -69,7 +69,7 @@ public class LauncherFrame extends JFrame {
     private final Launcher launcher;
     private final InstanceTable instancesTable = new InstanceTable();
     private final InstanceTableModel instancesModel;
-    public  final JScrollPane instanceScroll = new JScrollPane(instancesTable);
+    public final JScrollPane instanceScroll = new JScrollPane(instancesTable);
     public JSplitPane splitPane;
     private final JPanel container = new JPanel();
     private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true).fullyPadded();
@@ -79,7 +79,7 @@ public class LauncherFrame extends JFrame {
     private final JButton launcherHelpButton = new JButton("Help");
     private final JButton launcherVoteButton = new JButton("Vote");
     private final JButton launcherDonateButton = new JButton("Donate");
-    
+
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
@@ -121,7 +121,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void initComponents() {
-        
+
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, null);
 
         selfUpdateButton.setVisible(false);
@@ -139,13 +139,12 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addElement(lolnetAddCodeButton);
         buttonsPanel.addElement(refreshButton);
         buttonsPanel.addElement(updateCheck);
-        
+
         buttonsPanel.addGlue();
-        
+
         buttonsPanel.addElement(launcherDonateButton);
         buttonsPanel.addElement(launcherVoteButton);
-        
-        
+
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
         buttonsPanel.addElement(lolnetPingButton);
@@ -166,14 +165,14 @@ public class LauncherFrame extends JFrame {
                 HelpAndSupport.Start();
             }
         });
-        
+
         launcherVoteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 HelpAndSupport.voteLinks();
             }
         });
-        
+
         launcherDonateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -385,6 +384,18 @@ public class LauncherFrame extends JFrame {
             });
             popup.add(menuItem);
 
+            if (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending()) {
+                menuItem = new JMenuItem("Install/Update Only");
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        InstallOnly();
+                    }
+
+                });
+                popup.add(menuItem);
+            }
+
             if (selected.isLocal()) {
                 popup.addSeparator();
 
@@ -489,6 +500,34 @@ public class LauncherFrame extends JFrame {
         popup.add(menuItem);
 
         popup.show(component, x, y);
+
+    }
+
+    private void InstallOnly() {
+        final Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
+        if (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending()) {
+            JOptionPane.showMessageDialog(null, "Modpack doesn't need updating", "Updater", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+
+            Updater updater = new Updater(launcher, instance);
+            updater.setOnline(true);
+            ObservableFuture<Instance> future = new ObservableFuture<Instance>(
+                    launcher.getExecutor().submit(updater), updater);
+
+            // Show progress
+            ProgressDialog.showProgress(
+                    LauncherFrame.instance, future, SharedLocale.tr("launcher.updatingTitle"), SharedLocale.tr("launcher.updatingStatus", instance.getTitle()));
+            SwingHelper.addErrorDialogCallback(LauncherFrame.instance, future);
+
+            // Update the list of instances after updating
+            future.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    instancesModel.update();
+                }
+            }, SwingExecutor.INSTANCE);
+            JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
+        }
 
     }
 
@@ -797,6 +836,7 @@ public class LauncherFrame extends JFrame {
 
     private void launch() {
         try {
+            System.out.println("Hello World");
             Configuration config = launcher.getConfig();
             if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
                 config.setLauncherWindowHeight(getSize().height);
