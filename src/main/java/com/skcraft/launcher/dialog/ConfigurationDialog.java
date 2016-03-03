@@ -233,9 +233,11 @@ public class ConfigurationDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                int updateCount = 0;
                 for (Instance instance : Launcher.instance.getInstances().getInstances()) {
                     if (instance.isLocal()) {
                         if (!instance.isInstalled() || instance.isUpdatePending()) {
+                            updateCount++;
                             Updater updater = new Updater(Launcher.instance, instance);
                             updater.setOnline(true);
                             ObservableFuture<Instance> future = new ObservableFuture<Instance>(
@@ -253,9 +255,16 @@ public class ConfigurationDialog extends JDialog {
                                     InstanceTableModel.instanceTableModel.update();
                                 }
                             }, SwingExecutor.INSTANCE);
-                            JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
+
                         }
 
+                    }
+                    if (updateCount > 0) {
+                        JOptionPane.showMessageDialog(null, "Update complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(null, "Everything is up to date", "Updater", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             }
