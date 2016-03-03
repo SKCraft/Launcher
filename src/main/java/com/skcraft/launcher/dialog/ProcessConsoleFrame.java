@@ -16,7 +16,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 
 
@@ -28,7 +30,9 @@ public class ProcessConsoleFrame extends ConsoleFrame {
     private JButton killButton;
     private JButton minimizeButton;
     private TrayIcon trayIcon;
-
+    private long age;
+    private static java.util.List<ProcessConsoleFrame> consoleList = new ArrayList<>();
+    
     @Getter private Process process;
     @Getter @Setter private boolean killOnClose;
 
@@ -42,10 +46,18 @@ public class ProcessConsoleFrame extends ConsoleFrame {
      */
     public ProcessConsoleFrame(int numLines, boolean colorEnabled) {
         super(SharedLocale.tr("console.title"), numLines, colorEnabled);
+        age = System.currentTimeMillis();
+        consoleList.add(this);
         processOut = new PrintWriter(
                 getMessageLog().getOutputStream(new Color(0, 0, 255)), true);
         initComponents();
         updateComponents();
+        for (ProcessConsoleFrame processConsoleFrame : consoleList) {
+            if (!processConsoleFrame.equals(this))
+            {
+                processConsoleFrame.dispatchEvent(new WindowEvent(processConsoleFrame, WindowEvent.WINDOW_CLOSING));
+            }
+        }
     }
 
     /**
