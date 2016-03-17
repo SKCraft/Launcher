@@ -121,8 +121,7 @@ public class LauncherFrame extends JFrame {
             loadInstances(true);
         }
         checkLauncherUpdate();
-        
-        
+
     }
 
     private void initComponents() {
@@ -486,6 +485,15 @@ public class LauncherFrame extends JFrame {
                 });
                 popup.add(menuItem);
 
+                menuItem = new JMenuItem("Reinstall");
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        confirmReinstall(selected);
+                    }
+                });
+                popup.add(menuItem);
+
                 menuItem = new JMenuItem(SharedLocale.tr("instance.deleteFiles"));
                 menuItem.addActionListener(new ActionListener() {
                     @Override
@@ -513,16 +521,16 @@ public class LauncherFrame extends JFrame {
     }
 
     private void InstallOnly() {
-        final Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
-        if (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending()) {
-            Updater updater = new Updater(launcher, instance);
+        final Instance slectedInstance = launcher.getInstances().get(instancesTable.getSelectedRow());
+        if (slectedInstance.isInstalled() || slectedInstance.isUpdatePending()) {
+            Updater updater = new Updater(launcher, slectedInstance);
             updater.setOnline(true);
             ObservableFuture<Instance> future = new ObservableFuture<Instance>(
                     launcher.getExecutor().submit(updater), updater);
 
             // Show progress
             ProgressDialog.showProgress(
-                    LauncherFrame.instance, future, SharedLocale.tr("launcher.updatingTitle"), SharedLocale.tr("launcher.updatingStatus", instance.getTitle()));
+                    LauncherFrame.instance, future, SharedLocale.tr("launcher.updatingTitle"), SharedLocale.tr("launcher.updatingStatus", slectedInstance.getTitle()));
             SwingHelper.addErrorDialogCallback(LauncherFrame.instance, future);
 
             // Update the list of instances after updating
@@ -538,6 +546,35 @@ public class LauncherFrame extends JFrame {
 
         }
 
+    }
+
+    private void InstallOnly(Instance selectedInstace, boolean popup) {
+        if (selectedInstace.isInstalled() || selectedInstace.isUpdatePending()) {
+            Updater updater = new Updater(launcher, selectedInstace);
+            updater.setOnline(true);
+            ObservableFuture<Instance> future = new ObservableFuture<Instance>(
+                    launcher.getExecutor().submit(updater), updater);
+
+            // Show progress
+            ProgressDialog.showProgress(
+                    LauncherFrame.instance, future, SharedLocale.tr("launcher.updatingTitle"), SharedLocale.tr("launcher.updatingStatus", selectedInstace.getTitle()));
+            SwingHelper.addErrorDialogCallback(LauncherFrame.instance, future);
+
+            // Update the list of instances after updating
+            future.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    instancesModel.update();
+                }
+            }, SwingExecutor.INSTANCE);
+            if (popup) {
+                JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Modpack doesn't need updating", "Updater", JOptionPane.INFORMATION_MESSAGE);
+
+        }
     }
 
     private void confirmDelete(Instance instance) {
@@ -588,6 +625,36 @@ public class LauncherFrame extends JFrame {
                 instancesModel.update();
             }
         }, SwingExecutor.INSTANCE);
+    }
+
+    private void confirmReinstall(Instance instance) {
+        String message1 = "A reinstall will delete all the contents of " + instance.getTitle()
+                + " including mod/ & config/ and save files/. Are you sure that you want to continue?";
+        if (!SwingHelper.confirmDialog(this, message1, "Confirm")) {
+            return;
+        }
+
+        // Execute the deleter
+        Remover resetter = new Remover(instance);
+        ObservableFuture<Instance> future = new ObservableFuture<Instance>(
+                launcher.getExecutor().submit(resetter), resetter);
+
+        // Show progress
+        ProgressDialog.showProgress(
+                this, future, SharedLocale.tr("instance.deletingTitle"), SharedLocale.tr("instance.deletingStatus", instance.getTitle()));
+        SwingHelper.addErrorDialogCallback(this, future);
+
+        //install Pack again
+        InstallOnly(instance,false);
+
+        // Update the list of instances after updating
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                loadInstances(true);
+            }
+        }, SwingExecutor.INSTANCE);
+
     }
 
     private void loadInstances(final boolean showProgress) {
@@ -845,7 +912,6 @@ public class LauncherFrame extends JFrame {
 
     private void launch() {
         try {
-            System.out.println("Hello World");
             Configuration config = launcher.getConfig();
             if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
                 config.setLauncherWindowHeight(getSize().height);
