@@ -30,12 +30,13 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nz.co.lolnet.james137137.ThreadInstanceIconHandler;
 
 import org.json.simple.parser.ParseException;
 
 public class InstanceTableModel extends AbstractTableModel {
 
-    private static HashMap<String, ImageIcon> imageIconMap = new HashMap<>();
+    public static HashMap<String, ImageIcon> imageIconMap = new HashMap<>();
     public static HashMap<String, String> instanceInfo = new HashMap<>();
     boolean firstTimeRun = false;
     private static HashMap<String, Integer> playerCount = new HashMap<>();
@@ -127,11 +128,11 @@ public class InstanceTableModel extends AbstractTableModel {
             case 0:
                 instance = instances.get(rowIndex);
                 if (!instance.isLocal()) {
-                    return getDownloadIcon(instance);
+                    return getDownloadIcon(instance,rowIndex);
                 } else if (instance.getManifestURL() != null) {
-                    return getInstanceIcon(instance);
+                    return getInstanceIcon(instance,rowIndex);
                 } else {
-                    return getCustomInstanceIcon(instance);
+                    return getCustomInstanceIcon(instance,rowIndex);
                 }
             case 1:
                 instance = instances.get(rowIndex);
@@ -203,73 +204,39 @@ public class InstanceTableModel extends AbstractTableModel {
         if (line == null) {
             line = "";
             new ThreadInstanceInfomation(instance,rowIndex);
+            instanceInfo.put(instance.getTitle(),line);
         }
         return line;
     }
 
-    private ImageIcon getDownloadIcon(Instance instance) {
+    private ImageIcon getDownloadIcon(Instance instance, int rowIndex) {
         ImageIcon icon = imageIconMap.get(instance.getTitle() + "_" + "DownloadIcon");
         if (icon == null) {
-            BufferedImage image;
-            try {
-                URL url = new URL(Launcher.modPackURL + "instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/download_icon.png");
-                url = Launcher.checkURL(url);
-                if (exists(url.toString())) {
-                    image = ImageIO.read(url);
-                    icon = new ImageIcon(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-                } else {
-                    icon = downloadIcon;
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            icon = downloadIcon;
             imageIconMap.put(instance.getTitle() + "_" + "DownloadIcon", icon);
+            new ThreadInstanceIconHandler(instance, rowIndex, "DownloadIcon");
+
         }
         return icon;
 
     }
 
-    private ImageIcon getInstanceIcon(Instance instance) {
+    private ImageIcon getInstanceIcon(Instance instance, int rowIndex) {
         ImageIcon icon = imageIconMap.get(instance.getTitle() + "_" + "InstanceIcon");
         if (icon == null) {
-            BufferedImage image;
-            try {
-                URL url = new URL(Launcher.modPackURL + "instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/instance_icon.png");
-                url = Launcher.checkURL(url);
-                if (exists(url.toString())) {
-                    image = ImageIO.read(url);
-                    icon = new ImageIcon(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-                } else {
-                    icon = instanceIcon;
-                }
-            } catch (Exception ex) {
-                icon = downloadIcon;
-                ex.printStackTrace();
-            }
+            icon = instanceIcon;
             imageIconMap.put(instance.getTitle() + "_" + "InstanceIcon", icon);
+            new ThreadInstanceIconHandler(instance, rowIndex, "InstanceIcon");
         }
-
         return icon;
     }
 
-    private ImageIcon getCustomInstanceIcon(Instance instance) {
+    private ImageIcon getCustomInstanceIcon(Instance instance, int rowIndex) {
         ImageIcon icon = imageIconMap.get(instance.getTitle() + "_" + "CustomInstanceIcon");
         if (icon == null) {
-            BufferedImage image;
-            try {
-                URL url = new URL(Launcher.modPackURL + "instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/custom_instance_icon.png");
-                url = Launcher.checkURL(url);
-                if (exists(url.toString())) {
-                    image = ImageIO.read(url);
-                    icon = new ImageIcon(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-                } else {
-                    icon = customInstanceIcon;
-                }
-            } catch (Exception ex) {
-                icon = customInstanceIcon;
-                ex.printStackTrace();
-            }
+            icon = customInstanceIcon;
             imageIconMap.put(instance.getTitle() + "_" + "CustomInstanceIcon", icon);
+            new ThreadInstanceIconHandler(instance, rowIndex, "CustomInstanceIcon");
         }
 
         return customInstanceIcon;
@@ -285,7 +252,6 @@ public class InstanceTableModel extends AbstractTableModel {
             con.setRequestMethod("HEAD");
             return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
