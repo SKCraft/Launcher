@@ -5,6 +5,7 @@
  */
 package com.skcraft.launcher.swing;
 
+import nz.co.lolnet.james137137.ThreadInstanceInfomation;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
@@ -35,7 +36,7 @@ import org.json.simple.parser.ParseException;
 public class InstanceTableModel extends AbstractTableModel {
 
     private static HashMap<String, ImageIcon> imageIconMap = new HashMap<>();
-    private static HashMap<String, String> instanceInfo = new HashMap<>();
+    public static HashMap<String, String> instanceInfo = new HashMap<>();
     boolean firstTimeRun = false;
     private static HashMap<String, Integer> playerCount = new HashMap<>();
     private final InstanceList instances;
@@ -142,7 +143,7 @@ public class InstanceTableModel extends AbstractTableModel {
                 }
                 version = version.substring(0, version.length() - 1);
                 return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + " (" + version + ")</b></font> " + getNumberOfPlayers(instance) + "</p>" + "<p>" + getAddendum(instance) + "</p>"
-                        + "<p><font size=\"3\">" + getInstanceInfomation(instance) + "</font></p>" + "</html>";
+                        + "<p><font size=\"3\">" + getInstanceInfomation(instance,rowIndex) + "</font></p>" + "</html>";
             default:
                 return null;
         }
@@ -196,45 +197,17 @@ public class InstanceTableModel extends AbstractTableModel {
         }
     }
 
-    public static String getInstanceInfomation(Instance instance) {
+    public static String getInstanceInfomation(Instance instance, int rowIndex) {
         String line = instanceInfo.get(instance.getTitle());
 
         if (line == null) {
             line = "";
-            try {
-                URL url;
-                url = new URL(Launcher.modPackURL + "instanceicon/" + instance.getTitle().replaceAll(" ", "_") + "/info.php");
-                HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-                if (huc.getResponseCode() == 404) {
-                    url = null;
-                }
-                if (url != null) {
-                    URLConnection conn = url.openConnection();
-                    conn.setDoOutput(true);
-                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-                    wr.flush();
-
-                    // Get the response
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-                    while ((line = rd.readLine()) != null) {
-                        instanceInfo.put(instance.getTitle(), line);
-                        return line;
-                    }
-                    wr.close();
-                    rd.close();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            instanceInfo.put(instance.getTitle(), line);
+            new ThreadInstanceInfomation(instance,rowIndex);
         }
         return line;
     }
 
     private ImageIcon getDownloadIcon(Instance instance) {
-        //if (true) return downloadIcon;
         ImageIcon icon = imageIconMap.get(instance.getTitle() + "_" + "DownloadIcon");
         if (icon == null) {
             BufferedImage image;
