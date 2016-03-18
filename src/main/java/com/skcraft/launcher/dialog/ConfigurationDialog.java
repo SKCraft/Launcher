@@ -252,7 +252,7 @@ public class ConfigurationDialog extends JDialog {
                             future.addListener(new Runnable() {
                                 @Override
                                 public void run() {
-                                    InstanceTableModel.instanceTableModel.update();
+                                    InstanceTableModel.instanceTableModel.update(true);
                                 }
                             }, SwingExecutor.INSTANCE);
 

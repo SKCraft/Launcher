@@ -9,6 +9,7 @@ import nz.co.lolnet.james137137.ThreadInstanceInfomation;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.dialog.LauncherFrame;
 import com.skcraft.launcher.util.SharedLocale;
 
 import javax.swing.*;
@@ -58,8 +59,10 @@ public class InstanceTableModel extends AbstractTableModel {
         new ThreadPlayerCount();
     }
 
-    public void update() {
-        instances.sort();
+    public void update(boolean sort) {
+        if (sort) {
+            instances.sort();
+        }
         fireTableDataChanged();
     }
 
@@ -128,11 +131,11 @@ public class InstanceTableModel extends AbstractTableModel {
             case 0:
                 instance = instances.get(rowIndex);
                 if (!instance.isLocal()) {
-                    return getDownloadIcon(instance,rowIndex);
+                    return getDownloadIcon(instance, rowIndex);
                 } else if (instance.getManifestURL() != null) {
-                    return getInstanceIcon(instance,rowIndex);
+                    return getInstanceIcon(instance, rowIndex);
                 } else {
-                    return getCustomInstanceIcon(instance,rowIndex);
+                    return getCustomInstanceIcon(instance, rowIndex);
                 }
             case 1:
                 instance = instances.get(rowIndex);
@@ -144,7 +147,7 @@ public class InstanceTableModel extends AbstractTableModel {
                 }
                 version = version.substring(0, version.length() - 1);
                 return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + " (" + version + ")</b></font> " + getNumberOfPlayers(instance) + "</p>" + "<p>" + getAddendum(instance) + "</p>"
-                        + "<p><font size=\"3\">" + getInstanceInfomation(instance,rowIndex) + "</font></p>" + "</html>";
+                        + "<p><font size=\"3\">" + getInstanceInfomation(instance, rowIndex) + "</font></p>" + "</html>";
             default:
                 return null;
         }
@@ -203,8 +206,8 @@ public class InstanceTableModel extends AbstractTableModel {
 
         if (line == null) {
             line = "";
-            new ThreadInstanceInfomation(instance,rowIndex);
-            instanceInfo.put(instance.getTitle(),line);
+            new ThreadInstanceInfomation(instance, rowIndex);
+            instanceInfo.put(instance.getTitle(), line);
         }
         return line;
     }
@@ -340,7 +343,7 @@ public class InstanceTableModel extends AbstractTableModel {
                         playerCount.put(instance.getTitle(), -1);
                     }
                 }
-                InstanceTableModel.instanceTableModel.update();
+                InstanceTableModel.instanceTableModel.update(false);
                 try {
                     Thread.sleep(30 * 1000);
                 } catch (InterruptedException ex) {

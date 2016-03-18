@@ -67,7 +67,7 @@ public class LauncherFrame extends JFrame {
 
     public static LauncherFrame instance;
     private final Launcher launcher;
-    private final InstanceTable instancesTable = new InstanceTable();
+    public final InstanceTable instancesTable = new InstanceTable();
     private final InstanceTableModel instancesModel;
     public final JScrollPane instanceScroll = new JScrollPane(instancesTable);
     public JSplitPane splitPane;
@@ -470,7 +470,7 @@ public class LauncherFrame extends JFrame {
                         public void actionPerformed(ActionEvent e) {
                             selected.setUpdatePending(true);
                             launch();
-                            instancesModel.update();
+                            instancesModel.update(true);
                         }
                     });
                     popup.add(menuItem);
@@ -537,7 +537,7 @@ public class LauncherFrame extends JFrame {
             future.addListener(new Runnable() {
                 @Override
                 public void run() {
-                    instancesModel.update();
+                    instancesModel.update(true);
                 }
             }, SwingExecutor.INSTANCE);
             JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
@@ -564,7 +564,7 @@ public class LauncherFrame extends JFrame {
             future.addListener(new Runnable() {
                 @Override
                 public void run() {
-                    instancesModel.update();
+                    instancesModel.update(true);
                 }
             }, SwingExecutor.INSTANCE);
             if (popup) {
@@ -622,7 +622,7 @@ public class LauncherFrame extends JFrame {
             @Override
             public void run() {
                 launch();
-                instancesModel.update();
+                instancesModel.update(true);
             }
         }, SwingExecutor.INSTANCE);
     }
@@ -676,7 +676,7 @@ public class LauncherFrame extends JFrame {
         future.addListener(new Runnable() {
             @Override
             public void run() {
-                instancesModel.update();
+                instancesModel.update(true);
                 if (instancesTable.getRowCount() > 0) {
                     instancesTable.setRowSelectionInterval(0, 0);
                 }
@@ -955,7 +955,7 @@ public class LauncherFrame extends JFrame {
                 future.addListener(new Runnable() {
                     @Override
                     public void run() {
-                        instancesModel.update();
+                        instancesModel.update(true);
                     }
                 }, SwingExecutor.INSTANCE);
 
@@ -1017,7 +1017,7 @@ public class LauncherFrame extends JFrame {
                 } catch (IOException e) {
                     log.log(Level.WARNING, "Failed to clean up " + extractDir.getAbsolutePath(), e);
                 }
-                instancesModel.update();
+                instancesModel.update(true);
             }
         }, sameThreadExecutor());
     }

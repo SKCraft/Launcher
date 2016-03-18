@@ -57,7 +57,7 @@ public class ThreadInstanceIconHandler implements Runnable {
                 }
                 InstanceTableModel.imageIconMap.put(instance.getTitle() + "_" + "CustomInstanceIcon", icon);
                 InstanceTableModel.instanceTableModel.setValueAt(icon, rowIndex, 1);
-                InstanceTableModel.instanceTableModel.update();
+                InstanceTableModel.instanceTableModel.update(false);
                 break;
             }
             case "InstanceIcon": {
@@ -77,7 +77,7 @@ public class ThreadInstanceIconHandler implements Runnable {
                 }
                 InstanceTableModel.imageIconMap.put(instance.getTitle() + "_" + "InstanceIcon", icon);
                 InstanceTableModel.instanceTableModel.setValueAt(icon, rowIndex, 1);
-                InstanceTableModel.instanceTableModel.update();
+                InstanceTableModel.instanceTableModel.update(false);
                 break;
             }
             case "DownloadIcon":
@@ -97,7 +97,7 @@ public class ThreadInstanceIconHandler implements Runnable {
                 }
                 InstanceTableModel.imageIconMap.put(instance.getTitle() + "_" + "DownloadIcon", icon);
                 InstanceTableModel.instanceTableModel.setValueAt(icon, rowIndex, 1);
-                InstanceTableModel.instanceTableModel.update();
+                InstanceTableModel.instanceTableModel.update(false);
                 break;
             default:
                 break;
