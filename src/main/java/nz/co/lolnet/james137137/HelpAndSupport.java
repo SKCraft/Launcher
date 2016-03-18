@@ -38,7 +38,7 @@ public class HelpAndSupport {
     public static void Start() {
         LauncherFrame.instance.showModPackInstances(false);
         //Custom button text
-        Object[] options = {"LolnetLauncher", "My account", "Restart Launcher", "Vote"};
+        Object[] options = {"LolnetLauncher", "My account", "Restart Launcher"};
         int answer = JOptionPane.showOptionDialog(null,
                 "What can I help you with?",
                 "LolnetLauncher Help",
@@ -56,9 +56,6 @@ public class HelpAndSupport {
                 break;
             case 2:
                 Launcher.restartLauncher();
-                break;
-            case 3:
-                voteLinks();
                 break;
             default:
                 break;
