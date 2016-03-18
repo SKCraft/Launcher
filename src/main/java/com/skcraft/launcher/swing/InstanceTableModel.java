@@ -55,7 +55,7 @@ public class InstanceTableModel extends AbstractTableModel {
         customInstanceIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "custom_instance_icon.png")
                 .getScaledInstance(64, 64, Image.SCALE_SMOOTH));
         downloadIcon = new ImageIcon(SwingHelper.readIconImage(Launcher.class, "download_icon.png")
-                .getScaledInstance(14, 14, Image.SCALE_SMOOTH));
+                .getScaledInstance(64, 64, Image.SCALE_SMOOTH));
         new ThreadPlayerCount();
     }
 
