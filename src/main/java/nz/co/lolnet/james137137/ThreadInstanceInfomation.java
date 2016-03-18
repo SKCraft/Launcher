@@ -64,7 +64,7 @@ public class ThreadInstanceInfomation implements Runnable{
             }
             line = InstanceTableModel.instanceInfo.get(instance.getTitle());
             InstanceTableModel.instanceInfo.put(instance.getTitle(), line);
-            InstanceTableModel.instanceTableModel.setValueAt(line, rowIndex, 1);
+            InstanceTableModel.instanceTableModel.update(false);
     }
     
 }
