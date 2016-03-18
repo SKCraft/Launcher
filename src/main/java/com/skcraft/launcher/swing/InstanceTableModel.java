@@ -180,10 +180,10 @@ public class InstanceTableModel extends AbstractTableModel {
         }
 
         if (count > 0) {
-            return "<font size=\"4\" color=\"Green\">(Players Online: " + count + ")</font>";
+            return "<font color=\"Green\">(Players Online: " + count + ")</font>";
         }
         if (count < 0) {
-            return "<font size=\"4\" color=\"Red\">(Server Offline)</font>";
+            return "<font color=\"Red\">(Server Offline)</font>";
         }
 
         return "";
