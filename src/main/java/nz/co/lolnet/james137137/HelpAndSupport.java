@@ -252,6 +252,10 @@ public class HelpAndSupport {
         Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         userNodeForPackage.put("DownloadSnapShot", "true");
         JOptionPane.showMessageDialog(null, "Restart Launcher to update", "Launcher Update", JOptionPane.INFORMATION_MESSAGE);
+        if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            Launcher.restartLauncher();
+        }
     }
 
     public static void voteLinks() {
