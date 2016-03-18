@@ -12,7 +12,8 @@ import java.awt.*;
 public class InstanceTable extends JTable {
 
     public InstanceTable() {
-        setShowGrid(false);
+        setShowGrid(true);
+        setGridColor(Color.lightGray);
         setRowHeight(Math.max(getRowHeight() + 100, 50));
         setIntercellSpacing(new Dimension(0, 0));
         setFillsViewportHeight(true);
