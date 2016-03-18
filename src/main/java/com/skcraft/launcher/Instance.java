@@ -116,18 +116,6 @@ public class Instance implements Comparable<Instance> {
      */
     @JsonIgnore
     public File getVersionPath() {
-        String gameVersion = "NULL";
-        try {
-            com.skcraft.launcher.model.modpack.Manifest manifest = HttpRequest
-                    .get(this.getManifestURL())
-                    .execute()
-                    .expectResponseCode(200)
-                    .returnContent()
-                    .asJson(Manifest.class);
-            gameVersion = manifest.getGameVersion();
-        } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(Instance.class.getName()).log(Level.SEVERE, null, ex);
-        }
         return new File(getDir(), "version.json");
     }
 
