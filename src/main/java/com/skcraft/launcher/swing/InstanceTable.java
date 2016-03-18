@@ -8,6 +8,7 @@ package com.skcraft.launcher.swing;
 import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class InstanceTable extends JTable {
 
@@ -20,6 +21,10 @@ public class InstanceTable extends JTable {
         setFillsViewportHeight(true);
         setTableHeader(null);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setVerticalAlignment(JLabel.TOP);
+        setDefaultRenderer(String.class, centerRenderer);
     }
 
     @Override
