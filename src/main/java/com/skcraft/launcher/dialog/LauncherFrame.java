@@ -79,6 +79,7 @@ public class LauncherFrame extends JFrame {
     private final JButton launcherHelpButton = new JButton("Help");
     private final JButton launcherVoteButton = new JButton("Vote");
     private final JButton launcherDonateButton = new JButton("Donate");
+    private final JButton launcherForumButton = new JButton("Forum");
 
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
@@ -148,6 +149,7 @@ public class LauncherFrame extends JFrame {
 
         buttonsPanel.addElement(launcherDonateButton);
         buttonsPanel.addElement(launcherVoteButton);
+        buttonsPanel.addElement(launcherForumButton);
 
         buttonsPanel.addGlue();
         buttonsPanel.addElement(selfUpdateButton);
@@ -181,6 +183,13 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 HelpAndSupport.openURL("https://www.lolnet.co.nz/donate/");
+            }
+        });
+        
+        launcherForumButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HelpAndSupport.openURL("https://www.lolnet.co.nz/forum/");
             }
         });
 
