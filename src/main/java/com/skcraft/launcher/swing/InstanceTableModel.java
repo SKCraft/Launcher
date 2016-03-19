@@ -65,16 +65,13 @@ public class InstanceTableModel extends AbstractTableModel {
         if (sort) {
             instances.sort();
         }
+        // preserve selection calling fireTableDataChanged()
+        final int[] sel = InstanceTable.instanceTable.getSelectedRows();
+
         fireTableDataChanged();
-    }
-    
-    @Override
-    public void fireTableDataChanged() {
-        fireTableChanged(new TableModelEvent(this, //tableModel
-                0, //firstRow
-                getRowCount() - 1, //lastRow 
-                TableModelEvent.ALL_COLUMNS, //column 
-                TableModelEvent.UPDATE)); //changeType
+        for (int i = 0; i < sel.length; i++) {
+            InstanceTable.instanceTable.getSelectionModel().addSelectionInterval(sel[i], sel[i]);
+        }
     }
 
     @Override
@@ -157,7 +154,7 @@ public class InstanceTableModel extends AbstractTableModel {
                     version += split[i] + ".";
                 }
                 version = version.substring(0, version.length() - 1);
-                return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + "</b></font> (" + version + ") " + getAddendum(instance) + " " + getNumberOfPlayers(instance)+ "</p><p></p>" 
+                return "<html>" + "<p><font size=\"4\"><b>" + SwingHelper.htmlEscape(instance.getTitle()) + "</b></font> (" + version + ") " + getAddendum(instance) + " " + getNumberOfPlayers(instance) + "</p><p></p>"
                         + "<center><font size=\"3\">" + getInstanceInfomation(instance, rowIndex) + "</font></center>" + "</html>";
             default:
                 return null;
@@ -344,7 +341,7 @@ public class InstanceTableModel extends AbstractTableModel {
                         } catch (Exception ex) {
                             Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
                             Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, instance.getTitle() + " " + j);
-                        } 
+                        }
 
                     }
                     if (isOnline) {

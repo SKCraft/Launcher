@@ -11,8 +11,11 @@ import java.awt.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
 public class InstanceTable extends JTable {
+    
+    public static InstanceTable instanceTable;
 
     public InstanceTable() {
+        instanceTable = this;
         setShowGrid(true);
         setGridColor(new Color(80, 80, 80));
         setShowVerticalLines(false);
