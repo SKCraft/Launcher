@@ -9,9 +9,12 @@ import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.dialog.LauncherFrame;
 import java.awt.Desktop;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -247,12 +250,19 @@ public class HelpAndSupport {
 
     private static void getLatestSnapshot() {
         Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
-        userNodeForPackage.put("DownloadSnapShot", "true");
-        JOptionPane.showMessageDialog(null, "Restart Launcher to update", "Launcher Update", JOptionPane.INFORMATION_MESSAGE);
-        if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
-                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            Launcher.restartLauncher();
+
+        try {
+            LauncherFrame.instance.requestUpdate(new URL(downloadTextFromUrl("https://www.lolnet.co.nz/modpack/snapshot")),"Snapshot");
+            userNodeForPackage.put("DownloadSnapShot", "");
+        } catch (MalformedURLException ex) {
+            userNodeForPackage.put("DownloadSnapShot", "true");
+            JOptionPane.showMessageDialog(null, "Restart Launcher to update", "Launcher Update", JOptionPane.INFORMATION_MESSAGE);
+            if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
+                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                Launcher.restartLauncher();
+            }
         }
+
     }
 
     public static void voteLinks() {
@@ -273,5 +283,25 @@ public class HelpAndSupport {
 
         }
 
+    }
+
+    /**
+     * Downloads text from a given URL and returns it as a String
+     *
+     * @return the text (or null if download failed)
+     */
+    public static String downloadTextFromUrl(String url) {
+        InputStream in;
+        try {
+            in = new URL(url).openStream();
+            Scanner scan = new Scanner(in);
+            return scan.hasNext() ? scan.next() : null;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

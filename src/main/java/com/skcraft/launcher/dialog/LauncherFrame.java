@@ -295,7 +295,7 @@ public class LauncherFrame extends JFrame {
             @Override
             public void onSuccess(URL result) {
                 if (result != null) {
-                    requestUpdate(result);
+                    requestUpdate(result,null);
                 }
             }
 
@@ -338,9 +338,10 @@ public class LauncherFrame extends JFrame {
         }
     }
 
-    public void requestUpdate(URL url) {
+    public void requestUpdate(URL url, String version) {
         this.updateUrl = url;
-        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + UpdateChecker.latestVersion + ")\n\nDo you wish to update?", "Launcher Update Available",
+        if (version == null) version = UpdateChecker.latestVersion;
+        if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + version + ")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
             String bootstrap = userNodeForPackage.get("LolnetLauncherbootstrap", "");
