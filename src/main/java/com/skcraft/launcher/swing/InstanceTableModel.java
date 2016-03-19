@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -153,7 +154,7 @@ public class InstanceTableModel extends AbstractTableModel {
         }
     }
 
-    public static String getPlayerCountFromServer(Instance instance, int server) throws UnsupportedEncodingException, IOException, ParseException {
+    public static String getPlayerCountFromServer(Instance instance, int server) throws SocketException, UnsupportedEncodingException, IOException, ParseException {
         String data = URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(instance.getTitle(), "UTF-8");
         URL url = new URL("https://www.lolnet.co.nz/api/v1.0/lolstats/getPlayerCount" + server + ".php");
         URLConnection conn = url.openConnection();
@@ -330,11 +331,10 @@ public class InstanceTableModel extends AbstractTableModel {
                                 count += num;
                                 isOnline = true;
                             }
-                        } catch (IOException ex) {
+                        } catch (Exception ex) {
                             Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ParseException ex) {
-                            Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                            Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, instance.getTitle() + " " + j);
+                        } 
 
                     }
                     if (isOnline) {
