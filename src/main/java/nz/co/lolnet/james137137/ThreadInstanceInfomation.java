@@ -20,18 +20,13 @@ import java.net.URLConnection;
  * @author James
  */
 public class ThreadInstanceInfomation implements Runnable{
-
+    
     Instance instance;
     int rowIndex;
     public ThreadInstanceInfomation(Instance instance,int rowIndex) {
         this.instance = instance;
         this.rowIndex = rowIndex;
-        start();
-    }
-    
-    private void start() {
-        Thread t = new Thread(this);
-        t.start();
+        HttpThreadPool.add(this);
     }
 
     @Override

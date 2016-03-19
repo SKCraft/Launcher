@@ -16,6 +16,7 @@
 package nz.co.lolnet.statistics;
 
 import java.io.IOException;
+import nz.co.lolnet.james137137.HttpThreadPool;
 
 /**
  *
@@ -30,13 +31,7 @@ public class ThreadInstalledModpack implements Runnable {
     {
         this.title = title;
         this.version = version;
-        startUp();
-    }
-    
-    private void startUp()
-    {
-        Thread t = new Thread(this);
-        t.start();
+        HttpThreadPool.add(this);
     }
 
     @Override

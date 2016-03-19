@@ -29,12 +29,7 @@ public class ThreadInstanceIconHandler implements Runnable {
         this.instance = instance;
         this.rowIndex = rowIndex;
         this.type = type;
-        start();
-    }
-
-    private void start() {
-        Thread t = new Thread(this);
-        t.start();
+        HttpThreadPool.add(this);
     }
 
     @Override
