@@ -32,6 +32,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.TableModelEvent;
 import nz.co.lolnet.james137137.ThreadInstanceIconHandler;
 
 import org.json.simple.parser.ParseException;
@@ -65,6 +66,15 @@ public class InstanceTableModel extends AbstractTableModel {
             instances.sort();
         }
         fireTableDataChanged();
+    }
+    
+    @Override
+    public void fireTableDataChanged() {
+        fireTableChanged(new TableModelEvent(this, //tableModel
+                0, //firstRow
+                getRowCount() - 1, //lastRow 
+                TableModelEvent.ALL_COLUMNS, //column 
+                TableModelEvent.UPDATE)); //changeType
     }
 
     @Override
