@@ -26,17 +26,25 @@ import com.skcraft.launcher.util.SharedLocale;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.MemoryChecker;
 import nz.co.lolnet.statistics.ThreadLaunchedModpack;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.json.simple.parser.ParseException;
 
 /**
  * Handles the launching of an instance.
@@ -222,6 +230,11 @@ public class Runner implements Callable<Process>, ProgressObservable {
      * @throws IOException on I/O error
      */
     private void addJvmArgs() throws IOException {
+        try {
+            MemoryChecker.getMemoryInfoFromServer();
+        } catch (ParseException ex) {
+            Logger.getLogger(Runner.class.getName()).log(Level.SEVERE, null, ex);
+        }
         int minMemory = config.getMinMemory();
         int maxMemory = config.getMaxMemory();
         int permGen = config.getPermGen();
@@ -240,6 +253,20 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         if (permGen <= 64) {
             permGen = 64;
+        }
+
+        minMemory = MemoryChecker.checkMinMemory(minMemory, instance);
+        maxMemory = MemoryChecker.checkMaxMemory(maxMemory, instance);
+        permGen = MemoryChecker.checkpermGen(permGen, instance);
+
+        int currentfreeMemory = getCurrentFreeMemory();
+        int memoryMB = (int) (currentfreeMemory / (1024 * 1024));
+        if (currentfreeMemory > 0 && memoryMB < minMemory) {
+            memoryMB = ((memoryMB / 2) / 256) * 256;
+            minMemory = memoryMB;
+            if (memoryMB <= 512) {
+                minMemory = 128;
+            }
         }
 
         if (minMemory > maxMemory) {
@@ -263,6 +290,25 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 flags.add(arg);
             }
         }
+    }
+
+    private int getCurrentFreeMemory() {
+        long currnetAmmount = -1;
+        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
+            method.setAccessible(true);
+            if (method.getName().startsWith("getFreePhysicalMemorySize")
+                    && Modifier.isPublic(method.getModifiers())) {
+
+                try {
+                    currnetAmmount = (Long) method.invoke(operatingSystemMXBean);
+                } catch (Exception e) {
+                }
+            } // if
+        } // for
+
+        int memoryMB = (int) (currnetAmmount / (1024 * 1024));
+        return memoryMB;
     }
 
     /**

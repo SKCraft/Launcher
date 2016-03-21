@@ -8,6 +8,7 @@ package com.skcraft.launcher;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Strings;
 import com.skcraft.launcher.launch.JavaRuntimeFinder;
+import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.selfupdate.ComparableVersion;
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -56,22 +57,28 @@ public class Configuration {
     }
 
     public void setupMemory() {
+        boolean changed = false;
         if (minMemory <= 32) {
             minMemory = 256;
+            changed = true;
         }
 
         if (maxMemory <= 0) {
             maxMemory = 1024;
+            changed = true;
         }
 
         if (permGen <= 128) {
             permGen = 128;
+            changed = true;
         }
 
         if (minMemory > maxMemory) {
             maxMemory = minMemory;
+            changed = true;
         }
 
+        
         long currnetAmmount = -1;
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
@@ -88,14 +95,20 @@ public class Configuration {
 
         if (currnetAmmount > 0) {
             int memoryMB = (int) (currnetAmmount / (1024 * 1024));
+            
             if (memoryMB <= minMemory) {
                 memoryMB = ((memoryMB / 2) / 256) * 256;
                 minMemory = memoryMB;
                 if (memoryMB <= 512) {
                     minMemory = 128;
                 }
+                changed = true;
 
             }
+        }
+        
+        if (changed) {
+            Persistence.commitAndForget(this);
         }
 
         long maxAmmount = -1;

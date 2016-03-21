@@ -211,7 +211,7 @@ public class InstanceList {
                     log.info(instances.size() + " instance(s) enumerated.");
                 }
             }
-
+            
             return InstanceList.this;
         }
 
