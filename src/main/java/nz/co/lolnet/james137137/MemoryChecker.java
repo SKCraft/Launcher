@@ -27,15 +27,6 @@ public class MemoryChecker {
 
     private static JSONObject memoryInfo = null;
 
-    public static void main(String[] args) throws IOException, ParseException {
-        /* Total amount of free memory available to the JVM */
-        System.out.println("Free memory (bytes): "
-                + Runtime.getRuntime().freeMemory());
-
-        System.out.println(2 > 1 ? 2 : 1);
-
-    }
-
     public static int checkMinMemory(int input, Instance instance) {
         try {
             int ammout = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MinMemory")).intValue();
@@ -74,7 +65,6 @@ public class MemoryChecker {
             Object obj = parser.parse(jsonTxt);
             memoryInfo = (JSONObject) obj;
         }
-        System.out.println(memoryInfo);
     }
 
     public static String downloadTextFromUrl(URL url) throws MalformedURLException, IOException {
