@@ -78,7 +78,6 @@ public class Configuration {
             changed = true;
         }
 
-        
         long currnetAmmount = -1;
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
@@ -95,7 +94,7 @@ public class Configuration {
 
         if (currnetAmmount > 0) {
             int memoryMB = (int) (currnetAmmount / (1024 * 1024));
-            
+
             if (memoryMB <= minMemory) {
                 memoryMB = ((memoryMB / 2) / 256) * 256;
                 minMemory = memoryMB;
@@ -106,7 +105,7 @@ public class Configuration {
 
             }
         }
-        
+
         if (changed) {
             Persistence.commitAndForget(this);
         }
@@ -135,13 +134,14 @@ public class Configuration {
 
     public void setupJVMPath() {
 
-        if (!Strings.isNullOrEmpty(jvmPath) && new File(jvmPath).exists()) {
-            return;
-        }
+        String oldJvmPath = jvmPath;
         File file = JavaRuntimeFinder.findBestJavaPath();
         if (file != null) {
             jvmPath = file.getAbsolutePath();
+        } else if (!Strings.isNullOrEmpty(oldJvmPath) && new File(oldJvmPath).exists()) {
+            return;
         }
+        Persistence.commitAndForget(this);
 
     }
 
