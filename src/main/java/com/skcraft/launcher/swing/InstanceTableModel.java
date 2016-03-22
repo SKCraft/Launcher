@@ -42,7 +42,6 @@ public class InstanceTableModel extends AbstractTableModel {
     public static HashMap<String, ImageIcon> imageIconMap = new HashMap<>();
     public static HashMap<String, String> instanceInfo = new HashMap<>();
     boolean firstTimeRun = false;
-    private static HashMap<String, Integer> playerCount = new HashMap<>();
     private final InstanceList instances;
     private final ImageIcon instanceIcon;
     private final ImageIcon customInstanceIcon;
@@ -177,20 +176,13 @@ public class InstanceTableModel extends AbstractTableModel {
         return output;
     }
 
-    private HashMap<String, Integer> getNumberOfPlayers() {
-        return playerCount;
-    }
-
     private String getNumberOfPlayers(Instance instance) {
-        int count = 0;
-        if (getNumberOfPlayers().get(instance.getTitle()) != null) {
-            count = getNumberOfPlayers().get(instance.getTitle());
-        }
+        int count = instance.getPlayerCount();
 
         if (count > 0) {
             return "<font color=\"Green\">(Players Online: " + count + ")</font>";
         }
-        if (count < 0) {
+        if (count == -1) {
             return "<font color=\"Red\">(Server Offline)</font>";
         }
 
@@ -345,9 +337,9 @@ public class InstanceTableModel extends AbstractTableModel {
 
                     }
                     if (isOnline) {
-                        playerCount.put(instance.getTitle(), count);
+                        instance.setPlayerCount(count);
                     } else {
-                        playerCount.put(instance.getTitle(), -1);
+                        instance.setPlayerCount(-1);
                     }
                 }
                 InstanceTableModel.instanceTableModel.update(false);

@@ -185,7 +185,7 @@ public class LauncherFrame extends JFrame {
                 HelpAndSupport.openURL("https://www.lolnet.co.nz/donate/");
             }
         });
-        
+
         launcherForumButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -295,7 +295,7 @@ public class LauncherFrame extends JFrame {
             @Override
             public void onSuccess(URL result) {
                 if (result != null) {
-                    requestUpdate(result,null);
+                    requestUpdate(result, null);
                 }
             }
 
@@ -340,7 +340,9 @@ public class LauncherFrame extends JFrame {
 
     public void requestUpdate(URL url, String version) {
         this.updateUrl = url;
-        if (version == null) version = UpdateChecker.latestVersion;
+        if (version == null) {
+            version = UpdateChecker.latestVersion;
+        }
         if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + version + ")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
@@ -412,6 +414,7 @@ public class LauncherFrame extends JFrame {
 
                 });
                 popup.add(menuItem);
+                popup.add(getSortingItem());
             }
 
             if (selected.isLocal()) {
@@ -470,7 +473,9 @@ public class LauncherFrame extends JFrame {
                     }
                 });
                 popup.add(menuItem);
-
+                
+                popup.add(getSortingItem());
+                
                 popup.addSeparator();
 
                 if (!selected.isUpdatePending()) {
@@ -528,6 +533,42 @@ public class LauncherFrame extends JFrame {
 
         popup.show(component, x, y);
 
+    }
+    
+    private JMenu getSortingItem() {
+        //sortBy
+                JMenu submenu = new JMenu("Sort by");
+                JMenuItem menuItem = new JMenuItem("Name");
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Instance.SortMethod = "Name";
+                        InstanceTableModel.instanceTableModel.update(true);
+                    }
+                    
+                });
+                submenu.add(menuItem);
+                menuItem = new JMenuItem("Players");
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Instance.SortMethod = "Player";
+                        InstanceTableModel.instanceTableModel.update(true);
+                    }
+                    
+                });
+                submenu.add(menuItem);
+                menuItem = new JMenuItem("Last Played");
+                menuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Instance.SortMethod = "Default";
+                        InstanceTableModel.instanceTableModel.update(true);
+                    }
+                    
+                });
+                submenu.add(menuItem);
+                return submenu;
     }
 
     private void InstallOnly() {
@@ -655,7 +696,7 @@ public class LauncherFrame extends JFrame {
         SwingHelper.addErrorDialogCallback(this, future);
 
         //install Pack again
-        InstallOnly(instance,false);
+        InstallOnly(instance, false);
 
         // Update the list of instances after updating
         future.addListener(new Runnable() {
