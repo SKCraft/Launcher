@@ -6,12 +6,12 @@
 package nz.co.lolnet.james137137;
 
 import com.skcraft.launcher.Instance;
-import com.skcraft.launcher.launch.Runner;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
@@ -59,7 +59,14 @@ public class MemoryChecker {
 
     public static void getMemoryInfoFromServer() throws ParseException, IOException {
         if (memoryInfo == null) {
-            String jsonTxt = downloadTextFromUrl(new URL("https://www.lolnet.co.nz/modpack/memory.json"));
+            String jsonTxt;
+            try {
+                jsonTxt = downloadTextFromUrl(new URL("https://www.lolnet.co.nz/modpack/memory.json"));
+            } catch (UnknownHostException e) {
+                Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
+                return;
+            }
+            
             System.out.println(jsonTxt);
             JSONParser parser = new JSONParser();
             Object obj = parser.parse(jsonTxt);
@@ -67,7 +74,7 @@ public class MemoryChecker {
         }
     }
 
-    public static String downloadTextFromUrl(URL url) throws MalformedURLException, IOException {
+    public static String downloadTextFromUrl(URL url) throws MalformedURLException, IOException , UnknownHostException{
         URLConnection con = url.openConnection();
         InputStream in = con.getInputStream();
         String encoding = con.getContentEncoding();

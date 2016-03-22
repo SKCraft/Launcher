@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
@@ -201,7 +204,9 @@ public class InstanceList {
                     }
                 }
             } catch (IOException e) {
-                throw new IOException("The list of modpacks could not be downloaded.", e);
+                JOptionPane.showMessageDialog(null, "The list of modpacks could not be downloaded.", "Error: No Connection to server", JOptionPane.ERROR_MESSAGE);
+                Logger.getLogger(InstanceList.class.getName()).log(Level.SEVERE, null, e);
+                //throw new IOException("The list of modpacks could not be downloaded.", e);
             } finally {
                 synchronized (InstanceList.this) {
                     instances.clear();
