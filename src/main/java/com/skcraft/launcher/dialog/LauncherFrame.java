@@ -400,7 +400,7 @@ public class LauncherFrame extends JFrame {
             });
             popup.add(menuItem);
 
-            if (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending()) {
+            if (offlineButtonEnabled() && (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending() )  ) {
                 if (selected.isLocal()) {
                     menuItem = new JMenuItem("Update Only");
                 } else {
@@ -409,13 +409,14 @@ public class LauncherFrame extends JFrame {
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        InstallOnly();
+                        InstallOnly(launcher.getInstances().get(instancesTable.getSelectedRow()), true);
                     }
 
                 });
                 popup.add(menuItem);
-                popup.add(getSortingItem());
             }
+            
+            popup.add(getSortingItem());
 
             if (selected.isLocal()) {
                 popup.addSeparator();
@@ -473,9 +474,9 @@ public class LauncherFrame extends JFrame {
                     }
                 });
                 popup.add(menuItem);
-                
+
                 popup.add(getSortingItem());
-                
+
                 popup.addSeparator();
 
                 if (!selected.isUpdatePending()) {
@@ -500,14 +501,16 @@ public class LauncherFrame extends JFrame {
                 });
                 popup.add(menuItem);
 
-                menuItem = new JMenuItem("Reinstall");
-                menuItem.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        confirmReinstall(selected);
-                    }
-                });
-                popup.add(menuItem);
+                if (offlineButtonEnabled()) {
+                    menuItem = new JMenuItem("Reinstall...");
+                    menuItem.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            confirmReinstall(selected);
+                        }
+                    });
+                    popup.add(menuItem);
+                }
 
                 menuItem = new JMenuItem(SharedLocale.tr("instance.deleteFiles"));
                 menuItem.addActionListener(new ActionListener() {
@@ -534,69 +537,41 @@ public class LauncherFrame extends JFrame {
         popup.show(component, x, y);
 
     }
-    
+
     private JMenu getSortingItem() {
         //sortBy
-                JMenu submenu = new JMenu("Sort by");
-                JMenuItem menuItem = new JMenuItem("Name");
-                menuItem.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Instance.SortMethod = "Name";
-                        InstanceTableModel.instanceTableModel.update(true);
-                    }
-                    
-                });
-                submenu.add(menuItem);
-                menuItem = new JMenuItem("Players");
-                menuItem.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Instance.SortMethod = "Player";
-                        InstanceTableModel.instanceTableModel.update(true);
-                    }
-                    
-                });
-                submenu.add(menuItem);
-                menuItem = new JMenuItem("Last Played");
-                menuItem.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Instance.SortMethod = "Default";
-                        InstanceTableModel.instanceTableModel.update(true);
-                    }
-                    
-                });
-                submenu.add(menuItem);
-                return submenu;
-    }
+        JMenu submenu = new JMenu("Sort by");
+        JMenuItem menuItem = new JMenuItem("Name");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Instance.SortMethod = "Name";
+                InstanceTableModel.instanceTableModel.update(true);
+            }
 
-    private void InstallOnly() {
-        final Instance slectedInstance = launcher.getInstances().get(instancesTable.getSelectedRow());
-        if (slectedInstance.isInstalled() || slectedInstance.isUpdatePending()) {
-            Updater updater = new Updater(launcher, slectedInstance);
-            updater.setOnline(true);
-            ObservableFuture<Instance> future = new ObservableFuture<Instance>(
-                    launcher.getExecutor().submit(updater), updater);
+        });
+        submenu.add(menuItem);
+        menuItem = new JMenuItem("Players");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Instance.SortMethod = "Player";
+                InstanceTableModel.instanceTableModel.update(true);
+            }
 
-            // Show progress
-            ProgressDialog.showProgress(
-                    LauncherFrame.instance, future, SharedLocale.tr("launcher.updatingTitle"), SharedLocale.tr("launcher.updatingStatus", slectedInstance.getTitle()));
-            SwingHelper.addErrorDialogCallback(LauncherFrame.instance, future);
+        });
+        submenu.add(menuItem);
+        menuItem = new JMenuItem("Last Played");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Instance.SortMethod = "Default";
+                InstanceTableModel.instanceTableModel.update(true);
+            }
 
-            // Update the list of instances after updating
-            future.addListener(new Runnable() {
-                @Override
-                public void run() {
-                    instancesModel.update(true);
-                }
-            }, SwingExecutor.INSTANCE);
-            JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(null, "Modpack doesn't need updating", "Updater", JOptionPane.INFORMATION_MESSAGE);
-
-        }
-
+        });
+        submenu.add(menuItem);
+        return submenu;
     }
 
     private void InstallOnly(Instance selectedInstace, boolean popup) {
@@ -622,9 +597,8 @@ public class LauncherFrame extends JFrame {
                 JOptionPane.showMessageDialog(null, "Installation complete!", "Updater", JOptionPane.INFORMATION_MESSAGE);
             }
 
-        } else {
+        } else if (popup) {
             JOptionPane.showMessageDialog(null, "Modpack doesn't need updating", "Updater", JOptionPane.INFORMATION_MESSAGE);
-
         }
     }
 
@@ -706,6 +680,12 @@ public class LauncherFrame extends JFrame {
             }
         }, SwingExecutor.INSTANCE);
 
+    }
+
+    public boolean offlineButtonEnabled() {
+        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
+        String showOfflineButton = userNodeForPackage.get("IDontOwnMicrosoft", "");
+        return (showOfflineButton != null && showOfflineButton.equals("true")) || launcher.getConfig().isOfflineEnabled();
     }
 
     private void loadInstances(final boolean showProgress) {
