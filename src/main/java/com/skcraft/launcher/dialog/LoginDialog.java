@@ -105,8 +105,8 @@ public class LoginDialog extends JDialog {
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 
         Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-        String showURLBar = userNodeForPackage.get("IDontOwnMicrosoft", "");
-        if ((showURLBar != null && showURLBar.equals("true")) || launcher.getConfig().isOfflineEnabled()) {
+        String showOfflineButton = userNodeForPackage.get("IDontOwnMicrosoft", "");
+        if ((showOfflineButton != null && showOfflineButton.equals("true")) || launcher.getConfig().isOfflineEnabled()) {
             buttonsPanel.addElement(offlineButton);
             buttonsPanel.addElement(Box.createHorizontalStrut(2));
         }
