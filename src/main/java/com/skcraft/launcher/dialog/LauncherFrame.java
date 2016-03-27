@@ -153,7 +153,13 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addElement(launcherForumButton);
 
         buttonsPanel.addGlue();
-        LinkButton feedbackLinkButton = new LinkButton("Send Feedback");
+        
+        JButton feedbackLinkButton = new JButton();
+        feedbackLinkButton.setText("Send Feedback");
+        feedbackLinkButton.setForeground(Color.BLUE);
+        feedbackLinkButton.setBorderPainted(false);
+        feedbackLinkButton.setOpaque(false);
+        feedbackLinkButton.setBackground(Color.WHITE);
         feedbackLinkButton.addActionListener(new FeedbackManager());
         
         buttonsPanel.addElement(feedbackLinkButton);
