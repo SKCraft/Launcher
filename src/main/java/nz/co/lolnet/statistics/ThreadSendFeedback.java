@@ -19,18 +19,31 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nz.co.lolnet.james137137.HttpThreadPool;
+import nz.co.lolnet.james137137.LauncherGobalSettings;
 
 /**
  *
  * @author CptWin
  */
 public class ThreadSendFeedback implements Runnable {
-    
+
     private String message;
     private String meta;
-    
-    public ThreadSendFeedback(String message, String meta)
-    {
+    private static final int MAXFEEDBACKCOUNT = 10;
+
+    public ThreadSendFeedback(String message, String meta) {
+        if (LauncherGobalSettings.get("LolnetLauncherLastFeedback") == null || LauncherGobalSettings.get("LolnetLauncherLastFeedback").length() == 0
+                || (System.currentTimeMillis() - Long.parseLong(LauncherGobalSettings.get("LolnetLauncherLastFeedback")) >= 86400000L)) {
+            LauncherGobalSettings.put("LolnetLauncherLastFeedback",Long.toString(System.currentTimeMillis()));
+            LauncherGobalSettings.put("LolnetLauncherFeedbackConnt",Integer.toString(0));
+        }
+        int feedbacksent =Integer.parseInt(LauncherGobalSettings.get("LolnetLauncherFeedbackConnt"));
+        LauncherGobalSettings.put("LolnetLauncherFeedbackConnt",Integer.toString(feedbacksent + 1));
+        if (feedbacksent > MAXFEEDBACKCOUNT)
+        {
+            return;
+        }
+        
         this.message = message;
         this.meta = meta;
         HttpThreadPool.add(this);
@@ -44,5 +57,5 @@ public class ThreadSendFeedback implements Runnable {
             Logger.getLogger(ThreadLauncherIsLaunched.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
 }
