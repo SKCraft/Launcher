@@ -84,9 +84,9 @@ public class FeedbackManager implements ActionListener{
 
     public static void openWindow() {
         LinedBoxPanel pPButtonsPanel = new LinedBoxPanel(true).fullyPadded();
-        final JFrame frame = new JFrame("Send feedback or suggestions");
+        JFrame frame = new JFrame("Send feedback or suggestions");
         JButton pPSendButton = new JButton("Send");
-        final JButton pPCloseButton = new JButton("Cancel");
+        JButton pPCloseButton = new JButton("Cancel");
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         frame.setSize(new Dimension(400, 200));
         frame.setResizable(false);
@@ -111,15 +111,15 @@ public class FeedbackManager implements ActionListener{
 
         pPCloseButton.addActionListener(ActionListeners.dispose(frame));
 
+        pPSendButton.addActionListener(ActionListeners.dispose(frame));
         pPSendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (area.getText().length() > 2) {
                     new ThreadSendFeedback(area.getText(), usernamesToString());
                     JOptionPane.showMessageDialog(null, "Thank you for your feedback.", "Feedback sent.", JOptionPane.INFORMATION_MESSAGE);
-
                 }
-                pPCloseButton.addActionListener(ActionListeners.dispose(frame));
+                
             }
         });
     }
