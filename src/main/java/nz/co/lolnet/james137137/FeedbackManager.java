@@ -10,7 +10,6 @@ import com.skcraft.launcher.auth.Account;
 import com.skcraft.launcher.auth.AccountList;
 import com.skcraft.launcher.swing.ActionListeners;
 import com.skcraft.launcher.swing.LinedBoxPanel;
-import com.skcraft.launcher.swing.SwingHelper;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -125,10 +124,6 @@ public class FeedbackManager implements ActionListener{
                 
             }
         });
-    }
-
-    public static void main(String[] args) {
-        openWindow();
     }
 
     @Override
