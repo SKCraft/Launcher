@@ -743,7 +743,8 @@ public class LauncherFrame extends JFrame {
 
     private void launchPrivatePackPannel() {
         LinedBoxPanel pPButtonsPanel = new LinedBoxPanel(true).fullyPadded();
-        JFrame frame = new JFrame("Private Pack Code here");
+        JDialog frame = new JDialog();
+        frame.setTitle("Private Pack Code here");
         JButton pPAddButton = new JButton("Add");
         JButton pPCloseButton = new JButton("Close");
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

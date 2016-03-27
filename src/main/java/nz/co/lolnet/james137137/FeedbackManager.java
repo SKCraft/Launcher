@@ -10,6 +10,7 @@ import com.skcraft.launcher.auth.Account;
 import com.skcraft.launcher.auth.AccountList;
 import com.skcraft.launcher.swing.ActionListeners;
 import com.skcraft.launcher.swing.LinedBoxPanel;
+import com.skcraft.launcher.swing.SwingHelper;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -84,7 +86,8 @@ public class FeedbackManager implements ActionListener{
 
     public static void openWindow() {
         LinedBoxPanel pPButtonsPanel = new LinedBoxPanel(true).fullyPadded();
-        JFrame frame = new JFrame("Send feedback or suggestions");
+        JDialog frame = new JDialog();
+        frame.setTitle("Send feedback or suggestions");
         JButton pPSendButton = new JButton("Send");
         JButton pPCloseButton = new JButton("Cancel");
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
