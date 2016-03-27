@@ -49,13 +49,14 @@ import java.net.URL;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.FeedbackManager;
 import nz.co.lolnet.james137137.HelpAndSupport;
+import nz.co.lolnet.james137137.LauncherGobalSettings;
 import nz.co.lolnet.james137137.ThreadLolnetPingWindow;
 import org.apache.commons.io.FileUtils;
 
@@ -152,6 +153,10 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addElement(launcherForumButton);
 
         buttonsPanel.addGlue();
+        LinkButton feedbackLinkButton = new LinkButton("Send Feedback");
+        feedbackLinkButton.addActionListener(new FeedbackManager());
+        
+        buttonsPanel.addElement(feedbackLinkButton);
         buttonsPanel.addElement(selfUpdateButton);
         buttonsPanel.addElement(lolnetPingButton);
         buttonsPanel.addElement(optionsButton);
@@ -345,8 +350,7 @@ public class LauncherFrame extends JFrame {
         }
         if (JOptionPane.showConfirmDialog(null, "Launcher has found an update (Version: " + version + ")\n\nDo you wish to update?", "Launcher Update Available",
                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
-            String bootstrap = userNodeForPackage.get("LolnetLauncherbootstrap", "");
+            String bootstrap = LauncherGobalSettings.get("LolnetLauncherbootstrap");
             if (bootstrap == null || bootstrap.equals("")) {
                 try {
                     url = new URL(Launcher.getBootstrapLink());
@@ -400,7 +404,7 @@ public class LauncherFrame extends JFrame {
             });
             popup.add(menuItem);
 
-            if (offlineButtonEnabled() && (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending() )  ) {
+            if (offlineButtonEnabled() && (!launcher.getInstances().get(instancesTable.getSelectedRow()).isInstalled() || launcher.getInstances().get(instancesTable.getSelectedRow()).isUpdatePending())) {
                 if (selected.isLocal()) {
                     menuItem = new JMenuItem("Update Only");
                 } else {
@@ -415,7 +419,7 @@ public class LauncherFrame extends JFrame {
                 });
                 popup.add(menuItem);
             }
-            
+
             popup.add(getSortingItem());
 
             if (selected.isLocal()) {
@@ -683,8 +687,7 @@ public class LauncherFrame extends JFrame {
     }
 
     public boolean offlineButtonEnabled() {
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-        String showOfflineButton = userNodeForPackage.get("IDontOwnMicrosoft", "");
+        String showOfflineButton = LauncherGobalSettings.get("IDontOwnMicrosoft");
         return (showOfflineButton != null && showOfflineButton.equals("true")) || launcher.getConfig().isOfflineEnabled();
     }
 
@@ -743,11 +746,15 @@ public class LauncherFrame extends JFrame {
         frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
         JTextField field = new JTextField();
         field.setBorder(BorderFactory.createLineBorder(Color.black));
-        final JTextArea area = new JTextArea(100, 80);
+        final JTextArea area = new JTextArea(20, 80);
+        area.setWrapStyleWord(true);
+        area.setLineWrap(true);
         JScrollPane scrollPane = new JScrollPane(area);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         area.setEditable(true);
+
+        pPButtonsPanel.add(pPAddButton, BorderLayout.WEST);
         pPButtonsPanel.addGlue();
-        pPButtonsPanel.add(pPAddButton, BorderLayout.EAST);
         pPButtonsPanel.add(pPCloseButton, BorderLayout.EAST);
 
         frame.add(pPButtonsPanel, BorderLayout.SOUTH);
@@ -793,8 +800,7 @@ public class LauncherFrame extends JFrame {
                             split[i] = "error";
                         }
                     } else if (code.equalsIgnoreCase("IWantToGoPlaces")) {
-                        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-                        userNodeForPackage.put("IWantToGoPlaces", "true");
+                        LauncherGobalSettings.put("IWantToGoPlaces", "true");
                         try {
                             File codeFile = new File(Launcher.dataDir, "codes.txt");
                             if (!codeFile.exists()) {
@@ -818,8 +824,7 @@ public class LauncherFrame extends JFrame {
                             split[i] = "error";
                         }
                     } else if (code.equalsIgnoreCase("IDontOwnMicrosoft")) {
-                        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-                        userNodeForPackage.put("IDontOwnMicrosoft", "true");
+                        LauncherGobalSettings.put("IDontOwnMicrosoft", "true");
                         try {
                             File codeFile = new File(Launcher.dataDir, "codes.txt");
                             if (!codeFile.exists()) {

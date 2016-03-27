@@ -17,7 +17,6 @@ import java.net.URL;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 
 /**
@@ -249,13 +248,12 @@ public class HelpAndSupport {
     }
 
     private static void getLatestSnapshot() {
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
 
         try {
             LauncherFrame.instance.requestUpdate(new URL(downloadTextFromUrl("https://www.lolnet.co.nz/modpack/snapshot")),"Snapshot");
-            userNodeForPackage.put("DownloadSnapShot", "");
+            LauncherGobalSettings.put("DownloadSnapShot", "");
         } catch (MalformedURLException ex) {
-            userNodeForPackage.put("DownloadSnapShot", "true");
+            LauncherGobalSettings.put("DownloadSnapShot", "true");
             JOptionPane.showMessageDialog(null, "Restart Launcher to update", "Launcher Update", JOptionPane.INFORMATION_MESSAGE);
             if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
                     JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {

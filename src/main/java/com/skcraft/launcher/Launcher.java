@@ -24,17 +24,12 @@ import com.skcraft.launcher.util.SimpleLogFormatter;
 
 import com.sun.management.OperatingSystemMXBean;
 
-import org.apache.commons.codec.binary.Base64;
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
@@ -44,23 +39,17 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -72,6 +61,8 @@ import javax.net.ssl.X509TrustManager;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.FeedbackManager;
+import nz.co.lolnet.james137137.LauncherGobalSettings;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import org.apache.commons.io.FileUtils;
 
@@ -134,6 +125,7 @@ public final class Launcher {
         mainServerURL = getProperties().getProperty("mainServerURL");
         backupServerURL = getProperties().getProperty("backupServerURL");
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
+        FeedbackManager.setupAccountList();
 
         setDefaultConfig();
 
@@ -165,10 +157,9 @@ public final class Launcher {
     }
 
     public static boolean restartLauncher() {
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
-        String boot = userNodeForPackage.get("LolnetLauncherbootstrap", "");
+        String boot = LauncherGobalSettings.get("LolnetLauncherbootstrap");
         if (boot != null && boot.equals("true")) {
-            String bootLocation = userNodeForPackage.get("LolnetLauncherbootstrapLocation", "");
+            String bootLocation = LauncherGobalSettings.get("LolnetLauncherbootstrapLocation");
             if (bootLocation.toLowerCase().contains("exe") || bootLocation.toLowerCase().contains("jar")) {
                 Runtime rt = Runtime.getRuntime();
 
@@ -672,7 +663,6 @@ public final class Launcher {
         Launcher.modPackURL = getModpackURL();
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        final Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
         String property = System.getProperty("java.version");
         
         LauncherArguments options = new LauncherArguments();
@@ -686,7 +676,7 @@ public final class Launcher {
 
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
-        String currentDataPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
+        String currentDataPath = LauncherGobalSettings.get("LolnetLauncherDataPath");
         if (currentDataPath == null || currentDataPath.equalsIgnoreCase("")) {
             currentDataPath = defaultDirectory() + File.separator + "LolnetData/";
         }
@@ -709,7 +699,7 @@ public final class Launcher {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                if (userNodeForPackage.get("LolnetLauncherSkin", "") == null || userNodeForPackage.get("LolnetLauncherSkin", "").equals("default")) {
+                if (LauncherGobalSettings.get("LolnetLauncherSkin") == null || LauncherGobalSettings.get("LolnetLauncherSkin").equals("default")) {
                     try {
                         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {

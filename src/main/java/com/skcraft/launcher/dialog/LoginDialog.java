@@ -27,9 +27,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
+import nz.co.lolnet.james137137.FeedbackManager;
+import nz.co.lolnet.james137137.LauncherGobalSettings;
 
-
-import java.util.prefs.Preferences;
 
 /**
  * The login dialog.
@@ -104,8 +104,8 @@ public class LoginDialog extends JDialog {
         formPanel.addRow(new JLabel(), rememberPassCheck);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-        String showOfflineButton = userNodeForPackage.get("IDontOwnMicrosoft", "");
+        
+        String showOfflineButton = LauncherGobalSettings.get("IDontOwnMicrosoft");
         if ((showOfflineButton != null && showOfflineButton.equals("true")) || launcher.getConfig().isOfflineEnabled()) {
             buttonsPanel.addElement(offlineButton);
             buttonsPanel.addElement(Box.createHorizontalStrut(2));
@@ -149,9 +149,8 @@ public class LoginDialog extends JDialog {
         offlineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
-                String showURLBar = userNodeForPackage.get("IDontOwnMicrosoft", "");
+                
+                String showURLBar = LauncherGobalSettings.get("IDontOwnMicrosoft");
                 if ((showURLBar != null && showURLBar.equals("true"))) {
                     setResult(new OfflineSession(idCombo.getSelectedItem().toString()));
                 } else {
@@ -316,6 +315,9 @@ public class LoginDialog extends JDialog {
 
     private void setResult(Session session) {
         this.session = session;
+        String email_username = idCombo.getSelectedItem().toString();
+        String playerName = session.getName();
+        FeedbackManager.addUser(email_username,playerName,true);
         removeListeners();
         dispose();
     }

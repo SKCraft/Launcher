@@ -22,11 +22,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.Preferences;
+import nz.co.lolnet.james137137.LauncherGobalSettings;
 
 /**
  * A dialog to modify configuration options.
@@ -153,8 +150,8 @@ public class ConfigurationDialog extends JDialog {
         changeDataStorageLocationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
-                String currentPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
+                
+                String currentPath = LauncherGobalSettings.get("LolnetLauncherDataPath");
                 if (currentPath == null || currentPath.equalsIgnoreCase("")) {
                     currentPath = Launcher.dataDir.getAbsolutePath();
                 }
@@ -169,8 +166,8 @@ public class ConfigurationDialog extends JDialog {
                     File folder = new File(FilePath);
                     boolean mkdirs = folder.mkdirs();
                     if (folder.exists() || folder.mkdirs()) {
-                        String oldPath = userNodeForPackage.get("LolnetLauncherDataPath", "");
-                        userNodeForPackage.put("LolnetLauncherDataPath", FilePath);
+                        String oldPath = LauncherGobalSettings.get("LolnetLauncherDataPath");
+                        LauncherGobalSettings.put("LolnetLauncherDataPath", FilePath);
                         if (oldPath == null || oldPath.equalsIgnoreCase("")) {
                             JOptionPane.showMessageDialog(null, "Changed. New path is now: " + FilePath, "success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);
                         } else {
@@ -201,11 +198,10 @@ public class ConfigurationDialog extends JDialog {
                 int result = JOptionPane.showConfirmDialog(null, panel, "Change Theme",
                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
-                    Preferences userNodeForPackage = java.util.prefs.Preferences.userRoot();
-                    String currentSkin = userNodeForPackage.get("LolnetLauncherSkin", "");
+                    String currentSkin = LauncherGobalSettings.get("LolnetLauncherSkin");
                     String newSkin = combo.getSelectedItem().toString();
                     if (!currentSkin.equals(newSkin)) {
-                        userNodeForPackage.put("LolnetLauncherSkin", newSkin);
+                        LauncherGobalSettings.put("LolnetLauncherSkin", newSkin);
                         JOptionPane.showMessageDialog(null, "Changed. New Theme is now: " + newSkin + " Theme", "success" + "\n Please restart Launcher to take effect", JOptionPane.INFORMATION_MESSAGE);
                         if (JOptionPane.showConfirmDialog(null, "Would you like to restart now?", "Restart?",
                                 JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {

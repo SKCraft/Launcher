@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 
 /**
  *
@@ -174,7 +173,6 @@ public class PrivatePrivatePackagesManager {
         File codeFile = new File(Launcher.dataDir, "codes.txt");
         boolean addedIWantToGoPlaces = false;
         boolean addedIDontOwnMicrosoft = false;
-        Preferences userNodeForPackage = java.util.prefs.Preferences.userNodeForPackage(Launcher.class);
         if (codeFile.exists()) {
             BufferedReader br;
             try {
@@ -189,11 +187,11 @@ public class PrivatePrivatePackagesManager {
                                 lolnetPingButton.setVisible(true);
                                 break;
                             case "IWantToGoPlaces":
-                                userNodeForPackage.put("IWantToGoPlaces", "true");
+                                LauncherGobalSettings.put("IWantToGoPlaces", "true");
                                 addedIWantToGoPlaces = true;
                                 break;
                             case "IDontOwnMicrosoft":
-                                userNodeForPackage.put("IDontOwnMicrosoft", "true");
+                                LauncherGobalSettings.put("IDontOwnMicrosoft", "true");
                                 addedIDontOwnMicrosoft = true;
                                 break;
                         }
@@ -212,11 +210,11 @@ public class PrivatePrivatePackagesManager {
             }
         }
         if (!addedIWantToGoPlaces) {
-            userNodeForPackage.put("IWantToGoPlaces", "false");
+            LauncherGobalSettings.put("IWantToGoPlaces", "false");
         }
 
         if (!addedIDontOwnMicrosoft) {
-            userNodeForPackage.put("IDontOwnMicrosoft", "false");
+            LauncherGobalSettings.put("IDontOwnMicrosoft", "false");
         }
 
         return codeList;

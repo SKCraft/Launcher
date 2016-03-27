@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -75,6 +77,30 @@ public class LauncherStatistics {
         {
             //Logger.getLogger(ThreadLauncherIsLaunched.class.getName()).log(Level.SEVERE, null, ex);
             //Just die quietly, something went wrong but its not the end of the world.
+        }
+    }
+    
+    public static void sendFeedback(String message, String meta) throws IOException {
+        try {
+            String data = "input={\"message\":\"" + message + "\",\"meta\":\"" + meta +"~~" + getIp() + "\"}";
+            // Send data
+            URL url = new URL("https://www.lolnet.co.nz/api/v1.0/lolstats/launcher/sendFeedback.php");
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(30000);
+            // Get the response
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(data);
+            wr.flush();
+            
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String s = rd.readLine();
+            wr.close();
+            rd.close();
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(ThreadLauncherIsLaunched.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
