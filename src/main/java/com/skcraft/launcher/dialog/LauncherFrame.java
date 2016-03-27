@@ -157,6 +157,7 @@ public class LauncherFrame extends JFrame {
         JButton feedbackLinkButton = new JButton();
         feedbackLinkButton.setText("Send Feedback");
         feedbackLinkButton.setForeground(Color.BLUE);
+        feedbackLinkButton.setContentAreaFilled(false);
         feedbackLinkButton.setBorderPainted(false);
         feedbackLinkButton.setOpaque(false);
         feedbackLinkButton.setBackground(Color.WHITE);
