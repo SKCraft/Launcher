@@ -64,6 +64,7 @@ import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.FeedbackManager;
 import nz.co.lolnet.james137137.LauncherGobalSettings;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
+import nz.co.lolnet.statistics.MetaData;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -125,13 +126,15 @@ public final class Launcher {
         mainServerURL = getProperties().getProperty("mainServerURL");
         backupServerURL = getProperties().getProperty("backupServerURL");
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
-        FeedbackManager.setupAccountList();
 
         setDefaultConfig();
 
         if (accounts.getSize() > 0) {
             accounts.setSelectedItem(accounts.getElementAt(0));
         }
+
+        FeedbackManager.setupAccountList();
+        new MetaData();
 
         executor.submit(new Runnable() {
             @Override
@@ -663,8 +666,7 @@ public final class Launcher {
         Launcher.modPackURL = getModpackURL();
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        String property = System.getProperty("java.version");
-        
+
         LauncherArguments options = new LauncherArguments();
         try {
             new JCommander(options, args);

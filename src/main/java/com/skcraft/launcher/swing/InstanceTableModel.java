@@ -42,7 +42,7 @@ public class InstanceTableModel extends AbstractTableModel {
     public static HashMap<String, ImageIcon> imageIconMap = new HashMap<>();
     public static HashMap<String, String> instanceInfo = new HashMap<>();
     boolean firstTimeRun = false;
-    private final InstanceList instances;
+    public final InstanceList instances;
     private final ImageIcon instanceIcon;
     private final ImageIcon customInstanceIcon;
     private final ImageIcon downloadIcon;

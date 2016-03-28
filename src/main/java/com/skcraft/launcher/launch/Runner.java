@@ -41,6 +41,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.LauncherGobalSettings;
 import nz.co.lolnet.james137137.MemoryChecker;
 import nz.co.lolnet.statistics.ThreadLaunchedModpack;
 import org.apache.commons.lang.text.StrSubstitutor;
@@ -146,7 +147,17 @@ public class Runner implements Callable<Process>, ProgressObservable {
         addJarArgs();
         addWindowArgs();
         addPlatformArgs();
-
+        
+        String launchCount = LauncherGobalSettings.get("InstanceLaunchCount_" + instance.getTitle());
+        if (launchCount.length() == 0)
+        {
+            launchCount = Integer.toString(1);
+        }
+        else
+        {
+            launchCount = Integer.toString(Integer.parseInt(launchCount) + 1);
+        }
+        LauncherGobalSettings.put("InstanceLaunchCount_" + instance.getTitle(),launchCount);
         builder.classPath(getJarPath());
         builder.setMainClass(versionManifest.getMainClass());
 

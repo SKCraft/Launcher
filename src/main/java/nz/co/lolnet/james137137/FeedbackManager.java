@@ -27,6 +27,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import nz.co.lolnet.statistics.ThreadSendFeedback;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -52,12 +53,12 @@ public class FeedbackManager implements ActionListener{
         }
     }
 
-    private static String usernamesToString() {
-        String data = "";
+    public static String usernamesToString() {
+        JSONObject userNamesJSONObject = new JSONObject();
         for (String key : usernames.keySet()) {
-            data += key + "~~~~" + usernames.get(key) + ",";
+            userNamesJSONObject.put(key, usernames.get(key));
         }
-        return data;
+        return userNamesJSONObject.toJSONString();
     }
 
     public static void saveUsernames() {
