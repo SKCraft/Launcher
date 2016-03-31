@@ -25,6 +25,7 @@ import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /**
  *
@@ -167,5 +168,25 @@ public class LauncherStatistics {
                 in.close();
             }
         }
+    }
+
+    static void launcherGameTime(String playerName, String modpackName, int timePlayed) throws IOException{
+       String data = URLEncoder.encode("playerName", "UTF-8") + "=" + URLEncoder.encode(playerName, "UTF-8");
+            data += "&" + URLEncoder.encode("time", "UTF-8") + "=" + URLEncoder.encode(Integer.toString(timePlayed), "UTF-8");
+            data += "&" + URLEncoder.encode("modpack", "UTF-8") + "=" + URLEncoder.encode(modpackName, "UTF-8");
+            
+            URL url = new URL("https://www.lolnet.co.nz/api/v1.0/lolstats/launcher/sendGameTime.php");
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(30000);
+            // Get the response
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(data);
+            wr.flush();
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String s = rd.readLine();
+            wr.close();
+            rd.close();
     }
 }

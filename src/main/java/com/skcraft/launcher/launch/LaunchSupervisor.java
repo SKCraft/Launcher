@@ -117,7 +117,7 @@ public class LaunchSupervisor {
 
     private void launch(Window window, Instance instance, Session session, final LaunchListener listener) {
         final File extractDir = launcher.createExtractDir();
-
+        
         // Get the process
         Runner task = new Runner(launcher, instance, session, extractDir);
         ObservableFuture<Process> processFuture = new ObservableFuture<Process>(
@@ -146,7 +146,7 @@ public class LaunchSupervisor {
 
         // Watch the created process
         ListenableFuture<?> future = Futures.transform(
-                processFuture, new LaunchProcessHandler(launcher), launcher.getExecutor());
+                processFuture, new LaunchProcessHandler(launcher, instance, session), launcher.getExecutor());
         SwingHelper.addErrorDialogCallback(null, future);
 
         // Clean up at the very end

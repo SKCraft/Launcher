@@ -1048,7 +1048,7 @@ public class LauncherFrame extends JFrame {
 
         // Watch the created process
         ListenableFuture<?> future = Futures.transform(
-                processFuture, new LaunchProcessHandler(launcher), launcher.getExecutor());
+                processFuture, new LaunchProcessHandler(launcher, instance, session), launcher.getExecutor());
         SwingHelper.addErrorDialogCallback(null, future);
 
         // Clean up at the very end

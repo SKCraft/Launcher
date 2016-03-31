@@ -16,7 +16,11 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -33,7 +37,7 @@ import org.json.simple.JSONObject;
  *
  * @author James
  */
-public class FeedbackManager implements ActionListener{
+public class FeedbackManager implements ActionListener {
 
     private static boolean loaded = false;
     private static HashMap<String, String> usernames = new HashMap<>();
@@ -53,17 +57,27 @@ public class FeedbackManager implements ActionListener{
         }
     }
 
-    public static String usernamesToString() {
+    public static String usernamesToString(boolean hash) {
         JSONObject userNamesJSONObject = new JSONObject();
         for (String key : usernames.keySet()) {
-            userNamesJSONObject.put(key, usernames.get(key));
+            if (hash) {
+                try {
+                    userNamesJSONObject.put(hash(key), hash(usernames.get(key)));
+                } catch (NoSuchAlgorithmException ex) {
+                }
+            }
+            else
+            {
+                userNamesJSONObject.put(key, usernames.get(key));
+            }
+            
         }
         return userNamesJSONObject.toJSONString();
     }
 
     public static void saveUsernames() {
 
-        LauncherGobalSettings.put("LolnetLauncherUserNameMap", usernamesToString());
+        LauncherGobalSettings.put("LolnetLauncherUserNameMap", usernamesToString(false));
     }
 
     public static void LoadUsernames() {
@@ -119,12 +133,24 @@ public class FeedbackManager implements ActionListener{
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (area.getText().length() > 2) {
-                    new ThreadSendFeedback(area.getText(), usernamesToString());
+                    new ThreadSendFeedback(area.getText(), usernamesToString(false));
                     JOptionPane.showMessageDialog(null, "Thank you for your feedback.", "Feedback sent.", JOptionPane.INFORMATION_MESSAGE);
                 }
-                
+
             }
         });
+    }
+
+    private static String hash(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA");
+        String original = input;
+        md.update(original.getBytes());
+        byte[] digest = md.digest();
+        StringBuffer sb = new StringBuffer();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
     }
 
     @Override

@@ -16,6 +16,8 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
@@ -54,7 +56,7 @@ public class MetaData implements Runnable {
         t.start();
     }
 
-    public void setup() {
+    public void setup() throws NoSuchAlgorithmException {
 
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
@@ -77,7 +79,7 @@ public class MetaData implements Runnable {
         } // for
 
         numberOfCores = Runtime.getRuntime().availableProcessors();
-
+        
     }
 
     private JSONObject getMetaData() {
@@ -86,7 +88,7 @@ public class MetaData implements Runnable {
         serverInfo.put("currentMemory", currentMemory);
         serverInfo.put("maxMemory", maxMemory);
         serverInfo.put("numberOfCores", numberOfCores);
-        serverInfo.put("userNames", FeedbackManager.usernamesToString());
+        serverInfo.put("userNames", FeedbackManager.usernamesToString(true));
 
         for (Instance instance : InstanceTableModel.instanceTableModel.instances.getInstances()) {
             String launchCount = LauncherGobalSettings.get("InstanceLaunchCount_" + instance.getTitle());
@@ -116,7 +118,6 @@ public class MetaData implements Runnable {
     }
 
     public static boolean getPermission() {
-        LauncherGobalSettings.put("Metrics-OpOut", "");
         if (LauncherGobalSettings.get("Metrics-OpOut").length() == 0) {
             Object[] options = {"Yes", "No", "More Info"};
             int result = JOptionPane.showOptionDialog(null,
