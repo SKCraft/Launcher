@@ -269,11 +269,15 @@ public class Runner implements Callable<Process>, ProgressObservable {
         minMemory = MemoryChecker.checkMinMemory(minMemory, instance);
         maxMemory = MemoryChecker.checkMaxMemory(maxMemory, instance);
         permGen = MemoryChecker.checkpermGen(permGen, instance);
+        
 
-        int currentfreeMemory = getCurrentFreeMemory();
-        int memoryMB = (int) (currentfreeMemory / (1024 * 1024));
+        int currentfreeMemory = getCurrentFreeMemoryMB();
+        System.out.println(currentfreeMemory);
+        int memoryMB = currentfreeMemory;
+        System.out.println("1" + memoryMB);
         if (currentfreeMemory > 0 && memoryMB < minMemory) {
             memoryMB = ((memoryMB / 2) / 256) * 256;
+            System.out.println("2" + memoryMB);
             minMemory = memoryMB;
             if (memoryMB <= 512) {
                 minMemory = 128;
@@ -287,7 +291,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder.setMinMemory(minMemory);
         builder.setMaxMemory(maxMemory);
         builder.setPermGen(permGen);
-
+        
         String rawJvmPath = config.getJvmPath();
         if (!Strings.isNullOrEmpty(rawJvmPath)) {
             builder.tryJvmPath(new File(rawJvmPath));
@@ -303,7 +307,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         }
     }
 
-    private int getCurrentFreeMemory() {
+    private int getCurrentFreeMemoryMB() {
         long currnetAmmount = -1;
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {

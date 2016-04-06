@@ -67,7 +67,6 @@ public class MemoryChecker {
                 return;
             }
             
-            System.out.println(jsonTxt);
             JSONParser parser = new JSONParser();
             Object obj = parser.parse(jsonTxt);
             memoryInfo = (JSONObject) obj;
