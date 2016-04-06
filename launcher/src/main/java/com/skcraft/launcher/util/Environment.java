@@ -48,6 +48,8 @@ public class Environment {
             return Platform.LINUX;
         if (osName.contains("unix"))
             return Platform.LINUX;
+        if (osName.contains("bsd"))
+            return Platform.LINUX;
 
         return Platform.UNKNOWN;
     }
