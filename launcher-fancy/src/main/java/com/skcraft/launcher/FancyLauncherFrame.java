@@ -26,7 +26,7 @@ public class FancyLauncherFrame extends LauncherFrame {
         setSize(800, 500);
         setLocationRelativeTo(null);
 
-        SwingHelper.removeOpaqueness(getInstancesList());
+        SwingHelper.removeOpaqueness(getInstancesTable());
         SwingHelper.removeOpaqueness(getInstanceScroll());
         getInstanceScroll().setBorder(BorderFactory.createEmptyBorder());
     }
