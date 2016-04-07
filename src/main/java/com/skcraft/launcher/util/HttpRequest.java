@@ -28,7 +28,7 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 @Log
 public class HttpRequest implements Closeable, ProgressObservable {
 
-    private static final int READ_TIMEOUT = 1000 * 60 * 10;
+    private static final int READ_TIMEOUT = 1000 * 60 * 20;
     private static final int READ_BUFFER_SIZE = 1024 * 8;
 
     private final ObjectMapper mapper = new ObjectMapper();
