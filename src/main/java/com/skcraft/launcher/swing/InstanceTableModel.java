@@ -317,32 +317,33 @@ public class InstanceTableModel extends AbstractTableModel {
             }
 
             while (true) {
+                if (LauncherFrame.instance.isVisible()) {
+                    for (int i = 0; i < InstanceTableModel.instanceTableModel.instances.size(); i++) {
+                        boolean isOnline = false;
+                        Instance instance = InstanceTableModel.instanceTableModel.instances.get(i);
+                        int count = 0;
+                        for (int j = 1; j <= 2; j++) {
 
-                for (int i = 0; i < InstanceTableModel.instanceTableModel.instances.size(); i++) {
-                    boolean isOnline = false;
-                    Instance instance = InstanceTableModel.instanceTableModel.instances.get(i);
-                    int count = 0;
-                    for (int j = 1; j <= 2; j++) {
-
-                        try {
-                            int num = Integer.parseInt(getPlayerCountFromServer(instance, j));
-                            if (num >= 0) {
-                                count += num;
-                                isOnline = true;
+                            try {
+                                int num = Integer.parseInt(getPlayerCountFromServer(instance, j));
+                                if (num >= 0) {
+                                    count += num;
+                                    isOnline = true;
+                                }
+                            } catch (Exception ex) {
+                                Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
+                                Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, instance.getTitle() + " " + j);
                             }
-                        } catch (Exception ex) {
-                            Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, ex);
-                            Logger.getLogger(InstanceTableModel.class.getName()).log(Level.SEVERE, null, instance.getTitle() + " " + j);
-                        }
 
+                        }
+                        if (isOnline) {
+                            instance.setPlayerCount(count);
+                        } else {
+                            instance.setPlayerCount(-1);
+                        }
                     }
-                    if (isOnline) {
-                        instance.setPlayerCount(count);
-                    } else {
-                        instance.setPlayerCount(-1);
-                    }
+                    InstanceTableModel.instanceTableModel.update(false);
                 }
-                InstanceTableModel.instanceTableModel.update(false);
                 try {
                     Thread.sleep(30 * 1000);
                 } catch (InterruptedException ex) {
