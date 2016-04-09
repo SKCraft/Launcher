@@ -138,7 +138,7 @@ public class MetaData implements Runnable {
                     LauncherGobalSettings.put("Metrics-OpOut", "false");
                     break;
                 case 2:
-                    boolean openURL = HelpAndSupport.openURL("https://www.google.com");
+                    boolean openURL = HelpAndSupport.openURL("https://www.lolnet.co.nz/metricsinfo.php");
                     break;
                 default:
                     break;
