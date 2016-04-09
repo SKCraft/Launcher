@@ -341,8 +341,8 @@ public class InstanceTableModel extends AbstractTableModel {
                         } else {
                             instance.setPlayerCount(-1);
                         }
+                        InstanceTableModel.instanceTableModel.update(false);
                     }
-                    InstanceTableModel.instanceTableModel.update(false);
                 }
                 try {
                     Thread.sleep(30 * 1000);
