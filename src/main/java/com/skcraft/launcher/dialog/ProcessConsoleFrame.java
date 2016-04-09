@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2014 Albert Pham <http://www.sk89q.com> and contributors
  * Please see LICENSE.txt for license information.
  */
-
 package com.skcraft.launcher.dialog;
 
 import com.skcraft.launcher.swing.LinedBoxPanel;
@@ -16,25 +15,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-
-
+import nz.co.lolnet.james137137.LauncherGobalSettings;
 
 /**
  * A version of the console window that can manage a process.
  */
 public class ProcessConsoleFrame extends ConsoleFrame {
-    
+
     private JButton killButton;
     private JButton minimizeButton;
     private TrayIcon trayIcon;
     private long age;
     private static java.util.List<ProcessConsoleFrame> consoleList = new ArrayList<>();
-    
-    @Getter private Process process;
-    @Getter @Setter private boolean killOnClose;
+
+    @Getter
+    private Process process;
+    @Getter
+    @Setter
+    private boolean killOnClose;
 
     private PrintWriter processOut;
 
@@ -53,8 +55,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         initComponents();
         updateComponents();
         for (ProcessConsoleFrame processConsoleFrame : consoleList) {
-            if (!processConsoleFrame.equals(this))
-            {
+            if (!processConsoleFrame.equals(this)) {
                 processConsoleFrame.dispatchEvent(new WindowEvent(processConsoleFrame, WindowEvent.WINDOW_CLOSING));
             }
         }
@@ -129,7 +130,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
         buttonsPanel.addGlue();
         buttonsPanel.addElement(killButton);
         buttonsPanel.addElement(minimizeButton);
-        
+
         killButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -143,7 +144,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
                 contextualClose();
             }
         });
-        
+
         if (!setupTrayIcon()) {
             minimizeButton.setEnabled(true);
         }
@@ -164,12 +165,28 @@ public class ProcessConsoleFrame extends ConsoleFrame {
                 reshow();
             }
         });
-       
+
         PopupMenu popup = new PopupMenu();
         MenuItem item;
 
         popup.add(item = new MenuItem(SharedLocale.tr("console.trayTitle")));
         item.setEnabled(false);
+        String showOfflineButton = LauncherGobalSettings.get("IDontOwnMicrosoft");
+        if ((showOfflineButton != null && showOfflineButton.equals("true"))) {
+            item.setEnabled(true);
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    LauncherFrame.instance.setVisible(true);
+                    LauncherFrame.instance.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                    LauncherFrame.instance.addWindowListener(new WindowAdapter() {
+                        public void windowClosing(WindowEvent ev) {
+                            JOptionPane.showMessageDialog(null, "Please Close your minecraft session first", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        }
+                    });
+                }
+            });
+        }
 
         popup.add(item = new MenuItem(SharedLocale.tr("console.tray.showWindow")));
         item.addActionListener(new ActionListener() {
@@ -186,16 +203,16 @@ public class ProcessConsoleFrame extends ConsoleFrame {
                 performKill();
             }
         });
-       
+
         trayIcon.setPopupMenu(popup);
-       
+
         try {
             SystemTray tray = SystemTray.getSystemTray();
             tray.add(trayIcon);
             return true;
         } catch (AWTException e) {
         }
-        
+
         return false;
     }
 
@@ -228,7 +245,7 @@ public class ProcessConsoleFrame extends ConsoleFrame {
     }
 
     private boolean confirmKill() {
-        return SwingHelper.confirmDialog(this,  SharedLocale.tr("console.confirmKill"), SharedLocale.tr("console.confirmKillTitle"));
+        return SwingHelper.confirmDialog(this, SharedLocale.tr("console.confirmKill"), SharedLocale.tr("console.confirmKillTitle"));
     }
 
     private void minimize() {
