@@ -54,10 +54,12 @@ public class HttpDownloader implements Downloader {
     private final List<HttpDownloadJob> running = new ArrayList<HttpDownloadJob>();
     private final List<HttpDownloadJob> failed = new ArrayList<HttpDownloadJob>();
     private long downloaded = 0;
+    private double lastDownloaded = 0;
     private long total = 0;
     private long totalSize = 0;
-    private long downloadStartTime;
+    private long downloadStartTime = 0;
     private int left = 0;
+    private long lastTime = System.currentTimeMillis();
 
     /**
      * Create a new downloader using the given executor.
@@ -181,16 +183,17 @@ public class HttpDownloader implements Downloader {
                 builder.append("\n");
                 builder.append(job.getStatus());
             }
-            double remainingMB = ((double) ((downloaded) / 1024)) / 1024.0;
-            double speed = (double) downloaded / (double) (System.currentTimeMillis() - downloadStartTime);
-            if (downloadStartTime == 0) {
-                return "Downloading: " + round(remainingMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB"
+            double downloadedMB = ((double) ((totalSize * (getProgress())) / 1024)) / 1024.0;
+            double speed = (double) 1000 * (downloadedMB - lastDownloaded) / (double) ((System.currentTimeMillis() - lastTime));
+            lastDownloaded = downloadedMB;
+            lastTime = System.currentTimeMillis();
+
+            if (speed <= 1) {
+                return "Downloading: " + round(downloadedMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB"
                         + builder.toString()
                         + "\n" + failMessage;
-            }
-            else
-            {
-                return "Downloading: " + round(remainingMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB (" + round((speed / 1024.0), 2) + " MB/s)"
+            } else {
+                return "Downloading: " + round(downloadedMB, 2) + " MB /" + (totalSize / (1024 * 1024)) + " MB (" + round((speed), 2) + " MB/s)"
                         + builder.toString()
                         + "\n" + failMessage;
             }
