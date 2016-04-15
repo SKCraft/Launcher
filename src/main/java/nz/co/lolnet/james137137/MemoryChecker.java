@@ -27,23 +27,23 @@ public class MemoryChecker {
 
     private static JSONObject memoryInfo = null;
 
-    public static int checkMinMemory(int input, Instance instance) {
+    public static int checkMinMemory(int currentAmmount, Instance instance) {
         try {
-            int ammout = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MinMemory")).intValue();
-            return ammout > input ? ammout : input;
+            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MinMemory")).intValue();
+            return suggestedAmmount > currentAmmount ? suggestedAmmount : currentAmmount;
         } catch (Exception e) {
             Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
-            return input;
+            return currentAmmount;
         }
     }
 
-    public static int checkMaxMemory(int input, Instance instance) {
+    public static int checkMaxMemory(int currentAmmount, Instance instance) {
         try {
-            int ammout = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MaxMemory")).intValue();
-            return ammout > input ? ammout : input;
+            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MaxMemory")).intValue();
+            return suggestedAmmount > currentAmmount ? suggestedAmmount : currentAmmount;
         } catch (Exception e) {
             Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
-            return input;
+            return currentAmmount;
         }
     }
 

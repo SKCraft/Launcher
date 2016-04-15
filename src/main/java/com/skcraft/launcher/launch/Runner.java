@@ -147,17 +147,14 @@ public class Runner implements Callable<Process>, ProgressObservable {
         addJarArgs();
         addWindowArgs();
         addPlatformArgs();
-        
+
         String launchCount = LauncherGobalSettings.get("InstanceLaunchCount_" + instance.getTitle());
-        if (launchCount.length() == 0)
-        {
+        if (launchCount.length() == 0) {
             launchCount = Integer.toString(1);
-        }
-        else
-        {
+        } else {
             launchCount = Integer.toString(Integer.parseInt(launchCount) + 1);
         }
-        LauncherGobalSettings.put("InstanceLaunchCount_" + instance.getTitle(),launchCount);
+        LauncherGobalSettings.put("InstanceLaunchCount_" + instance.getTitle(), launchCount);
         builder.classPath(getJarPath());
         builder.setMainClass(versionManifest.getMainClass());
 
@@ -246,52 +243,58 @@ public class Runner implements Callable<Process>, ProgressObservable {
         } catch (ParseException ex) {
             Logger.getLogger(Runner.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         int minMemory = config.getMinMemory();
         int maxMemory = config.getMaxMemory();
         int permGen = config.getPermGen();
 
-        if (minMemory <= 0) {
-            minMemory = 1024;
-        }
+        if (!config.isDontAutoCorrectMemory()) {
+            if (minMemory <= 0) {
+                minMemory = 1024;
+            }
 
-        if (maxMemory <= 0) {
-            maxMemory = 1024;
-        }
+            if (maxMemory <= 0) {
+                maxMemory = 1024;
+            }
 
-        if (permGen <= 0) {
-            permGen = 128;
-        }
+            if (permGen <= 0) {
+                permGen = 128;
+            }
 
-        if (permGen <= 64) {
-            permGen = 64;
-        }
+            if (permGen <= 64) {
+                permGen = 64;
+            }
 
-        minMemory = MemoryChecker.checkMinMemory(minMemory, instance);
-        maxMemory = MemoryChecker.checkMaxMemory(maxMemory, instance);
-        permGen = MemoryChecker.checkpermGen(permGen, instance);
-        
+            minMemory = MemoryChecker.checkMinMemory(minMemory, instance);
+            maxMemory = MemoryChecker.checkMaxMemory(maxMemory, instance);
+            permGen = MemoryChecker.checkpermGen(permGen, instance);
 
-        int currentfreeMemory = getCurrentFreeMemoryMB();
-        System.out.println(currentfreeMemory);
-        int memoryMB = currentfreeMemory;
-        System.out.println("1" + memoryMB);
-        if (currentfreeMemory > 0 && memoryMB < minMemory) {
-            memoryMB = ((memoryMB / 2) / 256) * 256;
-            System.out.println("2" + memoryMB);
-            minMemory = memoryMB;
-            if (memoryMB <= 512) {
-                minMemory = 128;
+            int currentfreeMemory = getCurrentFreeMemoryMB();
+            System.out.println(currentfreeMemory);
+            int memoryMB = currentfreeMemory;
+            System.out.println("1" + memoryMB);
+            if (currentfreeMemory > 0 && memoryMB < minMemory) {
+                memoryMB = ((memoryMB / 2) / 256) * 256;
+                System.out.println("2" + memoryMB);
+                minMemory = memoryMB;
+                if (memoryMB <= 512) {
+                    minMemory = 128;
+                }
+            }
+
+            if (minMemory > maxMemory) {
+                maxMemory = minMemory;
             }
         }
-
-        if (minMemory > maxMemory) {
-            maxMemory = minMemory;
-        }
+        
+        System.out.println(minMemory);
+        System.out.println(maxMemory);
+        System.out.println(permGen);
 
         builder.setMinMemory(minMemory);
         builder.setMaxMemory(maxMemory);
         builder.setPermGen(permGen);
-        
+
         String rawJvmPath = config.getJvmPath();
         if (!Strings.isNullOrEmpty(rawJvmPath)) {
             builder.tryJvmPath(new File(rawJvmPath));

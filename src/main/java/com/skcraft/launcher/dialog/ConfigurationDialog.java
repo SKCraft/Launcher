@@ -41,6 +41,7 @@ public class ConfigurationDialog extends JDialog {
     private final JSpinner minMemorySpinner = new JSpinner();
     private final JSpinner maxMemorySpinner = new JSpinner();
     private final JSpinner permGenSpinner = new JSpinner();
+    private final JCheckBox dontAutoCorrectMemory = new JCheckBox();
     private final FormPanel gameSettingsPanel = new FormPanel();
     private final JSpinner widthSpinner = new JSpinner();
     private final JSpinner heightSpinner = new JSpinner();
@@ -81,6 +82,7 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(minMemorySpinner, "minMemory");
         mapper.map(maxMemorySpinner, "maxMemory");
         mapper.map(permGenSpinner, "permGen");
+        mapper.map(dontAutoCorrectMemory, "dontAutoCorrectMemory");
         mapper.map(widthSpinner, "windowWidth");
         mapper.map(heightSpinner, "widowHeight");
         mapper.map(gameKeyText, "gameKey");
@@ -96,6 +98,7 @@ public class ConfigurationDialog extends JDialog {
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.minMemory")), minMemorySpinner);
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.maxMemory")), maxMemorySpinner);
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.permGen")), permGenSpinner);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.dontAutoCorrectMemory")), dontAutoCorrectMemory);
         SwingHelper.removeOpaqueness(javaSettingsPanel);
         tabbedPane.addTab(SharedLocale.tr("options.javaTab"), SwingHelper.alignTabbedPane(javaSettingsPanel));
 
