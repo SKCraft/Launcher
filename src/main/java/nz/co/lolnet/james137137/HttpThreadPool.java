@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 public class HttpThreadPool {
     
     
-    static ExecutorService executor = Executors.newFixedThreadPool(4);
+    static ExecutorService executor = Executors.newFixedThreadPool(2);
     public static void add(Runnable object)
     {
         executor.execute(object);
