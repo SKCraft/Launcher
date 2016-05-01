@@ -12,7 +12,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
-import org.json.XML;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -25,8 +24,8 @@ public class FTBHook {
     public static void main(String[] args) throws Exception {
         JSONParser parser = new JSONParser();
         
-        JSONObject obj;
-        obj = (JSONObject) parser.parse(XML.toJSONObject(getText("http://ftb.cursecdn.com/FTB2/static/modpacks.xml")).toString());
+        JSONObject obj = null;
+        //obj = (JSONObject) parser.parse(XML.toJSONObject(getText("http://ftb.cursecdn.com/FTB2/static/modpacks.xml")).toString());
         System.out.println(obj.toString());
         HashMap<String, HashMap<String,Object>> modpacks = (HashMap<String, HashMap<String,Object>>) obj.get("modpacks");
         List<HashMap<String,String>> FTBmodPacklist = (List<HashMap<String,String>>) modpacks.get("modpack");
