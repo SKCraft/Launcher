@@ -45,6 +45,9 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -74,6 +77,7 @@ import org.apache.commons.io.FileUtils;
 public final class Launcher {
 
     public static final boolean debugmode = false;
+    public static boolean hungerDrive = false;
     public static final int PROTOCOL_VERSION = 2;
     public static String modPackURL;
     public static Launcher instance;
@@ -678,6 +682,16 @@ public final class Launcher {
 
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
+        String bootVersion = LauncherGobalSettings.get("LolnetLauncherBootVesion");
+        System.out.println("BootVersion: " + bootVersion);
+        if (bootVersion.contains("HUNGERDRIVE")) {
+            DateFormat df = new SimpleDateFormat("dd/MM/yy");
+            Date dateobj = new Date();
+            String dateS = df.format(dateobj);
+            if (dateS.equalsIgnoreCase("09/05/16") || dateS.equalsIgnoreCase("10/05/16") || dateS.equalsIgnoreCase("11/06/16")) {
+                Launcher.hungerDrive = true;
+            }
+        }
         String currentDataPath = LauncherGobalSettings.get("LolnetLauncherDataPath");
         if (currentDataPath == null || currentDataPath.equalsIgnoreCase("")) {
             currentDataPath = defaultDirectory() + File.separator + "LolnetData/";

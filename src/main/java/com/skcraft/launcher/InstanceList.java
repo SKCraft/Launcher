@@ -36,7 +36,7 @@ import org.apache.commons.io.filefilter.DirectoryFileFilter;
  */
 @Log
 public class InstanceList {
-    
+
     private final Launcher launcher;
     @Getter
     private final List<Instance> instances = new ArrayList<Instance>();
@@ -132,7 +132,13 @@ public class InstanceList {
                     } else {
                         instance.isPublic = false;
                     }
-                    local.add(instance);
+                    if (Launcher.hungerDrive) {
+                        if (instance.getVersion().toLowerCase().contains("hungerdrive")) {
+                            local.add(instance);
+                        }
+                    } else {
+                        local.add(instance);
+                    }
 
                     log.info(instance.getName() + " local instance found at " + dir.getAbsolutePath());
                 }
@@ -197,7 +203,13 @@ public class InstanceList {
                         } else {
                             instance.isPublic = false;
                         }
-                        remote.add(instance);
+                        if (Launcher.hungerDrive) {
+                            if (instance.getVersion().toLowerCase().contains("hungerdrive")) {
+                                remote.add(instance);
+                            }
+                        } else {
+                            remote.add(instance);
+                        }
 
                         log.info("Available remote instance: '" + instance.getName()
                                 + "' at version " + instance.getVersion());
@@ -216,7 +228,7 @@ public class InstanceList {
                     log.info(instances.size() + " instance(s) enumerated.");
                 }
             }
-            
+
             return InstanceList.this;
         }
 
