@@ -177,6 +177,10 @@ public class InstanceTableModel extends AbstractTableModel {
     }
 
     private String getNumberOfPlayers(Instance instance) {
+        if (Launcher.hungerDrive)
+        {
+            return "";
+        }
         int count = instance.getPlayerCount();
 
         if (count > 0) {

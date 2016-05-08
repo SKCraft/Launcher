@@ -132,13 +132,7 @@ public class InstanceList {
                     } else {
                         instance.isPublic = false;
                     }
-                    if (Launcher.hungerDrive) {
-                        if (instance.getVersion().toLowerCase().contains("hungerdrive")) {
-                            local.add(instance);
-                        }
-                    } else if (!instance.getVersion().toLowerCase().contains("hungerdrive")) {
-                        local.add(instance);
-                    }
+                    local.add(instance);
 
                     log.info(instance.getName() + " local instance found at " + dir.getAbsolutePath());
                 }
