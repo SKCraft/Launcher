@@ -11,7 +11,7 @@
 
     <groupId>nz.co.lolnet</groupId>
     <artifactId>lolnetLauncher</artifactId>
-    <version>1.1.4-RC-04</version>
+    <version>1.1.4-RC-05</version>
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

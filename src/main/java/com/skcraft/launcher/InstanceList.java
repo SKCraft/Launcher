@@ -136,7 +136,7 @@ public class InstanceList {
                         if (instance.getVersion().toLowerCase().contains("hungerdrive")) {
                             local.add(instance);
                         }
-                    } else {
+                    } else if (!instance.getVersion().toLowerCase().contains("hungerdrive")) {
                         local.add(instance);
                     }
 
@@ -207,7 +207,7 @@ public class InstanceList {
                             if (instance.getVersion().toLowerCase().contains("hungerdrive")) {
                                 remote.add(instance);
                             }
-                        } else {
+                        } else if (!instance.getVersion().toLowerCase().contains("hungerdrive")) {
                             remote.add(instance);
                         }
 

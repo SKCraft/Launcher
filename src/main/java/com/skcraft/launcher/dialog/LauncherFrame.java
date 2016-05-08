@@ -95,8 +95,12 @@ public class LauncherFrame extends JFrame {
      * @param launcher the launcher
      */
     public LauncherFrame(@NonNull Launcher launcher) {
+        
         super(SharedLocale.tr("launcher.title", launcher.getVersion()));
-
+        if (Launcher.hungerDrive)
+        {
+            setTitle("LolnetLauncher: HungerDrive");
+        }
         instance = this;
         this.launcher = launcher;
         instancesModel = new InstanceTableModel(launcher.getInstances());
@@ -149,21 +153,24 @@ public class LauncherFrame extends JFrame {
         buttonsPanel.addGlue();
 
         buttonsPanel.addElement(launcherDonateButton);
-        buttonsPanel.addElement(launcherVoteButton);
-        buttonsPanel.addElement(launcherForumButton);
+        if (!Launcher.hungerDrive) {
+            buttonsPanel.addElement(launcherVoteButton);
+            buttonsPanel.addElement(launcherForumButton);
+        }
 
         buttonsPanel.addGlue();
-        
-        JButton feedbackLinkButton = new JButton();
-        feedbackLinkButton.setText("Send Feedback");
-        feedbackLinkButton.setForeground(Color.GRAY);
-        feedbackLinkButton.setContentAreaFilled(false);
-        feedbackLinkButton.setFocusPainted(false);
-        feedbackLinkButton.setBorderPainted(false);
-        feedbackLinkButton.setOpaque(false);
-        feedbackLinkButton.addActionListener(new FeedbackManager());
-        
-        buttonsPanel.addElement(feedbackLinkButton);
+
+        if (!Launcher.hungerDrive) {
+            JButton feedbackLinkButton = new JButton();
+            feedbackLinkButton.setText("Send Feedback");
+            feedbackLinkButton.setForeground(Color.GRAY);
+            feedbackLinkButton.setContentAreaFilled(false);
+            feedbackLinkButton.setFocusPainted(false);
+            feedbackLinkButton.setBorderPainted(false);
+            feedbackLinkButton.setOpaque(false);
+            feedbackLinkButton.addActionListener(new FeedbackManager());
+            buttonsPanel.addElement(feedbackLinkButton);
+        }
         buttonsPanel.addElement(selfUpdateButton);
         buttonsPanel.addElement(lolnetPingButton);
         buttonsPanel.addElement(optionsButton);
@@ -194,7 +201,11 @@ public class LauncherFrame extends JFrame {
         launcherDonateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                HelpAndSupport.openURL("https://www.lolnet.co.nz/donate/");
+                if (Launcher.hungerDrive) {
+                    HelpAndSupport.openURL("https://www.lolnet.co.nz/hungerdrivedonate.php");
+                } else {
+                    HelpAndSupport.openURL("https://www.lolnet.co.nz/donate/");
+                }
             }
         });
 
