@@ -15,8 +15,6 @@
     
     <modules>
         <module>Launcher</module>
-        <module>creator-tools</module>
-        <module>launcher-builder</module>
     </modules>
     
     <properties>
