@@ -64,6 +64,7 @@ import javax.net.ssl.X509TrustManager;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import nz.co.lolnet.james137137.CertificateManager;
 import nz.co.lolnet.james137137.FeedbackManager;
 import nz.co.lolnet.james137137.LauncherGobalSettings;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
@@ -493,76 +494,7 @@ public final class Launcher {
         return System.getProperty("user.dir");
     }
 
-    public static void doTrustToCertificates() throws Exception {
-        Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
-        TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-
-                public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-                    return;
-                }
-
-                public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-                    return;
-                }
-            }
-        };
-
-        SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new SecureRandom());
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        HostnameVerifier hv = new HostnameVerifier() {
-            public boolean verify(String urlHostName, SSLSession session) {
-                if (!urlHostName.equalsIgnoreCase(session.getPeerHost())) {
-                    System.out.println("Warning: URL host '" + urlHostName + "' is different to SSLSession host '" + session.getPeerHost() + "'.");
-                }
-                return true;
-            }
-        };
-        HttpsURLConnection.setDefaultHostnameVerifier(hv);
-    }
-
-    public static boolean hasExpiredCertificate(URL url) throws MalformedURLException, Exception {
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-        conn.connect();
-        Certificate[] certs = conn.getServerCertificates();
-        for (Certificate cert : certs) {
-            if (cert.toString().contains("DNSName: " + url.getHost())) {
-                if (cert instanceof X509Certificate) {
-                    try {
-                        ((X509Certificate) cert).checkValidity();
-                        System.out.println("Certificate is active for current date");
-                        return false;
-                    } catch (CertificateExpiredException cee) {
-                        System.out.println("Certificate is expired");
-                        return true;
-                    }
-                }
-            }
-
-        }
-        System.out.println("Certificate not found for: " + url.getHost());
-        return true;
-    }
-
-    public static void connectToUrl(URL url) throws MalformedURLException, Exception {
-        doTrustToCertificates();
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-        System.out.println("ResponseCoede =" + conn.getResponseCode());
-
-        URLConnection connection = url.openConnection();
-        try {
-            connection.connect();
-            System.out.println("Headers of " + url + " => "
-                    + connection.getHeaderFields());
-        } catch (SSLHandshakeException e) {
-            System.out.println("Untrusted: " + url);
-        }
-        hasExpiredCertificate(url);
-    }
+    
 
     public static String getModpackURL() {
         try {
@@ -580,7 +512,7 @@ public final class Launcher {
             String line;
             while ((line = rd.readLine()) != null) {
                 if (line.startsWith("https:")) {
-                    connectToUrl(new URL(line));
+                    CertificateManager.connectToUrl(new URL(line));
                 }
                 return line;
             }
@@ -592,7 +524,7 @@ public final class Launcher {
         String line = "https://www.lolnet.co.nz/modpack/";
         try {
             if (line.startsWith("https:")) {
-                connectToUrl(new URL(line));
+                CertificateManager.connectToUrl(new URL(line));
             }
         } catch (Exception ex) {
             Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
@@ -616,7 +548,7 @@ public final class Launcher {
             String line;
             while ((line = rd.readLine()) != null) {
                 if (line.startsWith("https:")) {
-                    connectToUrl(new URL(line));
+                    CertificateManager.connectToUrl(new URL(line));
                 }
                 return line;
             }
@@ -628,7 +560,7 @@ public final class Launcher {
         String line = "https://www.lolnet.co.nz/modpack/";
         try {
             if (line.startsWith("https:")) {
-                connectToUrl(new URL(line));
+                CertificateManager.connectToUrl(new URL(line));
             }
         } catch (Exception ex) {
             Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
