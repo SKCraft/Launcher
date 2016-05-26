@@ -8,8 +8,7 @@ installing, and updating modpacks.
 I james137137 do not claim I am the author of SKCraft launcher. I have renamed SKCraft launcher
 to Lolnet launcher as I have customized it for the best interest of Lolnet.
 
-All the changes have been committed and I (james137137) give full ownership to myself for my work
-unless otherwise stated.
+All the changes that I (james137137) have been committed are my own work stated. Some commits I will thank others for their suggestions or help in making the improvments possible
 
 The main changes I have made are:
 
