@@ -1,6 +1,4 @@
 rootProject.name = 'lolnetLauncher'
-include ':creator-tools'
-include ':launcher-builder'
+include ':Launcher'
 
-project(':creator-tools').projectDir = "$rootDir/creator-tools" as File
-project(':launcher-builder').projectDir = "$rootDir/launcher-builder" as File
+project(':Launcher').projectDir = "$rootDir/Launcher" as File
