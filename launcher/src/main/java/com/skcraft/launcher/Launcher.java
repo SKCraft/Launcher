@@ -620,7 +620,7 @@ public final class Launcher {
             DateFormat df = new SimpleDateFormat("dd/MM/yy");
             Date dateobj = new Date();
             String dateS = df.format(dateobj);
-            if (dateS.equalsIgnoreCase("09/06/16") || dateS.equalsIgnoreCase("10/06/16") || dateS.equalsIgnoreCase("11/06/16")) {
+            if (dateS.equalsIgnoreCase("30/05/16") || dateS.equalsIgnoreCase("09/06/16") || dateS.equalsIgnoreCase("10/06/16") || dateS.equalsIgnoreCase("11/06/16")) {
                 Launcher.hungerDrive = true;
             }
         }
