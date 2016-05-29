@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
     
     <modules>
-        <module>Launcher</module>
+        <module>launcher</module>
     </modules>
     
     <properties>
