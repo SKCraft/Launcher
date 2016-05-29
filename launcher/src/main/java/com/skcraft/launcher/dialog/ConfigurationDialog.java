@@ -76,7 +76,7 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(maxMemorySpinner, "maxMemory");
         mapper.map(permGenSpinner, "permGen");
         mapper.map(widthSpinner, "windowWidth");
-        mapper.map(heightSpinner, "widowHeight");
+        mapper.map(heightSpinner, "windowHeight");
         mapper.map(useProxyCheck, "proxyEnabled");
         mapper.map(proxyHostText, "proxyHost");
         mapper.map(proxyPortText, "proxyPort");

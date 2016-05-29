@@ -310,7 +310,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private void addWindowArgs() {
         List<String> args = builder.getArgs();
         int width = config.getWindowWidth();
-        int height = config.getWidowHeight();
+        int height = config.getWindowHeight();
 
         if (width >= 10) {
             args.add("--width");
