@@ -132,7 +132,15 @@ public class PrivatePrivatePackagesManager {
 
         List<URL> packagesURL = new ArrayList<URL>();
         if (mode.equals("public") || mode.equals("all")) {
-            List<String> publicList = getPublicList();
+            List<String> publicList;
+            if (Launcher.hungerDrive)
+            {
+                publicList = getHungerDriveList();
+            }
+            else
+            {
+                publicList = getPublicList();
+            }
             System.out.println(publicList.size());
             for (String code : publicList) {
                 try {
@@ -245,6 +253,40 @@ public class PrivatePrivatePackagesManager {
             wr.close();
             rd.close();
         } catch (Exception e) {
+            return publicList;
+        }
+
+        return publicList;
+    }
+    
+    private static List<String> getHungerDriveList() {
+        List<String> publicList = new ArrayList<String>();
+        try {
+            URL url = new URL(Launcher.modPackURL + "listhungerpackages.php");
+            System.out.println(url.toString());
+            url = Launcher.checkURL(url);
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.flush();
+
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String line;
+            while ((line = rd.readLine()) != null) {
+                System.out.println(line);
+                String[] split = line.split("~~");
+                for (String string : split) {
+                    if (string.length() >= 2) {
+                        publicList.add(string);
+                    }
+                }
+            }
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+            e.printStackTrace();
             return publicList;
         }
 
