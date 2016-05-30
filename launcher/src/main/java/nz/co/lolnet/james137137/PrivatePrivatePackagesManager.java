@@ -133,18 +133,19 @@ public class PrivatePrivatePackagesManager {
         List<URL> packagesURL = new ArrayList<URL>();
         if (mode.equals("public") || mode.equals("all")) {
             List<String> publicList;
-            if (Launcher.hungerDrive)
-            {
+            if (Launcher.hungerDrive) {
                 publicList = getHungerDriveList();
-            }
-            else
-            {
+            } else {
                 publicList = getPublicList();
             }
             System.out.println(publicList.size());
             for (String code : publicList) {
                 try {
-                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "public/" + code + "?key=%s")));
+                    if (Launcher.hungerDrive) {
+                        packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "hunger/" + code + "?key=%s")));
+                    } else {
+                        packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "public/" + code + "?key=%s")));
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -258,7 +259,7 @@ public class PrivatePrivatePackagesManager {
 
         return publicList;
     }
-    
+
     private static List<String> getHungerDriveList() {
         List<String> publicList = new ArrayList<String>();
         try {
