@@ -52,6 +52,7 @@ import lombok.NonNull;
 import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.CertificateManager;
 import nz.co.lolnet.james137137.FeedbackManager;
+import static nz.co.lolnet.james137137.HelpAndSupport.downloadTextFromUrl;
 import nz.co.lolnet.james137137.LauncherGobalSettings;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import nz.co.lolnet.statistics.MetaData;
@@ -62,13 +63,13 @@ import org.apache.commons.io.FileUtils;
  */
 @Log
 public final class Launcher {
-
+    
     public static final boolean debugmode = false;
     public static boolean hungerDrive = false;
     public static final int PROTOCOL_VERSION = 2;
     public static String modPackURL;
     public static Launcher instance;
-
+    
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
     @Getter
@@ -85,10 +86,10 @@ public final class Launcher {
     private final AssetsRoot assets;
     @Getter
     private final LaunchSupervisor launchSupervisor = new LaunchSupervisor(this);
-
+    
     public static File dataDir;
     public static File launcherJarFile;
-
+    
     public static String mainServerURL;
     public static String backupServerURL;
 
@@ -99,12 +100,12 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir) throws IOException {
-
+        
         instance = this;
         new ThreadLauncherIsLaunched();
-
+        
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
-
+        
         this.baseDir = baseDir;
         this.properties = LauncherUtils.loadProperties(Launcher.class, "launcher.properties", "com.skcraft.launcher.propertiesFile");
         this.instances = new InstanceList(this);
@@ -117,16 +118,16 @@ public final class Launcher {
         mainServerURL = getProperties().getProperty("mainServerURL");
         backupServerURL = getProperties().getProperty("backupServerURL");
         this.accounts = Persistence.load(new File(baseDir, "accounts.dat"), AccountList.class);
-
+        
         setDefaultConfig();
-
+        
         if (accounts.getSize() > 0) {
             accounts.setSelectedItem(accounts.getElementAt(0));
         }
-
+        
         FeedbackManager.setupAccountList();
         new MetaData();
-
+        
         executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -134,7 +135,7 @@ public final class Launcher {
             }
         });
     }
-
+    
     public static URL checkURL(URL url) {
         if (true) {
             return url;
@@ -149,38 +150,38 @@ public final class Launcher {
         }
         return url;
     }
-
+    
     public static boolean restartLauncher() {
         String boot = LauncherGobalSettings.get("LolnetLauncherbootstrap");
         if (boot != null && boot.equals("true")) {
             String bootLocation = LauncherGobalSettings.get("LolnetLauncherbootstrapLocation");
             if (bootLocation.toLowerCase().contains("exe") || bootLocation.toLowerCase().contains("jar")) {
                 Runtime rt = Runtime.getRuntime();
-
+                
                 String path = "java";
                 String javaHome = System.getProperty("java.home");
                 File file = new File(javaHome, "bin" + File.separator + "java.exe");
                 if (!file.exists()) {
                     file = new File(javaHome, "bin" + File.separator + "java");
-
+                    
                 }
                 if (file.exists()) {
                     path = file.getAbsolutePath();
                 }
-
+                
                 String command = path + " -jar " + "\"" + bootLocation + "\"";
                 try {
                     Process pr = rt.exec(command);
                     System.exit(0);
                 } catch (IOException ex) {
-
+                    
                     Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
                     return false;
                 }
             } else {
                 return false;
             }
-
+            
         } else {
             String bootLocation;
             try {
@@ -196,7 +197,7 @@ public final class Launcher {
                     Process pr = rt.exec(command);
                     System.exit(0);
                 } catch (IOException ex) {
-
+                    
                     Logger.getLogger(Launcher.class.getName()).log(Level.SEVERE, null, ex);
                     return false;
                 }
@@ -214,7 +215,7 @@ public final class Launcher {
         double configMax = config.getMaxMemory() / 1024.0;
         double suggestedMax = 2;
         double available = Double.MAX_VALUE;
-
+        
         try {
             OperatingSystemMXBean bean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
             available = bean.getTotalPhysicalMemorySize() / 1024.0 / 1024.0 / 1024.0;
@@ -225,7 +226,7 @@ public final class Launcher {
             }
         } catch (Exception ignored) {
         }
-
+        
         if (config.getMaxMemory() <= 0 || configMax >= available - 1) {
             config.setMaxMemory((int) (suggestedMax * 1024));
         }
@@ -294,9 +295,9 @@ public final class Launcher {
      */
     public void cleanupExtractDir() {
         log.info("Cleaning up temporary extracted files directory...");
-
+        
         final long now = System.currentTimeMillis();
-
+        
         File[] dirs = getExtractDir().listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
@@ -308,7 +309,7 @@ public final class Launcher {
                 }
             }
         });
-
+        
         if (dirs != null) {
             for (File dir : dirs) {
                 log.info("Removing " + dir.getAbsolutePath() + "...");
@@ -479,9 +480,7 @@ public final class Launcher {
         }
         return System.getProperty("user.dir");
     }
-
     
-
     public static String getModpackURL() {
         try {
             URL url;
@@ -494,7 +493,7 @@ public final class Launcher {
 
             // Get the response
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
+            
             String line;
             while ((line = rd.readLine()) != null) {
                 if (line.startsWith("https:")) {
@@ -517,7 +516,7 @@ public final class Launcher {
         }
         return line;
     }
-
+    
     public static String getPublicKey() {
         try {
             URL url;
@@ -530,7 +529,7 @@ public final class Launcher {
 
             // Get the response
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
+            
             String line;
             while ((line = rd.readLine()) != null) {
                 if (line.startsWith("https:")) {
@@ -553,7 +552,7 @@ public final class Launcher {
         }
         return line;
     }
-
+    
     public static String getBootstrapLink() {
         try {
             URL url;
@@ -566,7 +565,7 @@ public final class Launcher {
 
             // Get the response
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
+            
             String line;
             while ((line = rd.readLine()) != null) {
                 return line;
@@ -577,18 +576,18 @@ public final class Launcher {
         }
         return "http://jenkins.lolnet.co.nz/job/LolnetLauncherBootstrap/lastSuccessfulBuild/artifact/target/LolnetLauncher.jar";
     }
-
+    
     public static void main() {
         String[] args = new String[1];
         main(args);
     }
-
+    
     public static void main(String[] args) {
-
+        
         Launcher.modPackURL = getModpackURL();
         SimpleLogFormatter.configureGlobalLogger();
         launcherJarFile = new java.io.File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-
+        
         LauncherArguments options = new LauncherArguments();
         try {
             new JCommander(options, args);
@@ -597,7 +596,7 @@ public final class Launcher {
             System.exit(1);
             return;
         }
-
+        
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");
         String bootVersion = LauncherGobalSettings.get("LolnetLauncherBootVesion");
@@ -606,8 +605,11 @@ public final class Launcher {
             DateFormat df = new SimpleDateFormat("dd/MM/yy");
             Date dateobj = new Date();
             String dateS = df.format(dateobj);
-            if (dateS.equalsIgnoreCase("30/05/16") || dateS.equalsIgnoreCase("09/06/16") || dateS.equalsIgnoreCase("10/06/16") || dateS.equalsIgnoreCase("11/06/16")) {
-                Launcher.hungerDrive = true;
+            if (dateS.equalsIgnoreCase("30/05/16") || dateS.equalsIgnoreCase("09/06/16") || dateS.equalsIgnoreCase("10/06/16") || dateS.equalsIgnoreCase("11/06/16") || dateS.equalsIgnoreCase("12/06/16") || dateS.equalsIgnoreCase("13/06/16")) {
+                String result = downloadTextFromUrl("https://www.lolnet.co.nz/modpack/hungerdrive");
+                if (result == null || result.equalsIgnoreCase("true")) {
+                    Launcher.hungerDrive = true;
+                }
             }
         }
         String currentDataPath = LauncherGobalSettings.get("LolnetLauncherDataPath");
@@ -627,9 +629,9 @@ public final class Launcher {
             dataDir = new File(".");
             log.info("Using current directory " + dataDir.getAbsolutePath());
         }
-
+        
         final File baseDir = dataDir;
-
+        
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -655,9 +657,9 @@ public final class Launcher {
                             + "problem was encountered.", "Launcher error", t);
                 }
             }
-
+            
         });
-
+        
     }
-
+    
 }
