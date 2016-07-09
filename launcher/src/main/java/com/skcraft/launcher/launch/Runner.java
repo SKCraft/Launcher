@@ -43,6 +43,7 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 import nz.co.lolnet.james137137.LauncherGobalSettings;
 import nz.co.lolnet.james137137.MemoryChecker;
+import static nz.co.lolnet.james137137.MyLogger.log;
 import nz.co.lolnet.statistics.ThreadLaunchedModpack;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.json.simple.parser.ParseException;
@@ -243,10 +244,17 @@ public class Runner implements Callable<Process>, ProgressObservable {
         } catch (ParseException ex) {
             Logger.getLogger(Runner.class.getName()).log(Level.SEVERE, null, ex);
         }
+        log("Memory Checker starts here:");
+        log("modpack: " + instance.getName() + " " + instance.getVersion());
 
+        log("intial vaules from config:");
         int minMemory = config.getMinMemory();
         int maxMemory = config.getMaxMemory();
         int permGen = config.getPermGen();
+        log("min: " + minMemory);
+        log("max: " + maxMemory);
+        log("permGen: " + permGen);
+        log("Don't Auto correct meoory: " + config.isDontAutoCorrectMemory());
 
         if (!config.isDontAutoCorrectMemory()) {
             if (minMemory <= 0) {
@@ -265,12 +273,25 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 permGen = 64;
             }
 
+            log("1st check with very low number or invailed:");
+            log("min: " + minMemory);
+            log("max: " + maxMemory);
+            log("permGen: " + permGen);
+
+            log("2nd check getting vaules from Lolnet WebServer:");
+
             minMemory = MemoryChecker.checkMinMemory(minMemory, instance);
             maxMemory = MemoryChecker.checkMaxMemory(maxMemory, instance);
             permGen = MemoryChecker.checkpermGen(permGen, instance);
 
+            log("min: " + minMemory);
+            log("max: " + maxMemory);
+            log("permGen: " + permGen);
+
+            log("3nd check, checking machine memory:");
             int currentfreeMemory = getCurrentFreeMemoryMB();
             System.out.println(currentfreeMemory);
+            log("Current Free memory (MB):" + currentfreeMemory);
             int memoryMB = currentfreeMemory;
             System.out.println("1" + memoryMB);
             if (currentfreeMemory > 0 && memoryMB < minMemory) {
@@ -285,8 +306,16 @@ public class Runner implements Callable<Process>, ProgressObservable {
             if (minMemory > maxMemory) {
                 maxMemory = minMemory;
             }
+            log("min: " + minMemory);
+            log("max: " + maxMemory);
+            log("permGen: " + permGen);
         }
-        
+
+        log("Final memory results");
+        log("min: " + minMemory);
+        log("max: " + maxMemory);
+        log("permGen: " + permGen);
+
         System.out.println(minMemory);
         System.out.println(maxMemory);
         System.out.println(permGen);

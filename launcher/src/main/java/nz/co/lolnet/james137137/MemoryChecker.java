@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static nz.co.lolnet.james137137.MyLogger.log;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,9 +31,12 @@ public class MemoryChecker {
     public static int checkMinMemory(int currentAmmount, Instance instance) {
         try {
             int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MinMemory")).intValue();
+            log("Suggested min ammout: " + suggestedAmmount);
+
             return suggestedAmmount > currentAmmount ? suggestedAmmount : currentAmmount;
         } catch (Exception e) {
             Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
+            log("failed to get Suggested min ammout, using current: " + currentAmmount);
             return currentAmmount;
         }
     }
@@ -40,9 +44,11 @@ public class MemoryChecker {
     public static int checkMaxMemory(int currentAmmount, Instance instance) {
         try {
             int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MaxMemory")).intValue();
+            log("Suggested max ammout: " + suggestedAmmount);
             return suggestedAmmount > currentAmmount ? suggestedAmmount : currentAmmount;
         } catch (Exception e) {
             Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
+            log("failed to get Suggested max ammout, using current: " + currentAmmount);
             return currentAmmount;
         }
     }
@@ -50,9 +56,11 @@ public class MemoryChecker {
     public static int checkpermGen(int input, Instance instance) {
         try {
             int ammout = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("permGen")).intValue();
+            log("Suggested permGen ammout: " + ammout);
             return ammout > input ? ammout : input;
         } catch (Exception e) {
             Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
+            log("failed to get Suggested permGen ammout, using current: " + input);
             return input;
         }
     }
