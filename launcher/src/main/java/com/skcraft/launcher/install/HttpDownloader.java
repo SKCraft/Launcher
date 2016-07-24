@@ -25,6 +25,7 @@ import lombok.extern.java.Log;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -42,6 +43,7 @@ public class HttpDownloader implements Downloader {
     @Getter @Setter private int threadCount = 6;
     @Getter @Setter private int retryDelay = 2000;
     @Getter @Setter private int tryCount = 3;
+    @Getter @Setter private int redirectFollowCount = 5;
 
     private List<HttpDownloadJob> queue = new ArrayList<HttpDownloadJob>();
     private final Set<String> usedKeys = new HashSet<String>();
@@ -249,7 +251,28 @@ public class HttpDownloader implements Downloader {
 
                     try {
                         request = HttpRequest.get(url);
-                        request.execute().expectResponseCode(200).saveContent(file);
+                        for(int redirect = 0; redirect <= redirectFollowCount; redirect++) {
+                            request = request.execute();
+			    int responseCode = request.getResponseCode();
+                            if (responseCode == 301    // 300, 304, and 305 are a bit more complicated. See HTTP spec
+                                || responseCode == 302
+                                || responseCode == 303 // Per spec, 303 must force the request to be a GET
+                                                       // Maybe we should treat this as a special case and
+                                                       // force it into a get...
+                                || responseCode == 307
+                                || responseCode == 308) {
+                                // Special case if they returned a redirect
+                                String newURL = URLDecoder.decode(request.getHeader("Location"), "utf-8");
+                                if (newURL == null) {
+                                    throw new IOException("Request specified redirect without new location");
+                                }
+                                log.log(Level.INFO, "Redirect encountered ["+url+"] redirecting to ["+newURL+"]");
+                                request = HttpRequest.get(new URL(newURL));
+                                continue;
+                            }
+                            break;
+                        }
+                        request.expectResponseCode(200).saveContent(file);
                         return;
                     } catch (IOException e) {
                         lastException = e;

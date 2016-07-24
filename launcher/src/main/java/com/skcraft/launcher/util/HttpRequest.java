@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.concurrency.ProgressObservable;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.java.Log;
 
 import javax.xml.bind.JAXBContext;
@@ -181,6 +182,16 @@ public class HttpRequest implements Closeable, ProgressObservable {
         }
 
         return conn.getResponseCode();
+    }
+
+    /**
+     * Get a specified header.
+     *
+     * @param Header to retrieve
+     * @return The header requested or null if it doesn't exist
+     */
+    public String getHeader(@NonNull String headerName) {
+	return conn.getHeaderField(headerName);
     }
 
     /**
