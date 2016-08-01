@@ -133,6 +133,7 @@ public class LauncherFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 loadInstances();
                 launcher.getUpdateManager().checkForUpdate();
+                webView.browse(launcher.getNewsURL(), false);
             }
         });
 
