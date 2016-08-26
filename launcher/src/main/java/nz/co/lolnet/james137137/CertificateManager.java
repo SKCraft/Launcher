@@ -28,7 +28,12 @@ import javax.net.ssl.X509TrustManager;
  */
 public class CertificateManager {
 
+    private static boolean disable = true;
+
     private static void doTrustToCertificates() throws Exception {
+        if (disable) {
+            return;
+        }
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         TrustManager[] trustAllCerts = new TrustManager[]{
             new X509TrustManager() {
@@ -62,6 +67,9 @@ public class CertificateManager {
     }
 
     private static boolean hasExpiredCertificate(URL url) throws MalformedURLException, Exception {
+        if (disable) {
+            return false;
+        }
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
         conn.connect();
         Certificate[] certs = conn.getServerCertificates();
@@ -85,6 +93,9 @@ public class CertificateManager {
     }
 
     public static void connectToUrl(URL url) throws MalformedURLException, Exception {
+        if (disable) {
+            return;
+        }
         doTrustToCertificates();
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
         System.out.println("ResponseCoede =" + conn.getResponseCode());
