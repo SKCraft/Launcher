@@ -35,8 +35,6 @@ public class Creator {
         this.dataDir = getAppDataDir();
         this.config = Persistence.load(new File(dataDir, "config.json"), CreatorConfig.class);
 
-        System.setProperty("com.skcraft.builder.ignoreURLOverrides", "true");
-
         // Remove deleted workspaces
         List<RecentEntry> recentEntries = config.getRecentEntries();
         Iterator<RecentEntry> it = recentEntries.iterator();
