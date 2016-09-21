@@ -110,8 +110,8 @@ public class LoginDialog extends JDialog {
         // }
         //buttonsPanel.addElement(recoverButton);
         buttonsPanel.addGlue();
-        buttonsPanel.addElement(off_update);
         buttonsPanel.addElement(offlineButton);
+        buttonsPanel.addElement(off_update);
         // buttonsPanel.addElement(loginButton);
         buttonsPanel.addElement(cancelButton);
 
