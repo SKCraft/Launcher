@@ -194,6 +194,8 @@ public class Bootstrap {
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("win")) {
             return new File(getFileChooseDefaultDir(), getProperties().getProperty("homeFolderWindows"));
+        } else if (osName.contains("mac") && getProperties().getProperty("homeFolderMac") != null) {
+            return new File(getFileChooseDefaultDir(), getProperties().getProperty("homeFolderMac"));
         } else {
             return new File(System.getProperty("user.home"), getProperties().getProperty("homeFolder"));
         }
