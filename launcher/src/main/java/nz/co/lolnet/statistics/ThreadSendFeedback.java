@@ -43,6 +43,7 @@ public class ThreadSendFeedback implements Runnable {
         if (feedbacksent > MAXFEEDBACKCOUNT)
         {
             System.out.println("not sending feedback");
+            LauncherGobalSettings.put("LolnetLauncherFeedbackConnt",Integer.toString(0));
             return;
         }
         
