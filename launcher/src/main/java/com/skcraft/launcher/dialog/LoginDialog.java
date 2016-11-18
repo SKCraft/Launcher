@@ -30,7 +30,6 @@ import java.util.concurrent.Callable;
 import nz.co.lolnet.james137137.FeedbackManager;
 import nz.co.lolnet.james137137.LauncherGobalSettings;
 
-
 /**
  * The login dialog.
  */
@@ -104,7 +103,6 @@ public class LoginDialog extends JDialog {
         formPanel.addRow(new JLabel(), rememberPassCheck);
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 
-        
         String showOfflineButton = LauncherGobalSettings.get("IDontOwnMicrosoft");
         if ((showOfflineButton != null && showOfflineButton.equals("true")) || launcher.getConfig().isOfflineEnabled()) {
             buttonsPanel.addElement(offlineButton);
@@ -149,14 +147,13 @@ public class LoginDialog extends JDialog {
         offlineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 String showURLBar = LauncherGobalSettings.get("IDontOwnMicrosoft");
                 if ((showURLBar != null && showURLBar.equals("true"))) {
                     setResult(new OfflineSession(idCombo.getSelectedItem().toString()));
                 } else {
                     setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName")));
                 }
-
 
                 removeListeners();
                 dispose();
@@ -197,6 +194,27 @@ public class LoginDialog extends JDialog {
 
         if (selected != null && selected instanceof Account) {
             final Account account = (Account) selected;
+
+            menuItem = new JMenuItem("Label me");
+            menuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String label = account.getId();
+                    if (account.getLabel() != null) {
+                        label = account.getLabel();
+                    }
+                    String newLabel = JOptionPane.showInputDialog("Enter a new label for this account",
+                            label);
+
+                    if (newLabel == null || newLabel.equalsIgnoreCase("")) {
+                    }
+                    else
+                    {
+                        account.setLabel(newLabel);
+                    }
+                }
+            });
+            popup.add(menuItem);
 
             menuItem = new JMenuItem(SharedLocale.tr("login.forgetUser"));
             menuItem.addActionListener(new ActionListener() {
@@ -317,7 +335,7 @@ public class LoginDialog extends JDialog {
         this.session = session;
         String email_username = idCombo.getSelectedItem().toString();
         String playerName = session.getName();
-        FeedbackManager.addUser(email_username,playerName,true);
+        FeedbackManager.addUser(email_username, playerName, true);
         removeListeners();
         dispose();
     }

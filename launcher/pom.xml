@@ -4,10 +4,10 @@
     <parent>
         <groupId>nz.co.lolnet</groupId>
         <artifactId>lolnetLauncher</artifactId>
-        <version>1.1.6</version>
+        <version>1.1.7-SNAPSHOT</version>
     </parent>
     <artifactId>Launcher</artifactId>
-    <version>1.1.6</version>
+    <version>1.1.7-SNAPSHOT-1</version>
     <packaging>jar</packaging>
     
     <dependencies>

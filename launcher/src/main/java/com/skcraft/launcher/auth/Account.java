@@ -20,6 +20,7 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Account implements Comparable<Account> {
 
+    private String label;
     private String id;
     private String password;
     private Date lastUsed;
@@ -85,7 +86,23 @@ public class Account implements Comparable<Account> {
 
     @Override
     public String toString() {
+        if (label != null && label.length() > 0)
+        {
+            return this.label;
+        }
         return getId();
+    }
+    
+    /**
+     * Set the account's Label, that may be stored to disk.
+     *
+     * @param label the label
+     */
+    public void setLabel(String label) {
+        if (label != null && label.isEmpty()) {
+            label = null;
+        }
+        this.label = Strings.emptyToNull(label);
     }
 
 }
