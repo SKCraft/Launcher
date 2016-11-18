@@ -109,10 +109,19 @@ public class LauncherStatistics {
         }
         return result;
     }
+    
+    public static void main(String[] args) {
+        try {
+            sendFeedback("Testing abc123", "nothing goes here");
+        } catch (IOException ex) {
+            Logger.getLogger(LauncherStatistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public static void sendFeedback(String message, String meta) throws IOException {
         try {
             String data = "input={\"message\":\"" + message + "\",\"meta\":\"" + meta + "~~" + getIp() + "\"}";
+            System.out.println(data);
             // Send data
             URL url = new URL("https://www.lolnet.co.nz/api/v1.0/lolstats/launcher/sendFeedback.php");
             URLConnection conn = url.openConnection();

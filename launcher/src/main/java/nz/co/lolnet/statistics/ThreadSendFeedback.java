@@ -32,6 +32,7 @@ public class ThreadSendFeedback implements Runnable {
     private static final int MAXFEEDBACKCOUNT = 10;
 
     public ThreadSendFeedback(String message, String meta) {
+        System.out.println("Sending feedback...");
         if (LauncherGobalSettings.get("LolnetLauncherLastFeedback") == null || LauncherGobalSettings.get("LolnetLauncherLastFeedback").length() == 0
                 || (System.currentTimeMillis() - Long.parseLong(LauncherGobalSettings.get("LolnetLauncherLastFeedback")) >= 86400000L)) {
             LauncherGobalSettings.put("LolnetLauncherLastFeedback",Long.toString(System.currentTimeMillis()));
@@ -41,6 +42,7 @@ public class ThreadSendFeedback implements Runnable {
         LauncherGobalSettings.put("LolnetLauncherFeedbackConnt",Integer.toString(feedbacksent + 1));
         if (feedbacksent > MAXFEEDBACKCOUNT)
         {
+            System.out.println("not sending feedback");
             return;
         }
         

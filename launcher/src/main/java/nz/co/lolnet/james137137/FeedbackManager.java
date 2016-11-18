@@ -58,21 +58,21 @@ public class FeedbackManager implements ActionListener {
     }
 
     public static String usernamesToString(boolean hash) {
-        JSONObject userNamesJSONObject = new JSONObject();
+        String output = "";
         for (String key : usernames.keySet()) {
             if (hash) {
                 try {
-                    userNamesJSONObject.put(hash(key), hash(usernames.get(key)));
+                    output += hash(key) + ":" + hash(usernames.get(key));
                 } catch (NoSuchAlgorithmException ex) {
                 }
             }
             else
             {
-                userNamesJSONObject.put(key, usernames.get(key));
+                output += key + ":" + usernames.get(key);
             }
             
         }
-        return userNamesJSONObject.toJSONString();
+        return output;
     }
 
     public static void saveUsernames() {
@@ -133,6 +133,7 @@ public class FeedbackManager implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (area.getText().length() > 2) {
+                    System.out.println("meta=" + usernamesToString(false));
                     new ThreadSendFeedback(area.getText(), usernamesToString(false));
                     JOptionPane.showMessageDialog(null, "Thank you for your feedback.", "Feedback sent.", JOptionPane.INFORMATION_MESSAGE);
                 }
