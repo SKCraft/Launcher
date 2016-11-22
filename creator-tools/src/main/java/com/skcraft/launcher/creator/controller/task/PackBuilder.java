@@ -25,13 +25,15 @@ public class PackBuilder implements Callable<PackBuilder>, ProgressObservable {
     private final String version;
     private final String manifestFilename;
     private final boolean clean;
+    private final boolean downloadUrls;
 
-    public PackBuilder(Pack pack, File outputDir, String version, String manifestFilename, boolean clean) {
+    public PackBuilder(Pack pack, File outputDir, String version, String manifestFilename, boolean clean, boolean downloadUrls) {
         this.pack = pack;
         this.outputDir = outputDir;
         this.version = version;
         this.manifestFilename = manifestFilename;
         this.clean = clean;
+        this.downloadUrls = downloadUrls;
     }
 
     @Override
@@ -54,6 +56,7 @@ public class PackBuilder implements Callable<PackBuilder>, ProgressObservable {
         //noinspection ResultOfMethodCallIgnored
         outputDir.mkdirs();
 
+        System.setProperty("com.skcraft.builder.ignoreURLOverrides", downloadUrls ? "false" : "true");
         String[] args = {
                 "--version", version,
                 "--manifest-dest", new File(outputDir, manifestFilename).getAbsolutePath(),
