@@ -75,7 +75,7 @@ public class ConfigurationDialog extends JDialog {
         setTitle(SharedLocale.tr("options.title"));
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(500, 500));
+        setSize(new Dimension(550, 600));
         setResizable(false);
         setLocationRelativeTo(owner);
 
