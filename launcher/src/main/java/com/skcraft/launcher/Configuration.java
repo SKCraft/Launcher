@@ -132,6 +132,29 @@ public class Configuration {
             }
         }
     }
+    
+    public static int maxSystemMemory()
+    {
+        long maxAmmount = -1;
+        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) {
+            method.setAccessible(true);
+            if (method.getName().startsWith("getTotalPhysicalMemorySize")
+                    && Modifier.isPublic(method.getModifiers())) {
+
+                try {
+                    maxAmmount = (Long) method.invoke(operatingSystemMXBean);
+                } catch (Exception e) {
+                }
+            } // if
+        } // for
+
+        if (maxAmmount > 0) {
+            int memoryGB = (int) (maxAmmount / (1024 * 1024 * 1024));
+            return memoryGB;
+        }
+        return 16;
+    }
 
     public void setupJVMPath() {
 

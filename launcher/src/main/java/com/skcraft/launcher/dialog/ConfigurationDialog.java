@@ -23,6 +23,8 @@ import java.awt.event.ActionListener;
 
 import java.io.File;
 import java.util.ArrayList;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import nz.co.lolnet.james137137.LauncherGobalSettings;
 
 /**
@@ -32,7 +34,7 @@ public class ConfigurationDialog extends JDialog {
 
     private final Configuration config;
     private final ObjectSwingMapper mapper;
-
+    
     private final JPanel tabContainer = new JPanel(new BorderLayout());
     private final JTabbedPane tabbedPane = new JTabbedPane();
     private final FormPanel javaSettingsPanel = new FormPanel();
@@ -73,7 +75,7 @@ public class ConfigurationDialog extends JDialog {
         setTitle(SharedLocale.tr("options.title"));
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(400, 500));
+        setSize(new Dimension(500, 500));
         setResizable(false);
         setLocationRelativeTo(owner);
 
@@ -91,13 +93,30 @@ public class ConfigurationDialog extends JDialog {
     }
 
     private void initComponents() {
+         // common listener for all sliders
+      
+        
+        
+        
+        
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmPath")), jvmPathText);
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmArguments")), jvmArgsText);
         javaSettingsPanel.addRow(Box.createVerticalStrut(15));
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.64BitJavaWarning")));
-        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.minMemory")), minMemorySpinner);
-        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.maxMemory")), maxMemorySpinner);
-        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.permGen")), permGenSpinner);
+        //javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.minMemory")), minMemorySpinner);
+        //javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.maxMemory")), maxMemorySpinner);
+        //javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.permGen")), permGenSpinner);
+        JSlider slider = new JSlider(1, 4*Configuration.maxSystemMemory()+4, 1);
+        slider.setValue((int) config.getMinMemory() / 256);
+        addSlider(slider, SharedLocale.tr("options.minMemory"), minMemorySpinner,256);
+        JSlider slider2 = new JSlider(1, 4*Configuration.maxSystemMemory()+4, 1);
+        slider2.setValue((int)config.getMaxMemory() / 256);
+        addSlider(slider2, SharedLocale.tr("options.maxMemory") ,maxMemorySpinner,256);
+        JSlider slider3 = new JSlider(1, 8, 1);
+        slider3.setValue((int) config.getPermGen() / 256);
+        addSlider(slider3, SharedLocale.tr("options.minMemory"),permGenSpinner,128);
+
+        
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.dontAutoCorrectMemory")), dontAutoCorrectMemory);
         SwingHelper.removeOpaqueness(javaSettingsPanel);
         tabbedPane.addTab(SharedLocale.tr("options.javaTab"), SwingHelper.alignTabbedPane(javaSettingsPanel));
@@ -153,7 +172,7 @@ public class ConfigurationDialog extends JDialog {
         changeDataStorageLocationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 String currentPath = LauncherGobalSettings.get("LolnetLauncherDataPath");
                 if (currentPath == null || currentPath.equalsIgnoreCase("")) {
                     currentPath = Launcher.dataDir.getAbsolutePath();
@@ -268,6 +287,21 @@ public class ConfigurationDialog extends JDialog {
             }
 
         });
+    }
+
+    public void addSlider(JSlider s, String description,JSpinner js,int ammount) {
+        ChangeListener sliderListener = new ChangeListener()
+         {
+            public void stateChanged(ChangeEvent event)
+            {
+               // update text field when the slider value changes
+               JSlider source = (JSlider) event.getSource();
+               js.setValue((int)source.getValue()*ammount);
+            }
+         };
+        s.addChangeListener(sliderListener);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.maxMemory")),s, js);
+        //javaSettingsPanel.addRow(new JLabel(description),js);
     }
 
     /**

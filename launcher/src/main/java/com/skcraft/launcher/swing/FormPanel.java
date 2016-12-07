@@ -13,6 +13,8 @@ public class FormPanel extends JPanel {
 
     private static final GridBagConstraints labelConstraints;
     private static final GridBagConstraints fieldConstraints;
+    private static final GridBagConstraints fieldConstraints2;
+    
     private static final GridBagConstraints wideFieldConstraints;
 
     private final GridBagLayout layout;
@@ -23,6 +25,11 @@ public class FormPanel extends JPanel {
         fieldConstraints.weightx = 1.0;
         fieldConstraints.gridwidth = GridBagConstraints.REMAINDER;
         fieldConstraints.insets = new Insets(5, 5, 2, 5);
+        
+        fieldConstraints2 = new GridBagConstraints();
+        fieldConstraints2.fill = GridBagConstraints.HORIZONTAL;
+        fieldConstraints2.weightx = 1.0;
+        fieldConstraints2.insets = new Insets(5, 5, 2, 5);
 
         labelConstraints = (GridBagConstraints) fieldConstraints.clone();
         labelConstraints.weightx = 0.0;
@@ -48,6 +55,17 @@ public class FormPanel extends JPanel {
     public void addRow(Component component) {
         add(component);
         layout.setConstraints(component, wideFieldConstraints);
+    }
+    
+    public void addRow(Component label, Component component, Component component2) {
+        add(label);
+        JPanel jPanel = new JPanel();
+        jPanel.add(component);
+        jPanel.add(component2);
+        //jPanel.add(component2);
+        add(jPanel);
+        layout.setConstraints(label, labelConstraints);
+        layout.setConstraints(jPanel, fieldConstraints);
     }
 
 }
