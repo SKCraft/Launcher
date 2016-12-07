@@ -30,9 +30,9 @@ public class MemoryChecker {
 
     public static int checkMinMemory(int currentAmmount, Instance instance) {
         try {
-            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MinMemory")).intValue();
+            int suggestedAmmount = getSuggestedMinAmmount(instance);
             log("Suggested min ammout: " + suggestedAmmount);
-
+            
             return suggestedAmmount > currentAmmount ? suggestedAmmount : currentAmmount;
         } catch (Exception e) {
             Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
@@ -43,7 +43,15 @@ public class MemoryChecker {
 
     public static int checkMaxMemory(int currentAmmount, Instance instance) {
         try {
-            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MaxMemory")).intValue();
+            int suggestedAmmount = getSuggestedMaxAmmount(instance);
+            int forcedMaxAmmount = getForcedMaxAmmount(instance);
+            if (forcedMaxAmmount > 0 && forcedMaxAmmount > suggestedAmmount) {
+                if (currentAmmount > suggestedAmmount) {
+                    log("Suggested max ammout: " + suggestedAmmount);
+                    log("However this current memory is set too high and is set to: " + forcedMaxAmmount);
+                    return forcedMaxAmmount;
+                }
+            }
             log("Suggested max ammout: " + suggestedAmmount);
             return suggestedAmmount > currentAmmount ? suggestedAmmount : currentAmmount;
         } catch (Exception e) {
@@ -55,9 +63,9 @@ public class MemoryChecker {
 
     public static int checkpermGen(int input, Instance instance) {
         try {
-            int ammout = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("permGen")).intValue();
-            log("Suggested permGen ammout: " + ammout);
-            return ammout > input ? ammout : input;
+            int suggestedAmmout = getSuggestedGenAmmount(instance);
+            log("Suggested permGen ammout: " + suggestedAmmout);
+            return suggestedAmmout > input ? suggestedAmmout : input;
         } catch (Exception e) {
             Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
             log("failed to get Suggested permGen ammout, using current: " + input);
@@ -74,20 +82,56 @@ public class MemoryChecker {
                 Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
                 return;
             }
-            
+
             JSONParser parser = new JSONParser();
             Object obj = parser.parse(jsonTxt);
             memoryInfo = (JSONObject) obj;
         }
     }
 
-    public static String downloadTextFromUrl(URL url) throws MalformedURLException, IOException , UnknownHostException{
+    public static String downloadTextFromUrl(URL url) throws MalformedURLException, IOException, UnknownHostException {
         URLConnection con = url.openConnection();
         InputStream in = con.getInputStream();
         String encoding = con.getContentEncoding();
         encoding = encoding == null ? "UTF-8" : encoding;
         String body = IOUtils.toString(in, encoding);
         return body;
+    }
+
+    private static int getSuggestedMinAmmount(Instance instance) {
+        try {
+            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MinMemory")).intValue();
+            return suggestedAmmount;
+        } catch (Exception e) {
+        }
+        return -1;
+    }
+
+    private static int getSuggestedMaxAmmount(Instance instance) {
+        try {
+            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("MaxMemory")).intValue();
+            return suggestedAmmount;
+        } catch (Exception e) {
+        }
+        return -1;
+    }
+
+    private static int getForcedMaxAmmount(Instance instance) {
+        try {
+            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("ForcedMaxMemory")).intValue();
+            return suggestedAmmount;
+        } catch (Exception e) {
+        }
+        return -1;
+    }
+
+    private static int getSuggestedGenAmmount(Instance instance) {
+        try {
+            int suggestedAmmount = ((Long) ((JSONObject) memoryInfo.get(instance.getTitle())).get("permGen")).intValue();
+            return suggestedAmmount;
+        } catch (Exception e) {
+        }
+        return -1;
     }
 
 }

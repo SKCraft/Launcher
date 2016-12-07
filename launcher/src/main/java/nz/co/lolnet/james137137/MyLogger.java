@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class MyLogger {
 
-    public static boolean enabled;
+    private static boolean enabled = false;
     static File myLogFile = null;
     private static List<String> pendingLogs = new ArrayList<>();
 

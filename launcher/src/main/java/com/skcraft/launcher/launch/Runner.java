@@ -103,6 +103,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
     @Override
     public Process call() throws Exception {
+        System.out.println("======HELLLO===========");
         if (!instance.isInstalled()) {
             throw new LauncherException("Update required", SharedLocale.tr("runner.updateRequired"));
         }
