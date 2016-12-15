@@ -1,7 +1,7 @@
 SKCraft Launcher
 ================
 
-SKCraft Launcher provides a platform for creating, testing, and distributing modpacks for groups of all sizes. It 100% open source and works on Windows, Mac OS X and Linux/BSD.
+SKCraft Launcher provides a platform for creating, testing, and distributing modpacks for groups of all sizes. It is 100% open source and works on Windows, Mac OS X and Linux/BSD.
 
 With this platform, you have **full control** of the modpacks that you choose to release.
 
