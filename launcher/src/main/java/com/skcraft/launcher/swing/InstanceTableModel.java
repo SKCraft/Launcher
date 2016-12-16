@@ -173,7 +173,6 @@ public class InstanceTableModel extends AbstractTableModel {
         String output = rd.readLine();
         wr.close();
         rd.close();
-        System.out.println(instance.getName() + output);
         return output;
     }
 

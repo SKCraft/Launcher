@@ -37,8 +37,10 @@ public class PrivatePrivatePackagesManager {
         List<URL> URLs = new ArrayList<>();
         URLs.addAll(getList("private"));
         URLs.addAll(getList("public"));
+        System.out.println(URLs);
         for (URL packagesURL : URLs) {
             if (exists(packagesURL.toString())) {
+                System.out.println(packagesURL);
                 try {
 
                     PackageList tempPackages = HttpRequest
@@ -138,13 +140,12 @@ public class PrivatePrivatePackagesManager {
             } else {
                 publicList = getPublicList();
             }
-            System.out.println(publicList.size());
             for (String code : publicList) {
                 try {
                     if (Launcher.hungerDrive) {
-                        packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "hunger/" + code + "?key=%s")));
+                        packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "hunger/" + code)));
                     } else {
-                        packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "public/" + code + "?key=%s")));
+                        packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "public/" + code)));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -154,12 +155,9 @@ public class PrivatePrivatePackagesManager {
         }
         if (mode.equals("private") || mode.equals("all")) {
             List<String> privateCodeList = getCodes();
-            if (AllPrivatePacksCode != null) {
-                privateCodeList = getPrivateList(AllPrivatePacksCode);
-            }
             for (String code : privateCodeList) {
                 try {
-                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "private/" + code + ".json" + "?key=%s")));
+                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "private/" + code + ".json")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -167,13 +165,12 @@ public class PrivatePrivatePackagesManager {
             List<String> publicPrivateList = getPublicPrivateList();
             for (String code : publicPrivateList) {
                 try {
-                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "private/" + code + ".json" + "?key=%s")));
+                    packagesURL.add(Launcher.checkURL(new URL(Launcher.modPackURL + "private/" + code + ".json")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-
         return packagesURL;
     }
 
@@ -297,35 +294,13 @@ public class PrivatePrivatePackagesManager {
     private static List<String> getPublicList() {
         List<String> publicList = new ArrayList<String>();
         try {
-            URL url = new URL(Launcher.modPackURL + "listpackages.php");
-            System.out.println(url.toString());
+            URL url = new URL(Launcher.modPackURL + "public/");
             url = Launcher.checkURL(url);
-            URLConnection conn = url.openConnection();
-            conn.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.flush();
-
-            // Get the response
-            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-            String line;
-            while ((line = rd.readLine()) != null) {
-                System.out.println(line);
-                String[] split = line.split("~~");
-                for (String string : split) {
-                    if (string.length() >= 2) {
-                        publicList.add(string);
-                    }
-                }
-            }
-            wr.close();
-            rd.close();
+            return WebUtil.getFiles(url.toString());
         } catch (Exception e) {
             e.printStackTrace();
             return publicList;
         }
-
-        return publicList;
     }
 
     private static List<String> getPublicPrivateList() {
@@ -333,30 +308,10 @@ public class PrivatePrivatePackagesManager {
         try {
             URL url = new URL(Launcher.modPackURL + "listpublicprivatepackages.php");
             Launcher.checkURL(url);
-            URLConnection conn = url.openConnection();
-            conn.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.flush();
-
-            // Get the response
-            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-            String line;
-            while ((line = rd.readLine()) != null) {
-                String[] split = line.split("~~");
-                for (String string : split) {
-                    if (string.length() >= 2) {
-                        publicList.add(string);
-                    }
-                }
-            }
-            wr.close();
-            rd.close();
+            return WebUtil.getFiles(url.toString());
         } catch (Exception e) {
             return publicList;
         }
-
-        return publicList;
     }
 
     public static boolean exists(String URLName) {

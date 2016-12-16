@@ -6,6 +6,7 @@
 package nz.co.lolnet.james137137;
 
 import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.Launcher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -77,7 +78,7 @@ public class MemoryChecker {
         if (memoryInfo == null) {
             String jsonTxt;
             try {
-                jsonTxt = downloadTextFromUrl(new URL("https://www.lolnet.co.nz/modpack/memory.json"));
+                jsonTxt = downloadTextFromUrl(new URL(Launcher.modPackURL + "memory.json"));
             } catch (UnknownHostException e) {
                 Logger.getLogger(MemoryChecker.class.getName()).log(Level.SEVERE, null, e);
                 return;
