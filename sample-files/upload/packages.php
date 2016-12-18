@@ -1,6 +1,8 @@
 <?php
 // This file automatically generates packages.json
 
+$login = ['user' => 'pass']; //credentials
+
 $files = glob("*.json");
 
 if ($files === false) {
@@ -15,13 +17,19 @@ $document = [
 foreach ($files as $file) {
     $data = json_decode(file_get_contents($file));
     if (isset($data->name) && isset($data->version)) {
-        $document['packages'][] = [
-            'name' => $data->name,
-            'title' => isset($data->title) ? $data->title : $data->name,
-            'version' => $data->version,
-            'location' => basename($file),
-            'priority' => 1,
-        ];
+        if(isset($_GET['user'], $_GET['user'])){
+            $user = $_GET['user'];
+            $mdp = $_GET['mdp'];
+            if(isset($login[$user]) && $login[$user] == $mdp && $user == $data->name){
+                $document['packages'][] = [
+                    'name' => $data->name,
+                    'title' => isset($data->title) ? $data->title : $data->name,
+                    'version' => $data->version,
+                    'location' => basename($file),
+                    'priority' => 1,
+                ];
+            }
+        }
     }
 }
 
