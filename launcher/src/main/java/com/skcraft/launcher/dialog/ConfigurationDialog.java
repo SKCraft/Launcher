@@ -114,7 +114,7 @@ public class ConfigurationDialog extends JDialog {
         addSlider(slider2, SharedLocale.tr("options.maxMemory") ,maxMemorySpinner,256);
         JSlider slider3 = new JSlider(1, 8, 1);
         slider3.setValue((int) config.getPermGen() / 256);
-        addSlider(slider3, SharedLocale.tr("options.minMemory"),permGenSpinner,128);
+        addSlider(slider3, SharedLocale.tr("options.permGen"),permGenSpinner,128);
 
         
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.dontAutoCorrectMemory")), dontAutoCorrectMemory);
@@ -300,7 +300,7 @@ public class ConfigurationDialog extends JDialog {
             }
          };
         s.addChangeListener(sliderListener);
-        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.maxMemory")),s, js);
+        javaSettingsPanel.addRow(new JLabel(description),s, js);
         //javaSettingsPanel.addRow(new JLabel(description),js);
     }
 
