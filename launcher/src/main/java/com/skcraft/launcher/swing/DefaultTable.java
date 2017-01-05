@@ -16,7 +16,7 @@ public class DefaultTable extends JTable {
 
     public DefaultTable() {
         setShowGrid(false);
-        setRowHeight((int) (Math.max(getRowHeight(), new JCheckBox().getPreferredSize().getHeight() - 2)));
+        setRowHeight(Math.max(getRowHeight() + 4, 40));
         setIntercellSpacing(new Dimension(0, 0));
         setFillsViewportHeight(true);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
