@@ -19,9 +19,9 @@ import java.util.List;
 public class WebUtil {
 
     public static void main(String[] args) throws Exception {
-        String url = "http://api.lolnet.co.nz:8080/modpack/public";
+        String url = "http://api.lolnet.co.nz/modpack/public";
         System.out.println(getFiles(url));
-        url = "http://api.lolnet.co.nz:8080/";
+        url = "http://api.lolnet.co.nz/";
         System.out.println(getFiles(url));
 
     }
