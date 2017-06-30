@@ -253,6 +253,7 @@ public final class WebpagePanel extends JPanel {
                 conn.setDoInput(true);
                 conn.setDoOutput(false);
                 conn.setReadTimeout(5000);
+                conn.setInstanceFollowRedirects(true);
 
                 conn.connect();
 
