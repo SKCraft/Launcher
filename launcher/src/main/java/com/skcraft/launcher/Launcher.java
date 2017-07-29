@@ -54,6 +54,7 @@ import nz.co.lolnet.james137137.CertificateManager;
 import nz.co.lolnet.james137137.FeedbackManager;
 import static nz.co.lolnet.james137137.HelpAndSupport.downloadTextFromUrl;
 import nz.co.lolnet.james137137.LauncherGobalSettings;
+import nz.co.lolnet.james137137.WebUtil;
 import nz.co.lolnet.statistics.ThreadLauncherIsLaunched;
 import nz.co.lolnet.statistics.MetaData;
 import org.apache.commons.io.FileUtils;
@@ -138,7 +139,7 @@ public final class Launcher {
     
     public static URL checkURL(URL url) {
         if (true) {
-            return url;
+            return WebUtil.convertToHttpsIfPossible(url);
         }
         try {
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();

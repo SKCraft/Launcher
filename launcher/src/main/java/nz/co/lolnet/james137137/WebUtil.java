@@ -8,9 +8,14 @@ package nz.co.lolnet.james137137;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,10 +24,6 @@ import java.util.List;
 public class WebUtil {
 
     public static void main(String[] args) throws Exception {
-        String url = "http://api.lolnet.co.nz/modpack/public";
-        System.out.println(getFiles(url));
-        url = "http://api.lolnet.co.nz/";
-        System.out.println(getFiles(url));
 
     }
 
@@ -44,5 +45,25 @@ public class WebUtil {
 
         in.close();
         return output;
+    }
+
+    public static URL convertToHttpsIfPossible(URL url) {
+        HttpURLConnection connection = null;
+
+        try {
+            URL myurl;
+            if (!url.toString().contains("https")) {
+                myurl = new URL(url.toString().replaceFirst("http", "https"));
+            } else {
+                myurl = new URL(url.toString());
+            }
+
+            connection = (HttpURLConnection) myurl.openConnection();
+            connection.setConnectTimeout(1000);
+            int code = connection.getResponseCode();
+            return new URL(url.toString().replaceFirst("http", "https"));
+        } catch (Exception e) {
+            return url;
+        }
     }
 }
