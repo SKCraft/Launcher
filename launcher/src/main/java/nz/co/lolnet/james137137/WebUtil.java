@@ -26,6 +26,7 @@ public class WebUtil {
     public static void main(String[] args) throws Exception {
 
     }
+    static boolean lolnetHTTPSYet = true;
 
     public static List<String> getFiles(String url) throws IOException {
         List<String> output = new ArrayList<>();
@@ -48,7 +49,7 @@ public class WebUtil {
     }
 
     public static URL convertToHttpsIfPossible(URL url) {
-        if (!url.getHost().toLowerCase().contains("lolnet.co.nz"))
+        if (!url.getHost().toLowerCase().contains("lolnet.co.nz") || !lolnetHTTPSYet)
         {
             return url;
         }
@@ -56,7 +57,7 @@ public class WebUtil {
 
         try {
             URL myurl;
-            if (!url.toString().contains("https")) {
+            if (!url.getProtocol().equalsIgnoreCase("https")) {
                 myurl = new URL(url.toString().replaceFirst("http", "https"));
             } else {
                 myurl = new URL(url.toString());
@@ -67,6 +68,7 @@ public class WebUtil {
             int code = connection.getResponseCode();
             return new URL(url.toString().replaceFirst("http", "https"));
         } catch (Exception e) {
+            lolnetHTTPSYet = false;
             return url;
         }
     }
