@@ -48,6 +48,10 @@ public class WebUtil {
     }
 
     public static URL convertToHttpsIfPossible(URL url) {
+        if (!url.getHost().toLowerCase().contains("lolnet.co.nz"))
+        {
+            return url;
+        }
         HttpURLConnection connection = null;
 
         try {
