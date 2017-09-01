@@ -139,7 +139,7 @@ public final class Launcher {
     
     public static URL checkURL(URL url) {
         if (true) {
-            return WebUtil.convertToHttpsIfPossible(url);
+            return url;
         }
         try {
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();

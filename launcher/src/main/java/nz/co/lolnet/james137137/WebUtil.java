@@ -47,29 +47,4 @@ public class WebUtil {
         in.close();
         return output;
     }
-
-    public static URL convertToHttpsIfPossible(URL url) {
-        if (!url.getHost().toLowerCase().contains("lolnet.co.nz") || !lolnetHTTPSYet)
-        {
-            return url;
-        }
-        HttpURLConnection connection = null;
-
-        try {
-            URL myurl;
-            if (!url.getProtocol().equalsIgnoreCase("https")) {
-                myurl = new URL(url.toString().replaceFirst("http", "https"));
-            } else {
-                myurl = new URL(url.toString());
-            }
-
-            connection = (HttpURLConnection) myurl.openConnection();
-            connection.setConnectTimeout(1000);
-            int code = connection.getResponseCode();
-            return new URL(url.toString().replaceFirst("http", "https"));
-        } catch (Exception e) {
-            lolnetHTTPSYet = false;
-            return url;
-        }
-    }
 }
