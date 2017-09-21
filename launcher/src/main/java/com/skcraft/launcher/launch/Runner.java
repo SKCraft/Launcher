@@ -138,6 +138,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         addProxyArgs();
         addWindowArgs();
         addPlatformArgs();
+        addLegacyArgs();
 
         builder.classPath(getJarPath());
         builder.setMainClass(versionManifest.getMainClass());
@@ -318,6 +319,13 @@ public class Runner implements Callable<Process>, ProgressObservable {
             args.add("--height");
             args.add(String.valueOf(height));
         }
+    }
+
+    /**
+     * Add arguments to make legacy Minecraft work.
+     */
+    private void addLegacyArgs() {
+        builder.getFlags().add("-Dminecraft.applet.TargetDirectory=" + instance.getContentDir());
     }
 
     /**
