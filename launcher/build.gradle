@@ -8,6 +8,7 @@ jar {
 
 dependencies {
     compile 'org.projectlombok:lombok:1.12.2'
+    compile 'javax.xml.bind:jaxb-api:2.2.4'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
     compile 'commons-lang:commons-lang:2.6'
     compile 'commons-io:commons-io:1.2'
