@@ -35,7 +35,7 @@ You'll probably need a few hours to get everything working. Fortunately, we have
 
 For your evaluation, there are sample files provided that you will be able to upload to your site to see if it even works for you.
 
-### Pretty Pictures
+## Pretty Pictures
 
 If you are going to create modpacks with our GUI tool, you'll be seeing this beaut:
 
@@ -66,7 +66,7 @@ Users can select optional mods/features:
 
 The launcher can update itself and you can use it in portable mode too.
 
-## The Light Theme
+### The Light Theme
 
 ![Main Launcher](readme/launcher.png)
 
