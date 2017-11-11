@@ -27,6 +27,8 @@ You do need some sort of website, but it does **not** need anything complicated 
 
 For those technically inclined, you can generate modpacks from Git (or any VCS) using your favorite continuous integration server, and then dynamically create modpacks even down to one per branch or tag.
 
+Best of all, our launcher is Minecraft's oldest surviving modpack launcher platform. :thumbsup:
+
 ## Getting Started
 
 You'll probably need a few hours to get everything working. Fortunately, we have a [detailed wiki](https://github.com/SKCraft/Launcher/wiki) with screenshots for every step, intended for someone with minimal technical experience.
@@ -43,7 +45,7 @@ If you are going to create modpacks with our GUI tool, you'll be seeing this bea
 
 ![Build Modpacks](readme/packages_generator.png)
 
-Making a modpack is just drag and dropping into a folder like this:
+Making a modpack is just drag and drop into a folder like this:
 
 * src/**config**/
 * src/**mods**/
