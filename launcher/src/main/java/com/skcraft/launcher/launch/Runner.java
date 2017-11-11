@@ -136,6 +136,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         addLibraries();
         addJarArgs();
         addProxyArgs();
+        addServerArgs();
         addWindowArgs();
         addPlatformArgs();
         addLegacyArgs();
@@ -301,6 +302,25 @@ public class Runner implements Callable<Process>, ProgressObservable {
                     builder.getArgs().add("--proxyPass");
                     builder.getArgs().add(password);
                 }
+            }
+        }
+    }
+
+    /**
+     * Add server arguments.
+     */
+    private void addServerArgs() {
+        List<String> args = builder.getArgs();
+
+        if (config.isServerEnabled()) {
+            String host = config.getServerHost();
+            int port = config.getServerPort();
+
+            if (!Strings.isNullOrEmpty(host) && port > 0 && port < 65535) {
+                args.add("--server");
+                args.add(host);
+                args.add("--port");
+                args.add(String.valueOf(port));
             }
         }
     }

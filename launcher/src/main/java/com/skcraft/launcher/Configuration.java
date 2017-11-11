@@ -35,6 +35,9 @@ public class Configuration {
     private String proxyUsername;
     private String proxyPassword;
     private String gameKey;
+    private boolean serverEnabled = false;
+    private String serverHost;
+    private int serverPort = 25565;
 
     @Override
     public boolean equals(Object o) {
