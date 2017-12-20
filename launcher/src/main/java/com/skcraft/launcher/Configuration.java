@@ -36,6 +36,7 @@ public class Configuration {
     private int maxMemory = 2048;
     private int permGen = 256;
     private boolean dontAutoCorrectMemory = false;
+    private boolean openConsoleOnLaunch = true;
     private int launcherWindowWidth = -1;
     private int launcherWindowHeight = -1;
     private int launcherExtendedState = 0;

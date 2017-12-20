@@ -44,6 +44,7 @@ public class ConfigurationDialog extends JDialog {
     private final JSpinner maxMemorySpinner = new JSpinner();
     private final JSpinner permGenSpinner = new JSpinner();
     private final JCheckBox dontAutoCorrectMemory = new JCheckBox();
+    private final JCheckBox openConsoleOnLaunch = new JCheckBox();
     private final FormPanel gameSettingsPanel = new FormPanel();
     private final JSpinner widthSpinner = new JSpinner();
     private final JSpinner heightSpinner = new JSpinner();
@@ -85,6 +86,7 @@ public class ConfigurationDialog extends JDialog {
         mapper.map(maxMemorySpinner, "maxMemory");
         mapper.map(permGenSpinner, "permGen");
         mapper.map(dontAutoCorrectMemory, "dontAutoCorrectMemory");
+        mapper.map(openConsoleOnLaunch, "openConsoleOnLaunch");
         mapper.map(widthSpinner, "windowWidth");
         mapper.map(heightSpinner, "widowHeight");
         mapper.map(gameKeyText, "gameKey");
@@ -134,6 +136,7 @@ public class ConfigurationDialog extends JDialog {
         if (dir.exists()) {
             advancedPanel.addRow(changeLauncherThemeButton);
         }
+        advancedPanel.addRow(new JLabel(SharedLocale.tr("options.openConsoleOnLaunch")), openConsoleOnLaunch);
 
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(SharedLocale.tr("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
