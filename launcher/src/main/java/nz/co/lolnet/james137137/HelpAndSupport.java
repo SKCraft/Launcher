@@ -250,7 +250,7 @@ public class HelpAndSupport {
     private static void getLatestSnapshot() {
 
         try {
-            LauncherFrame.instance.requestUpdate(new URL(downloadTextFromUrl("https://www.lolnet.co.nz/modpack/snapshot")),"Snapshot");
+            LauncherFrame.instance.requestUpdate(new URL(downloadTextFromUrl("https://modpack.lolnet.co.nz/snapshot")),"Snapshot");
             LauncherGobalSettings.put("DownloadSnapShot", "");
         } catch (MalformedURLException ex) {
             LauncherGobalSettings.put("DownloadSnapShot", "true");
