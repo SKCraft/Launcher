@@ -1,11 +1,3 @@
-println """
-*******************************************
- You are building SKCraft Launcher! 
-
- Output files will be in [subproject]/build/libs
-*******************************************
-"""
-
 buildscript {
     repositories {
         mavenCentral()
@@ -13,9 +5,22 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
+    	classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
     }
 }
+
+plugins {
+    id "com.github.johnrengelman.shadow" version "2.0.1"
+    id 'io.franzbecker.gradle-lombok' version '1.11'
+}
+
+println """
+*******************************************
+ You are building SKCraft Launcher! 
+
+ Output files will be in [subproject]/build/libs
+*******************************************
+"""
 
 subprojects {
     apply plugin: 'java'
