@@ -459,4 +459,31 @@ public final class SwingHelper {
         System.setProperty("com.apple.mrj.application.apple.menu.about.name", appName);
         System.setProperty("apple.laf.useScreenMenuBar", "true");
     }
+    public static BufferedImage readIconImage(Class<?> clazz, String path) {
+        InputStream in = null;
+        try {
+            in = clazz.getResourceAsStream(path);
+            if (in != null) {
+                return ImageIO.read(in);
+            }
+        } catch (IOException e) {
+        } finally {
+            closeQuietly(in);
+        }
+        return null;
+    }
+
+    public static BufferedImage readIconImage(File path) {
+        InputStream in = null;
+        try {
+            in = new FileInputStream(path);
+            if (in != null) {
+                return ImageIO.read(in);
+            }
+        } catch (IOException e) {
+        } finally {
+            closeQuietly(in);
+        }
+        return null;
+    }
 }
