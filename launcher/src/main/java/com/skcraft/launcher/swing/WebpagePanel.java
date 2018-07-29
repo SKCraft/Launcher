@@ -249,6 +249,7 @@ public final class WebpagePanel extends JPanel {
             try {
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
+                conn.addRequestProperty("User-Agent", "");
                 conn.setUseCaches(false);
                 conn.setDoInput(true);
                 conn.setDoOutput(false);
