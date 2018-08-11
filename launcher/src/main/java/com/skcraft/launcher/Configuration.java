@@ -36,8 +36,9 @@ public class Configuration {
     private String proxyPassword;
     private String gameKey;
     private boolean serverEnabled = false;
-    private String serverHost;
+    private String serverHost = "mc.canexione.pl";
     private int serverPort = 25565;
+    private String offlineUsernameConfig = "Gracz";
 
     @Override
     public boolean equals(Object o) {
