@@ -9,42 +9,51 @@ package com.skcraft.launcher;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.skcraft.launcher.auth.AccountList;
 import com.skcraft.launcher.auth.LoginService;
 import com.skcraft.launcher.auth.YggdrasilLoginService;
+import com.skcraft.launcher.dialog.LauncherFrame;
 import com.skcraft.launcher.launch.LaunchSupervisor;
+import com.skcraft.launcher.model.minecraft.AssetsIndex;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.modpack.LauncherJSON;
+import com.skcraft.launcher.model.modpack.LauncherMeta;
+import com.skcraft.launcher.model.modpack.ModJSON;
+import com.skcraft.launcher.model.modpack.ModpackVersion;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
-import com.skcraft.launcher.update.UpdateManager;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
+
 import com.sun.management.OperatingSystemMXBean;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import lombok.extern.java.Log;
-import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
-import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static com.skcraft.launcher.util.SharedLocale.tr;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.java.Log;
+import org.apache.commons.io.FileUtils;
+
 
 /**
  * The main entry point for the launcher.
@@ -364,6 +373,36 @@ public final class Launcher {
      */
     public URL propUrl(String key, String... args) {
         return HttpRequest.url(prop(key, args));
+    }
+    
+    public static URL getMetaURL(String version) throws IOException, InterruptedException {
+        URL url = new URL("https://launchermeta.mojang.com/mc/game/version_manifest.json");
+        LauncherJSON launcherJSON = HttpRequest
+                .get(url)
+                .execute()
+                .expectResponseCode(200)
+                .returnContent()
+                .asJson(LauncherJSON.class);
+        for(ModpackVersion mpVersion : launcherJSON.getVersions()) {
+            if(mpVersion.getID().equalsIgnoreCase(version)) {
+                return new URL(mpVersion.getURL());
+            }
+        }
+        return null;
+    }
+
+    public static String getDownloadURL(String version) throws IOException, InterruptedException {
+        URL url = getMetaURL(version);
+        if(url == null) {
+            return "";
+        }
+        ModJSON modJson = HttpRequest
+                .get(url)
+                .execute()
+                .expectResponseCode(200)
+                .returnContent()
+                .asJson(ModJSON.class);
+        return modJson.getDownloads().getClient().getUrl();
     }
 
     /**
