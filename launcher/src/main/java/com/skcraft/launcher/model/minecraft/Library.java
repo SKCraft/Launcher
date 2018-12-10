@@ -13,6 +13,7 @@ import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -22,12 +23,14 @@ import java.util.regex.Pattern;
 public class Library {
 
     private String name;
+    private String path;
     private transient String group;
     private transient String artifact;
     private transient String version;
     @JsonProperty("url")
     private String baseUrl;
-    private Map<String, String> natives;
+    private Downloads downloads;
+    private HashMap<String, String> natives;
     private Extract extract;
     private List<Rule> rules;
 
@@ -111,19 +114,21 @@ public class Library {
     }
 
     public String getPath(Environment environment) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getGroup().replace('.', '/'));
-        builder.append("/");
-        builder.append(getArtifact());
-        builder.append("/");
-        builder.append(getVersion());
-        builder.append("/");
-        builder.append(getFilename(environment));
-        String path = builder.toString();
-        path = path.replace("${arch}", environment.getArchBits());
-        return path;
+        String nativeString = getNativeString(environment.getPlatform());
+        if(nativeString!=null){
+            return downloads.getClassifiers().get(nativeString).getPath();
+        }else{
+            return downloads.getArtifact().getPath();
+        }
     }
-
+    public String getDownloadUrl(Environment environment){
+        String nativeString = getNativeString(environment.getPlatform());
+        if(nativeString!=null){
+            return downloads.getClassifiers().get(nativeString).getUrl();
+        }else{
+            return downloads.getArtifact().getUrl();
+        }
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -133,13 +138,16 @@ public class Library {
 
         if (name != null ? !name.equals(library.name) : library.name != null)
             return false;
-
+        Platform platform = Environment.getInstance().getPlatform();
+        if(getNativeString(platform)==library.getNativeString(platform))
+            return false;
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        String nativeString = getNativeString(Environment.getInstance().getPlatform());
+        return name != null ? (name+(nativeString != null ? nativeString : "")).hashCode() : 0;
     }
 
     @Data

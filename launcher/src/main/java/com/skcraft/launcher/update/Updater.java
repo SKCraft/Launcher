@@ -99,7 +99,6 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         return instance;
     }
-
     private VersionManifest readVersionManifest(Manifest manifest) throws IOException, InterruptedException {
         // Check whether the package manifest contains an embedded version manifest,
         // otherwise we'll have to download the one for the given Minecraft version
@@ -108,10 +107,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
             mapper.writeValue(instance.getVersionPath(), version);
             return version;
         } else {
-            URL url = url(String.format(
-                    launcher.getProperties().getProperty("versionManifestUrl"),
-                    manifest.getGameVersion()));
-
+            URL url = launcher.getMetaURL(manifest.getGameVersion());
             return HttpRequest
                     .get(url)
                     .execute()
@@ -172,7 +168,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         // Download assets
         log.info("Enumerating assets to download...");
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingAssets"));
-        installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
+        installAssets(installer, version, url(version.getAssetIndex().get("url")), assetsSources);
 
         log.info("Executing download phase...");
         progress = ProgressFilter.between(installer.getDownloader(), 0, 0.98);

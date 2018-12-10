@@ -180,6 +180,12 @@ public class Runner implements Callable<Process>, ProgressObservable {
         if (getEnvironment().getPlatform() == Platform.WINDOWS) {
             builder.getFlags().add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
         }
+
+        if(getEnvironment().getArch()=="x86"){
+            builder.getFlags().add("-Xss1M");
+        }
+        builder.getFlags().add("-Dminecraft.launcher.brand="+launcher.getProperties().getProperty("agentName"));
+        builder.getFlags().add("-Dminecraft.launcher.version="+launcher.getVersion());
     }
 
     /**
@@ -271,7 +277,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private void addJarArgs() throws JsonProcessingException {
         List<String> args = builder.getArgs();
 
-        String[] rawArgs = versionManifest.getMinecraftArguments().split(" +");
+//        String[] rawArgs = versionManifest.getMinecraftArguments().split(" +");
+        String[] rawArgs = versionManifest.getNewMinecraftArguments().split(" +");
         StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
         for (String arg : rawArgs) {
             args.add(substitutor.replace(arg));

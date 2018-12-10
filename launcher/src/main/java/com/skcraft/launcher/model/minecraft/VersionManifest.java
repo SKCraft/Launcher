@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 
 @Data
@@ -24,13 +25,30 @@ public class VersionManifest {
     private String type;
     private String processArguments;
     private String minecraftArguments;
+    private Arguments arguments;
     private String mainClass;
     private int minimumLauncherVersion;
     private LinkedHashSet<Library> libraries;
+    private HashMap<String, String> assetIndex;
 
     @JsonIgnore
     public String getAssetsIndex() {
         return getAssets() != null ? getAssets() : "legacy";
+    }
+    @JsonIgnore
+    public String getNewMinecraftArguments() {
+        return getMinecraftArguments() != null ? getMinecraftArguments() : getNewArguments();
+    }
+    @JsonIgnore
+    private String getNewArguments(){
+        String result = "";
+        if(getArguments()!=null)
+        for(Object obj:getArguments().getGame()){
+            if(obj instanceof String) {
+                result += ((String)obj + " ");
+            }
+        }
+        return result;
     }
 
 }
