@@ -243,7 +243,8 @@ public class PackageBuilder {
                         pathname = compressor.transformPathname(pathname);
                     }
 
-                    URL url = new URL(library.getDownloadUrl(env));
+//                    URL url = new URL(library.getDownloadUrl(env));
+                    URL url = new URL(baseUrl + pathname);
                     File tempFile = File.createTempFile("launcherlib", null);
 
                     try {

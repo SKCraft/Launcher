@@ -15,7 +15,6 @@ import lombok.Data;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 @Data
@@ -114,20 +113,29 @@ public class Library {
     }
 
     public String getPath(Environment environment) {
-        String nativeString = getNativeString(environment.getPlatform());
-        if(nativeString!=null){
-            return downloads.getClassifiers().get(nativeString).getPath();
-        }else{
-            return downloads.getArtifact().getPath();
+        if(path!=null)
+            return path;
+        if(downloads!=null) {
+            String nativeString = getNativeString(environment.getPlatform());
+            if (nativeString != null) {
+                path = downloads.getClassifiers().get(nativeString).getPath();
+                return path;
+            } else {
+                path = downloads.getArtifact().getPath();
+                return path;
+            }
         }
-    }
-    public String getDownloadUrl(Environment environment){
-        String nativeString = getNativeString(environment.getPlatform());
-        if(nativeString!=null){
-            return downloads.getClassifiers().get(nativeString).getUrl();
-        }else{
-            return downloads.getArtifact().getUrl();
-        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(getGroup().replace('.', '/'));
+        builder.append("/");
+        builder.append(getArtifact());
+        builder.append("/");
+        builder.append(getVersion());
+        builder.append("/");
+        builder.append(getFilename(environment));
+        String path = builder.toString();
+        path = path.replace("${arch}", environment.getArchBits());
+        return path;
     }
     @Override
     public boolean equals(Object o) {

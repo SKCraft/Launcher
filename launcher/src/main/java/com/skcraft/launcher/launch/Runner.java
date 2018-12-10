@@ -277,8 +277,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private void addJarArgs() throws JsonProcessingException {
         List<String> args = builder.getArgs();
 
-//        String[] rawArgs = versionManifest.getMinecraftArguments().split(" +");
-        String[] rawArgs = versionManifest.getNewMinecraftArguments().split(" +");
+        String[] rawArgs = versionManifest.getMinecraftArguments().split(" +");
+//        String[] rawArgs = versionManifest.getNewMinecraftArguments().split(" +");
         StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
         for (String arg : rawArgs) {
             args.add(substitutor.replace(arg));
