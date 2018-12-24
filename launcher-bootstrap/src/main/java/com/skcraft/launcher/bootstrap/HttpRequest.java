@@ -43,6 +43,7 @@ public class HttpRequest implements Closeable, ProgressObservable {
 
     private long contentLength = -1;
     private long readBytes = 0;
+    private int maxRedirectFollow = 30;
 
     /**
      * Create a new HTTP request.
@@ -95,30 +96,54 @@ public class HttpRequest implements Closeable, ProgressObservable {
                 throw new IllegalArgumentException("Connection already executed");
             }
 
-            conn = (HttpURLConnection) reformat(url).openConnection();
+            String location = null;
+            URL connectUrl = url;
 
-            if (body != null) {
-                conn.setRequestProperty("Content-Type", contentType);
-                conn.setRequestProperty("Content-Length", Integer.toString(body.length));
-                conn.setDoInput(true);
-            }
+            for(int redirect = 0; redirect <= maxRedirectFollow; redirect++) {
+                conn        = (HttpURLConnection) reformat(connectUrl).openConnection();
 
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
-                conn.setRequestProperty(entry.getKey(), entry.getValue());
-            }
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(15000);
+                conn.setInstanceFollowRedirects(false);
+                conn.setRequestProperty("User-Agent", "SKCraft Launcher");
 
-            conn.setRequestMethod(method);
-            conn.setUseCaches(false);
-            conn.setDoOutput(true);
-            conn.setReadTimeout(READ_TIMEOUT);
+                if (location == null && body != null) {
+                    conn.setRequestProperty("Content-Type", contentType);
+                    conn.setRequestProperty("Content-Length", Integer.toString(body.length));
+                    conn.setDoInput(true);
+                }
 
-            conn.connect();
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    conn.setRequestProperty(entry.getKey(), entry.getValue());
+                }
 
-            if (body != null) {
-                DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-                out.write(body);
-                out.flush();
-                out.close();
+                if (location == null) {
+                    conn.setRequestMethod(method);
+                }
+                conn.setUseCaches(false);
+                conn.setDoOutput(true);
+                conn.setReadTimeout(READ_TIMEOUT);
+
+                conn.connect();
+
+                if (location == null && body != null) {
+                    DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+                    out.write(body);
+                    out.flush();
+                    out.close();
+                }
+
+                switch (conn.getResponseCode())
+                {
+                    case HttpURLConnection.HTTP_MOVED_PERM:
+                    case HttpURLConnection.HTTP_MOVED_TEMP:
+                        location   = conn.getHeaderField("Location");
+                        location   = URLDecoder.decode(location, "UTF-8");
+                        connectUrl = new URL(connectUrl, location);
+                        continue;
+                }
+
+                break;
             }
 
             inputStream = conn.getResponseCode() == HttpURLConnection.HTTP_OK ?
