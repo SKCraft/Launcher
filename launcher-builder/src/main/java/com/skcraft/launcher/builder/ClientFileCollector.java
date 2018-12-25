@@ -68,8 +68,9 @@ public class ClientFileCollector extends DirectoryWalker {
         File urlFile;
         if(file.getName().endsWith(URL_FILE_SUFFIX))
         {
-            relPath = relPath.replace(URL_FILE_SUFFIX, "");
             urlFile = file;
+            file    = new File(file.getAbsoluteFile().getParentFile(), file.getName().replace(URL_FILE_SUFFIX, ""));
+            relPath = relPath.replace(URL_FILE_SUFFIX, "");
         }
         else
         {
@@ -79,25 +80,37 @@ public class ClientFileCollector extends DirectoryWalker {
         // url.txt override file
         String location, hash;
         boolean copy = true;
-        if (urlFile.exists() && !System.getProperty("com.skcraft.builder.ignoreURLOverrides", "false").equalsIgnoreCase("true")) {
+        if (urlFile.exists() &&
+                (
+                        !file.exists() || !System.getProperty("com.skcraft.builder.ignoreURLOverrides", "false")
+                                                 .equalsIgnoreCase("true")
+                )
+        ) {
             location = Files.readFirstLine(urlFile, Charset.defaultCharset());
             copy = false;
 
-            ClientFileCollector.log.info(String.format("Download %s from %s...", relPath, location));
-            File tempFile = File.createTempFile("com.skcraft.builder", null);
-            URL url = HttpRequest.url(location.trim());
-            try {
-                HttpRequest.get(url)
-                        .execute()
-                        .expectResponseCode(200)
-                        .saveContent(tempFile);
-                hash = Files.hash(tempFile, hf).toString();
-            } catch (InterruptedException e) {
-                ClientFileCollector.log.warning(String.format("Download from %s failed! ", location));
-                throw new IOException(e);
-            } finally {
-                if(!tempFile.delete()) {
-                    ClientFileCollector.log.warning(String.format("Unable to delete %s! ", tempFile.getAbsolutePath()));
+            if (file.exists())
+            {
+                hash = Files.hash(file, hf).toString();
+            }
+            else
+            {
+                ClientFileCollector.log.info(String.format("Download %s from %s...", relPath, location));
+                File tempFile = File.createTempFile("com.skcraft.builder", null);
+                URL url = HttpRequest.url(location.trim());
+                try {
+                    HttpRequest.get(url)
+                            .execute()
+                            .expectResponseCode(200)
+                            .saveContent(tempFile);
+                    hash = Files.hash(tempFile, hf).toString();
+                } catch (InterruptedException e) {
+                    ClientFileCollector.log.warning(String.format("Download from %s failed! ", location));
+                    throw new IOException(e);
+                } finally {
+                    if(!tempFile.delete()) {
+                        ClientFileCollector.log.warning(String.format("Unable to delete %s! ", tempFile.getAbsolutePath()));
+                    }
                 }
             }
         } else {
