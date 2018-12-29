@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.creator.model.creator;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.io.File;
@@ -20,6 +21,7 @@ public class RecentEntry {
     }
 
     @Override
+    @JsonProperty("path")
     public String toString() {
         return path.getAbsolutePath();
     }
