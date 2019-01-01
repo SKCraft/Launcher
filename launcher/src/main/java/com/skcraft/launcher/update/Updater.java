@@ -168,7 +168,10 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         // Download assets
         log.info("Enumerating assets to download...");
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingAssets"));
-        installAssets(installer, version, url(version.getAssetIndex().get("url")), assetsSources);
+        URL assetUrl = version.getAssetIndex() != null
+                ? url(version.getAssetIndex().get("url"))
+                : launcher.propUrl("assetsIndexUrl", version.getAssetsIndex());
+        installAssets(installer, version, assetUrl, assetsSources);
 
         log.info("Executing download phase...");
         progress = ProgressFilter.between(installer.getDownloader(), 0, 0.98);
