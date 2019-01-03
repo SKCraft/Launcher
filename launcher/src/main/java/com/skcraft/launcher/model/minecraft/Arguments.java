@@ -13,4 +13,5 @@ import java.util.List;
 public class Arguments {
 
     private List<Object> game;
+    private List<Object> jvm;
 }
