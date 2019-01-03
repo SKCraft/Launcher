@@ -85,15 +85,15 @@ public class Library {
         return version;
     }
 
-    public String getNativeString(Platform platform) {
+    public String getNativeString(Environment env) {
         if (getNatives() != null) {
-            switch (platform) {
+            switch (env.getPlatform()) {
                 case LINUX:
-                    return getNatives().get("linux");
+                    return getNatives().get("linux") == null ? null : getNatives().get("linux").replace("${arch}", env.getArchBits());
                 case WINDOWS:
-                    return getNatives().get("windows");
+                    return getNatives().get("windows") == null ? null : getNatives().get("windows").replace("${arch}", env.getArchBits());
                 case MAC_OS_X:
-                    return getNatives().get("osx");
+                    return getNatives().get("osx") == null ? null : getNatives().get("osx").replace("${arch}", env.getArchBits());
                 default:
                     return null;
             }
@@ -103,7 +103,7 @@ public class Library {
     }
 
     public String getFilename(Environment environment) {
-        String nativeString = getNativeString(environment.getPlatform());
+        String nativeString = getNativeString(environment);
         if (nativeString != null) {
             return String.format("%s-%s-%s.jar",
                     getArtifact(), getVersion(), nativeString);
@@ -116,7 +116,7 @@ public class Library {
         if(path!=null)
             return path;
         if(downloads!=null) {
-            String nativeString = getNativeString(environment.getPlatform());
+            String nativeString = getNativeString(environment);
             if (nativeString != null) {
                 path = downloads.getClassifiers().get(nativeString).getPath();
                 return path;
@@ -146,15 +146,15 @@ public class Library {
 
         if (name != null ? !name.equals(library.name) : library.name != null)
             return false;
-        Platform platform = Environment.getInstance().getPlatform();
-        if(getNativeString(platform)==library.getNativeString(platform))
+        Environment env = Environment.getInstance();
+        if(getNativeString(env)==library.getNativeString(env))
             return false;
         return true;
     }
 
     @Override
     public int hashCode() {
-        String nativeString = getNativeString(Environment.getInstance().getPlatform());
+        String nativeString = getNativeString(Environment.getInstance());
         return name != null ? (name+(nativeString != null ? nativeString : "")).hashCode() : 0;
     }
 
