@@ -133,8 +133,7 @@ public class PackageBuilder {
         this.loaderLibraries.addAll(collected);
 
         VersionManifest version = manifest.getVersionManifest();
-        collected.addAll(version.getLibraries());
-        version.setLibraries(collected);
+        version.addLibraries(collected);
     }
 
     private void processLoader(LinkedHashSet<Library> loaderLibraries, File file, File librariesDir) throws IOException {
@@ -172,7 +171,7 @@ public class PackageBuilder {
                 List<Library> libraries = profile.getVersionInfo().getLibraries();
                 if (libraries != null) {
                     for (Library library : libraries) {
-                        if (!version.getLibraries().contains(library)) {
+                        if (!version.containsLibrary(library)) {
                             loaderLibraries.add(library);
                         }
                     }
@@ -291,25 +290,15 @@ public class PackageBuilder {
     public void readVersionManifest(File path) throws IOException, InterruptedException {
         logSection("Reading version manifest...");
 
+        VersionManifest versionManifest;
         if (path.exists()) {
-            VersionManifest versionManifest = read(path, VersionManifest.class);
-            manifest.setVersionManifest(versionManifest);
-
+            versionManifest = read(path, VersionManifest.class);
             log.info("Loaded version manifest from " + path.getAbsolutePath());
         } else {
-            URL url = url(String.format(
-                    properties.getProperty("versionManifestUrl"),
-                    manifest.getGameVersion()));
-
-            log.info("Fetching version manifest from " + url + "...");
-
-            manifest.setVersionManifest(HttpRequest
-                    .get(url)
-                    .execute()
-                    .expectResponseCode(200)
-                    .returnContent()
-                    .asJson(VersionManifest.class));
+            versionManifest = VersionManifest.getInstance(HttpRequest.url(properties.getProperty("versionManifestUrl")), manifest.getGameVersion());
+            log.info("Fetching version manifest from " + versionManifest.getFetchURL() + "...");
         }
+        manifest.setVersionManifest(versionManifest);
     }
 
     public void writeManifest(@NonNull File path) throws IOException {

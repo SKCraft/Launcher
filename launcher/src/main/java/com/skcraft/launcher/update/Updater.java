@@ -17,7 +17,6 @@ import com.skcraft.launcher.install.Installer;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.persistence.Persistence;
-import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
 import lombok.NonNull;
@@ -32,8 +31,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-
-import static com.skcraft.launcher.util.HttpRequest.url;
 
 @Log
 public class Updater extends BaseUpdater implements Callable<Instance>, ProgressObservable {
@@ -108,17 +105,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
             mapper.writeValue(instance.getVersionPath(), version);
             return version;
         } else {
-            URL url = url(String.format(
-                    launcher.getProperties().getProperty("versionManifestUrl"),
-                    manifest.getGameVersion()));
-
-            return HttpRequest
-                    .get(url)
-                    .execute()
-                    .expectResponseCode(200)
-                    .returnContent()
-                    .saveContent(instance.getVersionPath())
-                    .asJson(VersionManifest.class);
+            return VersionManifest.getInstance(launcher.propUrl("versionManifestUrl"), manifest.getGameVersion());
         }
     }
 
@@ -152,7 +139,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         // Install the .jar
         File jarPath = launcher.getJarPath(version);
-        URL jarSource = launcher.propUrl("jarUrl", version.getId());
+        URL jarSource = version.getClientDownloadURL();
         log.info("JAR at " + jarPath.getAbsolutePath() + ", fetched from " + jarSource);
         installJar(installer, jarPath, jarSource);
 
@@ -171,7 +158,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         // Download assets
         log.info("Enumerating assets to download...");
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingAssets"));
-        installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
+        installAssets(installer, version, version.getAssetIndex().getAssetIndexURL(), assetsSources);
 
         log.info("Executing download phase...");
         progress = ProgressFilter.between(installer.getDownloader(), 0, 0.98);

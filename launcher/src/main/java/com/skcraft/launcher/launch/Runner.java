@@ -20,6 +20,7 @@ import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
+import com.skcraft.launcher.util.ListUtil;
 import com.skcraft.launcher.util.Platform;
 import com.skcraft.launcher.util.SharedLocale;
 import lombok.Getter;
@@ -31,6 +32,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,18 +169,34 @@ public class Runner implements Callable<Process>, ProgressObservable {
      * Add platform-specific arguments.
      */
     private void addPlatformArgs() {
+        // in newer versions (> 1.12.2), _some_ (but not all) of these are provides by the version manifest
+        List<String> osFlags = versionManifest.getOSDependentJVMArgs(getEnvironment());
+
+        if (osFlags == null) {
+            osFlags = new ArrayList<String>();
+        }
+        // not mentioned flags, or older version:
         // Mac OS X arguments
         if (getEnvironment().getPlatform() == Platform.MAC_OS_X) {
             File icnsPath = assetsIndex.getObjectPath(assetsRoot, "icons/minecraft.icns");
             if (icnsPath != null) {
-                builder.getFlags().add("-Xdock:icon=" + icnsPath.getAbsolutePath());
-                builder.getFlags().add("-Xdock:name=Minecraft");
+                if (!ListUtil.contains(osFlags, "-Xdock:icon=.*"))
+                    osFlags.add("-Xdock:icon=" + icnsPath.getAbsolutePath());
+                if (!ListUtil.contains(osFlags, "-Xdock:name=.*"))
+                    osFlags.add("-Xdock:name=Minecraft");
             }
         }
 
         // Windows arguments
         if (getEnvironment().getPlatform() == Platform.WINDOWS) {
-            builder.getFlags().add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+            if (!ListUtil.contains(osFlags, "-XX:HeapDumpPath=.*"))
+                osFlags.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+        }
+        // set them:
+        List<String> flags = builder.getFlags();
+        for (String flag : osFlags) {
+            // TODO: are command substitutions required here? Haven't seen any in the manifests I checked ...
+            flags.add(flag);
         }
     }
 
@@ -195,10 +213,20 @@ public class Runner implements Callable<Process>, ProgressObservable {
             File path = new File(launcher.getLibrariesDir(), library.getPath(environment));
 
             if (path.exists()) {
-                Library.Extract extract = library.getExtract();
-                if (extract != null) {
+                // versions > 1.12.2 do not have extract any more
+                // => check for natives
+                if (library.getNatives() != null) {
                     ZipExtract zipExtract = new ZipExtract(Files.asByteSource(path), extractDir);
-                    zipExtract.setExclude(extract.getExclude());
+                    Library.Extract extract = library.getExtract();
+                    if (extract != null) {
+                        zipExtract.setExclude(extract.getExclude());
+                    }
+                    else {
+                        // "META-INF/" still needs to be excluded even if the manifest does not say so
+                        List<String> exclude = new ArrayList<String>();
+                        exclude.add("META-INF/");
+                        zipExtract.setExclude(exclude);
+                    }
                     zipExtract.run();
                 } else {
                     builder.classPath(path);
@@ -261,6 +289,17 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 flags.add(arg);
             }
         }
+        // JVM arguments from manifest:
+        String[] rawArgs = versionManifest.getJVMArgs();
+
+        if (rawArgs != null) {
+            List<String> flags = builder.getFlags();
+            StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
+
+            for (String arg : rawArgs) {
+                flags.add(substitutor.replace(arg));
+            }
+        }
     }
 
     /**
@@ -271,10 +310,12 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private void addJarArgs() throws JsonProcessingException {
         List<String> args = builder.getArgs();
 
-        String[] rawArgs = versionManifest.getMinecraftArguments().split(" +");
-        StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
-        for (String arg : rawArgs) {
-            args.add(substitutor.replace(arg));
+        String[] rawArgs = versionManifest.getVersionIndependentMinecraftArguments();
+        if (rawArgs != null) {
+	        StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
+	        for (String arg : rawArgs) {
+	            args.add(substitutor.replace(arg));
+	        }
         }
     }
 
@@ -372,6 +413,16 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("game_assets", virtualAssetsDir.getAbsolutePath());
         map.put("assets_root", launcher.getAssets().getDir().getAbsolutePath());
         map.put("assets_index_name", versionManifest.getAssetsIndex());
+
+        // new from snapshot 17w43a and later:
+        map.put("version_type", versionManifest.getType());
+        String name = launcher.prop("launchername");
+        if (Strings.isNullOrEmpty(name)) {
+            // no name given in properties: use default
+            name = "SKCraftLauncher";
+        }
+        map.put("launcher_name", name);
+        map.put("launcher_version", launcher.getVersion());
 
         return map;
     }
