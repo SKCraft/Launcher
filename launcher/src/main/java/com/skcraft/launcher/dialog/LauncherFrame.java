@@ -163,6 +163,12 @@ public class LauncherFrame extends JFrame {
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+              Platform.runLater(new Runnable() {
+              @Override
+              public void run() {
+                webView.getEngine().load(launcher.getNewsURL().toString());
+              }
+         });
                 loadInstances();
                 launcher.getUpdateManager().checkForUpdate();
             }
