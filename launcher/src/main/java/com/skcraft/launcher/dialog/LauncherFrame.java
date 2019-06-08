@@ -64,9 +64,6 @@ public class LauncherFrame extends JFrame {
     @Getter
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
 
-    // WebView webView = new WebView();
-    // WebEngine webEngine = webView.getEngine();
-
     private JSplitPane splitPane;
     WebView webView;
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
@@ -107,7 +104,6 @@ public class LauncherFrame extends JFrame {
 
 
         final JFXPanel jfxPanel = new JFXPanel();
-//        container.add(jfxPanel);
 
         // Creation of scene and future interactions with JFXPanel
         // should take place on the JavaFX Application Thread
