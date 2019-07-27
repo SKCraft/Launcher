@@ -7,6 +7,7 @@
 package com.skcraft.launcher.builder;
 
 import lombok.NonNull;
+import lombok.extern.java.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.io.IOException;
  * path (which may be modified by dropping certain directory entries),
  * and call {@link #onFile(java.io.File, String)} with each file.
  */
+@Log
 public abstract class DirectoryWalker {
 
     public enum DirectoryBehavior {
@@ -40,7 +42,11 @@ public abstract class DirectoryWalker {
      * @throws IOException thrown on I/O error
      */
     public final void walk(@NonNull File dir) throws IOException {
-        walk(dir, "");
+        long start = System.currentTimeMillis();
+    	walk(dir, "");
+        long stop = System.currentTimeMillis();
+        log.info("Directory walk complete in " + (stop - start) + "ms.");
+        this.onWalkComplete();
     }
 
     /**
@@ -80,7 +86,7 @@ public abstract class DirectoryWalker {
      * Return the behavior for the given directory name.
      *
      * @param name the directory name
-     * @return the behavor
+     * @return the behavior
      */
     protected DirectoryBehavior getBehavior(String name) {
         return DirectoryBehavior.CONTINUE;
@@ -96,4 +102,8 @@ public abstract class DirectoryWalker {
     protected abstract void onFile(File file, String relPath) throws IOException;
 
 
+    /**
+     * Called after the walk is completed.
+     */
+    protected void onWalkComplete() {};
 }
