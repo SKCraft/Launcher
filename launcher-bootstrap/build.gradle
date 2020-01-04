@@ -1,4 +1,7 @@
-apply plugin: 'com.github.johnrengelman.shadow'
+plugins {
+    id "com.github.johnrengelman.shadow"
+    id 'io.franzbecker.gradle-lombok'
+}
 
 jar {
     manifest {
@@ -7,8 +10,8 @@ jar {
 }
 
 dependencies {
-    compile 'org.projectlombok:lombok:1.12.2'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
 }
 
 processResources {
@@ -20,9 +23,6 @@ processResources {
 }
 
 shadowJar {
-    dependencies {
-        exclude(dependency('org.projectlombok:lombok'))
-    }
 }
 
 build.dependsOn(shadowJar)

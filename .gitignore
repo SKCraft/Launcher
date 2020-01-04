@@ -98,7 +98,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 
-
 ### Java ###
 *.class
 
@@ -148,3 +147,12 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+
+### Test files ###
+/assets
+/instances
+/libraries
+/versions
+/accounts.dat
+/config.json
