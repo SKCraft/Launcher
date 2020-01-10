@@ -25,12 +25,44 @@ jobs:
       run: ./gradlew -Pversion=$RELEASE_VERSION clean build
     - name: Create Jar Pack
       run: pack200 --no-gzip launcher.jar.pack launcher/build/libs/launcher-$RELEASE_VERSION-all.jar
-      
+    
+    - name: Upload launcher.pack to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: launcher.jar.pack
+        asset_name: launcher.jar.pack
+        tag: ${{ github.ref }}
+        overwrite: true
     - name: Upload launcher to release
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: launcher/build/libs/launcher-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
         asset_name: launcher-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
+        tag: ${{ github.ref }}
+        overwrite: true
+    - name: Upload launcher bootstrap to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: launcher-bootstrap/build/libs/launcher-bootstrap-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
+        asset_name: launcher-bootstrap-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
+        tag: ${{ github.ref }}
+        overwrite: true
+    - name: Upload launcher fancy to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: launcher-fancy/build/libs/launcher-fancy-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
+        asset_name: launcher-fancy-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
+        tag: ${{ github.ref }}
+        overwrite: true
+    - name: Upload launcher builder to release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: launcher-builder/build/libs/launcher-builder-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
+        asset_name: launcher-builder.jar
         tag: ${{ github.ref }}
         overwrite: true
