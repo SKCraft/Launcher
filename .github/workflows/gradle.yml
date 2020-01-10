@@ -14,8 +14,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+
     - name: Set env
-      run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF/refs\/tags\//}
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=RELEASE_VERSION::${GITHUB_REF/refs\/tags\//}
       
     - name: Build with Gradle
       run: ./gradlew -Pversion=$RELEASE_VERSION clean build
@@ -26,7 +30,7 @@ jobs:
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: launcher/build/libs/launcher-$RELEASE_VERSION-all.jar
-        asset_name: launcher-$RELEASE_VERSION-all.jar
+        file: launcher/build/libs/launcher-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
+        asset_name: launcher-${{ steps.get_version.outputs.RELEASE_VERSION }}-all.jar
         tag: ${{ github.ref }}
         overwrite: true
