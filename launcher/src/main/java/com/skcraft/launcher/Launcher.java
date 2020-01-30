@@ -88,7 +88,7 @@ public final class Launcher {
     public Launcher(@NonNull File baseDir, @NonNull File configDir) throws IOException {
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
-        this.baseDir = baseDir;
+        this.baseDir = baseDir.getAbsoluteFile();
         this.properties = LauncherUtils.loadProperties(Launcher.class, "launcher.properties", "com.skcraft.launcher.propertiesFile");
         this.instances = new InstanceList(this);
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
@@ -392,7 +392,7 @@ public final class Launcher {
         if (dir != null) {
             log.info("Using given base directory " + dir.getAbsolutePath());
         } else {
-            dir = new File(".");
+            dir = new File("");
             log.info("Using current directory " + dir.getAbsolutePath());
         }
 
