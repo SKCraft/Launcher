@@ -1,33 +1,8 @@
-SKCraft Launcher
+NoHope Launcher
 ================
 
-Need to make it easy for people to install and play your modpack? The SKCraft Launcher platform may be for you if:
+The NoHopeLauncher is the minecraft launcher used for all the 360NoHope modpacks and servers.
 
-:heavy_check_mark: You want your own logo and branding on the launcher, with your own news feed  
-:heavy_check_mark: You want to be able to update the modpack whenever you want  
-:heavy_check_mark: You don't want to depend on anyone else  
-:heavy_check_mark: There's several modpacks you want to provide as a set  
-:heavy_check_mark: You want to provide 'hidden' modpacks that are only accessible by a secret code
-
-It may not be for you if:
-
-:small_orange_diamond: You made a cool modpack and you just want it out there  
-:small_orange_diamond: You don't have a website or place for people to download files from  
-:small_orange_diamond: You don't want anything to do with distributing the launcher
-
-## What We Do Right
-
-Creating modpacks with this launcher is super easy: :one: only drag & drop of configs and mods into a folder, :two: ZERO! scary XML/JSON files to edit, and :three: there's a nice interface for creating modpacks (command-line is also available).
-
-The launcher has all standard features that you'd expect like :one: resume of incomplete downloads, :two: incremental updates, and :three: file deduplication (saves disk space when you have files duplicated between updates or modpacks).
-
-LiteLoader, Forge, and .jar mods are supported. You can put resource packs in, or really even random mod files that don't go in the configs or mods folder.
-
-You do need some sort of website, but it does **not** need anything complicated like PHP.
-
-For those technically inclined, you can generate modpacks from Git (or any VCS) using your favorite continuous integration server, and then dynamically create modpacks even down to one per branch or tag.
-
-Best of all, our launcher is Minecraft's oldest surviving modpack launcher platform. :thumbsup:
 
 ## Getting Started
 
