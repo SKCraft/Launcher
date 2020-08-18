@@ -13,8 +13,8 @@ import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 @Data
@@ -22,12 +22,14 @@ import java.util.regex.Pattern;
 public class Library {
 
     private String name;
+    private String path;
     private transient String group;
     private transient String artifact;
     private transient String version;
     @JsonProperty("url")
     private String baseUrl;
-    private Map<String, String> natives;
+    private Downloads downloads;
+    private HashMap<String, String> natives;
     private Extract extract;
     private List<Rule> rules;
 
@@ -83,15 +85,15 @@ public class Library {
         return version;
     }
 
-    public String getNativeString(Platform platform) {
+    public String getNativeString(Environment env) {
         if (getNatives() != null) {
-            switch (platform) {
+            switch (env.getPlatform()) {
                 case LINUX:
-                    return getNatives().get("linux");
+                    return getNatives().get("linux") == null ? null : getNatives().get("linux").replace("${arch}", env.getArchBits());
                 case WINDOWS:
-                    return getNatives().get("windows");
+                    return getNatives().get("windows") == null ? null : getNatives().get("windows").replace("${arch}", env.getArchBits());
                 case MAC_OS_X:
-                    return getNatives().get("osx");
+                    return getNatives().get("osx") == null ? null : getNatives().get("osx").replace("${arch}", env.getArchBits());
                 default:
                     return null;
             }
@@ -101,7 +103,7 @@ public class Library {
     }
 
     public String getFilename(Environment environment) {
-        String nativeString = getNativeString(environment.getPlatform());
+        String nativeString = getNativeString(environment);
         if (nativeString != null) {
             return String.format("%s-%s-%s.jar",
                     getArtifact(), getVersion(), nativeString);
@@ -111,6 +113,18 @@ public class Library {
     }
 
     public String getPath(Environment environment) {
+        if(path!=null)
+            return path;
+        if(downloads!=null) {
+            String nativeString = getNativeString(environment);
+            if (nativeString != null) {
+                path = downloads.getClassifiers().get(nativeString).getPath();
+                return path;
+            } else {
+                path = downloads.getArtifact().getPath();
+                return path;
+            }
+        }
         StringBuilder builder = new StringBuilder();
         builder.append(getGroup().replace('.', '/'));
         builder.append("/");
@@ -123,7 +137,6 @@ public class Library {
         path = path.replace("${arch}", environment.getArchBits());
         return path;
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -133,13 +146,16 @@ public class Library {
 
         if (name != null ? !name.equals(library.name) : library.name != null)
             return false;
-
+        Environment env = Environment.getInstance();
+        if(getNativeString(env)==library.getNativeString(env))
+            return false;
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        String nativeString = getNativeString(Environment.getInstance());
+        return name != null ? (name+(nativeString != null ? nativeString : "")).hashCode() : 0;
     }
 
     @Data
