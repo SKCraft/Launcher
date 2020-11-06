@@ -156,3 +156,7 @@ $RECYCLE.BIN/
 /versions
 /accounts.dat
 /config.json
+
+
+### Launch4j
+/dist
