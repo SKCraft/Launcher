@@ -11,6 +11,7 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 
@@ -71,6 +72,8 @@ public class TestServerBuilder {
         GzipHandler gzip = new GzipHandler();
         server.setHandler(gzip);
         gzip.setHandler(contexts);
+
+        server.addBean(new ErrorHandler());
 
         return new TestServer(server);
     }

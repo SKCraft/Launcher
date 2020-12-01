@@ -166,7 +166,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         }
 
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingLibraries"));
-        installLibraries(installer, version, launcher.getLibrariesDir(), librarySources);
+        installLibraries(installer, manifest, launcher.getLibrariesDir(), librarySources);
 
         // Download assets
         log.info("Enumerating assets to download...");

@@ -2,7 +2,6 @@ package com.skcraft.launcher.model.loader;
 
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.Side;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.DownloadableFile;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.Environment;
@@ -30,8 +29,6 @@ public class LoaderSubResolver {
 	}
 
 	public String transform(String arg) {
-		VersionManifest version = manifest.getVersionManifest();
-
 		while (true) {
 			char start = arg.charAt(0);
 			int bound = arg.length() - 1;
@@ -44,7 +41,7 @@ public class LoaderSubResolver {
 				}
 			} else if (start == '[' && end == ']') {
 				String libraryName = arg.substring(1, bound);
-				Library library = version.findLibrary(libraryName);
+				Library library = loader.findLibrary(libraryName);
 				if (library != null) {
 					arg = getPathOf(manifest.getLibrariesLocation(), library.getPath(env));
 				} else {

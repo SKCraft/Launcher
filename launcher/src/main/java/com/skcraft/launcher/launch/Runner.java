@@ -15,9 +15,7 @@ import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.*;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.install.ZipExtract;
-import com.skcraft.launcher.model.minecraft.AssetsIndex;
-import com.skcraft.launcher.model.minecraft.Library;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.minecraft.*;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
@@ -60,6 +58,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private Configuration config;
     private JavaProcessBuilder builder;
     private AssetsRoot assetsRoot;
+    private FeatureList.Mutable featureList;
 
     /**
      * Create a new instance launcher.
@@ -75,6 +74,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         this.instance = instance;
         this.session = session;
         this.extractDir = extractDir;
+        this.featureList = new FeatureList.Mutable();
     }
 
     /**
@@ -132,12 +132,12 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         progress = new DefaultProgress(0.9, SharedLocale.tr("runner.collectingArgs"));
 
-        addJvmArgs();
+        addWindowArgs();
         addLibraries();
+        addJvmArgs();
         addJarArgs();
         addProxyArgs();
         addServerArgs();
-        addWindowArgs();
         addPlatformArgs();
         addLegacyArgs();
 
@@ -175,11 +175,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 builder.getFlags().add("-Xdock:name=Minecraft");
             }
         }
-
-        // Windows arguments
-        if (getEnvironment().getPlatform() == Platform.WINDOWS) {
-            builder.getFlags().add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
-        }
     }
 
     /**
@@ -210,8 +205,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
                         tr("runner.missingLibrary", instance.getTitle(), library.getName()));
             }
         }
-
-        builder.getFlags().add("-Djava.library.path=" + extractDir.getAbsoluteFile());
     }
 
     /**
@@ -253,12 +246,20 @@ public class Runner implements Callable<Process>, ProgressObservable {
             builder.tryJvmPath(new File(rawJvmPath));
         }
 
+        List<String> flags = builder.getFlags();
         String rawJvmArgs = config.getJvmArgs();
         if (!Strings.isNullOrEmpty(rawJvmArgs)) {
-            List<String> flags = builder.getFlags();
 
             for (String arg : JavaProcessBuilder.splitArgs(rawJvmArgs)) {
                 flags.add(arg);
+            }
+        }
+
+        List<GameArgument> javaArguments = versionManifest.getArguments().getJvmArguments();
+        StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
+        for (GameArgument arg : javaArguments) {
+            if (arg.resolveRules(environment, featureList)) {
+                flags.add(substitutor.replace(arg.getJoinedValue()));
             }
         }
     }
@@ -271,10 +272,12 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private void addJarArgs() throws JsonProcessingException {
         List<String> args = builder.getArgs();
 
-        String[] rawArgs = versionManifest.getMinecraftArguments().split(" +");
+        List<GameArgument> rawArgs = versionManifest.getArguments().getGameArguments();
         StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
-        for (String arg : rawArgs) {
-            args.add(substitutor.replace(arg));
+        for (GameArgument arg : rawArgs) {
+            if (arg.resolveRules(environment, featureList)) {
+                args.add(substitutor.replace(arg.getJoinedValue()));
+            }
         }
     }
 
@@ -329,15 +332,10 @@ public class Runner implements Callable<Process>, ProgressObservable {
      * Add window arguments.
      */
     private void addWindowArgs() {
-        List<String> args = builder.getArgs();
         int width = config.getWindowWidth();
-        int height = config.getWidowHeight();
 
         if (width >= 10) {
-            args.add("--width");
-            args.add(String.valueOf(width));
-            args.add("--height");
-            args.add(String.valueOf(height));
+            featureList.addFeature("has_custom_resolution", true);
         }
     }
 
@@ -372,6 +370,14 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("game_assets", virtualAssetsDir.getAbsolutePath());
         map.put("assets_root", launcher.getAssets().getDir().getAbsolutePath());
         map.put("assets_index_name", versionManifest.getAssetId());
+
+        map.put("resolution_width", String.valueOf(config.getWindowWidth()));
+        map.put("resolution_height", String.valueOf(config.getWidowHeight()));
+
+        map.put("launcher_name", launcher.getTitle());
+        map.put("launcher_version", launcher.getVersion());
+        map.put("classpath", builder.buildClassPath());
+        map.put("natives_directory", extractDir.getAbsolutePath());
 
         return map;
     }

@@ -8,6 +8,7 @@ package com.skcraft.launcher.model.minecraft;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Splitter;
 import lombok.Data;
 
 import java.util.Date;
@@ -25,8 +26,7 @@ public class VersionManifest {
     private String assets;
     private AssetIndex assetIndex;
     private String type;
-    private String processArguments;
-    private String minecraftArguments;
+    private MinecraftArguments arguments;
     private String mainClass;
     private int minimumLauncherVersion;
     private LinkedHashSet<Library> libraries;
@@ -46,6 +46,15 @@ public class VersionManifest {
         }
 
         return null;
+    }
+
+    public void setMinecraftArguments(String minecraftArguments) {
+        for (String arg : Splitter.on(' ').split(minecraftArguments)) {
+            this.arguments.getGameArguments().add(new GameArgument(arg));
+        }
+
+        // TODO: Possibly do some cheaty side-effects here to add parameters missing from early game versions.
+        //  Either that or use a proper version adapter.
     }
 
     @Data

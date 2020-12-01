@@ -52,7 +52,7 @@ public class ProcessorTask implements InstallTask {
 		Map<String, String> outputs = processor.resolveOutputs(resolver);
 
 		message = "Finding libraries";
-		Library execFile = versionManifest.findLibrary(processor.getJar());
+		Library execFile = loaderManifest.findLibrary(processor.getJar());
 		File jar = launcher.getLibraryFile(execFile);
 
 		JarFile jarFile = new JarFile(jar);
@@ -68,7 +68,7 @@ public class ProcessorTask implements InstallTask {
 		int total = processor.getClasspath().size();
 		for (String libraryName : processor.getClasspath()) {
 			message = "Adding library " + libraryName;
-			File libraryFile = launcher.getLibraryFile(versionManifest.findLibrary(libraryName));
+			File libraryFile = launcher.getLibraryFile(loaderManifest.findLibrary(libraryName));
 			if (!libraryFile.exists()) {
 				throw new RuntimeException(String.format("Missing library '%s' for processor '%s'",
 						libraryName, processor.getJar()));

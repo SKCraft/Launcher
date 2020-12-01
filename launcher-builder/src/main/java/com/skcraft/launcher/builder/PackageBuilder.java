@@ -12,8 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
@@ -25,10 +24,7 @@ import com.skcraft.launcher.model.loader.InstallProfile;
 import com.skcraft.launcher.model.loader.LoaderManifest;
 import com.skcraft.launcher.model.loader.SidedData;
 import com.skcraft.launcher.model.loader.VersionInfo;
-import com.skcraft.launcher.model.minecraft.Library;
-import com.skcraft.launcher.model.minecraft.ReleaseList;
-import com.skcraft.launcher.model.minecraft.Version;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.minecraft.*;
 import com.skcraft.launcher.model.modpack.DownloadableFile;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.Environment;
@@ -75,6 +71,7 @@ public class PackageBuilder {
     private File baseDir;
 
     private List<Library> loaderLibraries = Lists.newArrayList();
+    private List<Library> installerLibraries = Lists.newArrayList();
     private List<String> mavenRepos;
     private List<URL> jarMavens = Lists.newArrayList();
 
@@ -176,12 +173,9 @@ public class PackageBuilder {
                 }
 
                 // Copy tweak class arguments
-                List<String> gameArguments = info.getMinecraftArguments().getGameArguments();
+                List<GameArgument> gameArguments = info.getMinecraftArguments().getGameArguments();
                 if (gameArguments != null) {
-                    String args = Joiner.on(' ').join(gameArguments);
-                    String existingArgs = Strings.nullToEmpty(version.getMinecraftArguments());
-
-                    version.setMinecraftArguments(Joiner.on(' ').join(existingArgs, args));
+                    version.getArguments().getGameArguments().addAll(gameArguments);
                 }
 
                 // Add libraries
@@ -213,7 +207,7 @@ public class PackageBuilder {
                 InstallProfile profile = mapper.readValue(data, InstallProfile.class);
 
                 // Import the libraries for the installer
-                loaderLibraries.addAll(profile.getLibraries());
+                installerLibraries.addAll(profile.getLibraries());
 
                 // Extract the data files
                 List<DownloadableFile> extraFiles = Lists.newArrayList();
@@ -243,7 +237,7 @@ public class PackageBuilder {
                 profile.getData().put("SIDE", SidedData.create("client", "server"));
 
                 // Add loader manifest to the map
-                manifest.getLoaders().put(loaderName, new LoaderManifest(profile.getData(), extraFiles));
+                manifest.getLoaders().put(loaderName, new LoaderManifest(profile.getLibraries(), profile.getData(), extraFiles));
 
                 // Add processors
                 manifest.getTasks().addAll(profile.toProcessorEntries(loaderName));
@@ -266,7 +260,7 @@ public class PackageBuilder {
         // TODO: Download libraries for different environments -- As of writing, this is not an issue
         Environment env = Environment.getInstance();
 
-        for (Library library : loaderLibraries) {
+        for (Library library : Iterables.concat(loaderLibraries, installerLibraries)) {
             Library.Artifact artifact = library.getArtifact(env);
             File outputPath = new File(librariesDir, artifact.getPath());
 

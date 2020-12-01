@@ -138,6 +138,15 @@ public final class Launcher {
     }
 
     /**
+     * Get the launcher title.
+     *
+     * @return The launcher title.
+     */
+    public String getTitle() {
+        return tr("launcher.appTitle");
+    }
+
+    /**
      * Get the launcher version.
      *
      * @return the launcher version

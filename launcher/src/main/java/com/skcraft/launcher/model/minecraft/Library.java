@@ -6,12 +6,7 @@
 
 package com.skcraft.launcher.model.minecraft;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.skcraft.launcher.util.Environment;
@@ -20,7 +15,6 @@ import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -43,8 +37,8 @@ public class Library {
 
         if (getRules() != null) {
             for (Rule rule : getRules()) {
-                if (rule.matches(environment)) {
-                    allow = rule.getAction() == Action.ALLOW;
+                if (rule.matches(environment, FeatureList.EMPTY)) {
+                    allow = rule.isAllowed();
                 }
             }
         } else {
@@ -95,44 +89,16 @@ public class Library {
         if (name != null ? !name.equals(library.name) : library.name != null)
             return false;
 
+        // If libraries have different natives lists, they should be separate.
+        if (natives != null ? !natives.equals(library.natives) : library.natives != null)
+            return false;
+
         return true;
     }
 
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
-    }
-
-    @Data
-    public static class Rule {
-        private Action action;
-        private OS os;
-
-        public boolean matches(Environment environment) {
-            if (getOs() == null) {
-                return true;
-            } else {
-                return getOs().matches(environment);
-            }
-        }
-    }
-
-    @Data
-    public static class OS {
-        private Platform platform;
-        private Pattern version;
-
-        @JsonProperty("name")
-        @JsonDeserialize(using = PlatformDeserializer.class)
-        @JsonSerialize(using = PlatformSerializer.class)
-        public Platform getPlatform() {
-            return platform;
-        }
-
-        public boolean matches(Environment environment) {
-            return (getPlatform() == null || getPlatform().equals(environment.getPlatform())) &&
-                    (getVersion() == null || getVersion().matcher(environment.getPlatformVersion()).matches());
-        }
     }
 
     @Data
@@ -153,21 +119,6 @@ public class Library {
     public static class Downloads {
         private Artifact artifact;
         private Map<String, Artifact> classifiers;
-    }
-
-    private enum Action {
-        ALLOW,
-        DISALLOW;
-
-        @JsonCreator
-        public static Action fromJson(String text) {
-            return valueOf(text.toUpperCase());
-        }
-
-        @JsonValue
-        public String toJson() {
-            return name().toLowerCase();
-        }
     }
 
     public static String mavenNameToPath(String mavenName) {
