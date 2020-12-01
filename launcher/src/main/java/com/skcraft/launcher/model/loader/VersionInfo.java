@@ -7,7 +7,9 @@
 package com.skcraft.launcher.model.loader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.skcraft.launcher.model.minecraft.Library;
+import com.skcraft.launcher.model.minecraft.MinecraftArguments;
 import lombok.Data;
 
 import java.util.List;
@@ -15,8 +17,9 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VersionInfo {
-
-    private String minecraftArguments;
+    private String id;
+    @JsonProperty("arguments")
+    private MinecraftArguments minecraftArguments;
     private String mainClass;
     private List<Library> libraries;
 

@@ -7,15 +7,27 @@
 package com.skcraft.launcher.model.loader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.skcraft.launcher.model.minecraft.Library;
 import lombok.Data;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InstallProfile {
+    private List<Library> libraries;
+    private List<InstallProcessor> processors;
+    private Map<String, SidedData> data;
 
-    @JsonProperty("install")
-    private InstallData installData;
-    private VersionInfo versionInfo;
-
+    public List<ProcessorEntry> toProcessorEntries(final String loaderName) {
+        return Lists.transform(getProcessors(), new Function<InstallProcessor, ProcessorEntry>() {
+            @Override
+            public ProcessorEntry apply(InstallProcessor input) {
+                return new ProcessorEntry(loaderName, input);
+            }
+        });
+    }
 }

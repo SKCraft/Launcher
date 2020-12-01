@@ -50,7 +50,7 @@ public class AssetsRoot {
      * @return the file, which may not exist
      */
     public File getIndexPath(VersionManifest versionManifest) {
-        return new File(dir, "indexes/" + versionManifest.getAssetsIndex() + ".json");
+        return new File(dir, "indexes/" + versionManifest.getAssetId() + ".json");
     }
 
     /**
@@ -75,7 +75,7 @@ public class AssetsRoot {
      * @throws LauncherException
      */
     public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) throws LauncherException {
-        String indexId = versionManifest.getAssetsIndex();
+        String indexId = versionManifest.getAssetId();
         File path = getIndexPath(versionManifest);
         AssetsIndex index = Persistence.read(path, AssetsIndex.class, true);
         if (index == null || index.getObjects() == null) {

@@ -6,9 +6,14 @@
 
 package com.skcraft.launcher.model.minecraft;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
 import lombok.Data;
@@ -22,11 +27,7 @@ import java.util.regex.Pattern;
 public class Library {
 
     private String name;
-    private transient String group;
-    private transient String artifact;
-    private transient String version;
-    @JsonProperty("url")
-    private String baseUrl;
+    private Downloads downloads;
     private Map<String, String> natives;
     private Extract extract;
     private List<Rule> rules;
@@ -36,21 +37,6 @@ public class Library {
 
     // Custom
     private boolean locallyAvailable;
-
-    public void setName(String name) {
-        this.name = name;
-
-        if (name != null) {
-            String[] parts = name.split(":");
-            this.group = parts[0];
-            this.artifact = parts[1];
-            this.version = parts[2];
-        } else {
-            this.group = null;
-            this.artifact = null;
-            this.version = null;
-        }
-    }
 
     public boolean matches(Environment environment) {
         boolean allow = false;
@@ -66,21 +52,6 @@ public class Library {
         }
 
         return allow;
-    }
-
-    @JsonIgnore
-    public String getGroup() {
-        return group;
-    }
-
-    @JsonIgnore
-    public String getArtifact() {
-        return artifact;
-    }
-
-    @JsonIgnore
-    public String getVersion() {
-        return version;
     }
 
     public String getNativeString(Platform platform) {
@@ -100,28 +71,18 @@ public class Library {
         }
     }
 
-    public String getFilename(Environment environment) {
+    public Artifact getArtifact(Environment environment) {
         String nativeString = getNativeString(environment.getPlatform());
-        if (nativeString != null) {
-            return String.format("%s-%s-%s.jar",
-                    getArtifact(), getVersion(), nativeString);
-        }
 
-        return String.format("%s-%s.jar", getArtifact(), getVersion());
+        if (nativeString != null) {
+            return getDownloads().getClassifiers().get(nativeString);
+        } else {
+            return getDownloads().getArtifact();
+        }
     }
 
     public String getPath(Environment environment) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getGroup().replace('.', '/'));
-        builder.append("/");
-        builder.append(getArtifact());
-        builder.append("/");
-        builder.append(getVersion());
-        builder.append("/");
-        builder.append(getFilename(environment));
-        String path = builder.toString();
-        path = path.replace("${arch}", environment.getArchBits());
-        return path;
+        return getArtifact(environment).getPath();
     }
 
     @Override
@@ -179,6 +140,21 @@ public class Library {
         private List<String> exclude;
     }
 
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Artifact {
+        private String path;
+        private String url;
+        private String sha1;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Downloads {
+        private Artifact artifact;
+        private Map<String, Artifact> classifiers;
+    }
+
     private enum Action {
         ALLOW,
         DISALLOW;
@@ -194,4 +170,32 @@ public class Library {
         }
     }
 
+    public static String mavenNameToPath(String mavenName) {
+        List<String> split = Splitter.on(':').splitToList(mavenName);
+        int size = split.size();
+
+        String group = split.get(0);
+        String name = split.get(1);
+        String version = split.get(2);
+        String extension = "jar";
+
+        String fileName = name + "-" + version;
+
+        if (size > 3) {
+            String classifier = split.get(3);
+
+            if (classifier.indexOf("@") != -1) {
+                List<String> parts = Splitter.on('@').splitToList(classifier);
+
+                classifier = parts.get(0);
+                extension = parts.get(1);
+            }
+
+            fileName += "-" + classifier;
+        }
+
+        fileName += "." + extension;
+
+        return Joiner.on('/').join(group.replace('.', '/'), name, version, fileName);
+    }
 }

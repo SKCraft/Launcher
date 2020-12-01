@@ -152,7 +152,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         // Install the .jar
         File jarPath = launcher.getJarPath(version);
-        URL jarSource = launcher.propUrl("jarUrl", version.getId());
+        URL jarSource = url(version.getDownloads().get("client").getUrl());
         log.info("JAR at " + jarPath.getAbsolutePath() + ", fetched from " + jarSource);
         installJar(installer, jarPath, jarSource);
 
@@ -162,7 +162,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         URL url = manifest.getLibrariesUrl();
         if (url != null) {
             log.info("Added library source: " + url);
-            librarySources.add(url);
+            librarySources.add(0, url);
         }
 
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingLibraries"));
@@ -171,7 +171,7 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         // Download assets
         log.info("Enumerating assets to download...");
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingAssets"));
-        installAssets(installer, version, launcher.propUrl("assetsIndexUrl", version.getAssetsIndex()), assetsSources);
+        installAssets(installer, version, url(version.getAssetIndex().getUrl()), assetsSources);
 
         log.info("Executing download phase...");
         progress = ProgressFilter.between(installer.getDownloader(), 0, 0.98);
@@ -179,7 +179,9 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         log.info("Executing install phase...");
         progress = ProgressFilter.between(installer, 0.98, 1);
-        installer.execute();
+        installer.execute(launcher);
+
+        installer.executeLate(launcher);
 
         log.info("Completing...");
         complete();

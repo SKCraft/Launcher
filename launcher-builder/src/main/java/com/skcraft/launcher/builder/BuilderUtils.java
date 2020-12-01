@@ -42,7 +42,7 @@ public final class BuilderUtils {
     }
 
     public static List<Compressor> getCompressors(String repoUrl) {
-        if (repoUrl.matches("^https?://files.minecraftforge.net/maven/")) {
+        if (repoUrl.matches("^https?://files.minecraftforge.net/maven/?")) {
             return Lists.newArrayList(
                     new Compressor("xz", CompressorStreamFactory.XZ),
                     new Compressor("pack", CompressorStreamFactory.PACK200));

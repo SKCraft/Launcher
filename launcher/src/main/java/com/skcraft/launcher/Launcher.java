@@ -16,10 +16,12 @@ import com.skcraft.launcher.auth.AccountList;
 import com.skcraft.launcher.auth.LoginService;
 import com.skcraft.launcher.auth.YggdrasilLoginService;
 import com.skcraft.launcher.launch.LaunchSupervisor;
+import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.update.UpdateManager;
+import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SimpleLogFormatter;
@@ -262,6 +264,16 @@ public final class Launcher {
      */
     public File getLibrariesDir() {
         return new File(getCommonDataDir(), "libraries");
+    }
+
+    /**
+     * Fetch a library file.
+     * @param library Library to fetch
+     * @return File pointing to the library on disk.
+     */
+    public File getLibraryFile(Library library) {
+        Environment env = Environment.getInstance();
+        return new File(getLibrariesDir(), library.getPath(env));
     }
 
     /**

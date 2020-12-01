@@ -371,7 +371,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("game_directory", instance.getContentDir().getAbsolutePath());
         map.put("game_assets", virtualAssetsDir.getAbsolutePath());
         map.put("assets_root", launcher.getAssets().getDir().getAbsolutePath());
-        map.put("assets_index_name", versionManifest.getAssetsIndex());
+        map.put("assets_index_name", versionManifest.getAssetId());
 
         return map;
     }

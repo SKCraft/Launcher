@@ -224,8 +224,8 @@ public abstract class BaseUpdater {
 
                     File tempFile = installer.getDownloader().download(urls, "", LIBRARY_SIZE_ESTIMATE,
                             library.getName() + ".jar");
-                    installer.queue(new FileMover( tempFile, targetFile));
                     log.info("Fetching " + path + " from " + urls);
+                    installer.queue(new FileMover( tempFile, targetFile));
                 }
             }
         }
