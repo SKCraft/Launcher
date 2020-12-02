@@ -165,14 +165,11 @@ public class PackageBuilder {
 
                 BasicInstallProfile basicProfile = mapper.readValue(BuilderUtils.readStringFromStream(reader),
                         BasicInstallProfile.class);
-                String profileName = basicProfile.resolveProfileName();
 
-                if (profileName.equalsIgnoreCase("forge")) {
-                    if (basicProfile.isLegacy()) {
-                        processor = new OldForgeLoaderProcessor();
-                    } else {
-                        processor = new ModernForgeLoaderProcessor();
-                    }
+                if (basicProfile.isLegacy()) {
+                    processor = new OldForgeLoaderProcessor();
+                } else if (basicProfile.getProfile().equalsIgnoreCase("forge")) {
+                    processor = new ModernForgeLoaderProcessor();
                 }
             }
         } finally {
