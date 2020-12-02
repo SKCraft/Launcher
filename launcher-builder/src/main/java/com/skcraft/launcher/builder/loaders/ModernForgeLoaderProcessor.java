@@ -52,7 +52,7 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 				}
 
 				// Copy tweak class arguments
-				List<GameArgument> gameArguments = info.getMinecraftArguments().getGameArguments();
+				List<GameArgument> gameArguments = info.getArguments().getGameArguments();
 				if (gameArguments != null) {
 					version.getArguments().getGameArguments().addAll(gameArguments);
 				}

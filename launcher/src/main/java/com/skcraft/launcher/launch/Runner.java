@@ -131,6 +131,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
         }
 
         progress = new DefaultProgress(0.9, SharedLocale.tr("runner.collectingArgs"));
+        builder.classPath(getJarPath());
+        builder.setMainClass(versionManifest.getMainClass());
 
         addWindowArgs();
         addLibraries();
@@ -140,9 +142,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
         addServerArgs();
         addPlatformArgs();
         addLegacyArgs();
-
-        builder.classPath(getJarPath());
-        builder.setMainClass(versionManifest.getMainClass());
 
         callLaunchModifier();
 
@@ -249,7 +248,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
         List<String> flags = builder.getFlags();
         String rawJvmArgs = config.getJvmArgs();
         if (!Strings.isNullOrEmpty(rawJvmArgs)) {
-
             for (String arg : JavaProcessBuilder.splitArgs(rawJvmArgs)) {
                 flags.add(arg);
             }
@@ -258,8 +256,10 @@ public class Runner implements Callable<Process>, ProgressObservable {
         List<GameArgument> javaArguments = versionManifest.getArguments().getJvmArguments();
         StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
         for (GameArgument arg : javaArguments) {
-            if (arg.resolveRules(environment, featureList)) {
-                flags.add(substitutor.replace(arg.getJoinedValue()));
+            if (arg.shouldApply(environment, featureList)) {
+                for (String subArg : arg.getValues()) {
+                    flags.add(substitutor.replace(subArg));
+                }
             }
         }
     }
@@ -275,8 +275,10 @@ public class Runner implements Callable<Process>, ProgressObservable {
         List<GameArgument> rawArgs = versionManifest.getArguments().getGameArguments();
         StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
         for (GameArgument arg : rawArgs) {
-            if (arg.resolveRules(environment, featureList)) {
-                args.add(substitutor.replace(arg.getJoinedValue()));
+            if (arg.shouldApply(environment, featureList)) {
+                for (String subArg : arg.getValues()) {
+                    args.add(substitutor.replace(subArg));
+                }
             }
         }
     }
@@ -343,7 +345,32 @@ public class Runner implements Callable<Process>, ProgressObservable {
      * Add arguments to make legacy Minecraft work.
      */
     private void addLegacyArgs() {
-        builder.getFlags().add("-Dminecraft.applet.TargetDirectory=" + instance.getContentDir());
+        List<String> flags = builder.getFlags();
+
+        if (versionManifest.getMinimumLauncherVersion() < 21) {
+            // Add bits that the legacy manifests don't
+            flags.add("-Djava.library.path=" + extractDir.getAbsoluteFile());
+            flags.add("-cp");
+            flags.add(builder.buildClassPath());
+
+            if (featureList.hasFeature("has_custom_resolution")) {
+                List<String> args = builder.getArgs();
+                args.add("--width");
+                args.add(String.valueOf(config.getWindowWidth()));
+                args.add("--height");
+                args.add(String.valueOf(config.getWidowHeight()));
+            }
+
+            // Add old platform hacks that the new manifests already specify
+            if (getEnvironment().getPlatform() == Platform.WINDOWS) {
+                flags.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+            }
+        }
+
+        if (versionManifest.getMinimumLauncherVersion() < 18) {
+            // TODO find out exactly what versions need this hack.
+            flags.add("-Dminecraft.applet.TargetDirectory=" + instance.getContentDir());
+        }
     }
 
     /**
@@ -356,6 +383,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         Map<String, String> map = new HashMap<String, String>();
 
         map.put("version_name", versionManifest.getId());
+        map.put("version_type", launcher.getProperties().getProperty("launcherShortname"));
 
         map.put("auth_access_token", session.getAccessToken());
         map.put("auth_session", session.getSessionToken());

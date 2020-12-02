@@ -233,13 +233,19 @@ public class PackageBuilder {
     private boolean tryDownloadLibrary(Library library, Library.Artifact artifact, String baseUrl, File outputPath)
             throws IOException, InterruptedException {
         URL url = new URL(baseUrl);
-        File tempFile = File.createTempFile("launcherlib", null);
+
+        if (url.getPath().isEmpty() || url.getPath().equals("/")) {
+            // empty path, this is probably the first "is this a full URL" try.
+            return false;
+        }
 
         // Some repositories compress their files
         List<Compressor> compressors = BuilderUtils.getCompressors(baseUrl);
         for (Compressor compressor : Lists.reverse(compressors)) {
             url = new URL(url, compressor.transformPathname(artifact.getPath()));
         }
+
+        File tempFile = File.createTempFile("launcherlib", null);
 
         try {
             log.info("Downloading library " + library.getName() + " from " + url + "...");

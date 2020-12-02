@@ -22,6 +22,10 @@ public class FeatureList {
 		return true;
 	}
 
+	public boolean hasFeature(String key) {
+		return features.get(key) != null && features.get(key);
+	}
+
 	public static class Mutable extends FeatureList {
 		public void addFeature(String key, boolean value) {
 			features.put(key, value);

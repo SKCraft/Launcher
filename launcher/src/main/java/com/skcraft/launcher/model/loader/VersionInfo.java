@@ -7,7 +7,6 @@
 package com.skcraft.launcher.model.loader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
 import com.skcraft.launcher.model.minecraft.GameArgument;
 import com.skcraft.launcher.model.minecraft.Library;
@@ -21,14 +20,9 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VersionInfo {
     private String id;
-    @JsonProperty("arguments")
-    private MinecraftArguments minecraftArguments;
+    private MinecraftArguments arguments;
     private String mainClass;
     private List<Library> libraries;
-
-    public void setMinecraftArguments(MinecraftArguments arguments) {
-        this.minecraftArguments = arguments;
-    }
 
     public void setMinecraftArguments(String argumentString) {
         MinecraftArguments minecraftArguments = new MinecraftArguments();
@@ -38,6 +32,6 @@ public class VersionInfo {
             minecraftArguments.getGameArguments().add(new GameArgument(arg));
         }
 
-        setMinecraftArguments(minecraftArguments);
+        setArguments(minecraftArguments);
     }
 }

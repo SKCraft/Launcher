@@ -1,7 +1,6 @@
 package com.skcraft.launcher.builder.loaders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
@@ -12,7 +11,6 @@ import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.MinecraftArguments;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
-import com.skcraft.launcher.util.Environment;
 import lombok.extern.java.Log;
 
 import java.io.File;
@@ -44,7 +42,7 @@ public class OldForgeLoaderProcessor implements ILoaderProcessor {
 				VersionManifest version = manifest.getVersionManifest();
 
 				// Copy tweak class arguments
-				MinecraftArguments args = profile.getVersionInfo().getMinecraftArguments();
+				MinecraftArguments args = profile.getVersionInfo().getArguments();
 				if (args != null) {
 					Iterator<GameArgument> iter = args.getGameArguments().iterator();
 					while (iter.hasNext()) {
@@ -54,8 +52,9 @@ public class OldForgeLoaderProcessor implements ILoaderProcessor {
 									? cur.getValues().get(1)
 									: iter.next().getJoinedValue();
 
-							GameArgument tweakArg = new GameArgument(Lists.newArrayList("--tweakClass", tweakClass));
-							manifest.getVersionManifest().getArguments().getGameArguments().add(tweakArg);
+							List<GameArgument> gameArgs = manifest.getVersionManifest().getArguments().getGameArguments();
+							gameArgs.add(new GameArgument("--tweakClass"));
+							gameArgs.add(new GameArgument(tweakClass));
 
 							log.info(String.format("Adding tweak class '%s' to arguments", tweakClass));
 						}
@@ -87,11 +86,8 @@ public class OldForgeLoaderProcessor implements ILoaderProcessor {
 					ZipEntry libraryEntry = BuilderUtils.getZipEntry(jarFile, filePath);
 
 					if (libraryEntry != null) {
-						Library library = new Library();
-						library.setName(libraryPath);
-
 						File librariesDir = new File(baseDir, manifest.getLibrariesLocation());
-						File extractPath = new File(librariesDir, library.getPath(Environment.getInstance()));
+						File extractPath = new File(librariesDir, Library.mavenNameToPath(libraryPath));
 
 						Files.createParentDirs(extractPath);
 						ByteStreams.copy(closer.register(jarFile.getInputStream(libraryEntry)),

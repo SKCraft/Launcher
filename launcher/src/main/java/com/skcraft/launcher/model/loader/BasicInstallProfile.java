@@ -28,6 +28,7 @@ public class BasicInstallProfile {
 	}
 
 	@Data
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Legacy {
 		private String profileName;
 	}

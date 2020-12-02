@@ -121,6 +121,25 @@ public class Library {
         private Map<String, Artifact> classifiers;
     }
 
+    // Support for old Forge distributions with legacy library specs.
+    public void setUrl(String url) {
+        Artifact virtualArtifact = new Artifact();
+
+        virtualArtifact.setUrl(url);
+        virtualArtifact.setPath(mavenNameToPath(name));
+
+        Downloads downloads = new Downloads();
+        downloads.setArtifact(virtualArtifact);
+
+        setDownloads(downloads);
+    }
+
+    public void setServerreq(boolean value) {
+        if (value) {
+            setUrl("https://libraries.minecraft.net/"); // TODO do something better than this
+        }
+    }
+
     public static String mavenNameToPath(String mavenName) {
         List<String> split = Splitter.on(':').splitToList(mavenName);
         int size = split.size();

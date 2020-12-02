@@ -35,7 +35,7 @@ public class GameArgument {
 		return Joiner.on(' ').join(values);
 	}
 
-	public boolean resolveRules(Environment environment, FeatureList featureList) {
+	public boolean shouldApply(Environment environment, FeatureList featureList) {
 		if (getRules() == null) return true;
 
 		boolean result = false;
