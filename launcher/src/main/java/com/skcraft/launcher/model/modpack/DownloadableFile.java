@@ -1,6 +1,7 @@
 package com.skcraft.launcher.model.modpack;
 
 import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.model.minecraft.Side;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -15,6 +16,7 @@ public class DownloadableFile {
 	private String name;
 	private String hash;
 	private String location;
+	private Side side;
 	private int size;
 
 	public LocalFile download(@NonNull Installer installer, Manifest manifest) throws MalformedURLException {

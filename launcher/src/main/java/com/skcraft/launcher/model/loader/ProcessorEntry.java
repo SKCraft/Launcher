@@ -5,6 +5,7 @@ import com.skcraft.launcher.install.InstallLog;
 import com.skcraft.launcher.install.Installer;
 import com.skcraft.launcher.install.ProcessorTask;
 import com.skcraft.launcher.install.UpdateCache;
+import com.skcraft.launcher.model.minecraft.Side;
 import com.skcraft.launcher.model.modpack.DownloadableFile;
 import com.skcraft.launcher.model.modpack.ManifestEntry;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,8 @@ public class ProcessorEntry extends ManifestEntry {
 
 		HashMap<String, DownloadableFile.LocalFile> localFilesMap = Maps.newHashMap();
 		for (DownloadableFile downloadableFile : loaderManifest.getDownloadableFiles()) {
+			if (downloadableFile.getSide() != Side.CLIENT) continue;
+
 			DownloadableFile.LocalFile localFile = downloadableFile.download(installer, getManifest());
 
 			localFilesMap.put(localFile.getName(), localFile);

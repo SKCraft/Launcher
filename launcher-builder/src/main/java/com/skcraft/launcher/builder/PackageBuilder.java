@@ -218,6 +218,7 @@ public class PackageBuilder {
                             new File(baseDir, manifest.getObjectsLocation()));
 
                     entry.setName("client.lzma");
+                    entry.setSide(Side.CLIENT);
                     extraFiles.add(entry);
                     profile.getData().get("BINPATCH").setClient("&" + entry.getName() + "&");
                 }
@@ -229,6 +230,7 @@ public class PackageBuilder {
                             new File(baseDir, manifest.getObjectsLocation()));
 
                     entry.setName("server.lzma");
+                    entry.setSide(Side.SERVER);
                     extraFiles.add(entry);
                     profile.getData().get("BINPATCH").setServer("&" + entry.getName() + "&");
                 }
