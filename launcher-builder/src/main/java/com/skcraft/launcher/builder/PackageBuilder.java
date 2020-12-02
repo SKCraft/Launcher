@@ -15,20 +15,21 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherUtils;
-import com.skcraft.launcher.model.loader.InstallProfile;
-import com.skcraft.launcher.model.loader.LoaderManifest;
-import com.skcraft.launcher.model.loader.SidedData;
-import com.skcraft.launcher.model.loader.VersionInfo;
-import com.skcraft.launcher.model.minecraft.*;
-import com.skcraft.launcher.model.modpack.DownloadableFile;
+import com.skcraft.launcher.builder.loaders.ILoaderProcessor;
+import com.skcraft.launcher.builder.loaders.LoaderResult;
+import com.skcraft.launcher.builder.loaders.ModernForgeLoaderProcessor;
+import com.skcraft.launcher.builder.loaders.OldForgeLoaderProcessor;
+import com.skcraft.launcher.model.loader.BasicInstallProfile;
+import com.skcraft.launcher.model.minecraft.Library;
+import com.skcraft.launcher.model.minecraft.ReleaseList;
+import com.skcraft.launcher.model.minecraft.Version;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.Environment;
-import com.skcraft.launcher.util.FileUtils;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SimpleLogFormatter;
 import lombok.Getter;
@@ -153,106 +154,38 @@ public class PackageBuilder {
 
         JarFile jarFile = new JarFile(file);
         Closer closer = Closer.create();
+        ILoaderProcessor processor = null;
 
         try {
-            ZipEntry manifestEntry = BuilderUtils.getZipEntry(jarFile, "version.json");
-            String loaderName = file.getName();
-
-            if (manifestEntry != null) {
-                InputStream stream = jarFile.getInputStream(manifestEntry);
-
-                // Read file
-                String data = CharStreams.toString(closer.register(new InputStreamReader(stream)));
-                data = data.replaceAll(",\\s*\\}", "}"); // Fix issues with trailing commas
-
-                VersionInfo info = mapper.readValue(data, VersionInfo.class);
-                VersionManifest version = manifest.getVersionManifest();
-
-                if (version.getId() != null) {
-                    loaderName = version.getId();
-                }
-
-                // Copy tweak class arguments
-                List<GameArgument> gameArguments = info.getMinecraftArguments().getGameArguments();
-                if (gameArguments != null) {
-                    version.getArguments().getGameArguments().addAll(gameArguments);
-                }
-
-                // Add libraries
-                List<Library> libraries = info.getLibraries();
-                if (libraries != null) {
-                    for (Library library : libraries) {
-                        loaderLibraries.add(library);
-                        log.info("Adding loader library " + library.getName());
-                    }
-                }
-
-                // Copy main class
-                String mainClass = info.getMainClass();
-                if (mainClass != null) {
-                    version.setMainClass(mainClass);
-                    log.info("Using " + mainClass + " as the main class");
-                }
-            } else {
-                log.warning("The file at " + file.getAbsolutePath() + " did not appear to have an " +
-                        "version.json file inside -- is it actually an installer for a mod loader?");
-            }
-
             ZipEntry profileEntry = BuilderUtils.getZipEntry(jarFile, "install_profile.json");
+
             if (profileEntry != null) {
                 InputStream stream = jarFile.getInputStream(profileEntry);
-                String data = CharStreams.toString(closer.register(new InputStreamReader(stream)));
-                data = data.replace(",\\s*\\}", "}");
+                InputStreamReader reader = closer.register(new InputStreamReader(stream));
 
-                InstallProfile profile = mapper.readValue(data, InstallProfile.class);
+                BasicInstallProfile basicProfile = mapper.readValue(BuilderUtils.readStringFromStream(reader),
+                        BasicInstallProfile.class);
+                String profileName = basicProfile.resolveProfileName();
 
-                // Import the libraries for the installer
-                installerLibraries.addAll(profile.getLibraries());
-
-                // Extract the data files
-                List<DownloadableFile> extraFiles = Lists.newArrayList();
-                ZipEntry clientBinpatch = BuilderUtils.getZipEntry(jarFile, "data/client.lzma");
-                if (clientBinpatch != null) {
-                    DownloadableFile entry = FileUtils.saveStreamToObjectsDir(
-                            closer.register(jarFile.getInputStream(clientBinpatch)),
-                            new File(baseDir, manifest.getObjectsLocation()));
-
-                    entry.setName("client.lzma");
-                    entry.setSide(Side.CLIENT);
-                    extraFiles.add(entry);
-                    profile.getData().get("BINPATCH").setClient("&" + entry.getName() + "&");
+                if (profileName.equalsIgnoreCase("forge")) {
+                    if (basicProfile.isLegacy()) {
+                        processor = new OldForgeLoaderProcessor();
+                    } else {
+                        processor = new ModernForgeLoaderProcessor();
+                    }
                 }
-
-                ZipEntry serverBinpatch = BuilderUtils.getZipEntry(jarFile, "data/server.lzma");
-                if (serverBinpatch != null) {
-                    DownloadableFile entry = FileUtils.saveStreamToObjectsDir(
-                            closer.register(jarFile.getInputStream(serverBinpatch)),
-                            new File(baseDir, manifest.getObjectsLocation()));
-
-                    entry.setName("server.lzma");
-                    entry.setSide(Side.SERVER);
-                    extraFiles.add(entry);
-                    profile.getData().get("BINPATCH").setServer("&" + entry.getName() + "&");
-                }
-
-                // Add extra sided data
-                profile.getData().put("SIDE", SidedData.create("client", "server"));
-
-                // Add loader manifest to the map
-                manifest.getLoaders().put(loaderName, new LoaderManifest(profile.getLibraries(), profile.getData(), extraFiles));
-
-                // Add processors
-                manifest.getTasks().addAll(profile.toProcessorEntries(loaderName));
-            }
-
-            ZipEntry mavenEntry = BuilderUtils.getZipEntry(jarFile, "maven/");
-            if (mavenEntry != null) {
-                URL jarUrl = new URL("jar:file:" + file.getAbsolutePath() + "!/");
-                jarMavens.add(new URL(jarUrl, "/maven/"));
             }
         } finally {
             closer.close();
             jarFile.close();
+        }
+
+        if (processor != null) {
+            LoaderResult result = processor.process(file, manifest, mapper, baseDir);
+
+            loaderLibraries.addAll(result.getLoaderLibraries());
+            installerLibraries.addAll(result.getProcessorLibraries());
+            jarMavens.addAll(result.getJarMavens());
         }
     }
 

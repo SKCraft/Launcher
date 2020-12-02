@@ -4,11 +4,14 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.model.loader;
+package com.skcraft.launcher.model.loader.profiles;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.skcraft.launcher.model.loader.InstallProcessor;
+import com.skcraft.launcher.model.loader.ProcessorEntry;
+import com.skcraft.launcher.model.loader.SidedData;
 import com.skcraft.launcher.model.minecraft.Library;
 import lombok.Data;
 
@@ -17,7 +20,7 @@ import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class InstallProfile {
+public class ModernForgeInstallProfile {
     private List<Library> libraries;
     private List<InstallProcessor> processors;
     private Map<String, SidedData> data;

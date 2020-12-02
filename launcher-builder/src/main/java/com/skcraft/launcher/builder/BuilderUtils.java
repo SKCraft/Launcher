@@ -7,8 +7,10 @@
 package com.skcraft.launcher.builder;
 
 import com.beust.jcommander.internal.Lists;
+import com.google.common.io.CharStreams;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,6 +41,13 @@ public final class BuilderUtils {
         }
 
         return null;
+    }
+
+    public static String readStringFromStream(Readable r) throws IOException {
+        String data = CharStreams.toString(r);
+        data = data.replaceAll(",\\s*\\}", "}"); // Fix issues with trailing commas
+
+        return data;
     }
 
     public static List<Compressor> getCompressors(String repoUrl) {

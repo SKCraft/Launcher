@@ -11,10 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,9 +46,15 @@ public class VersionManifest {
     }
 
     public void setMinecraftArguments(String minecraftArguments) {
+        MinecraftArguments result = new MinecraftArguments();
+        result.setGameArguments(new ArrayList<GameArgument>());
+        result.setJvmArguments(new ArrayList<GameArgument>());
+
         for (String arg : Splitter.on(' ').split(minecraftArguments)) {
-            this.arguments.getGameArguments().add(new GameArgument(arg));
+            result.getGameArguments().add(new GameArgument(arg));
         }
+
+        setArguments(result);
 
         // TODO: Possibly do some cheaty side-effects here to add parameters missing from early game versions.
         //  Either that or use a proper version adapter.
