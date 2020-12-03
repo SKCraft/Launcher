@@ -14,7 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class LoaderManifest {
 	private List<Library> libraries;
-	private Map<String, SidedData> sidedData;
+	private Map<String, SidedData<String>> sidedData;
 	private List<DownloadableFile> downloadableFiles;
 
 	public Library findLibrary(String name) {

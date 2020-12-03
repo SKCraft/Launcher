@@ -35,7 +35,7 @@ public class LoaderSubResolver {
 			char end = arg.charAt(bound);
 
 			if (start == '{' && end == '}') {
-				SidedData sidedData = loader.getSidedData().get(arg.substring(1, bound));
+				SidedData<String> sidedData = loader.getSidedData().get(arg.substring(1, bound));
 				if (sidedData != null) {
 					arg = sidedData.resolveFor(side);
 				}

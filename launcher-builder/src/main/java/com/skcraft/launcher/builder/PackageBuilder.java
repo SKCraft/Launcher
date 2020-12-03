@@ -19,10 +19,7 @@ import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherUtils;
-import com.skcraft.launcher.builder.loaders.ILoaderProcessor;
-import com.skcraft.launcher.builder.loaders.LoaderResult;
-import com.skcraft.launcher.builder.loaders.ModernForgeLoaderProcessor;
-import com.skcraft.launcher.builder.loaders.OldForgeLoaderProcessor;
+import com.skcraft.launcher.builder.loaders.*;
 import com.skcraft.launcher.model.loader.BasicInstallProfile;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.ReleaseList;
@@ -171,6 +168,8 @@ public class PackageBuilder {
                 } else if (basicProfile.getProfile().equalsIgnoreCase("forge")) {
                     processor = new ModernForgeLoaderProcessor();
                 }
+            } else if (BuilderUtils.getZipEntry(jarFile, "fabric-installer.json") != null) {
+            	processor = new FabricLoaderProcessor();
             }
         } finally {
             closer.close();
@@ -200,6 +199,7 @@ public class PackageBuilder {
                 Files.createParentDirs(outputPath);
                 boolean found = false;
 
+                // Try just the URL, it might be a full URL to the file
                 if (!artifact.getUrl().isEmpty()) {
                     found = tryDownloadLibrary(library, artifact, artifact.getUrl(), outputPath);
                 }
@@ -210,6 +210,12 @@ public class PackageBuilder {
                         found = tryFetchLibrary(library, new URL(base, artifact.getPath()), outputPath);
                         if (found) break;
                     }
+                }
+
+                // Assume artifact URL is a maven repository URL and try that
+                if (!found) {
+                    URL url = LauncherUtils.concat(url(artifact.getUrl()), artifact.getPath());
+                    found = tryDownloadLibrary(library, artifact, url.toString(), outputPath);
                 }
 
                 // Try each repository if not found yet

@@ -51,7 +51,7 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 					loaderName = version.getId();
 				}
 
-				// Copy tweak class arguments
+				// Copy game arguments
 				List<GameArgument> gameArguments = info.getArguments().getGameArguments();
 				if (gameArguments != null) {
 					version.getArguments().getGameArguments().addAll(gameArguments);

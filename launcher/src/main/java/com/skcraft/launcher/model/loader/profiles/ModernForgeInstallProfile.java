@@ -23,7 +23,7 @@ import java.util.Map;
 public class ModernForgeInstallProfile {
     private List<Library> libraries;
     private List<InstallProcessor> processors;
-    private Map<String, SidedData> data;
+    private Map<String, SidedData<String>> data;
 
     public List<ProcessorEntry> toProcessorEntries(final String loaderName) {
         return Lists.transform(getProcessors(), new Function<InstallProcessor, ProcessorEntry>() {

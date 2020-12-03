@@ -55,9 +55,6 @@ public class VersionManifest {
         }
 
         setArguments(result);
-
-        // TODO: Possibly do some cheaty side-effects here to add parameters missing from early game versions.
-        //  Either that or use a proper version adapter.
     }
 
     @Data
