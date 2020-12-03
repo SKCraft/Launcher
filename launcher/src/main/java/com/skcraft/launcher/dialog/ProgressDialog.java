@@ -50,7 +50,7 @@ public class ProgressDialog extends JDialog {
     public ProgressDialog(Window owner, String title, String message) {
         super(owner, title, ModalityType.DOCUMENT_MODAL);
 
-        setResizable(false);
+        setResizable(true);
         initComponents();
         label.setText(message);
         defaultTitle = title;
