@@ -14,6 +14,8 @@ import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.model.minecraft.ReleaseList;
+import com.skcraft.launcher.model.minecraft.Version;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.persistence.Persistence;
@@ -108,12 +110,16 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
             mapper.writeValue(instance.getVersionPath(), version);
             return version;
         } else {
-            URL url = url(String.format(
-                    launcher.getProperties().getProperty("versionManifestUrl"),
-                    manifest.getGameVersion()));
+            URL url = url(launcher.getProperties().getProperty("versionManifestUrl"));
 
-            return HttpRequest
-                    .get(url)
+            ReleaseList releases = HttpRequest.get(url)
+                    .execute()
+                    .expectResponseCode(200)
+                    .returnContent()
+                    .asJson(ReleaseList.class);
+
+            Version relVersion = releases.find(manifest.getGameVersion());
+            return HttpRequest.get(url(relVersion.getUrl()))
                     .execute()
                     .expectResponseCode(200)
                     .returnContent()
