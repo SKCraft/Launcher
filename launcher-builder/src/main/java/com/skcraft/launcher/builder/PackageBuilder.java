@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,9 +53,6 @@ import static com.skcraft.launcher.util.HttpRequest.url;
  */
 @Log
 public class PackageBuilder {
-
-    private static final Pattern TWEAK_CLASS_ARG = Pattern.compile("--tweakClass\\s+([^\\s]+)");
-
     private final Properties properties;
     private final ObjectMapper mapper;
     private ObjectWriter writer;

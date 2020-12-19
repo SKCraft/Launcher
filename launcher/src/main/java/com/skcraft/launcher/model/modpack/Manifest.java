@@ -31,7 +31,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public class Manifest extends BaseManifest {
 
-    public static final int MIN_PROTOCOL_VERSION = 2;
+    public static final int MIN_PROTOCOL_VERSION = 3;
 
     private int minimumVersion;
     private URL baseUrl;

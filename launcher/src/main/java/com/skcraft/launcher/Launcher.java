@@ -54,7 +54,7 @@ import static com.skcraft.launcher.util.SharedLocale.tr;
 @Log
 public final class Launcher {
 
-    public static final int PROTOCOL_VERSION = 2;
+    public static final int PROTOCOL_VERSION = 3;
 
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
