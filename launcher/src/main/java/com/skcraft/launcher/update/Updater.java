@@ -102,30 +102,48 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         return instance;
     }
 
+    /**
+     * Check whether the package manifest contains an embedded version manifest,
+     * otherwise we'll have to download the one for the given Minecraft version.
+     *
+     * BACKWARDS COMPATIBILITY:
+     * Old manifests have an embedded version manifest without the minecraft JARs list present.
+     * If we find a manifest without that jar list, fetch the newer copy from launchermeta and use the list from that.
+     * We can't just replace the manifest outright because library versions might differ and that screws up Runner.
+     */
     private VersionManifest readVersionManifest(Manifest manifest) throws IOException, InterruptedException {
-        // Check whether the package manifest contains an embedded version manifest,
-        // otherwise we'll have to download the one for the given Minecraft version
         VersionManifest version = manifest.getVersionManifest();
-        if (version != null) {
-            mapper.writeValue(instance.getVersionPath(), version);
-            return version;
-        } else {
-            URL url = url(launcher.getProperties().getProperty("versionManifestUrl"));
+        URL url = url(launcher.getProperties().getProperty("versionManifestUrl"));
 
-            ReleaseList releases = HttpRequest.get(url)
-                    .execute()
-                    .expectResponseCode(200)
-                    .returnContent()
-                    .asJson(ReleaseList.class);
-
-            Version relVersion = releases.find(manifest.getGameVersion());
-            return HttpRequest.get(url(relVersion.getUrl()))
-                    .execute()
-                    .expectResponseCode(200)
-                    .returnContent()
-                    .saveContent(instance.getVersionPath())
-                    .asJson(VersionManifest.class);
+        if (version == null) {
+            version = fetchVersionManifest(url, manifest);
         }
+
+        if (version.getDownloads().isEmpty()) {
+            // Backwards compatibility hack
+            VersionManifest otherManifest = fetchVersionManifest(url, manifest);
+
+            version.setDownloads(otherManifest.getDownloads());
+            version.setAssetIndex(otherManifest.getAssetIndex());
+        }
+
+        mapper.writeValue(instance.getVersionPath(), version);
+        return version;
+    }
+
+    private static VersionManifest fetchVersionManifest(URL url, Manifest manifest) throws IOException, InterruptedException {
+        ReleaseList releases = HttpRequest.get(url)
+                .execute()
+                .expectResponseCode(200)
+                .returnContent()
+                .asJson(ReleaseList.class);
+
+        Version relVersion = releases.find(manifest.getGameVersion());
+        return HttpRequest.get(url(relVersion.getUrl()))
+                .execute()
+                .expectResponseCode(200)
+                .returnContent()
+                .asJson(VersionManifest.class);
     }
 
     /**

@@ -65,10 +65,32 @@ public class Library {
         }
     }
 
+    /**
+     * BACKWARDS COMPATIBILITY:
+     * Some library definitions only come with a "name" key and don't trigger any other compatibility measures.
+     * Therefore, if a library has no artifacts when this is called, we call {@link #setServerreq)} to trigger
+     * artifact generation that assumes the source is the Minecraft libraries URL.
+     * There is also some special handling for natives in this function; if we have no extra artifacts (newer specs
+     * put this in "classifiers" in the download list) then we make up an artifact by adding a maven classifier to
+     * the library name and using that.
+     */
     public Artifact getArtifact(Environment environment) {
+        if (getDownloads() == null) {
+            setServerreq(true); // BACKWARDS COMPATIBILITY
+        }
+
         String nativeString = getNativeString(environment.getPlatform());
 
         if (nativeString != null) {
+            if (getDownloads().getClassifiers() == null) {
+                // BACKWARDS COMPATIBILITY: make up a virtual artifact
+                Artifact virtualArtifact = new Artifact();
+                virtualArtifact.setUrl(getDownloads().getArtifact().getUrl());
+                virtualArtifact.setPath(mavenNameToPath(name + ":" + nativeString));
+
+                return virtualArtifact;
+            }
+
             return getDownloads().getClassifiers().get(nativeString);
         } else {
             return getDownloads().getArtifact();
@@ -121,7 +143,13 @@ public class Library {
         private Map<String, Artifact> classifiers;
     }
 
-    // Support for old Forge distributions with legacy library specs.
+    /**
+     * BACKWARDS COMPATIBILITY:
+     * Various sources use the old-style library specification, where there are two keys - "name" and "url",
+     * rather than the newer multiple-artifact style. This setter is called by Jackson when the "url" property
+     * is present, and uses it to create a "virtual" artifact using the URL given to us here plus the library
+     * name parsed out into a path.
+     */
     public void setUrl(String url) {
         Artifact virtualArtifact = new Artifact();
 
@@ -134,9 +162,14 @@ public class Library {
         setDownloads(downloads);
     }
 
+    /**
+     * BACKWARDS COMPATIBILITY:
+     * Some old Forge distributions use a parameter called "serverreq" to indicate that the dependency should
+     * be fetched from the Minecraft library source; this setter handles that.
+     */
     public void setServerreq(boolean value) {
         if (value) {
-            setUrl("https://libraries.minecraft.net/"); // TODO do something better than this
+            setUrl("https://libraries.minecraft.net/"); // TODO get this from properties?
         }
     }
 
