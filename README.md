@@ -1,6 +1,8 @@
 SKCraft Launcher
 ================
 
+![Now with 1.13+ support!](readme/now_with_support.png)
+
 Need to make it easy for people to install and play your modpack? The SKCraft Launcher platform may be for you if:
 
 :heavy_check_mark: You want your own logo and branding on the launcher, with your own news feed  
