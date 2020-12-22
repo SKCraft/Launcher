@@ -1,12 +1,9 @@
 plugins {
+    id 'application'
     id "com.github.johnrengelman.shadow"
 }
 
-jar {
-    manifest {
-        attributes("Main-Class": "com.skcraft.launcher.builder.PackageBuilder")
-    }
-}
+mainClassName = "com.skcraft.launcher.builder.PackageBuilder"
 
 dependencies {
     compile project(':launcher')
