@@ -34,7 +34,6 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven { url "http://repo.maven.apache.org/maven2" }
     }
 
     if (JavaVersion.current().isJava8Compatible()) {

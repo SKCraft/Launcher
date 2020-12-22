@@ -5,9 +5,16 @@ plugins {
 
 mainClassName = "com.skcraft.launcher.FancyLauncher"
 
+repositories {
+    maven {
+        name = 'cottonmc-maven'
+        url = 'https://server.bbkr.space/artifactory/libs-snapshot/'
+    }
+}
+
 dependencies {
     compile project(':launcher')
-    compile 'com.github.insubstantial:substance:7.3'
+    compile 'io.github.cottonmc.insubstantial:substance:7.3.1-20190628.121938-1'
 }
 
 shadowJar {
