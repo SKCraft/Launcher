@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.skcraft.launcher.util.Environment;
-import com.skcraft.launcher.util.Platform;
 import lombok.Data;
 
 import java.util.List;
@@ -48,18 +47,25 @@ public class Library {
         return allow;
     }
 
-    public String getNativeString(Platform platform) {
+    public String getNativeString(Environment environment) {
         if (getNatives() != null) {
-            switch (platform) {
+            String nativeString;
+
+            switch (environment.getPlatform()) {
                 case LINUX:
-                    return getNatives().get("linux");
+                    nativeString = getNatives().get("linux");
+                    break;
                 case WINDOWS:
-                    return getNatives().get("windows");
+                    nativeString = getNatives().get("windows");
+                    break;
                 case MAC_OS_X:
-                    return getNatives().get("osx");
+                    nativeString = getNatives().get("osx");
+                    break;
                 default:
                     return null;
             }
+
+            return nativeString.replace("${arch}", environment.getArchBits());
         } else {
             return null;
         }
@@ -79,7 +85,7 @@ public class Library {
             setServerreq(true); // BACKWARDS COMPATIBILITY
         }
 
-        String nativeString = getNativeString(environment.getPlatform());
+        String nativeString = getNativeString(environment);
 
         if (nativeString != null) {
             if (getDownloads().getClassifiers() == null) {
