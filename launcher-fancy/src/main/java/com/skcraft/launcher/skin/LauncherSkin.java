@@ -6,7 +6,13 @@
 
 package com.skcraft.launcher.skin;
 
-import org.pushingpixels.substance.api.*;
+import org.pushingpixels.substance.api.ComponentState;
+import org.pushingpixels.substance.api.SubstanceColorSchemeBundle;
+import org.pushingpixels.substance.api.SubstanceSkin;
+import org.pushingpixels.substance.api.SubstanceSlices;
+import org.pushingpixels.substance.api.colorscheme.ColorSchemeSingleColorQuery;
+import org.pushingpixels.substance.api.colorscheme.ColorSchemeTransform;
+import org.pushingpixels.substance.api.colorscheme.SubstanceColorScheme;
 import org.pushingpixels.substance.api.painter.border.ClassicBorderPainter;
 import org.pushingpixels.substance.api.painter.border.CompositeBorderPainter;
 import org.pushingpixels.substance.api.painter.border.DelegateBorderPainter;
@@ -18,7 +24,8 @@ import org.pushingpixels.substance.api.skin.GraphiteSkin;
 public class LauncherSkin extends GraphiteSkin {
 
     public LauncherSkin() {
-        ColorSchemes schemes = SubstanceSkin.getColorSchemes("com/skcraft/launcher/skin/graphite.colorschemes");
+        ColorSchemes schemes = SubstanceSkin.getColorSchemes(
+                this.getClass().getResourceAsStream("graphite.colorschemes"));
 
         SubstanceColorScheme activeScheme = schemes.get("Graphite Active");
         SubstanceColorScheme selectedDisabledScheme = schemes.get("Graphite Selected Disabled");
@@ -36,36 +43,43 @@ public class LauncherSkin extends GraphiteSkin {
         SubstanceColorSchemeBundle scheme = new SubstanceColorSchemeBundle(activeScheme, enabledScheme, disabledScheme);
 
         // highlight fill scheme + custom alpha for rollover unselected state
-        scheme.registerHighlightColorScheme(highlightScheme, 0.6f, ComponentState.ROLLOVER_UNSELECTED);
-        scheme.registerHighlightColorScheme(highlightScheme, 0.8f, ComponentState.SELECTED);
-        scheme.registerHighlightColorScheme(highlightScheme, 1.0f, ComponentState.ROLLOVER_SELECTED);
-        scheme.registerHighlightColorScheme(highlightScheme, 0.75f, ComponentState.ARMED, ComponentState.ROLLOVER_ARMED);
+        scheme.registerHighlightColorScheme(highlightScheme,
+                ComponentState.ROLLOVER_UNSELECTED, ComponentState.SELECTED, ComponentState.ROLLOVER_SELECTED,
+                ComponentState.ARMED, ComponentState.ROLLOVER_ARMED
+        );
+
+        scheme.registerHighlightAlpha(0.6f, ComponentState.ROLLOVER_UNSELECTED);
+        scheme.registerHighlightAlpha(0.8f, ComponentState.SELECTED);
+        scheme.registerHighlightAlpha(1.0f, ComponentState.ROLLOVER_SELECTED);
+        scheme.registerHighlightAlpha(0.75f, ComponentState.ARMED, ComponentState.ROLLOVER_ARMED);
 
         // highlight border scheme
-        scheme.registerColorScheme(highlightScheme, ColorSchemeAssociationKind.HIGHLIGHT_BORDER, ComponentState.getActiveStates());
-        scheme.registerColorScheme(borderScheme, ColorSchemeAssociationKind.BORDER);
-        scheme.registerColorScheme(separatorScheme, ColorSchemeAssociationKind.SEPARATOR);
+        scheme.registerColorScheme(highlightScheme, SubstanceSlices.ColorSchemeAssociationKind.HIGHLIGHT_BORDER, ComponentState.getActiveStates());
+        scheme.registerColorScheme(borderScheme, SubstanceSlices.ColorSchemeAssociationKind.BORDER);
+        scheme.registerColorScheme(separatorScheme, SubstanceSlices.ColorSchemeAssociationKind.SEPARATOR);
 
         // text highlight scheme
-        scheme.registerColorScheme(textHighlightScheme, ColorSchemeAssociationKind.TEXT_HIGHLIGHT, ComponentState.SELECTED, ComponentState.ROLLOVER_SELECTED);
+        scheme.registerColorScheme(textHighlightScheme, SubstanceSlices.ColorSchemeAssociationKind.HIGHLIGHT_TEXT, ComponentState.SELECTED, ComponentState.ROLLOVER_SELECTED);
         scheme.registerColorScheme(highlightScheme, ComponentState.ARMED, ComponentState.ROLLOVER_ARMED);
-        scheme.registerColorScheme(highlightMarkScheme, ColorSchemeAssociationKind.HIGHLIGHT_MARK, ComponentState.getActiveStates());
-        scheme.registerColorScheme(highlightMarkScheme, ColorSchemeAssociationKind.MARK, ComponentState.ROLLOVER_SELECTED, ComponentState.ROLLOVER_UNSELECTED);
-        scheme.registerColorScheme(borderScheme, ColorSchemeAssociationKind.MARK, ComponentState.SELECTED);
-        scheme.registerColorScheme(disabledScheme, 0.5f, ComponentState.DISABLED_UNSELECTED);
-        scheme.registerColorScheme(selectedDisabledScheme, 0.65f, ComponentState.DISABLED_SELECTED);
+        scheme.registerColorScheme(highlightMarkScheme, SubstanceSlices.ColorSchemeAssociationKind.HIGHLIGHT_MARK, ComponentState.getActiveStates());
+        scheme.registerColorScheme(highlightMarkScheme, SubstanceSlices.ColorSchemeAssociationKind.MARK, ComponentState.ROLLOVER_SELECTED, ComponentState.ROLLOVER_UNSELECTED);
+        scheme.registerColorScheme(borderScheme, SubstanceSlices.ColorSchemeAssociationKind.MARK, ComponentState.SELECTED);
+        scheme.registerColorScheme(disabledScheme, ComponentState.DISABLED_UNSELECTED);
+        scheme.registerColorScheme(selectedDisabledScheme, ComponentState.DISABLED_SELECTED);
         scheme.registerColorScheme(highlightScheme, ComponentState.ROLLOVER_SELECTED);
         scheme.registerColorScheme(selectedScheme, ComponentState.SELECTED);
 
-        scheme.registerColorScheme(tabHighlightScheme, ColorSchemeAssociationKind.TAB, ComponentState.ROLLOVER_SELECTED);
+        scheme.registerAlpha(0.5f, ComponentState.DISABLED_UNSELECTED);
+        scheme.registerAlpha(0.65f, ComponentState.DISABLED_SELECTED);
 
-        this.registerDecorationAreaSchemeBundle(scheme, backgroundScheme, DecorationAreaType.NONE);
+        scheme.registerColorScheme(tabHighlightScheme, SubstanceSlices.ColorSchemeAssociationKind.TAB, ComponentState.ROLLOVER_SELECTED);
 
-        this.setSelectedTabFadeStart(0.1);
-        this.setSelectedTabFadeEnd(0.3);
+        this.registerDecorationAreaSchemeBundle(scheme, backgroundScheme, SubstanceSlices.DecorationAreaType.NONE);
+
+        this.setTabFadeStart(0.1);
+        this.setTabFadeEnd(0.3);
 
         this.buttonShaper = new LauncherButtonShaper();
-        this.watermark = null;
         this.fillPainter = new FractionBasedFillPainter("Graphite",
                 new float[] { 0.0f, 0.5f, 1.0f },
                 new ColorSchemeSingleColorQuery[] {
@@ -87,8 +101,6 @@ public class LauncherSkin extends GraphiteSkin {
                 }));
 
         this.highlightBorderPainter = new ClassicBorderPainter();
-
-        this.watermarkScheme = schemes.get("Graphite Watermark");
     }
 
 }
