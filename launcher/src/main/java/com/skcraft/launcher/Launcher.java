@@ -68,6 +68,7 @@ public final class Launcher {
     @Getter private final LaunchSupervisor launchSupervisor = new LaunchSupervisor(this);
     @Getter private final UpdateManager updateManager = new UpdateManager(this);
     @Getter private final InstanceTasks instanceTasks = new InstanceTasks(this);
+    private final Environment env = Environment.getInstance();
 
     /**
      * Create a new launcher instance with the given base directory.
@@ -281,7 +282,6 @@ public final class Launcher {
      * @return File pointing to the library on disk.
      */
     public File getLibraryFile(Library library) {
-        Environment env = Environment.getInstance();
         return new File(getLibrariesDir(), library.getPath(env));
     }
 

@@ -1,5 +1,6 @@
 package com.skcraft.launcher.model.loader;
 
+import com.google.common.base.Function;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.Side;
 import com.skcraft.launcher.model.modpack.DownloadableFile;
@@ -11,7 +12,7 @@ import java.io.File;
 import java.util.HashMap;
 
 @RequiredArgsConstructor
-public class LoaderSubResolver {
+public class LoaderSubResolver implements Function<String, String> {
 	private final Manifest manifest;
 	private final LoaderManifest loader;
 	private final Environment env;
@@ -28,7 +29,10 @@ public class LoaderSubResolver {
 		return file.getAbsolutePath();
 	}
 
-	public String transform(String arg) {
+	@Override
+	public String apply(String arg) {
+		if (arg == null) return null;
+
 		while (true) {
 			char start = arg.charAt(0);
 			int bound = arg.length() - 1;

@@ -1,7 +1,6 @@
 package com.skcraft.launcher.model.loader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import lombok.Data;
 
@@ -18,13 +17,8 @@ public class InstallProcessor {
 	private List<String> args;
 	private Map<String, String> outputs;
 
-	public List<String> resolveArgs(final LoaderSubResolver resolver) {
-		return Lists.transform(getArgs(), new Function<String, String>() {
-			@Override
-			public String apply(String input) {
-				return resolver.transform(input);
-			}
-		});
+	public List<String> resolveArgs(LoaderSubResolver resolver) {
+		return Lists.transform(getArgs(), resolver);
 	}
 
 	public Map<String, String> resolveOutputs(final LoaderSubResolver resolver) {
@@ -33,7 +27,7 @@ public class InstallProcessor {
 		HashMap<String, String> result = new HashMap<String, String>();
 
 		for (Map.Entry<String, String> entry : getOutputs().entrySet()) {
-			result.put(resolver.transform(entry.getKey()), resolver.transform(entry.getValue()));
+			result.put(resolver.apply(entry.getKey()), resolver.apply(entry.getValue()));
 		}
 
 		return result;
