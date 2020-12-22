@@ -84,7 +84,17 @@ public class ProcessorTask implements InstallTask {
 
 		log.info(String.format("Running processor '%s' with %d args", processor.getJar(), programArgs.size()));
 
-		ClassLoader cl = new URLClassLoader(classpath.toArray(new URL[0]), null);
+		ClassLoader parent;
+		try {
+			// in java 9+ we need the platform classloader for access to certain modules
+			parent = (ClassLoader) ClassLoader.class.getDeclaredMethod("getPlatformClassLoader")
+					.invoke(null);
+		} catch (Throwable ignored) {
+			// java 8 or below it's a-ok to have no delegate
+			parent = null;
+		}
+
+		ClassLoader cl = new URLClassLoader(classpath.toArray(new URL[0]), parent);
 		try {
 			Class<?> mainClazz = Class.forName(mainClass, true, cl);
 			Method main = mainClazz.getDeclaredMethod("main", String[].class);
