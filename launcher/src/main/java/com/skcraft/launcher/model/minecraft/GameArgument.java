@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.skcraft.launcher.model.minecraft.mapper.ArgumentValueDeserializer;
+import com.skcraft.launcher.model.minecraft.mapper.ArgumentValueSerializer;
 import com.skcraft.launcher.util.Environment;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,7 @@ import java.util.List;
 public class GameArgument {
 	@JsonProperty("value")
 	@JsonDeserialize(using = ArgumentValueDeserializer.class)
+	@JsonSerialize(using = ArgumentValueSerializer.class)
 	private List<String> values;
 	private List<Rule> rules;
 
