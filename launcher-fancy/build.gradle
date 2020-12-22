@@ -7,7 +7,7 @@ mainClassName = "com.skcraft.launcher.FancyLauncher"
 
 dependencies {
     compile project(':launcher')
-    compile 'org.pushing-pixels:radiance-substance:3.5.1'
+    compile 'com.github.insubstantial:substance:7.3'
 }
 
 shadowJar {
