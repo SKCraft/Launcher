@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.model.loader;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Splitter;
 import com.skcraft.launcher.model.minecraft.GameArgument;
@@ -24,6 +25,8 @@ public class VersionInfo {
     private String mainClass;
     private List<Library> libraries;
 
+    @JsonIgnore private transient boolean overridingArguments;
+
     public void setMinecraftArguments(String argumentString) {
         MinecraftArguments minecraftArguments = new MinecraftArguments();
         minecraftArguments.setGameArguments(new ArrayList<GameArgument>());
@@ -33,5 +36,6 @@ public class VersionInfo {
         }
 
         setArguments(minecraftArguments);
+        setOverridingArguments(true);
     }
 }

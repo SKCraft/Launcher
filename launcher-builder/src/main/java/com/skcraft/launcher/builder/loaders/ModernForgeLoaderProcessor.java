@@ -54,6 +54,10 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 				// Copy game arguments
 				List<GameArgument> gameArguments = info.getArguments().getGameArguments();
 				if (gameArguments != null) {
+					if (info.isOverridingArguments()) {
+						version.getArguments().getGameArguments().clear();
+					}
+
 					version.getArguments().getGameArguments().addAll(gameArguments);
 				}
 
