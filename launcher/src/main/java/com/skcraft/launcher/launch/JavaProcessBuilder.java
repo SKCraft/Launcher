@@ -106,9 +106,6 @@ public class JavaProcessBuilder {
             command.add("-XX:MaxPermSize=" + String.valueOf(permGen) + "M");
         }
 
-        command.add("-cp");
-        command.add(buildClassPath());
-
         command.add(mainClass);
 
         for (String arg : args) {

@@ -7,6 +7,7 @@
 package com.skcraft.launcher.update;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.skcraft.launcher.AssetsRoot;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
@@ -14,6 +15,7 @@ import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.dialog.FeatureSelectionDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.install.*;
+import com.skcraft.launcher.model.loader.LoaderManifest;
 import com.skcraft.launcher.model.minecraft.Asset;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
 import com.skcraft.launcher.model.minecraft.Library;
@@ -201,11 +203,17 @@ public abstract class BaseUpdater {
     }
 
     protected void installLibraries(@NonNull Installer installer,
-                                    @NonNull VersionManifest versionManifest,
+                                    @NonNull Manifest manifest,
                                     @NonNull File librariesDir,
                                     @NonNull List<URL> sources) throws InterruptedException {
+        VersionManifest versionManifest = manifest.getVersionManifest();
 
-        for (Library library : versionManifest.getLibraries()) {
+        Iterable<Library> allLibraries = versionManifest.getLibraries();
+        for (LoaderManifest loader : manifest.getLoaders().values()) {
+            allLibraries = Iterables.concat(allLibraries, loader.getLibraries());
+        }
+
+        for (Library library : allLibraries) {
             if (library.matches(environment)) {
                 checkInterrupted();
 
@@ -224,8 +232,8 @@ public abstract class BaseUpdater {
 
                     File tempFile = installer.getDownloader().download(urls, "", LIBRARY_SIZE_ESTIMATE,
                             library.getName() + ".jar");
-                    installer.queue(new FileMover( tempFile, targetFile));
                     log.info("Fetching " + path + " from " + urls);
+                    installer.queue(new FileMover( tempFile, targetFile));
                 }
             }
         }

@@ -12,16 +12,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherUtils;
-import com.skcraft.launcher.model.loader.InstallProfile;
+import com.skcraft.launcher.builder.loaders.*;
+import com.skcraft.launcher.model.loader.BasicInstallProfile;
 import com.skcraft.launcher.model.minecraft.Library;
+import com.skcraft.launcher.model.minecraft.ReleaseList;
+import com.skcraft.launcher.model.minecraft.Version;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.Environment;
@@ -29,17 +31,17 @@ import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SimpleLogFormatter;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.java.Log;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -51,9 +53,6 @@ import static com.skcraft.launcher.util.HttpRequest.url;
  */
 @Log
 public class PackageBuilder {
-
-    private static final Pattern TWEAK_CLASS_ARG = Pattern.compile("--tweakClass\\s+([^\\s]+)");
-
     private final Properties properties;
     private final ObjectMapper mapper;
     private ObjectWriter writer;
@@ -61,8 +60,14 @@ public class PackageBuilder {
     private final PropertiesApplicator applicator;
     @Getter
     private boolean prettyPrint = false;
+
+    @Getter @Setter
+    private File baseDir;
+
     private List<Library> loaderLibraries = Lists.newArrayList();
+    private List<Library> installerLibraries = Lists.newArrayList();
     private List<String> mavenRepos;
+    private List<URL> jarMavens = Lists.newArrayList();
 
     /**
      * Create a new package builder.
@@ -142,73 +147,37 @@ public class PackageBuilder {
 
         JarFile jarFile = new JarFile(file);
         Closer closer = Closer.create();
+        ILoaderProcessor processor = null;
 
         try {
             ZipEntry profileEntry = BuilderUtils.getZipEntry(jarFile, "install_profile.json");
 
             if (profileEntry != null) {
                 InputStream stream = jarFile.getInputStream(profileEntry);
+                InputStreamReader reader = closer.register(new InputStreamReader(stream));
 
-                // Read file
-                String data = CharStreams.toString(closer.register(new InputStreamReader(stream)));
-                data = data.replaceAll(",\\s*\\}", "}"); // Fix issues with trailing commas
+                BasicInstallProfile basicProfile = mapper.readValue(BuilderUtils.readStringFromStream(reader),
+                        BasicInstallProfile.class);
 
-                InstallProfile profile = mapper.readValue(data, InstallProfile.class);
-                VersionManifest version = manifest.getVersionManifest();
-
-                // Copy tweak class arguments
-                String args = profile.getVersionInfo().getMinecraftArguments();
-                if (args != null) {
-                    String existingArgs = Strings.nullToEmpty(version.getMinecraftArguments());
-
-                    Matcher m = TWEAK_CLASS_ARG.matcher(args);
-                    while (m.find()) {
-                        version.setMinecraftArguments(existingArgs + " " + m.group());
-                        log.info("Adding " + m.group() + " to launch arguments");
-                    }
+                if (basicProfile.isLegacy()) {
+                    processor = new OldForgeLoaderProcessor();
+                } else if (basicProfile.getProfile().equalsIgnoreCase("forge")) {
+                    processor = new ModernForgeLoaderProcessor();
                 }
-
-                // Add libraries
-                List<Library> libraries = profile.getVersionInfo().getLibraries();
-                if (libraries != null) {
-                    for (Library library : libraries) {
-                        if (!version.getLibraries().contains(library)) {
-                            loaderLibraries.add(library);
-                        }
-                    }
-                }
-
-                // Copy main class
-                String mainClass = profile.getVersionInfo().getMainClass();
-                if (mainClass != null) {
-                    version.setMainClass(mainClass);
-                    log.info("Using " + mainClass + " as the main class");
-                }
-
-                // Extract the library
-                String filePath = profile.getInstallData().getFilePath();
-                String libraryPath = profile.getInstallData().getPath();
-
-                if (filePath != null && libraryPath != null) {
-                    ZipEntry libraryEntry = BuilderUtils.getZipEntry(jarFile, filePath);
-
-                    if (libraryEntry != null) {
-                        Library library = new Library();
-                        library.setName(libraryPath);
-                        File extractPath = new File(librariesDir, library.getPath(Environment.getInstance()));
-                        Files.createParentDirs(extractPath);
-                        ByteStreams.copy(closer.register(jarFile.getInputStream(libraryEntry)), Files.newOutputStreamSupplier(extractPath));
-                    } else {
-                        log.warning("Could not find the file '" + filePath + "' in " + file.getAbsolutePath() + ", which means that this mod loader will not work correctly");
-                    }
-                }
-            } else {
-                log.warning("The file at " + file.getAbsolutePath() + " did not appear to have an " +
-                        "install_profile.json file inside -- is it actually an installer for a mod loader?");
+            } else if (BuilderUtils.getZipEntry(jarFile, "fabric-installer.json") != null) {
+            	processor = new FabricLoaderProcessor();
             }
         } finally {
             closer.close();
             jarFile.close();
+        }
+
+        if (processor != null) {
+            LoaderResult result = processor.process(file, manifest, mapper, baseDir);
+
+            loaderLibraries.addAll(result.getLoaderLibraries());
+            installerLibraries.addAll(result.getProcessorLibraries());
+            jarMavens.addAll(result.getJarMavens());
         }
     }
 
@@ -218,54 +187,39 @@ public class PackageBuilder {
         // TODO: Download libraries for different environments -- As of writing, this is not an issue
         Environment env = Environment.getInstance();
 
-        for (Library library : loaderLibraries) {
-            File outputPath = new File(librariesDir, library.getPath(env));
+        for (Library library : Iterables.concat(loaderLibraries, installerLibraries)) {
+            Library.Artifact artifact = library.getArtifact(env);
+            File outputPath = new File(librariesDir, artifact.getPath());
 
             if (!outputPath.exists()) {
                 Files.createParentDirs(outputPath);
                 boolean found = false;
 
-                // Gather a list of repositories to download from
-                List<String> sources = Lists.newArrayList();
-                if (library.getBaseUrl() != null) {
-                    sources.add(library.getBaseUrl());
+                // Try just the URL, it might be a full URL to the file
+                if (!artifact.getUrl().isEmpty()) {
+                    found = tryDownloadLibrary(library, artifact, artifact.getUrl(), outputPath);
                 }
-                sources.addAll(mavenRepos);
 
-                // Try each repository
-                for (String baseUrl : sources) {
-                    String pathname = library.getPath(env);
-
-                    // Some repositories compress their files
-                    List<Compressor> compressors = BuilderUtils.getCompressors(baseUrl);
-                    for (Compressor compressor : Lists.reverse(compressors)) {
-                        pathname = compressor.transformPathname(pathname);
+                // Look inside the loader JARs
+                if (!found) {
+                    for (URL base : jarMavens) {
+                        found = tryFetchLibrary(library, new URL(base, artifact.getPath()), outputPath);
+                        if (found) break;
                     }
+                }
 
-                    URL url = new URL(baseUrl + pathname);
-                    File tempFile = File.createTempFile("launcherlib", null);
+                // Assume artifact URL is a maven repository URL and try that
+                if (!found) {
+                    URL url = LauncherUtils.concat(url(artifact.getUrl()), artifact.getPath());
+                    found = tryDownloadLibrary(library, artifact, url.toString(), outputPath);
+                }
 
-                    try {
-                        log.info("Downloading library " + library.getName() + " from " + url + "...");
-                        HttpRequest.get(url).execute().expectResponseCode(200).saveContent(tempFile);
-                    } catch (IOException e) {
-                        log.info("Could not get file from " + url + ": " + e.getMessage());
-                        continue;
+                // Try each repository if not found yet
+                if (!found) {
+                    for (String baseUrl : mavenRepos) {
+                        found = tryDownloadLibrary(library, artifact, baseUrl + artifact.getPath(), outputPath);
+                        if (found) break;
                     }
-
-                    // Decompress (if needed) and write to file
-                    Closer closer = Closer.create();
-                    InputStream inputStream = closer.register(new FileInputStream(tempFile));
-                    inputStream = closer.register(new BufferedInputStream(inputStream));
-                    for (Compressor compressor : compressors) {
-                        inputStream = closer.register(compressor.createInputStream(inputStream));
-                    }
-                    ByteStreams.copy(inputStream, closer.register(new FileOutputStream(outputPath)));
-
-                    tempFile.delete();
-
-                    found = true;
-                    break;
                 }
 
                 if (!found) {
@@ -273,6 +227,71 @@ public class PackageBuilder {
                 }
             }
         }
+    }
+
+    private boolean tryDownloadLibrary(Library library, Library.Artifact artifact, String baseUrl, File outputPath)
+            throws IOException, InterruptedException {
+        URL url = new URL(baseUrl);
+
+        if (url.getPath().isEmpty() || url.getPath().equals("/")) {
+            // empty path, this is probably the first "is this a full URL" try.
+            return false;
+        }
+
+        // Some repositories compress their files
+        List<Compressor> compressors = BuilderUtils.getCompressors(baseUrl);
+        for (Compressor compressor : Lists.reverse(compressors)) {
+            url = new URL(url, compressor.transformPathname(artifact.getPath()));
+        }
+
+        File tempFile = File.createTempFile("launcherlib", null);
+
+        try {
+            log.info("Downloading library " + library.getName() + " from " + url + "...");
+            HttpRequest.get(url).execute().expectResponseCode(200).saveContent(tempFile);
+        } catch (IOException e) {
+            log.info("Could not get file from " + url + ": " + e.getMessage());
+            return false;
+        }
+
+        writeLibraryToFile(outputPath, tempFile, compressors);
+        return true;
+    }
+
+    private boolean tryFetchLibrary(Library library, URL url, File outputPath)
+            throws IOException {
+        File tempFile = File.createTempFile("launcherlib", null);
+
+        Closer closer = Closer.create();
+        try {
+            log.info("Reading library " + library.getName() + " from " + url.toString());
+            InputStream stream = closer.register(url.openStream());
+            stream = closer.register(new BufferedInputStream(stream));
+
+            ByteStreams.copy(stream, closer.register(new FileOutputStream(tempFile)));
+        } catch (IOException e) {
+            log.info("Could not get file from " + url + ": " + e.getMessage());
+            return false;
+        } finally {
+            closer.close();
+        }
+
+        writeLibraryToFile(outputPath, tempFile, Collections.<Compressor>emptyList());
+        return true;
+    }
+
+    private void writeLibraryToFile(File outputPath, File inputFile, List<Compressor> compressors) throws IOException {
+        // Decompress (if needed) and write to file
+        Closer closer = Closer.create();
+        InputStream inputStream = closer.register(new FileInputStream(inputFile));
+        inputStream = closer.register(new BufferedInputStream(inputStream));
+        for (Compressor compressor : compressors) {
+            inputStream = closer.register(compressor.createInputStream(inputStream));
+        }
+        ByteStreams.copy(inputStream, closer.register(new FileOutputStream(outputPath)));
+
+        inputFile.delete();
+        closer.close();
     }
 
     public void validateManifest() {
@@ -297,18 +316,24 @@ public class PackageBuilder {
 
             log.info("Loaded version manifest from " + path.getAbsolutePath());
         } else {
-            URL url = url(String.format(
-                    properties.getProperty("versionManifestUrl"),
-                    manifest.getGameVersion()));
+            URL url = url(properties.getProperty("versionManifestUrl"));
 
             log.info("Fetching version manifest from " + url + "...");
 
-            manifest.setVersionManifest(HttpRequest
-                    .get(url)
+            ReleaseList releases = HttpRequest.get(url)
                     .execute()
                     .expectResponseCode(200)
                     .returnContent()
-                    .asJson(VersionManifest.class));
+                    .asJson(ReleaseList.class);
+
+            Version version = releases.find(manifest.getGameVersion());
+            VersionManifest versionManifest = HttpRequest.get(url(version.getUrl()))
+                .execute()
+                .expectResponseCode(200)
+                .returnContent()
+                .asJson(VersionManifest.class);
+
+            manifest.setVersionManifest(versionManifest);
         }
     }
 
@@ -379,6 +404,7 @@ public class PackageBuilder {
         // From config
         builder.readConfig(options.getConfigPath());
         builder.readVersionManifest(options.getVersionManifestPath());
+        builder.setBaseDir(options.getOutputPath());
 
         // From options
         manifest.updateName(options.getName());

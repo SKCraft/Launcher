@@ -48,7 +48,7 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
             installer.queue(new FileMover(tempFile, file));
 
             progress = installer;
-            installer.execute();
+            installer.execute(launcher);
 
             return file;
         } finally {

@@ -1,16 +1,20 @@
 plugins {
+    id 'application'
     id "com.github.johnrengelman.shadow"
 }
 
-jar {
-    manifest {
-        attributes("Main-Class": "com.skcraft.launcher.FancyLauncher")
+mainClassName = "com.skcraft.launcher.FancyLauncher"
+
+repositories {
+    maven {
+        name = 'obw maven'
+        url = 'https://maven.offbeatwit.ch/repository/snapshots'
     }
 }
 
 dependencies {
     compile project(':launcher')
-    compile 'com.github.insubstantial:substance:7.3'
+    compile 'io.github.cottonmc.insubstantial:substance:7.3.1-SNAPSHOT'
 }
 
 shadowJar {

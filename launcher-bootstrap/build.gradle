@@ -1,13 +1,10 @@
 plugins {
+    id 'application'
     id "com.github.johnrengelman.shadow"
     id 'io.franzbecker.gradle-lombok'
 }
 
-jar {
-    manifest {
-        attributes("Main-Class": "com.skcraft.launcher.Bootstrap")
-    }
-}
+mainClassName = "com.skcraft.launcher.Bootstrap"
 
 dependencies {
     compile 'com.googlecode.json-simple:json-simple:1.1.1'

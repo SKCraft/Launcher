@@ -1,5 +1,7 @@
 [
   "https://libraries.minecraft.net/",
   "https://repo1.maven.org/maven2/",
+  "https://files.minecraftforge.net/maven/",
+  "https://maven.fabricmc.net/",
   "http://maven.apache.org/"
 ]

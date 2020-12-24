@@ -12,8 +12,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.LauncherUtils;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.model.loader.LoaderManifest;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,13 +23,15 @@ import lombok.Setter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Manifest extends BaseManifest {
 
-    public static final int MIN_PROTOCOL_VERSION = 2;
+    public static final int MIN_PROTOCOL_VERSION = 3;
 
     private int minimumVersion;
     private URL baseUrl;
@@ -43,6 +46,7 @@ public class Manifest extends BaseManifest {
     @Getter @Setter @JsonIgnore
     private Installer installer;
     private VersionManifest versionManifest;
+    private Map<String, LoaderManifest> loaders = new HashMap<String, LoaderManifest>();
 
     @JsonIgnore
     public URL getLibrariesUrl() {

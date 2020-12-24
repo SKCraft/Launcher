@@ -4,7 +4,7 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher.model.minecraft;
+package com.skcraft.launcher.model.minecraft.mapper;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
