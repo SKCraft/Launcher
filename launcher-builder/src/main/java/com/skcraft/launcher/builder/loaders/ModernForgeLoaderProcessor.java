@@ -47,8 +47,8 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 						VersionInfo.class);
 				VersionManifest version = manifest.getVersionManifest();
 
-				if (version.getId() != null) {
-					loaderName = version.getId();
+				if (info.getId() != null) {
+					loaderName = info.getId();
 				}
 
 				// Copy game arguments
@@ -88,6 +88,13 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 				data = data.replace(",\\s*\\}", "}");
 
 				ModernForgeInstallProfile profile = mapper.readValue(data, ModernForgeInstallProfile.class);
+
+				if (!profile.getMinecraft().equals(manifest.getGameVersion())) {
+					// TODO: Ideally this would show up as a Problem when running the check command.
+					//  Getting the data from here to there is quite difficult, however.
+					log.warning(String.format("The Forge installer inside loaders/ is for Minecraft version %s; your " +
+							"manifest is set to %s.", profile.getMinecraft(), manifest.getGameVersion()));
+				}
 
 				// Import the libraries for the installer
 				result.getProcessorLibraries().addAll(profile.getLibraries());
