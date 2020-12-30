@@ -20,6 +20,11 @@ public class Version {
     @NonNull
     private String id;
 
+    @Getter
+    @Setter
+    @NonNull
+    private String url;
+
     public Version() {
     }
 

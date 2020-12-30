@@ -15,9 +15,7 @@ import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.*;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.install.ZipExtract;
-import com.skcraft.launcher.model.minecraft.AssetsIndex;
-import com.skcraft.launcher.model.minecraft.Library;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.minecraft.*;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
@@ -60,6 +58,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private Configuration config;
     private JavaProcessBuilder builder;
     private AssetsRoot assetsRoot;
+    private FeatureList.Mutable featureList;
 
     /**
      * Create a new instance launcher.
@@ -75,6 +74,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         this.instance = instance;
         this.session = session;
         this.extractDir = extractDir;
+        this.featureList = new FeatureList.Mutable();
     }
 
     /**
@@ -131,16 +131,17 @@ public class Runner implements Callable<Process>, ProgressObservable {
         }
 
         progress = new DefaultProgress(0.9, SharedLocale.tr("runner.collectingArgs"));
-
-        addJvmArgs();
-        addLibraries();
-        addJarArgs();
-        addProxyArgs();
-        addWindowArgs();
-        addPlatformArgs();
-
         builder.classPath(getJarPath());
         builder.setMainClass(versionManifest.getMainClass());
+
+        addWindowArgs();
+        addLibraries();
+        addJvmArgs();
+        addJarArgs();
+        addProxyArgs();
+        addServerArgs();
+        addPlatformArgs();
+        addLegacyArgs();
 
         callLaunchModifier();
 
@@ -173,11 +174,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 builder.getFlags().add("-Xdock:name=Minecraft");
             }
         }
-
-        // Windows arguments
-        if (getEnvironment().getPlatform() == Platform.WINDOWS) {
-            builder.getFlags().add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
-        }
     }
 
     /**
@@ -208,8 +204,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
                         tr("runner.missingLibrary", instance.getTitle(), library.getName()));
             }
         }
-
-        builder.getFlags().add("-Djava.library.path=" + extractDir.getAbsoluteFile());
     }
 
     /**
@@ -251,12 +245,21 @@ public class Runner implements Callable<Process>, ProgressObservable {
             builder.tryJvmPath(new File(rawJvmPath));
         }
 
+        List<String> flags = builder.getFlags();
         String rawJvmArgs = config.getJvmArgs();
         if (!Strings.isNullOrEmpty(rawJvmArgs)) {
-            List<String> flags = builder.getFlags();
-
             for (String arg : JavaProcessBuilder.splitArgs(rawJvmArgs)) {
                 flags.add(arg);
+            }
+        }
+
+        List<GameArgument> javaArguments = versionManifest.getArguments().getJvmArguments();
+        StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
+        for (GameArgument arg : javaArguments) {
+            if (arg.shouldApply(environment, featureList)) {
+                for (String subArg : arg.getValues()) {
+                    flags.add(substitutor.replace(subArg));
+                }
             }
         }
     }
@@ -269,10 +272,14 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private void addJarArgs() throws JsonProcessingException {
         List<String> args = builder.getArgs();
 
-        String[] rawArgs = versionManifest.getMinecraftArguments().split(" +");
+        List<GameArgument> rawArgs = versionManifest.getArguments().getGameArguments();
         StrSubstitutor substitutor = new StrSubstitutor(getCommandSubstitutions());
-        for (String arg : rawArgs) {
-            args.add(substitutor.replace(arg));
+        for (GameArgument arg : rawArgs) {
+            if (arg.shouldApply(environment, featureList)) {
+                for (String subArg : arg.getValues()) {
+                    args.add(substitutor.replace(subArg));
+                }
+            }
         }
     }
 
@@ -305,18 +312,65 @@ public class Runner implements Callable<Process>, ProgressObservable {
     }
 
     /**
+     * Add server arguments.
+     */
+    private void addServerArgs() {
+        List<String> args = builder.getArgs();
+
+        if (config.isServerEnabled()) {
+            String host = config.getServerHost();
+            int port = config.getServerPort();
+
+            if (!Strings.isNullOrEmpty(host) && port > 0 && port < 65535) {
+                args.add("--server");
+                args.add(host);
+                args.add("--port");
+                args.add(String.valueOf(port));
+            }
+        }
+    }
+
+    /**
      * Add window arguments.
      */
     private void addWindowArgs() {
-        List<String> args = builder.getArgs();
         int width = config.getWindowWidth();
         int height = config.getWindowHeight();
 
         if (width >= 10) {
-            args.add("--width");
-            args.add(String.valueOf(width));
-            args.add("--height");
-            args.add(String.valueOf(height));
+            featureList.addFeature("has_custom_resolution", true);
+        }
+    }
+
+    /**
+     * Add arguments to make legacy Minecraft work.
+     */
+    private void addLegacyArgs() {
+        List<String> flags = builder.getFlags();
+
+        if (versionManifest.getMinimumLauncherVersion() < 21) {
+            // Add bits that the legacy manifests don't
+            flags.add("-Djava.library.path=" + extractDir.getAbsoluteFile());
+            flags.add("-cp");
+            flags.add(builder.buildClassPath());
+
+            if (featureList.hasFeature("has_custom_resolution")) {
+                List<String> args = builder.getArgs();
+                args.add("--width");
+                args.add(String.valueOf(config.getWindowWidth()));
+                args.add("--height");
+                args.add(String.valueOf(config.getWidowHeight()));
+            }
+
+            // Add old platform hacks that the new manifests already specify
+            if (getEnvironment().getPlatform() == Platform.WINDOWS) {
+                flags.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+            }
+        }
+
+        if (versionManifest.getMinimumLauncherVersion() < 18) {
+            // TODO find out exactly what versions need this hack.
+            flags.add("-Dminecraft.applet.TargetDirectory=" + instance.getContentDir());
         }
     }
 
@@ -330,6 +384,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         Map<String, String> map = new HashMap<String, String>();
 
         map.put("version_name", versionManifest.getId());
+        map.put("version_type", launcher.getProperties().getProperty("launcherShortname"));
 
         map.put("auth_access_token", session.getAccessToken());
         map.put("auth_session", session.getSessionToken());
@@ -343,7 +398,15 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("game_directory", instance.getContentDir().getAbsolutePath());
         map.put("game_assets", virtualAssetsDir.getAbsolutePath());
         map.put("assets_root", launcher.getAssets().getDir().getAbsolutePath());
-        map.put("assets_index_name", versionManifest.getAssetsIndex());
+        map.put("assets_index_name", versionManifest.getAssetId());
+
+        map.put("resolution_width", String.valueOf(config.getWindowWidth()));
+        map.put("resolution_height", String.valueOf(config.getWidowHeight()));
+
+        map.put("launcher_name", launcher.getTitle());
+        map.put("launcher_version", launcher.getVersion());
+        map.put("classpath", builder.buildClassPath());
+        map.put("natives_directory", extractDir.getAbsolutePath());
 
         return map;
     }

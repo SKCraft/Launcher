@@ -1,4 +1,7 @@
-apply plugin: 'com.github.johnrengelman.shadow'
+plugins {
+    id 'application'
+    id "com.github.johnrengelman.shadow"
+}
 
 version = "2.0.2-SNAPSHOT"
 sourceCompatibility = 1.8
@@ -18,16 +21,9 @@ processResources {
     }
 }
 
-jar {
-    manifest {
-        attributes("Main-Class": "com.skcraft.launcher.creator.Creator")
-    }
-}
+mainClassName = "com.skcraft.launcher.creator.Creator"
 
 shadowJar {
-    dependencies {
-        exclude(dependency('org.projectlombok:lombok'))
-    }
 }
 
 build.dependsOn(shadowJar)

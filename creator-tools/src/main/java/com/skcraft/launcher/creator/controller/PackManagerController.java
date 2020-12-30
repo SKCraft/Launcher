@@ -748,7 +748,7 @@ public class PackManagerController {
 
         String version = generateVersionFromDate();
 
-        PackBuilder builder = new PackBuilder(pack, webRoot, version, "staging.json", false);
+        PackBuilder builder = new PackBuilder(pack, webRoot, version, "staging.json", false, false);
         InstanceList.Enumerator enumerator = launcher.getInstances().createEnumerator();
         TestLauncher instanceLauncher = new TestLauncher(launcher, frame, pack.getCachedConfig().getName(), session);
 
@@ -773,7 +773,7 @@ public class PackManagerController {
 
         if (options != null) {
             ConsoleFrame.showMessages();
-            PackBuilder builder = new PackBuilder(pack, options.getDestDir(), options.getVersion(), options.getManifestFilename(), false);
+            PackBuilder builder = new PackBuilder(pack, options.getDestDir(), options.getVersion(), options.getManifestFilename(), false, true);
             Deferred<?> deferred = Deferreds.makeDeferred(executor.submit(builder), executor)
                     .handleAsync(result -> {
                         ConsoleFrame.hideMessages();

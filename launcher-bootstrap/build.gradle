@@ -1,14 +1,14 @@
-apply plugin: 'com.github.johnrengelman.shadow'
-
-jar {
-    manifest {
-        attributes("Main-Class": "com.skcraft.launcher.Bootstrap")
-    }
+plugins {
+    id 'application'
+    id "com.github.johnrengelman.shadow"
+    id 'io.franzbecker.gradle-lombok'
 }
 
+mainClassName = "com.skcraft.launcher.Bootstrap"
+
 dependencies {
-    compile 'org.projectlombok:lombok:1.12.2'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
 }
 
 processResources {
@@ -20,9 +20,6 @@ processResources {
 }
 
 shadowJar {
-    dependencies {
-        exclude(dependency('org.projectlombok:lombok'))
-    }
 }
 
 build.dependsOn(shadowJar)
