@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.model.minecraft;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -154,6 +155,7 @@ public class Library {
         private Artifact artifact;
         private Map<String, Artifact> classifiers;
 
+        @JsonIgnore
         public List<Artifact> getAllArtifacts() {
             List<Artifact> artifacts = Lists.newArrayList();
 
