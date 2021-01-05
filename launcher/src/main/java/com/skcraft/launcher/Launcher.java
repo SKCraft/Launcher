@@ -411,9 +411,10 @@ public final class Launcher {
 
         File dir = options.getDir();
         if (dir != null) {
+            dir = dir.getAbsoluteFile();
             log.info("Using given base directory " + dir.getAbsolutePath());
         } else {
-            dir = new File("");
+            dir = new File("").getAbsoluteFile();
             log.info("Using current directory " + dir.getAbsolutePath());
         }
 
