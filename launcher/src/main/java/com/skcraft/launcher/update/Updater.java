@@ -176,9 +176,10 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         // Install the .jar
         File jarPath = launcher.getJarPath(version);
-        URL jarSource = url(version.getDownloads().get("client").getUrl());
+        VersionManifest.Artifact clientJar = version.getDownloads().get("client");
+        URL jarSource = url(clientJar.getUrl());
         log.info("JAR at " + jarPath.getAbsolutePath() + ", fetched from " + jarSource);
-        installJar(installer, jarPath, jarSource);
+        installJar(installer, clientJar, jarPath, jarSource);
 
         // Download libraries
         log.info("Enumerating libraries to download...");

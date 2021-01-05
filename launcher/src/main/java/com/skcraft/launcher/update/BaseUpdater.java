@@ -147,14 +147,19 @@ public abstract class BaseUpdater {
     }
 
     protected void installJar(@NonNull Installer installer,
+                              @NonNull VersionManifest.Artifact artifact,
                               @NonNull File jarFile,
                               @NonNull URL url) throws InterruptedException {
         // If the JAR does not exist, install it
         if (!jarFile.exists()) {
-            List<File> targets = new ArrayList<File>();
+            long size = artifact.getSize();
+            if (size <= 0) size = JAR_SIZE_ESTIMATE;
 
-            File tempFile = installer.getDownloader().download(url, "", JAR_SIZE_ESTIMATE, jarFile.getName());
+            File tempFile = installer.getDownloader().download(url, "", size, jarFile.getName());
             installer.queue(new FileMover(tempFile, jarFile));
+            if (artifact.getHash() != null) {
+                installer.queue(new FileVerify(jarFile, jarFile.getName(), artifact.getHash()));
+            }
             log.info("Installing " + jarFile.getName() + " from " + url);
         }
     }
@@ -217,7 +222,12 @@ public abstract class BaseUpdater {
             if (library.matches(environment)) {
                 checkInterrupted();
 
-                String path = library.getPath(environment);
+                Library.Artifact artifact = library.getArtifact(environment);
+                String path = artifact.getPath();
+
+                long size = artifact.getSize();
+                if (size <= 0) size = LIBRARY_SIZE_ESTIMATE;
+
                 File targetFile = new File(librariesDir, path);
 
                 if (!targetFile.exists()) {
@@ -230,10 +240,13 @@ public abstract class BaseUpdater {
                         }
                     }
 
-                    File tempFile = installer.getDownloader().download(urls, "", LIBRARY_SIZE_ESTIMATE,
+                    File tempFile = installer.getDownloader().download(urls, "", size,
                             library.getName() + ".jar");
                     log.info("Fetching " + path + " from " + urls);
-                    installer.queue(new FileMover( tempFile, targetFile));
+                    installer.queue(new FileMover(tempFile, targetFile));
+                    if (artifact.getSha1() != null) {
+                        installer.queue(new FileVerify(targetFile, library.getName(), artifact.getSha1()));
+                    }
                 }
             }
         }

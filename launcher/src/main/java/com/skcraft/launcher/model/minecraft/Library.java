@@ -145,6 +145,7 @@ public class Library {
         private String path;
         private String url;
         private String sha1;
+        private int size;
     }
 
     @Data
