@@ -9,6 +9,7 @@ package com.skcraft.launcher.model.minecraft;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.skcraft.launcher.util.Environment;
 import lombok.Data;
 
@@ -71,6 +72,12 @@ public class Library {
         }
     }
 
+    public void ensureDownloadsExist() {
+        if (getDownloads() == null) {
+            setServerreq(true); // BACKWARDS COMPATIBILITY
+        }
+    }
+
     /**
      * BACKWARDS COMPATIBILITY:
      * Some library definitions only come with a "name" key and don't trigger any other compatibility measures.
@@ -81,9 +88,7 @@ public class Library {
      * the library name and using that.
      */
     public Artifact getArtifact(Environment environment) {
-        if (getDownloads() == null) {
-            setServerreq(true); // BACKWARDS COMPATIBILITY
-        }
+        ensureDownloadsExist();
 
         String nativeString = getNativeString(environment);
 
@@ -147,6 +152,18 @@ public class Library {
     public static class Downloads {
         private Artifact artifact;
         private Map<String, Artifact> classifiers;
+
+        public List<Artifact> getAllArtifacts() {
+            List<Artifact> artifacts = Lists.newArrayList();
+
+            if (artifact != null)
+                artifacts.add(artifact);
+
+            if (classifiers != null)
+                artifacts.addAll(classifiers.values());
+
+            return artifacts;
+        }
     }
 
     /**
