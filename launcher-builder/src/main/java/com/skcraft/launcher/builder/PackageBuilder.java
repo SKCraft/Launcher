@@ -174,6 +174,11 @@ public class PackageBuilder {
         if (processor != null) {
             LoaderResult result = processor.process(file, manifest, mapper, baseDir);
 
+            if (result == null) {
+                log.warning("Loader " + file.getName() + " failed to process.");
+                return;
+            }
+
             loaderLibraries.addAll(result.getLoaderLibraries());
             installerLibraries.addAll(result.getProcessorLibraries());
             jarMavens.addAll(result.getJarMavens());
