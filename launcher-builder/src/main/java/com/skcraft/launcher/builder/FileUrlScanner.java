@@ -30,8 +30,9 @@ public class FileUrlScanner extends DirectoryWalker {
 		if (targetFile.exists()) {
 			String localHash = FileUtils.getShaHash(targetFile);
 			if (info.getHash() == null) {
-				info.setHash(localHash);
-				info.writeToFile(file);
+				// Disabled for now, let's not touch source files
+//				info.setHash(localHash);
+//				info.writeToFile(file);
 				return;
 			}
 
