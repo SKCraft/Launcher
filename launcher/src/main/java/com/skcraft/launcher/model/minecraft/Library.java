@@ -67,10 +67,12 @@ public class Library {
                     return null;
             }
 
-            return nativeString.replace("${arch}", environment.getArchBits());
-        } else {
-            return null;
+            if (nativeString != null) {
+                return nativeString.replace("${arch}", environment.getArchBits());
+            }
         }
+
+        return null;
     }
 
     public void ensureDownloadsExist() {
