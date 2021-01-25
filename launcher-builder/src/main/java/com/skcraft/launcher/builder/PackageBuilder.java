@@ -20,6 +20,8 @@ import com.google.common.io.Files;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.builder.loaders.*;
+import com.skcraft.launcher.builder.plugin.Builder;
+import com.skcraft.launcher.builder.plugin.BuilderPluginLoader;
 import com.skcraft.launcher.model.loader.BasicInstallProfile;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.ReleaseList;
@@ -51,10 +53,11 @@ import static com.skcraft.launcher.util.HttpRequest.url;
  * Builds packages for the launcher.
  */
 @Log
-public class PackageBuilder {
+public class PackageBuilder implements Builder {
     private final Properties properties;
     private final ObjectMapper mapper;
     private ObjectWriter writer;
+    @Getter
     private final Manifest manifest;
     private final PropertiesApplicator applicator;
     @Getter
@@ -409,6 +412,11 @@ public class PackageBuilder {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
 
+        // Load plugins
+        BuilderPluginLoader pluginLoader = new BuilderPluginLoader();
+        pluginLoader.loadClasses(options.getPluginClasses());
+        pluginLoader.dispatchAcceptOptions(args);
+
         Manifest manifest = new Manifest();
         manifest.setMinimumVersion(Manifest.MIN_PROTOCOL_VERSION);
         PackageBuilder builder = new PackageBuilder(mapper, manifest);
@@ -427,10 +435,15 @@ public class PackageBuilder {
         manifest.setLibrariesLocation(options.getLibrariesLocation());
         manifest.setObjectsLocation(options.getObjectsLocation());
 
+        pluginLoader.dispatchManifestCreated(manifest);
+
         builder.scan(options.getFilesDir());
         builder.addFiles(options.getFilesDir(), options.getObjectsDir());
         builder.addLoaders(options.getLoadersDir(), options.getLibrariesDir());
         builder.downloadLibraries(options.getLibrariesDir());
+
+        pluginLoader.dispatchBuilderFinished(builder);
+
         builder.writeManifest(options.getManifestPath());
 
         logSection("Done");

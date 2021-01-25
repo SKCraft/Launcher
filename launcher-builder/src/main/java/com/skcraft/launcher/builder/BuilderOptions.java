@@ -11,6 +11,7 @@ import com.beust.jcommander.ParameterException;
 import lombok.Data;
 
 import java.io.File;
+import java.util.List;
 
 @Data
 public class BuilderOptions {
@@ -66,6 +67,10 @@ public class BuilderOptions {
     // Misc
     @Parameter(names = "--pretty-print")
     private boolean prettyPrinting;
+
+    // Plugins
+    @Parameter(names = "--plugin-class")
+    private List<String> pluginClasses;
 
     public void choosePaths() throws ParameterException {
         if (configPath == null) {

@@ -14,26 +14,41 @@ import com.skcraft.launcher.creator.dialog.WelcomeDialog;
 import com.skcraft.launcher.creator.model.creator.CreatorConfig;
 import com.skcraft.launcher.creator.model.creator.RecentEntry;
 import com.skcraft.launcher.creator.model.creator.Workspace;
+import com.skcraft.launcher.creator.plugin.CreatorPluginLoader;
+import com.skcraft.launcher.creator.plugin.CreatorToolsPlugin;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
 import lombok.Getter;
+import lombok.extern.java.Log;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+@Log
 public class Creator {
 
     @Getter private final File dataDir;
     @Getter private final CreatorConfig config;
     @Getter private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
+    @Getter private final List<CreatorToolsPlugin> plugins;
 
     public Creator() {
         this.dataDir = getAppDataDir();
         this.config = Persistence.load(new File(dataDir, "config.json"), CreatorConfig.class);
+
+        // Load plugins
+        CreatorPluginLoader pluginLoader = new CreatorPluginLoader();
+        try {
+            pluginLoader.walk(new File(dataDir, "plugins"));
+        } catch (IOException e) {
+            log.severe("Could not walk plugin directory, plugins have not been loaded");
+        }
+        this.plugins = pluginLoader.loadAll();
 
         // Remove deleted workspaces
         List<RecentEntry> recentEntries = config.getRecentEntries();

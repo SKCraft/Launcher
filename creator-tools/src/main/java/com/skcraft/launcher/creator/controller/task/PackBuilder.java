@@ -6,11 +6,15 @@
 
 package com.skcraft.launcher.creator.controller.task;
 
+import com.beust.jcommander.internal.Lists;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.builder.PackageBuilder;
+import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.creator.model.creator.Pack;
+import com.skcraft.launcher.creator.plugin.CreatorToolsPlugin;
+import lombok.RequiredArgsConstructor;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,23 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+@RequiredArgsConstructor
 public class PackBuilder implements Callable<PackBuilder>, ProgressObservable {
 
+    private final Creator creator;
     private final Pack pack;
     private final File outputDir;
     private final String version;
     private final String manifestFilename;
     private final boolean clean;
     private final boolean downloadUrls;
-
-    public PackBuilder(Pack pack, File outputDir, String version, String manifestFilename, boolean clean, boolean downloadUrls) {
-        this.pack = pack;
-        this.outputDir = outputDir;
-        this.version = version;
-        this.manifestFilename = manifestFilename;
-        this.clean = clean;
-        this.downloadUrls = downloadUrls;
-    }
 
     @Override
     public PackBuilder call() throws Exception {
@@ -57,13 +54,21 @@ public class PackBuilder implements Callable<PackBuilder>, ProgressObservable {
         outputDir.mkdirs();
 
         System.setProperty("com.skcraft.builder.ignoreURLOverrides", downloadUrls ? "false" : "true");
-        String[] args = {
+        List<String> args = Lists.newArrayList(
                 "--version", version,
                 "--manifest-dest", new File(outputDir, manifestFilename).getAbsolutePath(),
                 "-i", pack.getDirectory().getAbsolutePath(),
                 "-o", outputDir.getAbsolutePath()
-        };
-        PackageBuilder.main(args);
+        );
+
+        for (CreatorToolsPlugin plugin : creator.getPlugins()) {
+            if (plugin.getBuilderPlugin() != null) {
+                args.add("--plugin");
+                args.add(plugin.getBuilderPlugin().getCanonicalName());
+            }
+        }
+
+        PackageBuilder.main(args.toArray(new String[0]));
 
         return this;
     }
