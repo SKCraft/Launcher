@@ -88,6 +88,10 @@ public final class LauncherUtils {
     public static void interruptibleDelete(File file, List<File> failures) throws IOException, InterruptedException {
         checkInterrupted();
 
+        if (!file.exists()) {
+            throw new FileNotFoundException("Does not exist: " + file);
+        }
+
         if (file.isDirectory()) {
             File[] files = file.listFiles();
 
@@ -98,20 +102,11 @@ public final class LauncherUtils {
             for (File f : files) {
                 interruptibleDelete(f, failures);
             }
+        }
 
-            if (!file.delete()) {
-                log.warning("Failed to delete " + file.getAbsolutePath());
-                failures.add(file);
-            }
-        } else {
-            if (!file.exists()) {
-                throw new FileNotFoundException("Does not exist: " + file);
-            }
-
-            if (!file.delete()) {
-                log.warning("Failed to delete " + file.getAbsolutePath());
-                failures.add(file);
-            }
+        if (!file.delete()) {
+            log.warning("Failed to delete " + file.getAbsolutePath());
+            failures.add(file);
         }
     }
 
