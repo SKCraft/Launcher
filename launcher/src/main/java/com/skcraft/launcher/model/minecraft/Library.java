@@ -13,6 +13,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.skcraft.launcher.util.Environment;
 import lombok.Data;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -122,19 +124,25 @@ public class Library {
 
         Library library = (Library) o;
 
-        if (name != null ? !name.equals(library.name) : library.name != null)
-            return false;
-
+        EqualsBuilder builder = new EqualsBuilder();
+        builder.append(name, library.getName());
         // If libraries have different natives lists, they should be separate.
-        if (natives != null ? !natives.equals(library.natives) : library.natives != null)
-            return false;
+        builder.append(natives, library.getNatives());
 
-        return true;
+        return builder.isEquals();
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        HashCodeBuilder builder = new HashCodeBuilder(45, 23);
+
+        if (name != null)
+            builder.append(name);
+
+        if (natives != null)
+            builder.append(natives);
+
+        return builder.toHashCode();
     }
 
     @Data
