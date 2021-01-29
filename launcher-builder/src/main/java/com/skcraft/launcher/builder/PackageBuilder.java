@@ -254,7 +254,7 @@ public class PackageBuilder {
         // Some repositories compress their files
         List<Compressor> compressors = BuilderUtils.getCompressors(baseUrl);
         for (Compressor compressor : Lists.reverse(compressors)) {
-            url = new URL(url, compressor.transformPathname(artifact.getPath()));
+            url = new URL(compressor.transformPathname(url.toString()));
         }
 
         File tempFile = File.createTempFile("launcherlib", null);
