@@ -190,12 +190,29 @@ public class Library {
         Artifact virtualArtifact = new Artifact();
 
         virtualArtifact.setUrl(url);
-        virtualArtifact.setPath(mavenNameToPath(name));
+        if (getName() != null) {
+            virtualArtifact.setPath(mavenNameToPath(getName()));
+        }
 
         Downloads downloads = new Downloads();
         downloads.setArtifact(virtualArtifact);
 
         setDownloads(downloads);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+
+        // [DEEP SIGH]
+        // Sometimes 'name' comes after 'url', and I can't figure out how to get Jackson to enforce order
+        // So we have to do this silly check to make sure we have a path.
+        if (getDownloads() != null) {
+            if (getDownloads().getArtifact() == null) return;
+
+            if (getDownloads().getArtifact().getPath() == null) {
+                getDownloads().getArtifact().setPath(mavenNameToPath(name));
+            }
+        }
     }
 
     /**
@@ -204,7 +221,7 @@ public class Library {
      * be fetched from the Minecraft library source; this setter handles that.
      */
     public void setServerreq(boolean value) {
-        if (value) {
+        if (value && getDownloads() == null) {
             setUrl("https://libraries.minecraft.net/"); // TODO get this from properties?
         }
     }
