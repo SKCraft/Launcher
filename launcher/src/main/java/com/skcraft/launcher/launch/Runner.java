@@ -358,7 +358,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
                 args.add("--width");
                 args.add(String.valueOf(config.getWindowWidth()));
                 args.add("--height");
-                args.add(String.valueOf(config.getWidowHeight()));
+                args.add(String.valueOf(config.getWindowHeight()));
             }
 
             // Add old platform hacks that the new manifests already specify
@@ -400,7 +400,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("assets_index_name", versionManifest.getAssetId());
 
         map.put("resolution_width", String.valueOf(config.getWindowWidth()));
-        map.put("resolution_height", String.valueOf(config.getWidowHeight()));
+        map.put("resolution_height", String.valueOf(config.getWindowHeight()));
 
         map.put("launcher_name", launcher.getTitle());
         map.put("launcher_version", launcher.getVersion());
