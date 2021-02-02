@@ -25,12 +25,14 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
     private final Launcher launcher;
     private final URL url;
     private final Installer installer;
+    private final boolean packed;
     private ProgressObservable progress = new DefaultProgress(0, SharedLocale.tr("updater.updating"));
 
-    public SelfUpdater(@NonNull Launcher launcher, @NonNull URL url) {
+    public SelfUpdater(@NonNull Launcher launcher, @NonNull URL url, boolean packed) {
         this.launcher = launcher;
         this.url = url;
         this.installer = new Installer(launcher.getInstallerDir());
+        this.packed = packed;
     }
 
     @Override
@@ -38,9 +40,10 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         try {
+            String extension = packed ? ".jar.pack" : ".jar";
             File dir = launcher.getLauncherBinariesDir();
-            File file = new File(dir, String.valueOf(System.currentTimeMillis()) + ".jar.pack");
-            File tempFile = installer.getDownloader().download(url, "", 10000, "launcher.jar.pack");
+            File file = new File(dir, System.currentTimeMillis() + extension);
+            File tempFile = installer.getDownloader().download(url, "", 10000, "launcher" + extension);
 
             progress = installer.getDownloader();
             installer.download();

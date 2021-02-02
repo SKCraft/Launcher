@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.dialog.ProgressDialog;
+import com.skcraft.launcher.selfupdate.LatestVersionInfo;
 import com.skcraft.launcher.selfupdate.SelfUpdater;
 import com.skcraft.launcher.selfupdate.UpdateChecker;
 import com.skcraft.launcher.swing.SwingHelper;
@@ -31,7 +32,7 @@ public class UpdateManager {
     @Getter
     private final SwingPropertyChangeSupport propertySupport = new SwingPropertyChangeSupport(this);
     private final Launcher launcher;
-    private URL pendingUpdateUrl;
+    private LatestVersionInfo pendingUpdate;
 
     public UpdateManager(Launcher launcher) {
         this.launcher = launcher;
@@ -46,15 +47,15 @@ public class UpdateManager {
     }
 
     public boolean getPendingUpdate() {
-        return pendingUpdateUrl != null;
+        return pendingUpdate != null;
     }
 
     public void checkForUpdate() {
-        ListenableFuture<URL> future = launcher.getExecutor().submit(new UpdateChecker(launcher));
+        ListenableFuture<LatestVersionInfo> future = launcher.getExecutor().submit(new UpdateChecker(launcher));
 
-        Futures.addCallback(future, new FutureCallback<URL>() {
+        Futures.addCallback(future, new FutureCallback<LatestVersionInfo>() {
             @Override
-            public void onSuccess(URL result) {
+            public void onSuccess(LatestVersionInfo result) {
                 if (result != null) {
                     requestUpdate(result);
                 }
@@ -68,10 +69,10 @@ public class UpdateManager {
     }
 
     public void performUpdate(final Window window) {
-        final URL url = pendingUpdateUrl;
+        final URL url = pendingUpdate.getUrl();
 
         if (url != null) {
-            SelfUpdater downloader = new SelfUpdater(launcher, url);
+            SelfUpdater downloader = new SelfUpdater(launcher, url, pendingUpdate.isPacked());
             ObservableFuture<File> future = new ObservableFuture<File>(
                     launcher.getExecutor().submit(downloader), downloader);
 
@@ -79,7 +80,7 @@ public class UpdateManager {
                 @Override
                 public void onSuccess(File result) {
                     propertySupport.firePropertyChange("pendingUpdate", true, false);
-                    UpdateManager.this.pendingUpdateUrl = null;
+                    UpdateManager.this.pendingUpdate = null;
 
                     SwingHelper.showMessageDialog(
                             window,
@@ -101,9 +102,9 @@ public class UpdateManager {
         }
     }
 
-    private void requestUpdate(URL url) {
+    private void requestUpdate(LatestVersionInfo url) {
         propertySupport.firePropertyChange("pendingUpdate", getPendingUpdate(), url != null);
-        this.pendingUpdateUrl = url;
+        this.pendingUpdate = url;
     }
 
 
