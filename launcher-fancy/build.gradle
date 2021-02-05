@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id "com.github.johnrengelman.shadow"
+    id 'io.freefair.lombok'
 }
 
 mainClassName = "com.skcraft.launcher.FancyLauncher"

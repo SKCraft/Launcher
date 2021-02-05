@@ -1,7 +1,7 @@
 plugins {
     id 'application'
     id "com.github.johnrengelman.shadow"
-    id 'io.franzbecker.gradle-lombok'
+    id 'io.freefair.lombok'
 }
 
 mainClassName = "com.skcraft.launcher.Bootstrap"
