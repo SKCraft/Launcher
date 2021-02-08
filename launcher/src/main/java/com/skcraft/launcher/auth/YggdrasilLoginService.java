@@ -11,45 +11,63 @@ import com.skcraft.launcher.util.HttpRequest;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
+import lombok.extern.java.Log;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Creates authenticated sessions using the Mojang Yggdrasil login protocol.
  */
+@Log
 public class YggdrasilLoginService implements LoginService {
 
     private final URL authUrl;
+    private final String clientId;
 
     /**
      * Create a new login service with the given authentication URL.
      *
      * @param authUrl the authentication URL
+     * @param clientId
      */
-    public YggdrasilLoginService(@NonNull URL authUrl) {
+    public YggdrasilLoginService(@NonNull URL authUrl, String clientId) {
         this.authUrl = authUrl;
+        this.clientId = clientId;
+    }
+
+    public Session login(String agent, String id, String password)
+            throws IOException, InterruptedException, AuthenticationException {
+        AuthenticatePayload payload = new AuthenticatePayload(new Agent(agent), id, password, clientId);
+
+        return call(this.authUrl, payload);
     }
 
     @Override
-    public List<? extends Session> login(String agent, String id, String password)
+    public Session restore(SavedSession savedSession)
             throws IOException, InterruptedException, AuthenticationException {
-        Object payload = new AuthenticatePayload(new Agent(agent), id, password);
+        RefreshPayload payload = new RefreshPayload(savedSession.getAccessToken(), clientId);
 
-        HttpRequest request = HttpRequest
-                .post(authUrl)
+        return call(new URL(this.authUrl, "/refresh"), payload);
+    }
+
+    private Session call(URL url, Object payload)
+            throws IOException, InterruptedException, AuthenticationException {
+        HttpRequest req = HttpRequest
+                .post(url)
                 .bodyJson(payload)
                 .execute();
 
-        if (request.getResponseCode() != 200) {
-            ErrorResponse error = request.returnContent().asJson(ErrorResponse.class);
+        if (req.getResponseCode() != 200) {
+            ErrorResponse error = req.returnContent().asJson(ErrorResponse.class);
+            log.warning(error.toString());
             throw new AuthenticationException(error.getErrorMessage(), error.getErrorMessage());
         } else {
-            AuthenticateResponse response = request.returnContent().asJson(AuthenticateResponse.class);
-            return response.getAvailableProfiles();
+            AuthenticateResponse response = req.returnContent().asJson(AuthenticateResponse.class);
+
+            return response.getSelectedProfile();
         }
     }
 
@@ -64,6 +82,14 @@ public class YggdrasilLoginService implements LoginService {
         private final Agent agent;
         private final String username;
         private final String password;
+        private final String clientToken;
+    }
+
+    @Data
+    private static class RefreshPayload {
+        private final String accessToken;
+        private final String clientToken;
+        private boolean requestUser = true;
     }
 
     @Data
@@ -71,8 +97,7 @@ public class YggdrasilLoginService implements LoginService {
     private static class AuthenticateResponse {
         private String accessToken;
         private String clientToken;
-        @JsonManagedReference private List<Profile> availableProfiles;
-        private Profile selectedProfile;
+        @JsonManagedReference private Profile selectedProfile;
     }
 
     @Data

@@ -29,7 +29,7 @@ import java.util.List;
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         setterVisibility = JsonAutoDetect.Visibility.NONE,
         fieldVisibility = JsonAutoDetect.Visibility.NONE)
-public class AccountList extends AbstractListModel implements ComboBoxModel {
+public class AccountList extends AbstractListModel<Account> implements ComboBoxModel<Account> {
 
     @JsonProperty
     @Getter

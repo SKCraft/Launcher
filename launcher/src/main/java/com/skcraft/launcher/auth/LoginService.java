@@ -7,7 +7,6 @@
 package com.skcraft.launcher.auth;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * A service for creating authenticated sessions.
@@ -15,17 +14,15 @@ import java.util.List;
 public interface LoginService {
 
     /**
-     * Attempt to login with the given details.
+     * Attempt to restore a saved session into an active session.
      *
-     * @param agent the game to authenticate for, such as "Minecraft"
-     * @param id the login ID
-     * @param password the password
-     * @return a list of authenticated sessions, which corresponds to identities
+     * @param savedSession Session to restore
+     * @return An authenticated session, which corresponds to a Minecraft account
      * @throws IOException thrown on I/O error
      * @throws InterruptedException thrown if interrupted
      * @throws AuthenticationException thrown on an authentication error
      */
-    List<? extends Session> login(String agent, String id, String password)
+    Session restore(SavedSession savedSession)
             throws IOException, InterruptedException, AuthenticationException;
 
 }

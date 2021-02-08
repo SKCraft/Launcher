@@ -71,4 +71,19 @@ public interface Session {
      */
     boolean isOnline();
 
+    /**
+     * Convert this session to a saved session
+     * @return Saved session that represents this active session
+     */
+    default SavedSession toSavedSession() {
+        SavedSession savedSession = new SavedSession();
+
+        savedSession.setType(getUserType());
+        savedSession.setUsername(getName());
+        savedSession.setUuid(getUuid());
+        savedSession.setAccessToken(getAccessToken());
+
+        return savedSession;
+    }
+
 }
