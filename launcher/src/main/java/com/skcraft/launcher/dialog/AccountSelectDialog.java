@@ -23,7 +23,9 @@ public class AccountSelectDialog extends JDialog {
 	private final JList<SavedSession> accountList;
 	private final JButton loginButton = new JButton(SharedLocale.tr("login.login"));
 	private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
-	private final JButton addAccountButton = new JButton(SharedLocale.tr("accounts.addMojang"));
+	private final JButton addMojangButton = new JButton(SharedLocale.tr("accounts.addMojang"));
+	private final JButton addMicrosoftButton = new JButton(SharedLocale.tr("accounts.addMicrosoft"));
+	private final JButton removeSelected = new JButton(SharedLocale.tr("accounts.removeSelected"));
 	private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
 
 	private final Launcher launcher;
@@ -38,13 +40,15 @@ public class AccountSelectDialog extends JDialog {
 		setTitle(SharedLocale.tr("accounts.title"));
 		initComponents();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setMinimumSize(new Dimension(420, 50));
+		setMinimumSize(new Dimension(450, 70));
 		setResizable(false);
 		pack();
 		setLocationRelativeTo(owner);
 	}
 
 	private void initComponents() {
+		setLayout(new BorderLayout());
+
 		accountList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		accountList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		accountList.setVisibleRowCount(0);
@@ -52,7 +56,7 @@ public class AccountSelectDialog extends JDialog {
 
 		JScrollPane accountPane = new JScrollPane(accountList);
 		accountPane.setPreferredSize(new Dimension(250, 100));
-		accountPane.setAlignmentX(LEFT_ALIGNMENT);
+		accountPane.setAlignmentX(CENTER_ALIGNMENT);
 
 		loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
 
@@ -61,12 +65,21 @@ public class AccountSelectDialog extends JDialog {
 		buttonsPanel.addElement(loginButton);
 		buttonsPanel.addElement(cancelButton);
 
+		LinedBoxPanel loginButtonsRow = new LinedBoxPanel(true);
+		loginButtonsRow.add(addMojangButton);
+		loginButtonsRow.add(addMicrosoftButton);
+		loginButtonsRow.addGlue();
+		loginButtonsRow.add(removeSelected);
+		loginButtonsRow.setAlignmentX(CENTER_ALIGNMENT);
+		loginButtonsRow.setBorder(null);
+
 		JPanel listPane = new JPanel();
-		listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
+		listPane.setLayout(new BoxLayout(listPane, BoxLayout.Y_AXIS));
 		listPane.add(accountPane);
 		listPane.add(Box.createVerticalStrut(5));
-		listPane.add(addAccountButton);
+		listPane.add(loginButtonsRow);
 		listPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		listPane.setAlignmentX(CENTER_ALIGNMENT);
 
 		add(listPane, BorderLayout.CENTER);
 		add(buttonsPanel, BorderLayout.SOUTH);
@@ -74,7 +87,7 @@ public class AccountSelectDialog extends JDialog {
 		loginButton.addActionListener(ev -> attemptLogin(accountList.getSelectedValue()));
 		cancelButton.addActionListener(ev -> dispose());
 
-		addAccountButton.addActionListener(ev -> {
+		addMojangButton.addActionListener(ev -> {
 			Session newSession = LoginDialog.showLoginRequest(this, launcher);
 
 			if (newSession != null) {
@@ -82,6 +95,18 @@ public class AccountSelectDialog extends JDialog {
 				setResult(newSession);
 			}
 		});
+
+		addMicrosoftButton.addActionListener(ev -> {
+			// TODO
+		});
+
+		removeSelected.addActionListener(ev -> {
+			if (accountList.getSelectedValue() != null) {
+				launcher.getAccounts().remove(accountList.getSelectedValue());
+			}
+		});
+
+		accountList.setSelectedIndex(0);
 	}
 
 	@Override
@@ -96,8 +121,9 @@ public class AccountSelectDialog extends JDialog {
 
 		if (dialog.selected != null) {
 			launcher.getAccounts().update(dialog.selected.toSavedSession());
-			Persistence.commitAndForget(launcher.getAccounts());
 		}
+
+		Persistence.commitAndForget(launcher.getAccounts());
 
 		return dialog.selected;
 	}
@@ -108,6 +134,8 @@ public class AccountSelectDialog extends JDialog {
 	}
 
 	private void attemptLogin(SavedSession session) {
+		if (session == null) return;
+
 		LoginService loginService = launcher.getLoginService(session.getType());
 		RestoreSessionCallable callable = new RestoreSessionCallable(loginService, session);
 
