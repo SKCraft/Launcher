@@ -17,16 +17,13 @@ import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 import java.util.concurrent.Callable;
-
-import static com.skcraft.launcher.util.HttpRequest.url;
 
 public class AccountSelectDialog extends JDialog {
 	private final JList<SavedSession> accountList;
 	private final JButton loginButton = new JButton(SharedLocale.tr("login.login"));
 	private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
-	private final JButton addAccountButton = new JButton(SharedLocale.tr("accounts.addNew"));
+	private final JButton addAccountButton = new JButton(SharedLocale.tr("accounts.addMojang"));
 	private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
 
 	private final Launcher launcher;
@@ -82,6 +79,7 @@ public class AccountSelectDialog extends JDialog {
 
 			if (newSession != null) {
 				launcher.getAccounts().add(newSession.toSavedSession());
+				setResult(newSession);
 			}
 		});
 	}
@@ -117,7 +115,6 @@ public class AccountSelectDialog extends JDialog {
 		Futures.addCallback(future, new FutureCallback<Session>() {
 			@Override
 			public void onSuccess(Session result) {
-//				session.setAccessToken(result.getAccessToken());
 				setResult(result);
 			}
 
@@ -161,9 +158,11 @@ public class AccountSelectDialog extends JDialog {
 		@Override
 		public Component getListCellRendererComponent(JList<? extends SavedSession> list, SavedSession value, int index, boolean isSelected, boolean cellHasFocus) {
 			setText(value.getUsername());
-
-			URL avatarUrl = url("https://visage.surgeplay.com/face/24/" + value.getUuid() + ".png");
-			setIcon(new ImageIcon(avatarUrl));
+			if (value.getAvatarImage() != null) {
+				setIcon(new ImageIcon(value.getAvatarBytes()));
+			} else {
+				setIcon(SwingHelper.createIcon(Launcher.class, "default_skin.png", 32, 32));
+			}
 
 			if (isSelected) {
 				setOpaque(true);

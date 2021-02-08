@@ -42,4 +42,9 @@ subprojects {
             options.addStringOption('Xdoclint:none', '-quiet')
         }
     }
+
+    tasks.withType(JavaExec) {
+        workingDir = new File(rootDir, "run/")
+        workingDir.mkdirs()
+    }
 }

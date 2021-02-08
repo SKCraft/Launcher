@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.skcraft.launcher.dialog.component.ListListenerReducer;
 import com.skcraft.launcher.persistence.Scrambled;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.apache.commons.lang.RandomStringUtils;
 
 import javax.swing.*;
@@ -17,7 +19,9 @@ import java.util.List;
  * Persisted account list
  */
 @Scrambled("ACCOUNT_LIST_NOT_SECURITY!")
-@Data
+@Getter
+@Setter
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NewAccountList implements ListModel<SavedSession> {
 	private List<SavedSession> accounts = Lists.newArrayList();

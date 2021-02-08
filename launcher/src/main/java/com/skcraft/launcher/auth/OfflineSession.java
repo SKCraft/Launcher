@@ -63,6 +63,11 @@ public class OfflineSession implements Session {
     }
 
     @Override
+    public String getAvatarImage() {
+        return null;
+    }
+
+    @Override
     public boolean isOnline() {
         return false;
     }

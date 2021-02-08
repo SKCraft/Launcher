@@ -9,7 +9,7 @@ package com.skcraft.launcher.auth;
 import com.fasterxml.jackson.annotation.*;
 import com.skcraft.launcher.util.HttpRequest;
 import lombok.Data;
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.java.Log;
 
@@ -22,27 +22,17 @@ import java.util.Map;
  * Creates authenticated sessions using the Mojang Yggdrasil login protocol.
  */
 @Log
+@RequiredArgsConstructor
 public class YggdrasilLoginService implements LoginService {
 
     private final URL authUrl;
     private final String clientId;
 
-    /**
-     * Create a new login service with the given authentication URL.
-     *
-     * @param authUrl the authentication URL
-     * @param clientId
-     */
-    public YggdrasilLoginService(@NonNull URL authUrl, String clientId) {
-        this.authUrl = authUrl;
-        this.clientId = clientId;
-    }
-
     public Session login(String agent, String id, String password)
             throws IOException, InterruptedException, AuthenticationException {
         AuthenticatePayload payload = new AuthenticatePayload(new Agent(agent), id, password, clientId);
 
-        return call(this.authUrl, payload);
+        return call(this.authUrl, payload, null);
     }
 
     @Override
@@ -50,10 +40,10 @@ public class YggdrasilLoginService implements LoginService {
             throws IOException, InterruptedException, AuthenticationException {
         RefreshPayload payload = new RefreshPayload(savedSession.getAccessToken(), clientId);
 
-        return call(new URL(this.authUrl, "/refresh"), payload);
+        return call(new URL(this.authUrl, "/refresh"), payload, savedSession);
     }
 
-    private Session call(URL url, Object payload)
+    private Session call(URL url, Object payload, SavedSession previous)
             throws IOException, InterruptedException, AuthenticationException {
         HttpRequest req = HttpRequest
                 .post(url)
@@ -66,8 +56,15 @@ public class YggdrasilLoginService implements LoginService {
             throw new AuthenticationException(error.getErrorMessage(), error.getErrorMessage());
         } else {
             AuthenticateResponse response = req.returnContent().asJson(AuthenticateResponse.class);
+            Profile profile = response.getSelectedProfile();
 
-            return response.getSelectedProfile();
+            if (previous == null || previous.getAvatarImage() == null) {
+                profile.setAvatarImage(VisageSkinService.fetchSkinHead(profile.getUuid()));
+            } else {
+                profile.setAvatarImage(previous.getAvatarImage());
+            }
+
+            return profile;
         }
     }
 
@@ -117,6 +114,7 @@ public class YggdrasilLoginService implements LoginService {
         @JsonProperty("id") private String uuid;
         private String name;
         private boolean legacy;
+        private String avatarImage;
         @JsonIgnore private final Map<String, String> userProperties = Collections.emptyMap();
         @JsonBackReference private AuthenticateResponse response;
 
