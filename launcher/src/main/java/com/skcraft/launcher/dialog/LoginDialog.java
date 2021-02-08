@@ -12,7 +12,6 @@ import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
-import com.skcraft.launcher.auth.Account;
 import com.skcraft.launcher.auth.AuthenticationException;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.auth.YggdrasilLoginService;
@@ -22,13 +21,13 @@ import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.Date;
 import java.util.concurrent.Callable;
 
 /**
@@ -112,18 +111,15 @@ public class LoginDialog extends JDialog {
             if (password == null || password.isEmpty()) {
                 SwingHelper.showErrorDialog(this, SharedLocale.tr("login.noPasswordError"), SharedLocale.tr("login.noPasswordTitle"));
             } else {
-                Account account = new Account(usernameText.getText());
-                account.setLastUsed(new Date());
-
-                attemptLogin(account, password);
+                attemptLogin(usernameText.getText(), password);
             }
         } else {
             SwingHelper.showErrorDialog(this, SharedLocale.tr("login.noLoginError"), SharedLocale.tr("login.noLoginTitle"));
         }
     }
 
-    private void attemptLogin(Account account, String password) {
-        LoginCallable callable = new LoginCallable(account, password);
+    private void attemptLogin(String username, String password) {
+        LoginCallable callable = new LoginCallable(username, password);
         ObservableFuture<Session> future = new ObservableFuture<Session>(
                 launcher.getExecutor().submit(callable), callable);
 
@@ -153,19 +149,15 @@ public class LoginDialog extends JDialog {
         return dialog.getSession();
     }
 
-    private class LoginCallable implements Callable<Session>,ProgressObservable {
-        private final Account account;
+    @RequiredArgsConstructor
+    private class LoginCallable implements Callable<Session>, ProgressObservable {
+        private final String username;
         private final String password;
-
-        private LoginCallable(Account account, String password) {
-            this.account = account;
-            this.password = password;
-        }
 
         @Override
         public Session call() throws AuthenticationException, IOException, InterruptedException {
             YggdrasilLoginService service = launcher.getYggdrasil();
-            Session identity = service.login(launcher.getProperties().getProperty("agentName"), account.getId(), password);
+            Session identity = service.login(launcher.getProperties().getProperty("agentName"), username, password);
 
             // The presence of the identity (profile in Mojang terms) corresponds to whether the account
             // owns the game, so we need to check that

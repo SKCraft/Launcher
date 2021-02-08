@@ -12,8 +12,8 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.skcraft.launcher.auth.AccountList;
 import com.skcraft.launcher.auth.LoginService;
-import com.skcraft.launcher.auth.NewAccountList;
 import com.skcraft.launcher.auth.UserType;
 import com.skcraft.launcher.auth.YggdrasilLoginService;
 import com.skcraft.launcher.launch.LaunchSupervisor;
@@ -64,7 +64,7 @@ public final class Launcher {
     @Getter private final Properties properties;
     @Getter private final InstanceList instances;
     @Getter private final Configuration config;
-    @Getter private final NewAccountList accounts;
+    @Getter private final AccountList accounts;
     @Getter private final AssetsRoot assets;
     @Getter private final LaunchSupervisor launchSupervisor = new LaunchSupervisor(this);
     @Getter private final UpdateManager updateManager = new UpdateManager(this);
@@ -97,7 +97,7 @@ public final class Launcher {
         this.instances = new InstanceList(this);
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
         this.config = Persistence.load(new File(configDir, "config.json"), Configuration.class);
-        this.accounts = Persistence.load(new File(configDir, "accounts.dat"), NewAccountList.class);
+        this.accounts = Persistence.load(new File(configDir, "accounts.dat"), AccountList.class);
 
         setDefaultConfig();
 
