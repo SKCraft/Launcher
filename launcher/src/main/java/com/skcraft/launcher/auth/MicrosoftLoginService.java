@@ -38,7 +38,7 @@ public class MicrosoftLoginService implements LoginService {
 			form.add("code", code);
 		});
 
-		Profile session = performLogin(response.getAccessToken());
+		Profile session = performLogin(response.getAccessToken(), null);
 		session.setRefreshToken(response.getRefreshToken());
 
 		return session;
@@ -52,7 +52,7 @@ public class MicrosoftLoginService implements LoginService {
 			form.add("refresh_token", savedSession.getRefreshToken());
 		});
 
-		Profile session = performLogin(response.getAccessToken());
+		Profile session = performLogin(response.getAccessToken(), savedSession);
 		session.setRefreshToken(response.getRefreshToken());
 
 		return session;
@@ -77,14 +77,19 @@ public class MicrosoftLoginService implements LoginService {
 		}
 	}
 
-	private Profile performLogin(String microsoftToken)
+	private Profile performLogin(String microsoftToken, SavedSession previous)
 			throws IOException, InterruptedException, AuthenticationException {
 		XboxAuthorization xboxAuthorization = XboxTokenAuthorizer.authorizeWithXbox(microsoftToken);
 		McAuthResponse auth = MinecraftServicesAuthorizer.authorizeWithMinecraft(xboxAuthorization);
 		McProfileResponse profile = MinecraftServicesAuthorizer.getUserProfile(auth);
 
 		Profile session = new Profile(auth, profile);
-		session.setAvatarImage(VisageSkinService.fetchSkinHead(profile.getUuid()));
+		if (previous != null && previous.getAvatarImage() != null) {
+			session.setAvatarImage(previous.getAvatarImage());
+		} else {
+			session.setAvatarImage(VisageSkinService.fetchSkinHead(profile.getUuid()));
+		}
+
 
 		return session;
 	}

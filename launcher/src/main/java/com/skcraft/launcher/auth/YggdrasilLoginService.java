@@ -58,10 +58,10 @@ public class YggdrasilLoginService implements LoginService {
             AuthenticateResponse response = req.returnContent().asJson(AuthenticateResponse.class);
             Profile profile = response.getSelectedProfile();
 
-            if (previous == null || previous.getAvatarImage() == null) {
-                profile.setAvatarImage(VisageSkinService.fetchSkinHead(profile.getUuid()));
-            } else {
+            if (previous != null && previous.getAvatarImage() != null) {
                 profile.setAvatarImage(previous.getAvatarImage());
+            } else {
+                profile.setAvatarImage(VisageSkinService.fetchSkinHead(profile.getUuid()));
             }
 
             return profile;
