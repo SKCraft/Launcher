@@ -38,11 +38,6 @@ public class OfflineSession implements Session {
     }
 
     @Override
-    public String getClientToken() {
-        return "0";
-    }
-
-    @Override
     public String getAccessToken() {
         return "0";
     }

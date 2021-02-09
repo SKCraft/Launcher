@@ -126,12 +126,6 @@ public class YggdrasilLoginService implements LoginService {
 
         @Override
         @JsonIgnore
-        public String getClientToken() {
-            return response.getClientToken();
-        }
-
-        @Override
-        @JsonIgnore
         public String getAccessToken() {
             return response.getAccessToken();
         }

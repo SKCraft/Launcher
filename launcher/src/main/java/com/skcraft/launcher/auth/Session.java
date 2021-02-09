@@ -28,13 +28,6 @@ public interface Session {
     String getName();
 
     /**
-     * Get the client token.
-     *
-     * @return client token
-     */
-    String getClientToken();
-
-    /**
      * Get the access token.
      *
      * @return the access token

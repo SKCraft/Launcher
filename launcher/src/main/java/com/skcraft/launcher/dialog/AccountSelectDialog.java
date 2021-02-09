@@ -2,6 +2,8 @@ package com.skcraft.launcher.dialog;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Launcher;
@@ -84,7 +86,7 @@ public class AccountSelectDialog extends JDialog {
 		add(listPane, BorderLayout.CENTER);
 		add(buttonsPanel, BorderLayout.SOUTH);
 
-		loginButton.addActionListener(ev -> attemptLogin(accountList.getSelectedValue()));
+		loginButton.addActionListener(ev -> attemptExistingLogin(accountList.getSelectedValue()));
 		cancelButton.addActionListener(ev -> dispose());
 
 		addMojangButton.addActionListener(ev -> {
@@ -96,9 +98,7 @@ public class AccountSelectDialog extends JDialog {
 			}
 		});
 
-		addMicrosoftButton.addActionListener(ev -> {
-			// TODO
-		});
+		addMicrosoftButton.addActionListener(ev -> attemptMicrosoftLogin());
 
 		removeSelected.addActionListener(ev -> {
 			if (accountList.getSelectedValue() != null) {
@@ -133,7 +133,25 @@ public class AccountSelectDialog extends JDialog {
 		dispose();
 	}
 
-	private void attemptLogin(SavedSession session) {
+	private void attemptMicrosoftLogin() {
+		ListenableFuture<?> future = launcher.getExecutor().submit(() -> {
+			Session newSession = launcher.getMicrosoftLogin().login();
+
+			if (newSession != null) {
+				launcher.getAccounts().add(newSession.toSavedSession());
+				setResult(newSession);
+			}
+
+			return null;
+		});
+
+		String status = SharedLocale.tr("login.loggingInStatus");
+		ProgressDialog.showProgress(this, future, new DefaultProgress(-1, status),
+				SharedLocale.tr("login.loggingInTitle"), status);
+		SwingHelper.addErrorDialogCallback(this, future);
+	}
+
+	private void attemptExistingLogin(SavedSession session) {
 		if (session == null) return;
 
 		LoginService loginService = launcher.getLoginService(session.getType());

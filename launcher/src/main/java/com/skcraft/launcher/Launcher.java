@@ -12,10 +12,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.skcraft.launcher.auth.AccountList;
-import com.skcraft.launcher.auth.LoginService;
-import com.skcraft.launcher.auth.UserType;
-import com.skcraft.launcher.auth.YggdrasilLoginService;
+import com.skcraft.launcher.auth.*;
 import com.skcraft.launcher.launch.LaunchSupervisor;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
@@ -164,6 +161,10 @@ public final class Launcher {
      */
     public YggdrasilLoginService getYggdrasil() {
         return new YggdrasilLoginService(HttpRequest.url(getProperties().getProperty("yggdrasilAuthUrl")), accounts.getClientId());
+    }
+
+    public MicrosoftLoginService getMicrosoftLogin() {
+        return new MicrosoftLoginService(getProperties().getProperty("microsoftClientId"));
     }
 
     public LoginService getLoginService(UserType type) {
