@@ -8,6 +8,7 @@ import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.LoginService;
+import com.skcraft.launcher.auth.OfflineSession;
 import com.skcraft.launcher.auth.SavedSession;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.persistence.Persistence;
@@ -23,11 +24,12 @@ import java.util.concurrent.Callable;
 
 public class AccountSelectDialog extends JDialog {
 	private final JList<SavedSession> accountList;
-	private final JButton loginButton = new JButton(SharedLocale.tr("login.login"));
+	private final JButton loginButton = new JButton(SharedLocale.tr("accounts.play"));
 	private final JButton cancelButton = new JButton(SharedLocale.tr("button.cancel"));
 	private final JButton addMojangButton = new JButton(SharedLocale.tr("accounts.addMojang"));
 	private final JButton addMicrosoftButton = new JButton(SharedLocale.tr("accounts.addMicrosoft"));
 	private final JButton removeSelected = new JButton(SharedLocale.tr("accounts.removeSelected"));
+	private final JButton offlineButton = new JButton(SharedLocale.tr("login.playOffline"));
 	private final LinedBoxPanel buttonsPanel = new LinedBoxPanel(true);
 
 	private final Launcher launcher;
@@ -42,7 +44,7 @@ public class AccountSelectDialog extends JDialog {
 		setTitle(SharedLocale.tr("accounts.title"));
 		initComponents();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setMinimumSize(new Dimension(450, 70));
+		setMinimumSize(new Dimension(350, 170));
 		setResizable(false);
 		pack();
 		setLocationRelativeTo(owner);
@@ -52,7 +54,7 @@ public class AccountSelectDialog extends JDialog {
 		setLayout(new BorderLayout());
 
 		accountList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		accountList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		accountList.setLayoutOrientation(JList.VERTICAL);
 		accountList.setVisibleRowCount(0);
 		accountList.setCellRenderer(new AccountRenderer());
 
@@ -61,8 +63,12 @@ public class AccountSelectDialog extends JDialog {
 		accountPane.setAlignmentX(CENTER_ALIGNMENT);
 
 		loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
+		loginButton.setMargin(new Insets(0, 10, 0, 10));
 
 		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
+		if (launcher.getConfig().isOfflineEnabled()) {
+			buttonsPanel.addElement(offlineButton);
+		}
 		buttonsPanel.addGlue();
 		buttonsPanel.addElement(loginButton);
 		buttonsPanel.addElement(cancelButton);
@@ -100,6 +106,9 @@ public class AccountSelectDialog extends JDialog {
 
 		addMicrosoftButton.addActionListener(ev -> attemptMicrosoftLogin());
 
+		offlineButton.addActionListener(ev ->
+				setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName"))));
+
 		removeSelected.addActionListener(ev -> {
 			if (accountList.getSelectedValue() != null) {
 				launcher.getAccounts().remove(accountList.getSelectedValue());
@@ -119,7 +128,7 @@ public class AccountSelectDialog extends JDialog {
 		AccountSelectDialog dialog = new AccountSelectDialog(owner, launcher);
 		dialog.setVisible(true);
 
-		if (dialog.selected != null) {
+		if (dialog.selected != null && dialog.selected.isOnline()) {
 			launcher.getAccounts().update(dialog.selected.toSavedSession());
 		}
 
