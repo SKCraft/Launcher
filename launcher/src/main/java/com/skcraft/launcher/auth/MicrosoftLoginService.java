@@ -73,7 +73,7 @@ public class MicrosoftLoginService implements LoginService {
 		} else {
 			TokenError error = request.returnContent().asJson(TokenError.class);
 
-			throw new AuthenticationException(error.errorDescription, error.errorDescription);
+			throw new AuthenticationException(error.errorDescription);
 		}
 	}
 

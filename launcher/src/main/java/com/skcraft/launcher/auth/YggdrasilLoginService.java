@@ -11,7 +11,6 @@ import com.skcraft.launcher.util.HttpRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.extern.java.Log;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,7 +20,6 @@ import java.util.Map;
 /**
  * Creates authenticated sessions using the Mojang Yggdrasil login protocol.
  */
-@Log
 @RequiredArgsConstructor
 public class YggdrasilLoginService implements LoginService {
 
@@ -52,8 +50,8 @@ public class YggdrasilLoginService implements LoginService {
 
         if (req.getResponseCode() != 200) {
             ErrorResponse error = req.returnContent().asJson(ErrorResponse.class);
-            log.warning(error.toString());
-            throw new AuthenticationException(error.getErrorMessage(), error.getErrorMessage());
+
+            throw new AuthenticationException(error.getErrorMessage());
         } else {
             AuthenticateResponse response = req.returnContent().asJson(AuthenticateResponse.class);
             Profile profile = response.getSelectedProfile();

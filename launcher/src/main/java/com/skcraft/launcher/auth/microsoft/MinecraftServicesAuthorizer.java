@@ -3,6 +3,7 @@ package com.skcraft.launcher.auth.microsoft;
 import com.skcraft.launcher.auth.AuthenticationException;
 import com.skcraft.launcher.auth.microsoft.model.*;
 import com.skcraft.launcher.util.HttpRequest;
+import com.skcraft.launcher.util.SharedLocale;
 
 import java.io.IOException;
 import java.net.URL;
@@ -36,7 +37,12 @@ public class MinecraftServicesAuthorizer {
 		} else {
 			McServicesError error = request.returnContent().asJson(McServicesError.class);
 
-			throw new AuthenticationException(error.getErrorMessage(), error.getErrorMessage());
+			if (error.getError().equals("NOT_FOUND")) {
+				throw new AuthenticationException("No Minecraft profile",
+						SharedLocale.tr("login.minecraftNotOwnedError"));
+			}
+
+			throw new AuthenticationException(error.getErrorMessage());
 		}
 	}
 }
