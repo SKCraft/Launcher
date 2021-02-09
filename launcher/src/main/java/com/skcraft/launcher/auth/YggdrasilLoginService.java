@@ -28,9 +28,9 @@ public class YggdrasilLoginService implements LoginService {
     private final URL authUrl;
     private final String clientId;
 
-    public Session login(String agent, String id, String password)
+    public Session login(String id, String password)
             throws IOException, InterruptedException, AuthenticationException {
-        AuthenticatePayload payload = new AuthenticatePayload(new Agent(agent), id, password, clientId);
+        AuthenticatePayload payload = new AuthenticatePayload(new Agent("Minecraft"), id, password, clientId);
 
         return call(this.authUrl, payload, null);
     }

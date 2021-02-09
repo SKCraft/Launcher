@@ -157,7 +157,7 @@ public class LoginDialog extends JDialog {
         @Override
         public Session call() throws AuthenticationException, IOException, InterruptedException {
             YggdrasilLoginService service = launcher.getYggdrasil();
-            Session identity = service.login(launcher.getProperties().getProperty("agentName"), username, password);
+            Session identity = service.login(username, password);
 
             // The presence of the identity (profile in Mojang terms) corresponds to whether the account
             // owns the game, so we need to check that
