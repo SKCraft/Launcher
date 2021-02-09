@@ -111,7 +111,12 @@ public class AccountSelectDialog extends JDialog {
 
 		removeSelected.addActionListener(ev -> {
 			if (accountList.getSelectedValue() != null) {
-				launcher.getAccounts().remove(accountList.getSelectedValue());
+				boolean confirmed = SwingHelper.confirmDialog(this, SharedLocale.tr("accounts.confirmForget"),
+						SharedLocale.tr("accounts.confirmForgetTitle"));
+
+				if (confirmed) {
+					launcher.getAccounts().remove(accountList.getSelectedValue());
+				}
 			}
 		});
 
