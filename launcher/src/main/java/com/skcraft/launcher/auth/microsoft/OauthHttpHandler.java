@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 public class OauthHttpHandler {
 	private Executor executor = Executors.newCachedThreadPool();
 	private HttpServer server;
-	private String result;
+	private OauthResult result;
 
 	public OauthHttpHandler() throws IOException {
 		server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
@@ -31,7 +31,7 @@ public class OauthHttpHandler {
 		return server.getAddress().getPort();
 	}
 
-	public String await() throws InterruptedException {
+	public OauthResult await() throws InterruptedException {
 		synchronized (this) {
 			this.wait();
 		}
@@ -46,7 +46,11 @@ public class OauthHttpHandler {
 		public void handle(HttpExchange httpExchange) throws IOException {
 			String query = httpExchange.getRequestURI().getQuery();
 			Map<String, String> qs = Splitter.on('&').withKeyValueSeparator('=').split(query);
-			result = qs.get("code");
+			if (qs.get("error") != null) {
+				result = new OauthResult.Error(qs.get("error_description"));
+			} else {
+				result = new OauthResult.Success(qs.get("code"));
+			}
 
 			synchronized (OauthHttpHandler.this) {
 				OauthHttpHandler.this.notifyAll();

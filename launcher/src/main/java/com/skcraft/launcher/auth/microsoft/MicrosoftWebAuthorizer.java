@@ -18,7 +18,7 @@ public class MicrosoftWebAuthorizer {
 	private final String clientId;
 	@Getter private String redirectUri;
 
-	public String authorize() throws IOException, AuthenticationException, InterruptedException {
+	public OauthResult authorize() throws IOException, AuthenticationException, InterruptedException {
 		if (Desktop.isDesktopSupported()) {
 			// Interactive auth
 			return authorizeInteractive();
@@ -28,7 +28,7 @@ public class MicrosoftWebAuthorizer {
 		}
 	}
 
-	private String authorizeInteractive() throws IOException, AuthenticationException, InterruptedException {
+	private OauthResult authorizeInteractive() throws IOException, AuthenticationException, InterruptedException {
 		OauthHttpHandler httpHandler = new OauthHttpHandler();
 		Desktop.getDesktop().browse(generateInteractiveUrl(httpHandler.getPort()));
 

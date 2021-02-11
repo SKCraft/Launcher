@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.skcraft.launcher.auth.microsoft.MicrosoftWebAuthorizer;
 import com.skcraft.launcher.auth.microsoft.MinecraftServicesAuthorizer;
+import com.skcraft.launcher.auth.microsoft.OauthResult;
 import com.skcraft.launcher.auth.microsoft.XboxTokenAuthorizer;
 import com.skcraft.launcher.auth.microsoft.model.McAuthResponse;
 import com.skcraft.launcher.auth.microsoft.model.McProfileResponse;
@@ -30,12 +31,17 @@ public class MicrosoftLoginService implements LoginService {
 
 	public Session login() throws IOException, InterruptedException, AuthenticationException {
 		MicrosoftWebAuthorizer authorizer = new MicrosoftWebAuthorizer(clientId);
-		String code = authorizer.authorize();
+		OauthResult auth = authorizer.authorize();
+
+		if (auth.isError()) {
+			OauthResult.Error error = (OauthResult.Error) auth;
+			throw new AuthenticationException(error.getErrorMessage());
+		}
 
 		TokenResponse response = exchangeToken(form -> {
 			form.add("grant_type", "authorization_code");
 			form.add("redirect_uri", authorizer.getRedirectUri());
-			form.add("code", code);
+			form.add("code", ((OauthResult.Success) auth).getAuthCode());
 		});
 
 		Profile session = performLogin(response.getAccessToken(), null);
