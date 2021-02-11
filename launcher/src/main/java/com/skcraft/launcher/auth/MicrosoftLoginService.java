@@ -64,17 +64,16 @@ public class MicrosoftLoginService implements LoginService {
 		form.add("client_id", clientId);
 		formConsumer.accept(form);
 
-		HttpRequest request = HttpRequest.post(MS_TOKEN_URL)
+		return HttpRequest.post(MS_TOKEN_URL)
 				.bodyForm(form)
-				.execute();
+				.execute()
+				.expectResponseCodeOr(200, (req) -> {
+					TokenError error = req.returnContent().asJson(TokenError.class);
 
-		if (request.getResponseCode() == 200) {
-			return request.returnContent().asJson(TokenResponse.class);
-		} else {
-			TokenError error = request.returnContent().asJson(TokenError.class);
-
-			throw new AuthenticationException(error.errorDescription);
-		}
+					return new AuthenticationException(error.errorDescription);
+				})
+				.returnContent()
+				.asJson(TokenResponse.class);
 	}
 
 	private Profile performLogin(String microsoftToken, SavedSession previous)

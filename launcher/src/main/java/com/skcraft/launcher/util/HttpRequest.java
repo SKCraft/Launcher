@@ -203,6 +203,27 @@ public class HttpRequest implements Closeable, ProgressObservable {
     }
 
     /**
+     * Continue if the response code matches, otherwise call the provided function
+     * to generate an exception.
+     *
+     * @param code HTTP status code to continue on.
+     * @param onError Function invoked when the code does not match, should return an error that will be thrown.
+     * @return this object if successful
+     * @throws Exception either an {@link IOException} on I/O error or a user-defined {@link Exception} subclass
+     *         if the code does not match.
+     */
+    public <E extends Exception> HttpRequest expectResponseCodeOr(int code, HttpFunction<HttpRequest, E> onError)
+            throws E, IOException, InterruptedException {
+        int responseCode = getResponseCode();
+
+        if (code == responseCode) return this;
+
+        E exc = onError.call(this);
+        close();
+        throw exc;
+    }
+
+    /**
      * Get the response code.
      *
      * @return the response code
