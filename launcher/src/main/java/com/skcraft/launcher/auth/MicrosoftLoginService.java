@@ -29,7 +29,16 @@ public class MicrosoftLoginService implements LoginService {
 
 	private final String clientId;
 
-	public Session login() throws IOException, InterruptedException, AuthenticationException {
+	/**
+	 * Trigger a full login sequence with the Microsoft authenticator.
+	 *
+	 * @param oauthDone Callback called when OAuth is complete and automatic login is about to begin.
+	 * @return Valid {@link Session} instance representing the logged-in player.
+	 * @throws IOException if any I/O error occurs.
+	 * @throws InterruptedException if the current thread is interrupted
+	 * @throws AuthenticationException if authentication fails in any way, this is thrown with a human-useful message.
+	 */
+	public Session login(Receiver oauthDone) throws IOException, InterruptedException, AuthenticationException {
 		MicrosoftWebAuthorizer authorizer = new MicrosoftWebAuthorizer(clientId);
 		OauthResult auth = authorizer.authorize();
 
@@ -44,6 +53,7 @@ public class MicrosoftLoginService implements LoginService {
 			form.add("code", ((OauthResult.Success) auth).getAuthCode());
 		});
 
+		oauthDone.tell();
 		Profile session = performLogin(response.getAccessToken(), null);
 		session.setRefreshToken(response.getRefreshToken());
 
@@ -158,5 +168,10 @@ public class MicrosoftLoginService implements LoginService {
 	private static class TokenError {
 		private String error;
 		private String errorDescription;
+	}
+
+	@FunctionalInterface
+	public interface Receiver {
+		void tell();
 	}
 }

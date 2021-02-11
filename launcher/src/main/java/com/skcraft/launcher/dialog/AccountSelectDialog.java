@@ -3,9 +3,9 @@ package com.skcraft.launcher.dialog;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.concurrency.ProgressObservable;
+import com.skcraft.concurrency.SettableProgress;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.LoginService;
 import com.skcraft.launcher.auth.OfflineSession;
@@ -148,8 +148,12 @@ public class AccountSelectDialog extends JDialog {
 	}
 
 	private void attemptMicrosoftLogin() {
+		String status = SharedLocale.tr("login.microsoft.seeBrowser");
+		SettableProgress progress = new SettableProgress(status, -1);
+
 		ListenableFuture<?> future = launcher.getExecutor().submit(() -> {
-			Session newSession = launcher.getMicrosoftLogin().login();
+			Session newSession = launcher.getMicrosoftLogin().login(() ->
+					progress.set(SharedLocale.tr("login.loggingInStatus"), -1));
 
 			if (newSession != null) {
 				launcher.getAccounts().add(newSession.toSavedSession());
@@ -159,8 +163,7 @@ public class AccountSelectDialog extends JDialog {
 			return null;
 		});
 
-		String status = SharedLocale.tr("login.loggingInStatus");
-		ProgressDialog.showProgress(this, future, new DefaultProgress(-1, status),
+		ProgressDialog.showProgress(this, future, progress,
 				SharedLocale.tr("login.loggingInTitle"), status);
 		SwingHelper.addErrorDialogCallback(this, future);
 	}
