@@ -15,6 +15,6 @@ public class LatestVersionInfo {
 
     private String version;
     private URL url;
-    private boolean packed = true;
+    private boolean packed;
 
 }
