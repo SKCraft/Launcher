@@ -395,8 +395,10 @@ public class HttpRequest implements Closeable, ProgressObservable {
             url = uri.toURL();
             return url;
         } catch (MalformedURLException e) {
+            log.warning("Failed to reformat url " + existing.toString() + ", using unformatted version.");
             return existing;
         } catch (URISyntaxException e) {
+            log.warning("Failed to reformat url " + existing.toString() + ", using unformatted version.");
             return existing;
         }
     }
