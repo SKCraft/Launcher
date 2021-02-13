@@ -229,9 +229,11 @@ public class AccountSelectDialog extends JDialog {
 
 			if (isSelected) {
 				setOpaque(true);
-				setBackground(new Color(0x397BBF));
+				setBackground(list.getSelectionBackground());
+				setForeground(list.getSelectionForeground());
 			} else {
 				setOpaque(false);
+				setForeground(list.getForeground());
 			}
 
 			return this;
