@@ -40,7 +40,7 @@ public class XboxTokenAuthorizer {
 				.expectResponseCodeOr(200, (req) -> {
 					XstsError xstsError = req.returnContent().asJson(XstsError.class);
 
-					return new AuthenticationException(xstsError.getMessage(), getErrorMessage(xstsError.getXErr()));
+					return new AuthenticationException(xstsError.getMessage(), getErrorMessage(xstsError));
 				})
 				.returnContent()
 				.asJson(XboxAuthResponse.class);
@@ -48,12 +48,16 @@ public class XboxTokenAuthorizer {
 		return new XboxAuthorization(xstsResponse.getToken(), xstsResponse.getUhs());
 	}
 
-	private static String getErrorMessage(long xboxErrorCode) {
+	private static String getErrorMessage(XstsError xstsError) {
+		long xboxErrorCode = xstsError.getXErr();
 		if (xboxErrorCode == 2148916233L) {
 			return SharedLocale.tr("login.xbox.noXboxAccount");
 		}
 		if (xboxErrorCode == 2148916238L) {
 			return SharedLocale.tr("login.xbox.isChild");
+		}
+		if (!xstsError.getMessage().isEmpty()) {
+			return SharedLocale.tr("login.xbox.errorMessage", xstsError.getMessage());
 		}
 
 		return SharedLocale.tr("login.xbox.unknown", xboxErrorCode);
