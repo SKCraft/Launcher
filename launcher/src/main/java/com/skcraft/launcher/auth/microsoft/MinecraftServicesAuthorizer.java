@@ -28,21 +28,21 @@ public class MinecraftServicesAuthorizer {
 
 	public static McProfileResponse getUserProfile(McAuthResponse auth)
 			throws IOException, InterruptedException, AuthenticationException {
-		HttpRequest request = HttpRequest.get(MC_SERVICES_PROFILE)
+		return HttpRequest.get(MC_SERVICES_PROFILE)
 				.header("Authorization", auth.getAuthorization())
-				.execute();
+				.execute()
+				.expectResponseCodeOr(200, req -> {
+					McServicesError error = req.returnContent().asJson(McServicesError.class);
 
-		if (request.getResponseCode() == 200) {
-			return request.returnContent().asJson(McProfileResponse.class);
-		} else {
-			McServicesError error = request.returnContent().asJson(McServicesError.class);
+					if (error.getError().equals("NOT_FOUND")) {
+						return new AuthenticationException("No Minecraft profile",
+								SharedLocale.tr("login.minecraftNotOwnedError"));
+					}
 
-			if (error.getError().equals("NOT_FOUND")) {
-				throw new AuthenticationException("No Minecraft profile",
-						SharedLocale.tr("login.minecraftNotOwnedError"));
-			}
-
-			throw new AuthenticationException(error.getErrorMessage());
-		}
+					return new AuthenticationException(error.getErrorMessage(),
+							SharedLocale.tr("login.minecraft.error", error.getErrorMessage()));
+				})
+				.returnContent()
+				.asJson(McProfileResponse.class);
 	}
 }
