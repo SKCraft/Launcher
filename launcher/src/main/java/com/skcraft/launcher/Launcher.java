@@ -163,13 +163,18 @@ public final class Launcher {
         return new YggdrasilLoginService(HttpRequest.url(getProperties().getProperty("yggdrasilAuthUrl")), accounts.getClientId());
     }
 
+    /**
+     * Get the Microsoft login service.
+     *
+     * @return the Microsoft (current) login service
+     */
     public MicrosoftLoginService getMicrosoftLogin() {
         return new MicrosoftLoginService(getProperties().getProperty("microsoftClientId"));
     }
 
     public LoginService getLoginService(UserType type) {
         if (type == UserType.MICROSOFT) {
-            return null; // TODO: Microsoft login service
+            return getMicrosoftLogin();
         } else {
             return getYggdrasil();
         }
