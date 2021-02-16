@@ -222,7 +222,7 @@ public class AccountSelectDialog extends JDialog {
 		public Component getListCellRendererComponent(JList<? extends SavedSession> list, SavedSession value, int index, boolean isSelected, boolean cellHasFocus) {
 			setText(value.getUsername());
 			if (value.getAvatarImage() != null) {
-				setIcon(new ImageIcon(value.getAvatarBytes()));
+				setIcon(new ImageIcon(value.getAvatarImage()));
 			} else {
 				setIcon(SwingHelper.createIcon(Launcher.class, "default_skin.png", 32, 32));
 			}

@@ -1,11 +1,8 @@
 package com.skcraft.launcher.auth;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import java.util.Base64;
 
 /**
  * Represents a session saved to disk.
@@ -18,12 +15,7 @@ public class SavedSession {
 	private String username;
 	private String accessToken;
 	private String refreshToken;
-	private String avatarImage;
-
-	@JsonIgnore
-	public byte[] getAvatarBytes() {
-		return Base64.getDecoder().decode(avatarImage);
-	}
+	private byte[] avatarImage;
 
 	@Override
 	public boolean equals(Object o) {

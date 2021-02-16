@@ -112,7 +112,7 @@ public class YggdrasilLoginService implements LoginService {
         @JsonProperty("id") private String uuid;
         private String name;
         private boolean legacy;
-        private String avatarImage;
+        private byte[] avatarImage;
         @JsonIgnore private final Map<String, String> userProperties = Collections.emptyMap();
         @JsonBackReference private AuthenticateResponse response;
 

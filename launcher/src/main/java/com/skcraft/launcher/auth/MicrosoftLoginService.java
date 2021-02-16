@@ -115,7 +115,7 @@ public class MicrosoftLoginService implements LoginService {
 		private final McProfileResponse profile;
 		private final Map<String, String> userProperties = Collections.emptyMap();
 		private String refreshToken;
-		private String avatarImage;
+		private byte[] avatarImage;
 
 		@Override
 		public String getUuid() {

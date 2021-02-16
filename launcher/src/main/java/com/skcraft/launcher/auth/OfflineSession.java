@@ -58,7 +58,7 @@ public class OfflineSession implements Session {
     }
 
     @Override
-    public String getAvatarImage() {
+    public byte[] getAvatarImage() {
         return null;
     }
 

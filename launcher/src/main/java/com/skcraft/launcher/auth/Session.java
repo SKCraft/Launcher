@@ -62,7 +62,7 @@ public interface Session {
      *
      * @return User's avatar as a base64 string.
      */
-    String getAvatarImage();
+    byte[] getAvatarImage();
 
     /**
      * Return true if the user is in an online session.
