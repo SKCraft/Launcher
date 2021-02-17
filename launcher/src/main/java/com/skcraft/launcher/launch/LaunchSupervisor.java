@@ -13,7 +13,7 @@ import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
-import com.skcraft.launcher.dialog.LoginDialog;
+import com.skcraft.launcher.dialog.AccountSelectDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.launch.LaunchOptions.UpdatePolicy;
 import com.skcraft.launcher.persistence.Persistence;
@@ -61,7 +61,7 @@ public class LaunchSupervisor {
             if (options.getSession() != null) {
                 session = options.getSession();
             } else {
-                session = LoginDialog.showLoginRequest(window, launcher);
+                session = AccountSelectDialog.showAccountRequest(window, launcher);
                 if (session == null) {
                     return;
                 }

@@ -28,13 +28,6 @@ public interface Session {
     String getName();
 
     /**
-     * Get the client token.
-     *
-     * @return client token
-     */
-    String getClientToken();
-
-    /**
      * Get the access token.
      *
      * @return the access token
@@ -65,10 +58,33 @@ public interface Session {
     UserType getUserType();
 
     /**
+     * Get the user's avatar
+     *
+     * @return User's avatar as a base64 string.
+     */
+    byte[] getAvatarImage();
+
+    /**
      * Return true if the user is in an online session.
      *
      * @return true if online
      */
     boolean isOnline();
+
+    /**
+     * Convert this session to a saved session
+     * @return Saved session that represents this active session
+     */
+    default SavedSession toSavedSession() {
+        SavedSession savedSession = new SavedSession();
+
+        savedSession.setType(getUserType());
+        savedSession.setUsername(getName());
+        savedSession.setUuid(getUuid());
+        savedSession.setAccessToken(getAccessToken());
+        savedSession.setAvatarImage(getAvatarImage());
+
+        return savedSession;
+    }
 
 }

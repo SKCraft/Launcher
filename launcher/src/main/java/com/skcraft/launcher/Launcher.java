@@ -12,9 +12,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.skcraft.launcher.auth.AccountList;
-import com.skcraft.launcher.auth.LoginService;
-import com.skcraft.launcher.auth.YggdrasilLoginService;
+import com.skcraft.launcher.auth.*;
 import com.skcraft.launcher.launch.LaunchSupervisor;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
@@ -100,10 +98,6 @@ public final class Launcher {
 
         setDefaultConfig();
 
-        if (accounts.getSize() > 0) {
-            accounts.setSelectedItem(accounts.getElementAt(0));
-        }
-
         executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -161,12 +155,29 @@ public final class Launcher {
     }
 
     /**
-     * Get a login service.
+     * Get the Yggdrasil login service.
      *
-     * @return a login service
+     * @return the Yggdrasil (legacy) login service
      */
-    public LoginService getLoginService() {
-        return new YggdrasilLoginService(HttpRequest.url(getProperties().getProperty("yggdrasilAuthUrl")));
+    public YggdrasilLoginService getYggdrasil() {
+        return new YggdrasilLoginService(HttpRequest.url(getProperties().getProperty("yggdrasilAuthUrl")), accounts.getClientId());
+    }
+
+    /**
+     * Get the Microsoft login service.
+     *
+     * @return the Microsoft (current) login service
+     */
+    public MicrosoftLoginService getMicrosoftLogin() {
+        return new MicrosoftLoginService(getProperties().getProperty("microsoftClientId"));
+    }
+
+    public LoginService getLoginService(UserType type) {
+        if (type == UserType.MICROSOFT) {
+            return getMicrosoftLogin();
+        } else {
+            return getYggdrasil();
+        }
     }
 
     /**
