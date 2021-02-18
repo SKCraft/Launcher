@@ -28,8 +28,13 @@ public class MinecraftServicesAuthorizer {
 
 	public static McProfileResponse getUserProfile(McAuthResponse auth)
 			throws IOException, InterruptedException, AuthenticationException {
+		return getUserProfile(auth.getAuthorization());
+	}
+
+	public static McProfileResponse getUserProfile(String authorization)
+			throws IOException, InterruptedException, AuthenticationException {
 		return HttpRequest.get(MC_SERVICES_PROFILE)
-				.header("Authorization", auth.getAuthorization())
+				.header("Authorization", authorization)
 				.execute()
 				.expectResponseCodeOr(200, req -> {
 					McServicesError error = req.returnContent().asJson(McServicesError.class);

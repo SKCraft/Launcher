@@ -7,7 +7,9 @@
 package com.skcraft.launcher.auth;
 
 import com.fasterxml.jackson.annotation.*;
-import com.skcraft.launcher.auth.skin.VisageSkinService;
+import com.skcraft.launcher.auth.microsoft.MinecraftServicesAuthorizer;
+import com.skcraft.launcher.auth.microsoft.model.McProfileResponse;
+import com.skcraft.launcher.auth.skin.MinecraftSkinService;
 import com.skcraft.launcher.util.HttpRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +62,10 @@ public class YggdrasilLoginService implements LoginService {
             if (previous != null && previous.getAvatarImage() != null) {
                 profile.setAvatarImage(previous.getAvatarImage());
             } else {
-                profile.setAvatarImage(VisageSkinService.fetchSkinHead(profile.getUuid()));
+                McProfileResponse skinProfile = MinecraftServicesAuthorizer
+                        .getUserProfile("Bearer " + response.getAccessToken());
+
+                profile.setAvatarImage(MinecraftSkinService.fetchSkinHead(skinProfile));
             }
 
             return profile;
