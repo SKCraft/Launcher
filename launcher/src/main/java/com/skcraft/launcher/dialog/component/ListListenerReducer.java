@@ -1,6 +1,6 @@
 package com.skcraft.launcher.dialog.component;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;

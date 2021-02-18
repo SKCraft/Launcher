@@ -1,8 +1,8 @@
 package com.skcraft.launcher.auth;
 
-import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.collect.Lists;
 import com.skcraft.launcher.dialog.component.ListListenerReducer;
 import com.skcraft.launcher.persistence.Scrambled;
 import lombok.Getter;

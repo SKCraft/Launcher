@@ -1,8 +1,8 @@
 package com.skcraft.launcher.auth.microsoft.model;
 
-import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import lombok.Data;
 
 import java.util.List;

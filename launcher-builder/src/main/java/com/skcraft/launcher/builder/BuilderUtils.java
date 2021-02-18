@@ -6,7 +6,7 @@
 
 package com.skcraft.launcher.builder;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 

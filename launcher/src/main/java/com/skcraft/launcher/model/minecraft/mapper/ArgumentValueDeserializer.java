@@ -1,6 +1,5 @@
 package com.skcraft.launcher.model.minecraft.mapper;
 
-import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
@@ -8,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.util.Arrays;
