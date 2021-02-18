@@ -11,6 +11,7 @@ import com.skcraft.launcher.auth.microsoft.model.McAuthResponse;
 import com.skcraft.launcher.auth.microsoft.model.McProfileResponse;
 import com.skcraft.launcher.auth.microsoft.model.TokenResponse;
 import com.skcraft.launcher.auth.microsoft.model.XboxAuthorization;
+import com.skcraft.launcher.auth.skin.VisageSkinService;
 import com.skcraft.launcher.util.HttpRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

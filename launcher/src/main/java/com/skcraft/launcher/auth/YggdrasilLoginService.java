@@ -7,6 +7,7 @@
 package com.skcraft.launcher.auth;
 
 import com.fasterxml.jackson.annotation.*;
+import com.skcraft.launcher.auth.skin.VisageSkinService;
 import com.skcraft.launcher.util.HttpRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
