@@ -250,6 +250,7 @@ public final class WebpagePanel extends JPanel {
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setUseCaches(false);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Java) SKMCLauncher");
                 conn.setDoInput(true);
                 conn.setDoOutput(false);
                 conn.setReadTimeout(5000);
