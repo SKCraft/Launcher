@@ -72,7 +72,7 @@ public class UpdateManager {
         final URL url = pendingUpdate.getUrl();
 
         if (url != null) {
-            SelfUpdater downloader = new SelfUpdater(launcher, url, pendingUpdate.isPacked());
+            SelfUpdater downloader = new SelfUpdater(launcher, url);
             ObservableFuture<File> future = new ObservableFuture<File>(
                     launcher.getExecutor().submit(downloader), downloader);
 
