@@ -92,14 +92,7 @@ public class Downloader implements Runnable, ProgressObservable {
 
             checkInterrupted();
 
-            boolean packed = true;
-            Object packedCheck = ((JSONObject) object).get("packed");
-            if (packedCheck == Boolean.FALSE) {
-                packed = false;
-            }
-
-            String extension = packed ? ".jar.pack" : ".jar";
-            File finalFile = new File(bootstrap.getBinariesDir(), System.currentTimeMillis() + extension);
+            File finalFile = new File(bootstrap.getBinariesDir(), System.currentTimeMillis() + ".jar");
             File tempFile = new File(finalFile.getParentFile(), finalFile.getName() + ".tmp");
 
             log.info("Downloading " + url + " to " + tempFile.getAbsolutePath());
