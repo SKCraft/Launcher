@@ -7,6 +7,7 @@
 package com.skcraft.launcher.install;
 
 import com.google.common.io.Files;
+import com.skcraft.launcher.Launcher;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
@@ -28,7 +29,7 @@ public class FileCopy implements InstallTask {
     }
 
     @Override
-    public void execute() throws IOException {
+    public void execute(Launcher launcher) throws IOException {
         log.log(Level.INFO, "Copying to {0} (from {1})...", new Object[]{to.getAbsoluteFile(), from.getName()});
         to.getParentFile().mkdirs();
         Files.copy(from, to);

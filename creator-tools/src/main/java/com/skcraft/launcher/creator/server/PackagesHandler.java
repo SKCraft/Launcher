@@ -6,8 +6,8 @@
 
 package com.skcraft.launcher.creator.server;
 
-import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.model.modpack.ManifestInfo;
 import com.skcraft.launcher.model.modpack.PackageList;

@@ -6,7 +6,7 @@
 
 package com.skcraft.launcher.creator.controller.task;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.launcher.builder.BuilderOptions;
 import com.skcraft.launcher.creator.model.creator.Pack;

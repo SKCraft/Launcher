@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.skcraft.launcher.install.InstallLog;
 import com.skcraft.launcher.install.Installer;
 import com.skcraft.launcher.install.UpdateCache;
+import com.skcraft.launcher.model.loader.ProcessorEntry;
 import lombok.Data;
 import lombok.ToString;
 
@@ -23,7 +24,8 @@ import java.io.File;
         property = "type",
         defaultImpl = FileInstall.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FileInstall.class, name = "file")
+        @JsonSubTypes.Type(value = FileInstall.class, name = "file"),
+        @JsonSubTypes.Type(value = ProcessorEntry.class, name = "process")
 })
 @Data
 @ToString(exclude = "manifest")

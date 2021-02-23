@@ -14,6 +14,8 @@ import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.model.minecraft.ReleaseList;
+import com.skcraft.launcher.model.minecraft.Version;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.persistence.Persistence;
@@ -99,23 +101,49 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         return instance;
     }
+
+    /**
+     * Check whether the package manifest contains an embedded version manifest,
+     * otherwise we'll have to download the one for the given Minecraft version.
+     *
+     * BACKWARDS COMPATIBILITY:
+     * Old manifests have an embedded version manifest without the minecraft JARs list present.
+     * If we find a manifest without that jar list, fetch the newer copy from launchermeta and use the list from that.
+     * We can't just replace the manifest outright because library versions might differ and that screws up Runner.
+     */
     private VersionManifest readVersionManifest(Manifest manifest) throws IOException, InterruptedException {
-        // Check whether the package manifest contains an embedded version manifest,
-        // otherwise we'll have to download the one for the given Minecraft version
         VersionManifest version = manifest.getVersionManifest();
-        if (version != null) {
-            mapper.writeValue(instance.getVersionPath(), version);
-            return version;
-        } else {
-            URL url = launcher.getMetaURL(manifest.getGameVersion());
-            return HttpRequest
-                    .get(url)
-                    .execute()
-                    .expectResponseCode(200)
-                    .returnContent()
-                    .saveContent(instance.getVersionPath())
-                    .asJson(VersionManifest.class);
+        URL url = url(launcher.getProperties().getProperty("versionManifestUrl"));
+
+        if (version == null) {
+            version = fetchVersionManifest(url, manifest);
         }
+
+        if (version.getDownloads().isEmpty()) {
+            // Backwards compatibility hack
+            VersionManifest otherManifest = fetchVersionManifest(url, manifest);
+
+            version.setDownloads(otherManifest.getDownloads());
+            version.setAssetIndex(otherManifest.getAssetIndex());
+        }
+
+        mapper.writeValue(instance.getVersionPath(), version);
+        return version;
+    }
+
+    private static VersionManifest fetchVersionManifest(URL url, Manifest manifest) throws IOException, InterruptedException {
+        ReleaseList releases = HttpRequest.get(url)
+                .execute()
+                .expectResponseCode(200)
+                .returnContent()
+                .asJson(ReleaseList.class);
+
+        Version relVersion = releases.find(manifest.getGameVersion());
+        return HttpRequest.get(url(relVersion.getUrl()))
+                .execute()
+                .expectResponseCode(200)
+                .returnContent()
+                .asJson(VersionManifest.class);
     }
 
     /**
@@ -148,10 +176,10 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         // Install the .jar
         File jarPath = launcher.getJarPath(version);
-        String downloadURLString = Launcher.getDownloadURL(version.getId());
-        URL downloadURL = new URL(downloadURLString);
-        log.info("JAR at " + jarPath.getAbsolutePath() + ", fetched from " + downloadURL);
-        installJar(installer, jarPath, downloadURL);
+        VersionManifest.Artifact clientJar = version.getDownloads().get("client");
+        URL jarSource = url(clientJar.getUrl());
+        log.info("JAR at " + jarPath.getAbsolutePath() + ", fetched from " + jarSource);
+        installJar(installer, clientJar, jarPath, jarSource);
 
         // Download libraries
         log.info("Enumerating libraries to download...");
@@ -159,19 +187,16 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
         URL url = manifest.getLibrariesUrl();
         if (url != null) {
             log.info("Added library source: " + url);
-            librarySources.add(url);
+            librarySources.add(0, url);
         }
 
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingLibraries"));
-        installLibraries(installer, version, launcher.getLibrariesDir(), librarySources);
+        installLibraries(installer, manifest, launcher.getLibrariesDir(), librarySources);
 
         // Download assets
         log.info("Enumerating assets to download...");
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.collectingAssets"));
-        URL assetUrl = version.getAssetIndex() != null
-                ? url(version.getAssetIndex().get("url"))
-                : launcher.propUrl("assetsIndexUrl", version.getAssetsIndex());
-        installAssets(installer, version, assetUrl, assetsSources);
+        installAssets(installer, version, url(version.getAssetIndex().getUrl()), assetsSources);
 
         log.info("Executing download phase...");
         progress = ProgressFilter.between(installer.getDownloader(), 0, 0.98);
@@ -179,7 +204,9 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         log.info("Executing install phase...");
         progress = ProgressFilter.between(installer, 0.98, 1);
-        installer.execute();
+        installer.execute(launcher);
+
+        installer.executeLate(launcher);
 
         log.info("Completing...");
         complete();
