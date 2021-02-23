@@ -17,7 +17,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 /**
  * Walks a path and adds hashed path versions to the given
@@ -25,8 +24,6 @@ import java.nio.charset.Charset;
  */
 @Log
 public class ClientFileCollector extends DirectoryWalker {
-
-    public static final String URL_FILE_SUFFIX = ".url.txt";
 
     private final Manifest manifest;
     private final PropertiesApplicator applicator;
@@ -54,7 +51,8 @@ public class ClientFileCollector extends DirectoryWalker {
 
     @Override
     protected void onFile(File file, String relPath) throws IOException {
-        if (file.getName().endsWith(FileInfoScanner.FILE_SUFFIX) || file.getName().endsWith(URL_FILE_SUFFIX)) {
+        if (file.getName().endsWith(FileInfoScanner.FILE_SUFFIX)
+                || file.getName().endsWith(FileUrlScanner.URL_FILE_SUFFIX)) {
             return;
         }
 
@@ -63,11 +61,14 @@ public class ClientFileCollector extends DirectoryWalker {
         String to = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(relPath));
         
         // url.txt override file
-        File urlFile = new File(file.getAbsoluteFile().getParentFile(), file.getName() + URL_FILE_SUFFIX);
+        File urlFile = new File(file.getAbsoluteFile().getParentFile(),
+                file.getName() + FileUrlScanner.URL_FILE_SUFFIX);
         String location;
         boolean copy = true;
-        if (urlFile.exists() && !System.getProperty("com.skcraft.builder.ignoreURLOverrides", "false").equalsIgnoreCase("true")) {
-            location = Files.readFirstLine(urlFile, Charset.defaultCharset());
+        if (urlFile.exists() && FileUrlScanner.isEnabled()) {
+            FileUrlRedirect redirect = FileUrlRedirect.fromFile(urlFile);
+
+            location = redirect.getUrl().toString();
             copy = false;
         } else {
             location = hash.substring(0, 2) + "/" + hash.substring(2, 4) + "/" + hash;

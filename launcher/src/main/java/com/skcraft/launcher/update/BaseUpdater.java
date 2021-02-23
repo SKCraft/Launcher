@@ -7,6 +7,7 @@
 package com.skcraft.launcher.update;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.skcraft.launcher.AssetsRoot;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
@@ -14,6 +15,7 @@ import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.dialog.FeatureSelectionDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.install.*;
+import com.skcraft.launcher.model.loader.LoaderManifest;
 import com.skcraft.launcher.model.minecraft.Asset;
 import com.skcraft.launcher.model.minecraft.AssetsIndex;
 import com.skcraft.launcher.model.minecraft.Library;
@@ -108,12 +110,17 @@ public abstract class BaseUpdater {
 
             Collections.sort(features);
 
-            SwingUtilities.invokeAndWait(new Runnable() {
+            SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    new FeatureSelectionDialog(ProgressDialog.getLastDialog(), features).setVisible(true);
+                    new FeatureSelectionDialog(ProgressDialog.getLastDialog(), features, BaseUpdater.this)
+                            .setVisible(true);
                 }
             });
+
+            synchronized (this) {
+                this.wait();
+            }
 
             for (Feature feature : features) {
                 featuresCache.getSelected().put(Strings.nullToEmpty(feature.getName()), feature.isSelected());
@@ -145,14 +152,19 @@ public abstract class BaseUpdater {
     }
 
     protected void installJar(@NonNull Installer installer,
+                              @NonNull VersionManifest.Artifact artifact,
                               @NonNull File jarFile,
                               @NonNull URL url) throws InterruptedException {
         // If the JAR does not exist, install it
         if (!jarFile.exists()) {
-            List<File> targets = new ArrayList<File>();
+            long size = artifact.getSize();
+            if (size <= 0) size = JAR_SIZE_ESTIMATE;
 
-            File tempFile = installer.getDownloader().download(url, "", JAR_SIZE_ESTIMATE, jarFile.getName());
+            File tempFile = installer.getDownloader().download(url, "", size, jarFile.getName());
             installer.queue(new FileMover(tempFile, jarFile));
+            if (artifact.getHash() != null) {
+                installer.queue(new FileVerify(jarFile, jarFile.getName(), artifact.getHash()));
+            }
             log.info("Installing " + jarFile.getName() + " from " + url);
         }
     }
@@ -201,15 +213,26 @@ public abstract class BaseUpdater {
     }
 
     protected void installLibraries(@NonNull Installer installer,
-                                    @NonNull VersionManifest versionManifest,
+                                    @NonNull Manifest manifest,
                                     @NonNull File librariesDir,
                                     @NonNull List<URL> sources) throws InterruptedException {
+        VersionManifest versionManifest = manifest.getVersionManifest();
 
-        for (Library library : versionManifest.getLibraries()) {
+        Iterable<Library> allLibraries = versionManifest.getLibraries();
+        for (LoaderManifest loader : manifest.getLoaders().values()) {
+            allLibraries = Iterables.concat(allLibraries, loader.getLibraries());
+        }
+
+        for (Library library : allLibraries) {
             if (library.matches(environment)) {
                 checkInterrupted();
 
-                String path = library.getPath(environment);
+                Library.Artifact artifact = library.getArtifact(environment);
+                String path = artifact.getPath();
+
+                long size = artifact.getSize();
+                if (size <= 0) size = LIBRARY_SIZE_ESTIMATE;
+
                 File targetFile = new File(librariesDir, path);
 
                 if (!targetFile.exists()) {
@@ -222,10 +245,13 @@ public abstract class BaseUpdater {
                         }
                     }
 
-                    File tempFile = installer.getDownloader().download(urls, "", LIBRARY_SIZE_ESTIMATE,
+                    File tempFile = installer.getDownloader().download(urls, "", size,
                             library.getName() + ".jar");
-                    installer.queue(new FileMover( tempFile, targetFile));
                     log.info("Fetching " + path + " from " + urls);
+                    installer.queue(new FileMover(tempFile, targetFile));
+                    if (artifact.getSha1() != null) {
+                        installer.queue(new FileVerify(targetFile, library.getName(), artifact.getSha1()));
+                    }
                 }
             }
         }

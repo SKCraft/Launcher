@@ -9,14 +9,10 @@ package com.skcraft.launcher.bootstrap;
 import lombok.Getter;
 import lombok.extern.java.Log;
 
-import java.io.*;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-import java.util.logging.Level;
+import java.io.File;
+import java.io.FileFilter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.skcraft.launcher.bootstrap.BootstrapUtils.closeQuietly;
 
 @Log
 public class LauncherBinary implements Comparable<LauncherBinary> {
@@ -38,41 +34,12 @@ public class LauncherBinary implements Comparable<LauncherBinary> {
         packed = m.group(2) != null;
     }
 
-    public File getExecutableJar() throws IOException {
+    public File getExecutableJar() throws PackedJarException {
         if (packed) {
-            log.log(Level.INFO, "Need to unpack " + path.getAbsolutePath());
+            log.warning("Launcher binary " + path.getAbsolutePath() + " is a pack200 file, which is " +
+                    "no longer supported.");
 
-            String packName = path.getName();
-            File outputPath = new File(path.getParentFile(), packName.substring(0, packName.length() - 5));
-
-            if (outputPath.exists()) {
-                return outputPath;
-            }
-
-            FileInputStream fis = null;
-            BufferedInputStream bis = null;
-            FileOutputStream fos = null;
-            BufferedOutputStream bos = null;
-            JarOutputStream jos = null;
-
-            try {
-                fis = new FileInputStream(path);
-                bis = new BufferedInputStream(fis);
-                fos = new FileOutputStream(outputPath);
-                bos = new BufferedOutputStream(fos);
-                jos = new JarOutputStream(bos);
-                Pack200.newUnpacker().unpack(bis, jos);
-            } finally {
-                closeQuietly(jos);
-                closeQuietly(bos);
-                closeQuietly(fos);
-                closeQuietly(bis);
-                closeQuietly(fis);
-            }
-
-            path.delete();
-
-            return outputPath;
+            throw new PackedJarException("Cannot unpack .jar.pack files!");
         } else {
             return path;
         }
@@ -103,6 +70,12 @@ public class LauncherBinary implements Comparable<LauncherBinary> {
         @Override
         public boolean accept(File file) {
             return file.isFile() && LauncherBinary.PATTERN.matcher(file.getName()).matches();
+        }
+    }
+
+    public static class PackedJarException extends Exception {
+        public PackedJarException(String message) {
+            super(message);
         }
     }
 }

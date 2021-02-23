@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.install;
 
+import com.skcraft.launcher.Launcher;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
@@ -29,7 +30,7 @@ public class InstallLogFileMover implements InstallTask {
     }
 
     @Override
-    public void execute() throws IOException {
+    public void execute(Launcher launcher) throws IOException {
         InstallLogFileMover.log.log(Level.INFO, "Installing to {0} (from {1})...", new Object[]{to.getAbsoluteFile(), from.getName()});
         to.getParentFile().mkdirs();
         to.delete();
