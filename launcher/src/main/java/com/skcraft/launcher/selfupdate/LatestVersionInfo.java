@@ -6,11 +6,13 @@
 
 package com.skcraft.launcher.selfupdate;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.net.URL;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LatestVersionInfo {
 
     private String version;
