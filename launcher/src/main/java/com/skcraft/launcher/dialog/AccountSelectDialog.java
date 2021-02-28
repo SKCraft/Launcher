@@ -75,13 +75,13 @@ public class AccountSelectDialog extends JDialog {
 		buttonsPanel.addElement(loginButton);
 
 		//Login Buttons
-		LinedBoxPanel loginButtonsRow = new LinedBoxPanel(false);
+		JPanel loginButtonsRow = new JPanel(new BorderLayout(0, 5));
 		addMojangButton.setAlignmentX(CENTER_ALIGNMENT);
 		addMicrosoftButton.setAlignmentX(CENTER_ALIGNMENT);
 		removeSelected.setAlignmentX(CENTER_ALIGNMENT);
-		loginButtonsRow.addElement(addMojangButton);
-		loginButtonsRow.addElement(addMicrosoftButton);
-		loginButtonsRow.addElement(removeSelected);
+		loginButtonsRow.add(addMojangButton, BorderLayout.NORTH);
+		loginButtonsRow.add(addMicrosoftButton, BorderLayout.CENTER);
+		loginButtonsRow.add(removeSelected, BorderLayout.SOUTH);
 		loginButtonsRow.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
 		JPanel listAndLoginContainer = new JPanel();
