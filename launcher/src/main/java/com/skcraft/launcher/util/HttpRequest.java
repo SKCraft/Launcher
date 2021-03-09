@@ -328,6 +328,11 @@ public class HttpRequest implements Closeable, ProgressObservable {
                 readBytes += len;
                 checkInterrupted();
             }
+
+            if (contentLength >= 0 && contentLength != readBytes) {
+                throw new IOException(String.format("Connection closed with %d bytes transferred, expected %d",
+                        readBytes, contentLength));
+            }
         } finally {
             close();
         }
