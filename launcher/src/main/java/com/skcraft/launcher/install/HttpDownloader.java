@@ -238,6 +238,7 @@ public class HttpDownloader implements Downloader {
             int trial = 0;
             boolean first = true;
             IOException lastException = null;
+            HttpRequest.PartialDownloadInfo retryDetails = null;
 
             do {
                 for (URL url : urls) {
@@ -249,11 +250,16 @@ public class HttpDownloader implements Downloader {
 
                     try {
                         request = HttpRequest.get(url);
-                        request.execute().expectResponseCode(200).saveContent(file);
+                        request.setResumeInfo(retryDetails).execute().expectResponseCode(200).saveContent(file);
                         return;
                     } catch (IOException e) {
                         lastException = e;
                         log.log(Level.WARNING, "Failed to download " + url, e);
+
+                        Optional<HttpRequest.PartialDownloadInfo> byteRangeSupport = request.canRetryPartial();
+                        if (byteRangeSupport.isPresent()) {
+                            retryDetails = byteRangeSupport.get();
+                        }
                     }
                 }
             } while (++trial < tryCount);
@@ -277,5 +283,4 @@ public class HttpDownloader implements Downloader {
             }
         }
     }
-
 }

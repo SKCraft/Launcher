@@ -9,6 +9,7 @@ package com.skcraft.launcher.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.concurrency.ProgressObservable;
+import lombok.Data;
 import lombok.Getter;
 import lombok.extern.java.Log;
 
@@ -17,10 +18,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static org.apache.commons.io.IOUtils.closeQuietly;
@@ -46,6 +44,7 @@ public class HttpRequest implements Closeable, ProgressObservable {
     private InputStream inputStream;
     private int redirectCount;
 
+    private PartialDownloadInfo resumeInfo = null;
     private long contentLength = -1;
     private long readBytes = 0;
 
@@ -143,6 +142,10 @@ public class HttpRequest implements Closeable, ProgressObservable {
             conn.setDoInput(true);
         }
 
+        if (resumeInfo != null) {
+            conn.setRequestProperty("Range", String.format("bytes=%d-", resumeInfo.currentLength));
+        }
+
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
         }
@@ -196,6 +199,11 @@ public class HttpRequest implements Closeable, ProgressObservable {
             if (code == responseCode) {
                 return this;
             }
+        }
+
+        if (resumeInfo != null && responseCode == 206) {
+            // Allow 206 Partial Content for resumed requests
+            return this;
         }
 
         close();
@@ -284,7 +292,7 @@ public class HttpRequest implements Closeable, ProgressObservable {
         BufferedOutputStream bos = null;
 
         try {
-            fos = new FileOutputStream(file);
+            fos = new FileOutputStream(file, resumeInfo != null);
             bos = new BufferedOutputStream(fos);
 
             saveContent(bos);
@@ -338,6 +346,24 @@ public class HttpRequest implements Closeable, ProgressObservable {
         }
 
         return this;
+    }
+
+    public Optional<PartialDownloadInfo> canRetryPartial() {
+        if (conn.getHeaderField("Accept-Ranges").equals("bytes")) {
+            return Optional.of(new PartialDownloadInfo(contentLength, readBytes));
+        }
+
+        return Optional.empty();
+    }
+
+    public HttpRequest setResumeInfo(PartialDownloadInfo info) {
+        this.resumeInfo = info;
+
+        return this;
+    }
+
+    public boolean isResumedRequest() {
+        return resumeInfo != null;
     }
 
     @Override
@@ -592,6 +618,12 @@ public class HttpRequest implements Closeable, ProgressObservable {
 
             return this;
         }
+    }
+
+    @Data
+    public static class PartialDownloadInfo {
+        private final long expectedLength;
+        private final long currentLength;
     }
 
 }
