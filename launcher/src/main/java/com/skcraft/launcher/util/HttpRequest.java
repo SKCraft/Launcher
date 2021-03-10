@@ -290,9 +290,10 @@ public class HttpRequest implements Closeable, ProgressObservable {
     public HttpRequest saveContent(File file) throws IOException, InterruptedException {
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
+        boolean shouldAppend = resumeInfo != null && getResponseCode() == 206;
 
         try {
-            fos = new FileOutputStream(file, resumeInfo != null);
+            fos = new FileOutputStream(file, shouldAppend);
             bos = new BufferedOutputStream(fos);
 
             saveContent(bos);
