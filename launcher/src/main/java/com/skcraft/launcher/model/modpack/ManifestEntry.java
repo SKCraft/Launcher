@@ -9,14 +9,13 @@ package com.skcraft.launcher.model.modpack;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.skcraft.launcher.install.InstallExtras;
 import com.skcraft.launcher.install.InstallLog;
 import com.skcraft.launcher.install.Installer;
 import com.skcraft.launcher.install.UpdateCache;
 import com.skcraft.launcher.model.loader.ProcessorEntry;
 import lombok.Data;
 import lombok.ToString;
-
-import java.io.File;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -35,6 +34,6 @@ public abstract class ManifestEntry {
     private Manifest manifest;
     private Condition when;
 
-    public abstract void install(Installer installer, InstallLog log, UpdateCache cache, File contentDir) throws Exception;
+    public abstract void install(Installer installer, InstallLog log, UpdateCache cache, InstallExtras extras) throws Exception;
 
 }
