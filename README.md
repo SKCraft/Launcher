@@ -1,11 +1,11 @@
-### 1.13+ notice
-
-The launcher now supports modern Forge distributions (1.13+), plus Fabric!
-
 SKCraft Launcher
 ================
 
 ![Now with 1.13+ support!](readme/now_with_support.png)
+
+[![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/offbeatwitch/donate)
+
+*If you rely on this software, please consider [donating](https://liberapay.com/offbeatwitch/donate) to help keep it maintained!*
 
 Need to make it easy for people to install and play your modpack? The SKCraft Launcher platform may be for you if:
 
