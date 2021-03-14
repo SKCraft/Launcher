@@ -48,3 +48,9 @@ subprojects {
         workingDir.mkdirs()
     }
 }
+
+task clean {
+    subprojects {
+        rootProject.clean.dependsOn tasks.matching { it.name == "clean" }
+    }
+}
