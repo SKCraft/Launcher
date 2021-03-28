@@ -1,6 +1,7 @@
 package com.skcraft.launcher.builder.plugin;
 
 import com.google.common.collect.Lists;
+import com.skcraft.launcher.builder.BuilderOptions;
 import com.skcraft.launcher.model.modpack.Manifest;
 import lombok.extern.java.Log;
 
@@ -48,9 +49,9 @@ public class BuilderPluginLoader {
 		return null;
 	}
 
-	public void dispatchAcceptOptions(String[] args) {
+	public void dispatchAcceptOptions(BuilderOptions options, String[] args) {
 		for (BuilderPlugin plugin : loadedPlugins) {
-			plugin.acceptOptions(args);
+			plugin.acceptOptions(options, args);
 		}
 	}
 
@@ -60,9 +61,9 @@ public class BuilderPluginLoader {
 		}
 	}
 
-	public void dispatchBuilderFinished(Builder builder) {
+	public void dispatchBuild(Builder builder) {
 		for (BuilderPlugin plugin : loadedPlugins) {
-			plugin.onBuilderFinished(builder);
+			plugin.onBuild(builder);
 		}
 	}
 }

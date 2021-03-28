@@ -415,7 +415,7 @@ public class PackageBuilder implements Builder {
         // Load plugins
         BuilderPluginLoader pluginLoader = new BuilderPluginLoader();
         pluginLoader.loadClasses(options.getPluginClasses());
-        pluginLoader.dispatchAcceptOptions(args);
+        pluginLoader.dispatchAcceptOptions(options, args);
 
         Manifest manifest = new Manifest();
         manifest.setMinimumVersion(Manifest.MIN_PROTOCOL_VERSION);
@@ -442,7 +442,7 @@ public class PackageBuilder implements Builder {
         builder.addLoaders(options.getLoadersDir(), options.getLibrariesDir());
         builder.downloadLibraries(options.getLibrariesDir());
 
-        pluginLoader.dispatchBuilderFinished(builder);
+        pluginLoader.dispatchBuild(builder);
 
         builder.writeManifest(options.getManifestPath());
 
