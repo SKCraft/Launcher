@@ -31,6 +31,9 @@ import com.skcraft.launcher.creator.dialog.BuildDialog.BuildOptions;
 import com.skcraft.launcher.creator.dialog.DeployServerDialog.DeployOptions;
 import com.skcraft.launcher.creator.model.creator.*;
 import com.skcraft.launcher.creator.model.swing.PackTableModel;
+import com.skcraft.launcher.creator.plugin.CreatorPluginWrapper;
+import com.skcraft.launcher.creator.plugin.CreatorToolsPlugin;
+import com.skcraft.launcher.creator.plugin.PluginMenu;
 import com.skcraft.launcher.creator.server.TestServer;
 import com.skcraft.launcher.creator.server.TestServerBuilder;
 import com.skcraft.launcher.creator.swing.PackDirectoryFilter;
@@ -107,6 +110,8 @@ public class PackManagerController {
     }
 
     public void show() {
+        initPluginMenu();
+
         frame.setVisible(true);
         frame.setTitle("Modpack Creator - [" + workspaceDir.getAbsolutePath() + "]");
 
@@ -311,6 +316,33 @@ public class PackManagerController {
         userFiles.setInclude(Lists.newArrayList("options.txt", "optionsshaders.txt"));
         userFiles.setExclude(Lists.<String>newArrayList());
         config.setUserFiles(userFiles);
+    }
+
+    private void initPluginMenu() {
+        JMenu pluginsMenu = frame.getPluginsMenu();
+
+        for (CreatorPluginWrapper<?> wrapper : creator.getPlugins()) {
+            CreatorToolsPlugin plugin = wrapper.getInstance();
+            JMenu submenu = new JMenu(plugin.getName());
+
+            for (PluginMenu menu : plugin.getPluginMenus()) {
+                JMenuItem item = new JMenuItem(menu.getTitle());
+                item.addActionListener(e -> {
+                    Optional<Pack> pack = getSelectedPack(true);
+
+                    if (menu.requiresPack() && !pack.isPresent()) {
+                        SwingHelper.showErrorDialog(frame, "You must select a pack first", "Error");
+                        return;
+                    }
+
+                    menu.onOpen(frame, e, pack.orNull());
+                });
+
+                submenu.add(item);
+            }
+
+            pluginsMenu.add(submenu);
+        }
     }
 
     private void initListeners() {

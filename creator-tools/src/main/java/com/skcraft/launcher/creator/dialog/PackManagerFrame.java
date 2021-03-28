@@ -59,6 +59,7 @@ public class PackManagerFrame extends JFrame {
     @Getter private final JMenuItem docsMenuItem = new JMenuItem("Documentation");
     @Getter private final JMenuItem aboutMenuItem = new JMenuItem("About");
 
+    @Getter private final JMenu pluginsMenu = new JMenu("Plugins");
     @Getter private final JTable packTable = new DefaultTable();
 
     public PackManagerFrame() {
@@ -193,6 +194,11 @@ public class PackManagerFrame extends JFrame {
         menu.add(openWebRootMenuItem);
         menu.addSeparator();
         menu.add(openConsoleMenuItem);
+
+        menu = pluginsMenu;
+        menu.setMargin(menuInset);
+        menu.setMnemonic('p');
+        menuBar.add(menu);
 
         menu = new JMenu("Help");
         menu.setMargin(menuInset);

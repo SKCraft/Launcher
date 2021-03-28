@@ -35,7 +35,7 @@ public class PluginSelectionDialog extends JDialog {
 		setTitle("Select plugins to enable");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		initComponents();
-		setPreferredSize(new Dimension(400, 320));
+		setMinimumSize(new Dimension(400, 140));
 		pack();
 		setLocationRelativeTo(owner);
 	}
@@ -51,6 +51,7 @@ public class PluginSelectionDialog extends JDialog {
 
 		panel.addElement(title);
 		panel.addElement(pluginsTable);
+		panel.addGlue();
 		panel.addElement(buttonsPanel);
 
 		add(panel);
