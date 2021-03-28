@@ -39,7 +39,7 @@ public class CreatorPluginLoader extends DirectoryWalker {
 		}
 	}
 
-	public List<CreatorToolsPlugin> loadAll() {
+	public List<CreatorPluginWrapper<?>> loadAll() {
 		URLClassLoader pluginClassLoader = new URLClassLoader(
 				candidates.stream().map(PluginCandidate::getJarUrl).toArray(URL[]::new),
 				this.getClass().getClassLoader()
@@ -53,11 +53,12 @@ public class CreatorPluginLoader extends DirectoryWalker {
 				.collect(Collectors.toList());
 	}
 
-	private <T extends CreatorToolsPlugin> CreatorToolsPlugin loadPlugin(URLClassLoader classLoader, PluginCandidate candidate) {
+	private <T extends CreatorToolsPlugin> CreatorPluginWrapper<T> loadPlugin(URLClassLoader classLoader, PluginCandidate candidate) {
 		try {
 			Class<T> pluginClass = (Class<T>) classLoader.loadClass(candidate.getInfo().getPluginClass());
 
-			return pluginClass.getConstructor().newInstance();
+			T instance = pluginClass.getConstructor().newInstance();
+			return new CreatorPluginWrapper<>(candidate.getInfo(), instance);
 		} catch (ClassNotFoundException e) {
 			log.warning(candidate.format("Could not find plugin class %s for plugin %s"));
 		} catch (ClassCastException e) {

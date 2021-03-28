@@ -15,7 +15,7 @@ import com.skcraft.launcher.creator.model.creator.CreatorConfig;
 import com.skcraft.launcher.creator.model.creator.RecentEntry;
 import com.skcraft.launcher.creator.model.creator.Workspace;
 import com.skcraft.launcher.creator.plugin.CreatorPluginLoader;
-import com.skcraft.launcher.creator.plugin.CreatorToolsPlugin;
+import com.skcraft.launcher.creator.plugin.CreatorPluginWrapper;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
 import lombok.Getter;
@@ -35,7 +35,7 @@ public class Creator {
     @Getter private final File dataDir;
     @Getter private final CreatorConfig config;
     @Getter private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
-    @Getter private final List<CreatorToolsPlugin> plugins;
+    @Getter private final List<CreatorPluginWrapper<?>> plugins;
 
     public Creator() {
         this.dataDir = getAppDataDir();

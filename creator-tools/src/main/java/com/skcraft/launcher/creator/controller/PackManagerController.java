@@ -463,6 +463,15 @@ public class PackManagerController {
             selectedPack.ifPresent(pack -> SwingHelper.browseDir(pack.getDirectory(), frame));
         });
 
+        frame.getEditPluginsMenuItem().addActionListener(e -> {
+            Optional<Pack> optional = getSelectedPack(true);
+
+            if (optional.isPresent()) {
+                PluginSelectionDialog.showPluginDialog(frame, creator, optional.get());
+                updatePackInWorkspace(optional.get());
+            }
+        });
+
         frame.getCheckProblemsMenuItem().addActionListener(e -> {
             Optional<Pack> optional = getSelectedPack(true);
 
@@ -654,6 +663,10 @@ public class PackManagerController {
         menuItem.addActionListener(e -> frame.getOpenFolderMenuItem().doClick());
         popup.add(menuItem);
 
+        menuItem = new JMenuItem("Enabled Plugins...");
+        menuItem.addActionListener(e -> frame.getEditPluginsMenuItem().doClick());
+        popup.add(menuItem);
+
         menuItem = new JMenuItem("Check for Problems");
         menuItem.addActionListener(e -> frame.getCheckProblemsMenuItem().doClick());
         popup.add(menuItem);
@@ -710,6 +723,10 @@ public class PackManagerController {
                 return;
             }
         } while (!canAddPackDir(dir));
+
+        if (!creator.getPlugins().isEmpty()) {
+            PluginSelectionDialog.showPluginDialog(frame, creator, pack);
+        }
 
         pack.setLocation(dir.getAbsolutePath());
 

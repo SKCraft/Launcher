@@ -39,6 +39,7 @@ public class PackManagerFrame extends JFrame {
     @Getter private final JMenuItem quitMenuItem = new JMenuItem("Exit");
     @Getter private final JMenuItem editConfigMenuItem = new JMenuItem("Edit modpack.json...");
     @Getter private final JMenuItem openFolderMenuItem = new JMenuItem("Open Directory");
+    @Getter private final JMenuItem editPluginsMenuItem = new JMenuItem("Enabled Plugins...");
     @Getter private final JMenuItem checkProblemsMenuItem = new JMenuItem("Scan for Problems...");
     @Getter private final JMenuItem testMenuItem = new JMenuItem("Test");
     @Getter private final JMenuItem testOnlineMenuItem = new JMenuItem("Test Online");
@@ -153,6 +154,7 @@ public class PackManagerFrame extends JFrame {
         menuBar.add(menu);
         menu.add(editConfigMenuItem);
         menu.add(openFolderMenuItem);
+        menu.add(editPluginsMenuItem);
         menu.addSeparator();
         menu.add(checkProblemsMenuItem);
 

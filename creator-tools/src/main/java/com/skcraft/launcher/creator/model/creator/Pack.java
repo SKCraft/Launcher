@@ -13,11 +13,14 @@ import com.skcraft.launcher.persistence.Persistence;
 import lombok.Data;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Pack {
 
     private String location;
+    private Set<String> enabledPlugins = new HashSet<>();
     @JsonIgnore private Workspace workspace;
     @JsonIgnore private BuilderConfig cachedConfig;
 

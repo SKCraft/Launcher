@@ -13,6 +13,7 @@ import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.builder.PackageBuilder;
 import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.creator.model.creator.Pack;
+import com.skcraft.launcher.creator.plugin.CreatorPluginWrapper;
 import com.skcraft.launcher.creator.plugin.CreatorToolsPlugin;
 import lombok.RequiredArgsConstructor;
 
@@ -61,7 +62,12 @@ public class PackBuilder implements Callable<PackBuilder>, ProgressObservable {
                 "-o", outputDir.getAbsolutePath()
         );
 
-        for (CreatorToolsPlugin plugin : creator.getPlugins()) {
+        for (CreatorPluginWrapper<?> wrapper : creator.getPlugins()) {
+            if (!pack.getEnabledPlugins().contains(wrapper.getInfo().getId())) {
+                continue;
+            }
+
+            CreatorToolsPlugin plugin = wrapper.getInstance();
             if (plugin.getBuilderPlugin() != null) {
                 args.add("--plugin-class");
                 args.add(plugin.getBuilderPlugin().getCanonicalName());
