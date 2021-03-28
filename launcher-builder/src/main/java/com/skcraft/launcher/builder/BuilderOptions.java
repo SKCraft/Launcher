@@ -104,13 +104,13 @@ public class BuilderOptions {
         }
     }
 
-    private void requireOutputPath(String name) throws ParameterException {
+    public void requireOutputPath(String name) throws ParameterException {
         if (outputPath == null) {
             throw new ParameterException("Because " + name + " was not specified, --output needs to be specified as the output directory and then " + name + " will be default to a pre-set path within the output directory");
         }
     }
 
-    private void requireInputPath(String name) throws ParameterException {
+    public void requireInputPath(String name) throws ParameterException {
         if (inputPath == null) {
             throw new ParameterException("Because " + name + " was not specified, --input needs to be specified as the project directory and then " + name + " will be default to a pre-set path within the project directory");
         }

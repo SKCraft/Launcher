@@ -1,0 +1,11 @@
+plugins {
+    id 'application'
+    id "com.github.johnrengelman.shadow"
+    id 'io.freefair.lombok'
+}
+
+dependencies {
+    implementation project(':launcher-builder')
+}
+
+build.dependsOn(jar)

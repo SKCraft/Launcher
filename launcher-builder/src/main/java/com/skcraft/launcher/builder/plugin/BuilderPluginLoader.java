@@ -5,6 +5,7 @@ import com.skcraft.launcher.builder.BuilderOptions;
 import com.skcraft.launcher.model.modpack.Manifest;
 import lombok.extern.java.Log;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class BuilderPluginLoader {
 		}
 	}
 
-	public void dispatchBuild(Builder builder) {
+	public void dispatchBuild(Builder builder) throws IOException, InterruptedException {
 		for (BuilderPlugin plugin : loadedPlugins) {
 			plugin.onBuild(builder);
 		}

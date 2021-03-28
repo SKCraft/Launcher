@@ -1,4 +1,4 @@
-package com.skcraft.launcher.builder.curse;
+package com.skcraft.plugin.curse;
 
 import com.beust.jcommander.Parameter;
 import lombok.Data;
@@ -7,6 +7,9 @@ import java.io.File;
 
 @Data
 public class CurseOptions {
+	@Parameter(names = "--curse-mods", description = "Folder of curse mod JSONs")
+	private File curseModsPath;
+
 	@Parameter(names = "--cache", description = "Path to cache folder where downloaded artifacts are stored.")
 	private File cachePath;
 

@@ -55,10 +55,12 @@ import static com.skcraft.launcher.util.HttpRequest.url;
 @Log
 public class PackageBuilder implements Builder {
     private final Properties properties;
+    @Getter
     private final ObjectMapper mapper;
     private ObjectWriter writer;
     @Getter
     private final Manifest manifest;
+    @Getter
     private final PropertiesApplicator applicator;
     @Getter
     private boolean prettyPrint = false;
