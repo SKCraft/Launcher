@@ -2,6 +2,7 @@ package com.skcraft.plugin.curse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.launcher.builder.DirectoryWalker;
+import com.skcraft.launcher.builder.FileInfoScanner;
 import com.skcraft.launcher.builder.PropertiesApplicator;
 import com.skcraft.launcher.model.modpack.FileInstall;
 import com.skcraft.launcher.model.modpack.Manifest;
@@ -32,6 +33,10 @@ public class CurseModCollector extends DirectoryWalker {
 			entry.setLocation(metadata.getDownloadUrl());
 			entry.setTo(to);
 			entry.setSize(metadata.getFileLength());
+
+			if (curseMod.getFeature() != null) {
+				applicator.register(FileInfoScanner.fromPattern(to, curseMod.getFeature()));
+			}
 
 			log.info(String.format("Adding Curse mod %s", metadata.getDisplayName()));
 			applicator.apply(entry);

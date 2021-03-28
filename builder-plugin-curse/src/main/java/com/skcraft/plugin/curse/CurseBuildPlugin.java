@@ -4,10 +4,12 @@ import com.beust.jcommander.JCommander;
 import com.skcraft.launcher.builder.BuilderOptions;
 import com.skcraft.launcher.builder.plugin.Builder;
 import com.skcraft.launcher.builder.plugin.BuilderPlugin;
+import lombok.extern.java.Log;
 
 import java.io.File;
 import java.io.IOException;
 
+@Log
 public class CurseBuildPlugin extends BuilderPlugin {
 	private CurseOptions options = new CurseOptions();
 
@@ -34,6 +36,11 @@ public class CurseBuildPlugin extends BuilderPlugin {
 		CurseModCollector collector = new CurseModCollector(builder.getManifest(), builder.getApplicator(), resolver,
 				builder.getMapper());
 
-		collector.walk(options.getCurseModsPath());
+		if (options.getCurseModsPath().isDirectory()) {
+			log.info("Collecting Curse mods...");
+			collector.walk(options.getCurseModsPath());
+		} else {
+			log.warning(String.format("%s isn't a directory, skipping", options.getCurseModsPath()));
+		}
 	}
 }

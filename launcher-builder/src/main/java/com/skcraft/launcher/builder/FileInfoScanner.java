@@ -56,15 +56,7 @@ public class FileInfoScanner extends DirectoryWalker {
                 checkNotNull(emptyToNull(feature.getName()),
                         "Empty component name found in " + file.getAbsolutePath());
 
-                List<String> patterns = new ArrayList<String>();
-                patterns.add(fnPattern);
-                FnPatternList patternList = new FnPatternList();
-                patternList.setInclude(patterns);
-                patternList.setFlags(MATCH_FLAGS);
-                FeaturePattern fp = new FeaturePattern();
-                fp.setFeature(feature);
-                fp.setFilePatterns(patternList);
-                getPatterns().add(fp);
+                getPatterns().add(fromPattern(fnPattern, feature));
 
                 FileInfoScanner.log.info("Found .info.json file at " + file.getAbsolutePath() +
                         ", with pattern " + fnPattern + ", and component " + feature);
@@ -72,4 +64,18 @@ public class FileInfoScanner extends DirectoryWalker {
         }
     }
 
+    public static FeaturePattern fromPattern(String pattern, Feature feature) {
+        List<String> patterns = new ArrayList<String>();
+        patterns.add(pattern);
+
+        FnPatternList patternList = new FnPatternList();
+        patternList.setInclude(patterns);
+        patternList.setFlags(MATCH_FLAGS);
+
+        FeaturePattern fp = new FeaturePattern();
+        fp.setFeature(feature);
+        fp.setFilePatterns(patternList);
+
+        return fp;
+    }
 }
