@@ -372,7 +372,10 @@ public class PackageBuilder implements Builder {
 
     private static BuilderOptions parseArgs(String[] args) {
         BuilderOptions options = new BuilderOptions();
-        new JCommander(options, args);
+        JCommander commander = new JCommander(options);
+        commander.setAcceptUnknownOptions(true);
+        commander.parse(args);
+
         options.choosePaths();
         return options;
     }
@@ -443,6 +446,8 @@ public class PackageBuilder implements Builder {
         builder.addFiles(options.getFilesDir(), options.getObjectsDir());
         builder.addLoaders(options.getLoadersDir(), options.getLibrariesDir());
         builder.downloadLibraries(options.getLibrariesDir());
+
+        logSection("Applying plugins...");
 
         pluginLoader.dispatchBuild(builder);
 

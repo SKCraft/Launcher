@@ -63,7 +63,7 @@ public class PackBuilder implements Callable<PackBuilder>, ProgressObservable {
 
         for (CreatorToolsPlugin plugin : creator.getPlugins()) {
             if (plugin.getBuilderPlugin() != null) {
-                args.add("--plugin");
+                args.add("--plugin-class");
                 args.add(plugin.getBuilderPlugin().getCanonicalName());
             }
         }

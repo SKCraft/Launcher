@@ -13,7 +13,9 @@ public class CurseBuildPlugin extends BuilderPlugin {
 
 	@Override
 	public void acceptOptions(BuilderOptions builderOptions, String[] args) {
-		new JCommander(this.options, args);
+		JCommander commander = new JCommander(this.options);
+		commander.setAcceptUnknownOptions(true);
+		commander.parse(args);
 
 		if (options.getCachePath() == null) {
 			builderOptions.requireInputPath("--cache");
@@ -22,7 +24,7 @@ public class CurseBuildPlugin extends BuilderPlugin {
 
 		if (options.getCurseModsPath() == null) {
 			builderOptions.requireInputPath("--curse-mods");
-			options.setCachePath(new File(builderOptions.getInputPath(), "cursemods"));
+			options.setCurseModsPath(new File(builderOptions.getInputPath(), "cursemods"));
 		}
 	}
 

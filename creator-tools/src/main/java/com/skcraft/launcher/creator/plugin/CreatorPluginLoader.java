@@ -3,6 +3,7 @@ package com.skcraft.launcher.creator.plugin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.launcher.builder.BuilderUtils;
 import com.skcraft.launcher.builder.DirectoryWalker;
+import com.skcraft.launcher.builder.plugin.BuilderPluginLoader;
 import lombok.Data;
 import lombok.extern.java.Log;
 
@@ -43,6 +44,9 @@ public class CreatorPluginLoader extends DirectoryWalker {
 				candidates.stream().map(PluginCandidate::getJarUrl).toArray(URL[]::new),
 				this.getClass().getClassLoader()
 		);
+
+		// Fun hack to make sure the builder can load plugins
+		BuilderPluginLoader.setClassLoader(pluginClassLoader);
 
 		return candidates.stream()
 				.map(candidate -> loadPlugin(pluginClassLoader, candidate))

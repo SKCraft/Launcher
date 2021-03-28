@@ -11,6 +11,7 @@ import java.util.List;
 
 @Log
 public class BuilderPluginLoader {
+	private static ClassLoader pluginClassLoader;
 	private List<BuilderPlugin> loadedPlugins = Lists.newArrayList();
 
 	public void loadClasses(List<String> classNames) {
@@ -29,7 +30,7 @@ public class BuilderPluginLoader {
 
 	private <T extends BuilderPlugin> T loadClass(String pluginClassName) throws ClassNotFoundException {
 		try {
-			Class<T> pluginClass = (Class<T>) getClass().getClassLoader().loadClass(pluginClassName);
+			Class<T> pluginClass = (Class<T>) getClassLoader().loadClass(pluginClassName);
 
 			return pluginClass.getConstructor().newInstance();
 		} catch (InstantiationException e) {
@@ -48,6 +49,16 @@ public class BuilderPluginLoader {
 		}
 
 		return null;
+	}
+
+	private static ClassLoader getClassLoader() {
+		if (pluginClassLoader != null) return pluginClassLoader;
+
+		return BuilderPluginLoader.class.getClassLoader();
+	}
+
+	public static void setClassLoader(ClassLoader loader) {
+		pluginClassLoader = loader;
 	}
 
 	public void dispatchAcceptOptions(BuilderOptions options, String[] args) {

@@ -1,0 +1,4 @@
+{
+  "id": "skcraft:plugin/curse",
+  "pluginClass": "com.skcraft.plugin.curse.creator.CurseCreatorPlugin"
+}
