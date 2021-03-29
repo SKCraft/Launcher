@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 
 @Log
 public class CreatorPluginLoader extends DirectoryWalker {
@@ -26,7 +27,13 @@ public class CreatorPluginLoader extends DirectoryWalker {
 
 	@Override
 	protected void onFile(File file, String relPath) throws IOException {
-		JarFile jarFile = new JarFile(file);
+		JarFile jarFile;
+		try {
+			jarFile = new JarFile(file);
+		} catch (ZipException e) {
+			log.warning(String.format("Found a non-JAR file %s in plugins directory", file));
+			return;
+		}
 
 		ZipEntry metaEntry = jarFile.getEntry("skcraftcreator.plugin.json");
 		if (metaEntry != null) {
@@ -36,6 +43,8 @@ public class CreatorPluginLoader extends DirectoryWalker {
 
 			log.info("Found plugin " + pluginInfo.getId());
 			candidates.add(new PluginCandidate(pluginInfo, file.toURI().toURL()));
+		} else {
+			log.warning(String.format("Found a non-plugin JAR file: %s", file));
 		}
 	}
 

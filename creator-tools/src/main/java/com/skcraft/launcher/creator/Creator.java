@@ -51,6 +51,7 @@ public class Creator {
             }
         } catch (IOException e) {
             log.severe("Could not walk plugin directory, plugins have not been loaded");
+            e.printStackTrace();
         }
         this.plugins = pluginLoader.loadAll();
 
