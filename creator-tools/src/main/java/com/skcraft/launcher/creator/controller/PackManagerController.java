@@ -33,6 +33,7 @@ import com.skcraft.launcher.creator.model.creator.*;
 import com.skcraft.launcher.creator.model.swing.PackTableModel;
 import com.skcraft.launcher.creator.plugin.CreatorPluginWrapper;
 import com.skcraft.launcher.creator.plugin.CreatorToolsPlugin;
+import com.skcraft.launcher.creator.plugin.MenuContext;
 import com.skcraft.launcher.creator.plugin.PluginMenu;
 import com.skcraft.launcher.creator.server.TestServer;
 import com.skcraft.launcher.creator.server.TestServerBuilder;
@@ -335,7 +336,7 @@ public class PackManagerController {
                         return;
                     }
 
-                    menu.onOpen(frame, e, pack.orNull());
+                    menu.onOpen(new MenuContext(frame, creator.getExecutor()), e, pack.orNull());
                 });
 
                 submenu.add(item);
