@@ -285,7 +285,11 @@ public class CurseModsDialog extends JDialog {
 			PackModScanner scanner = new PackModScanner(mapper);
 
 			ListenableFuture<?> future = ctx.getExecutor().submit(() -> {
-				scanner.walk(new File(pack.getDirectory(), "cursemods"));
+				File target = new File(pack.getDirectory(), "cursemods");
+
+				if (target.isDirectory()) {
+					scanner.walk(target);
+				}
 				return null;
 			});
 

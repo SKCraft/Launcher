@@ -44,7 +44,11 @@ public class Creator {
         // Load plugins
         CreatorPluginLoader pluginLoader = new CreatorPluginLoader();
         try {
-            pluginLoader.walk(new File(dataDir, "plugins"));
+            File pluginsDir = new File(dataDir, "plugins");
+
+            if (pluginsDir.isDirectory()) {
+                pluginLoader.walk(pluginsDir);
+            }
         } catch (IOException e) {
             log.severe("Could not walk plugin directory, plugins have not been loaded");
         }
