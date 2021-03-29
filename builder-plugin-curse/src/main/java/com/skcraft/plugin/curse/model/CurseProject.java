@@ -32,9 +32,9 @@ public class CurseProject implements ProjectHolder {
 		return null;
 	}
 
-	public LoadedMod toLoadedMod(GameVersionFile versionFile) {
+	public AddedMod toLoadedMod(GameVersionFile versionFile) {
 		CurseMod mod = new CurseMod(id, versionFile.getProjectFileId(), null);
-		return new LoadedMod(mod, this);
+		return new AddedMod(mod, this);
 	}
 
 	public Attachment getDefaultIcon() {

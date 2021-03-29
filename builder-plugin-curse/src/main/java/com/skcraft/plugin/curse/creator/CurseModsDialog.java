@@ -15,7 +15,9 @@ import com.skcraft.launcher.swing.LinedBoxPanel;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.util.SwingExecutor;
 import com.skcraft.plugin.curse.CurseApi;
-import com.skcraft.plugin.curse.model.*;
+import com.skcraft.plugin.curse.model.AddedMod;
+import com.skcraft.plugin.curse.model.CurseProject;
+import com.skcraft.plugin.curse.model.ProjectHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 
@@ -34,34 +36,28 @@ import static com.skcraft.launcher.util.HttpRequest.url;
 
 @Log
 public class CurseModsDialog extends JDialog {
-	private final CurseSearchResults searchResults = new CurseSearchResults();
-	private final LoadedModList modList = new LoadedModList();
+	private final CursePack cursePack;
 
 	private final JPanel panel = new JPanel(new BorderLayout(0, 5));
 	private final JTextField searchBox = new JTextField();
 	private final JButton searchButton = new JButton("Search");
-	private final JList<CurseProject> searchPane = new JList<>(searchResults);
-	private final JList<LoadedMod> selectedPane = new JList<>(modList);
+	private final JList<CurseProject> searchPane = new JList<>();
+	private final JList<AddedMod> selectedPane = new JList<>();
 	private final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(searchPane), new JScrollPane(selectedPane));
 	private final JButton addMod = new JButton("Add Mods >>");
-	private final JButton removeMod = new JButton("Remove Mods");
+	private final JButton removeMod = new JButton("<< Remove Mods");
 	private final JButton done = new JButton("Done");
 
 	private final CurseProjectListRenderer projectRenderer = new CurseProjectListRenderer();
 
 	private final ListeningExecutorService executor;
-	private final ObjectMapper mapper;
 	private final Pack pack;
-	private final File curseModsDir;
 
-	public CurseModsDialog(Window owner, ListeningExecutorService executor, ObjectMapper mapper, Pack pack, List<LoadedMod> currentMods) {
+	public CurseModsDialog(Window owner, ListeningExecutorService executor, Pack pack, CursePack cursePack) {
 		super(owner);
 		this.executor = executor;
-		this.mapper = mapper;
 		this.pack = pack;
-		this.curseModsDir = new File(pack.getDirectory(), "cursemods");
-
-		modList.addAll(currentMods);
+		this.cursePack = cursePack;
 
 		initComponents();
 		setMinimumSize(new Dimension(500, 450));
@@ -70,11 +66,13 @@ public class CurseModsDialog extends JDialog {
 	}
 
 	private void initComponents() {
+		searchPane.setModel(cursePack.getSearchResults());
 		searchPane.setCellRenderer(projectRenderer);
 		searchPane.setLayoutOrientation(JList.VERTICAL);
 		searchPane.setVisibleRowCount(0);
 		searchPane.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
+		selectedPane.setModel(cursePack.getModList());
 		selectedPane.setCellRenderer(projectRenderer);
 		selectedPane.setLayoutOrientation(JList.VERTICAL);
 		selectedPane.setVisibleRowCount(0);
@@ -107,41 +105,17 @@ public class CurseModsDialog extends JDialog {
 		searchButton.addActionListener(e -> search());
 
 		addMod.addActionListener(e -> {
-			for (CurseProject project : searchPane.getSelectedValuesList()) {
-				GameVersionFile forVersion = project.findFileForVersion(pack.getCachedConfig().getGameVersion());
+			ListenableFuture<Object> future = executor.submit(cursePack.addMany(searchPane.getSelectedValuesList()));
 
-				if (forVersion == null) {
-					SwingHelper.showErrorDialog(
-							getOwner(),
-							String.format("Mod %s isn't available for this version.", project.getName()),
-							"Mod Unavailable"
-					);
-					return;
-				}
-
-				LoadedMod loadedMod = project.toLoadedMod(forVersion);
-				modList.add(loadedMod);
-
-				executor.submit(() -> {
-					File target = loadedMod.getDiskLocation(curseModsDir);
-
-					log.info(String.format("Saving mod %s", target.getName()));
-					mapper.writeValue(target, loadedMod.getMod());
-					return null;
-				});
-			}
+			// TODO: Update a progress bar built in to the dialog.
+			SwingHelper.addErrorDialogCallback(getOwner(), future);
 		});
 
 		removeMod.addActionListener(e -> {
-			for (LoadedMod mod : selectedPane.getSelectedValuesList()) {
-				modList.remove(mod);
+			ListenableFuture<Object> future = executor.submit(
+					cursePack.removeMany(selectedPane.getSelectedValuesList()));
 
-				File target = mod.getDiskLocation(curseModsDir);
-				log.info(String.format("Removing mod %s", target.getName()));
-				if (!target.delete()) {
-					SwingHelper.showErrorDialog(getOwner(), String.format("Failed to delete %s", target), "I/O error");
-				}
-			}
+			SwingHelper.addErrorDialogCallback(getOwner(), future);
 		});
 
 		done.addActionListener(e -> dispose());
@@ -163,7 +137,7 @@ public class CurseModsDialog extends JDialog {
 			@Override
 			public void onSuccess(List<CurseProject> result) {
 				projectRenderer.clearCacheIfBig();
-				searchResults.updateResults(result);
+				cursePack.getSearchResults().updateResults(result);
 			}
 
 			@Override
@@ -298,7 +272,10 @@ public class CurseModsDialog extends JDialog {
 			SwingHelper.addErrorDialogCallback(ctx.getOwner(), future);
 
 			future.addListener(() -> {
-				CurseModsDialog dialog = new CurseModsDialog(ctx.getOwner(), ctx.getExecutor(), mapper, pack, scanner.getResult());
+				CursePack cursePack = new CursePack(mapper, pack);
+				cursePack.getModList().addAll(scanner.getResult());
+
+				CurseModsDialog dialog = new CurseModsDialog(ctx.getOwner(), ctx.getExecutor(), pack, cursePack);
 				dialog.setTitle(getTitle());
 				dialog.setVisible(true);
 			}, SwingExecutor.INSTANCE);

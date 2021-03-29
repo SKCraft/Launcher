@@ -6,8 +6,8 @@ import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 
-public class LoadedModList extends AbstractListModel<LoadedMod> {
-	private List<LoadedMod> mods = Lists.newArrayList();
+public class AddedModList extends AbstractListModel<AddedMod> {
+	private List<AddedMod> mods = Lists.newArrayList();
 
 	@Override
 	public int getSize() {
@@ -15,24 +15,24 @@ public class LoadedModList extends AbstractListModel<LoadedMod> {
 	}
 
 	@Override
-	public LoadedMod getElementAt(int index) {
+	public AddedMod getElementAt(int index) {
 		return mods.get(index);
 	}
 
-	public void addAll(Collection<? extends LoadedMod> other) {
+	public void addAll(Collection<? extends AddedMod> other) {
 		int start = mods.size();
 		mods.addAll(other);
 		fireIntervalAdded(this, start, start + other.size());
 	}
 
-	public void add(LoadedMod mod) {
+	public void add(AddedMod mod) {
 		mods.add(mod);
 
 		int idx = mods.size() - 1;
 		fireIntervalAdded(this, idx, idx);
 	}
 
-	public void remove(LoadedMod mod) {
+	public void remove(AddedMod mod) {
 		int index = mods.indexOf(mod);
 		
 		if (index > -1) {

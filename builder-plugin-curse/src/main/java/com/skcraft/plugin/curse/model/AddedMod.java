@@ -8,7 +8,7 @@ import java.io.File;
  * Represents mod metadata cached in-memory for the purpose of rendering the "Add Mods" screen.
  */
 @Data
-public class LoadedMod implements ProjectHolder {
+public class AddedMod implements ProjectHolder {
 	private final CurseMod mod;
 	private final CurseProject project;
 
