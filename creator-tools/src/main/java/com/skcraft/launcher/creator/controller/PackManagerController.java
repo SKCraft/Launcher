@@ -62,6 +62,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class PackManagerController {
 
@@ -111,8 +112,6 @@ public class PackManagerController {
     }
 
     public void show() {
-        initPluginMenu();
-
         frame.setVisible(true);
         frame.setTitle("Modpack Creator - [" + workspaceDir.getAbsolutePath() + "]");
 
@@ -319,18 +318,38 @@ public class PackManagerController {
         config.setUserFiles(userFiles);
     }
 
-    private void initPluginMenu() {
+    private void refreshPluginMenu() {
         JMenu pluginsMenu = frame.getPluginsMenu();
+        pluginsMenu.removeAll();
 
-        for (CreatorPluginWrapper<?> wrapper : creator.getPlugins()) {
+        if (frame.getPackTable().getSelectedRow() == -1) {
+            pluginsMenu.add("No pack selected.").setEnabled(false);
+            return;
+        }
+
+        pluginsMenu.add("Enabled Plugins...").addActionListener(e -> frame.getEditPluginsMenuItem().doClick());
+        pluginsMenu.addSeparator();
+
+        Optional<Pack> pack = getSelectedPack(true);
+
+        List<CreatorPluginWrapper<?>> enabledPlugins = pack.transform(p ->
+                creator.getPlugins().stream().filter(wrapper ->
+                        p.getEnabledPlugins().contains(wrapper.getInfo().getId())).collect(Collectors.toList()
+                )
+        ).or(creator.getPlugins());
+
+        if (enabledPlugins.isEmpty()) {
+            pluginsMenu.add("No plugins enabled").setEnabled(false);
+            return;
+        }
+
+        for (CreatorPluginWrapper<?> wrapper : enabledPlugins) {
             CreatorToolsPlugin plugin = wrapper.getInstance();
             JMenu submenu = new JMenu(plugin.getName());
 
             for (PluginMenu menu : plugin.getPluginMenus()) {
                 JMenuItem item = new JMenuItem(menu.getTitle());
                 item.addActionListener(e -> {
-                    Optional<Pack> pack = getSelectedPack(true);
-
                     if (menu.requiresPack() && !pack.isPresent()) {
                         SwingHelper.showErrorDialog(frame, "You must select a pack first", "Error");
                         return;
@@ -356,6 +375,10 @@ public class PackManagerController {
                 }
                 System.exit(0); // TODO: Proper shutdown
             }
+        });
+
+        frame.getPackTable().getSelectionModel().addListSelectionListener(e -> {
+            refreshPluginMenu();
         });
 
         frame.getPackTable().addMouseListener(new MouseAdapter() {
@@ -502,6 +525,7 @@ public class PackManagerController {
             if (optional.isPresent()) {
                 PluginSelectionDialog.showPluginDialog(frame, creator, optional.get());
                 updatePackInWorkspace(optional.get());
+                refreshPluginMenu();
             }
         });
 

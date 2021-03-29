@@ -25,7 +25,7 @@ public class PluginsTableModel extends AbstractTableModel {
 		if (columnIndex == 0) {
 			return plugins.get(rowIndex).isEnabled();
 		} else {
-			return plugins.get(rowIndex).getPluginId();
+			return plugins.get(rowIndex).getName();
 		}
 	}
 
@@ -64,7 +64,8 @@ public class PluginsTableModel extends AbstractTableModel {
 
 	@Data
 	public static class PluginModel {
-		private final String pluginId;
+		private final String id;
+		private final String name;
 		private boolean enabled;
 	}
 }

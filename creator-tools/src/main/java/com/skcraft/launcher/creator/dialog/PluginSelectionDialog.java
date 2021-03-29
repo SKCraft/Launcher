@@ -26,8 +26,9 @@ public class PluginSelectionDialog extends JDialog {
 
 		this.plugins = creator.getPlugins().stream()
 				.map(wrapper -> {
-					PluginsTableModel.PluginModel model = new PluginsTableModel.PluginModel(wrapper.getInfo().getId());
-					model.setEnabled(pack.getEnabledPlugins().contains(model.getPluginId()));
+					PluginsTableModel.PluginModel model = new PluginsTableModel.PluginModel(wrapper.getInfo().getId(),
+							wrapper.getInstance().getName());
+					model.setEnabled(pack.getEnabledPlugins().contains(model.getId()));
 					return model;
 				})
 				.collect(Collectors.toList());
@@ -65,7 +66,7 @@ public class PluginSelectionDialog extends JDialog {
 
 		Set<String> enabled = dialog.plugins.stream()
 				.filter(PluginsTableModel.PluginModel::isEnabled)
-				.map(PluginsTableModel.PluginModel::getPluginId)
+				.map(PluginsTableModel.PluginModel::getId)
 				.collect(Collectors.toSet());
 
 		pack.setEnabledPlugins(enabled);
