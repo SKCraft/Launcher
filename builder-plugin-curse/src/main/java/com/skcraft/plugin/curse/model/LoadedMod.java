@@ -1,6 +1,5 @@
 package com.skcraft.plugin.curse.model;
 
-import com.skcraft.plugin.curse.CurseMod;
 import lombok.Data;
 
 import java.io.File;

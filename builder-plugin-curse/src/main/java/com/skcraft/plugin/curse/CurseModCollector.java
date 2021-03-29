@@ -6,6 +6,8 @@ import com.skcraft.launcher.builder.FileInfoScanner;
 import com.skcraft.launcher.builder.PropertiesApplicator;
 import com.skcraft.launcher.model.modpack.FileInstall;
 import com.skcraft.launcher.model.modpack.Manifest;
+import com.skcraft.plugin.curse.model.CurseFileMetadata;
+import com.skcraft.plugin.curse.model.CurseMod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 

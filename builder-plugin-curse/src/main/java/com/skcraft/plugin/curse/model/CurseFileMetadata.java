@@ -1,4 +1,4 @@
-package com.skcraft.plugin.curse;
+package com.skcraft.plugin.curse.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

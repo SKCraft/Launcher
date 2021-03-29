@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.launcher.builder.DirectoryWalker;
 import com.skcraft.plugin.curse.CurseApi;
-import com.skcraft.plugin.curse.CurseMod;
+import com.skcraft.plugin.curse.model.CurseMod;
 import com.skcraft.plugin.curse.model.CurseProject;
 import com.skcraft.plugin.curse.model.LoadedMod;
 import lombok.Getter;

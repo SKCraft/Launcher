@@ -2,6 +2,8 @@ package com.skcraft.plugin.curse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.launcher.util.HttpRequest;
+import com.skcraft.plugin.curse.model.CurseFileMetadata;
+import com.skcraft.plugin.curse.model.CurseMod;
 import lombok.RequiredArgsConstructor;
 
 import java.io.File;

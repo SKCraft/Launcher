@@ -2,7 +2,6 @@ package com.skcraft.plugin.curse.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.skcraft.plugin.curse.CurseMod;
 import lombok.Data;
 
 import java.util.List;
