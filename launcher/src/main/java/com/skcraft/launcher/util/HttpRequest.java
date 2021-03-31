@@ -352,6 +352,10 @@ public class HttpRequest implements Closeable, ProgressObservable {
     }
 
     public Optional<PartialDownloadInfo> canRetryPartial() {
+        if (conn == null) {
+            return Optional.empty();
+        }
+
         if ("bytes".equals(conn.getHeaderField("Accept-Ranges"))) {
             return Optional.of(new PartialDownloadInfo(contentLength, readBytes));
         }
