@@ -117,8 +117,7 @@ public class HttpRequest implements Closeable, ProgressObservable {
 
             conn = this.runRequest(url);
 
-            inputStream = conn.getResponseCode() == HttpURLConnection.HTTP_OK ?
-                    conn.getInputStream() : conn.getErrorStream();
+            inputStream = isSuccessCode() ? conn.getInputStream() : conn.getErrorStream();
 
             successful = true;
         } finally {
@@ -245,6 +244,16 @@ public class HttpRequest implements Closeable, ProgressObservable {
         }
 
         return conn.getResponseCode();
+    }
+
+    /**
+     * Check if the response code indicates a successful request.
+     * @return True if response code is 2xx, false otherwise.
+     * @throws IOException on I/O error getting the response code.
+     */
+    public boolean isSuccessCode() throws IOException {
+        int code = getResponseCode();
+        return code >= 200 && code < 300;
     }
 
     /**
