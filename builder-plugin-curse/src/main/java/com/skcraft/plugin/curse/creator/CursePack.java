@@ -1,6 +1,8 @@
 package com.skcraft.plugin.curse.creator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.concurrency.SettableProgress;
 import com.skcraft.launcher.creator.model.creator.Pack;
@@ -18,13 +20,13 @@ import java.util.concurrent.Callable;
 public class CursePack {
 	@Getter private final CurseSearchResults searchResults = new CurseSearchResults();
 	@Getter private final AddedModList modList = new AddedModList();
-	private final ObjectMapper mapper;
+	private final ObjectWriter writer;
 
 	private final String gameVersion;
 	private final File curseModsDir;
 
 	public CursePack(ObjectMapper mapper, Pack pack) {
-		this.mapper = mapper;
+		this.writer = mapper.writerWithDefaultPrettyPrinter().without(SerializationFeature.WRITE_NULL_MAP_VALUES);
 		this.gameVersion = pack.getCachedConfig().getGameVersion();
 		this.curseModsDir = new File(pack.getDirectory(), "cursemods");
 	}
@@ -41,7 +43,7 @@ public class CursePack {
 
 		File target = loadedMod.getDiskLocation(curseModsDir);
 		log.info(String.format("Saving mod %s", target.getName()));
-		mapper.writeValue(target, loadedMod.getMod());
+		writer.writeValue(target, loadedMod.getMod());
 	}
 
 	public void removeMod(AddedMod mod) throws IOException {
@@ -63,7 +65,7 @@ public class CursePack {
 	}
 
 	@RequiredArgsConstructor
-	private class AddModsCall implements Callable<Object>, ProgressObservable {
+	class AddModsCall implements Callable<Object>, ProgressObservable {
 		private final List<CurseProject> projects;
 		private final SettableProgress progress = new SettableProgress("", -1);
 
@@ -73,7 +75,7 @@ public class CursePack {
 			int total = projects.size();
 
 			for (CurseProject project : projects) {
-				progress.set(String.format("Adding mod %s", project.getName()), 100 * (double) current / total);
+				progress.set(String.format("Adding mod %s", project.getName()), (double) current / total);
 
 				addMod(project);
 				current++;
@@ -94,7 +96,7 @@ public class CursePack {
 	}
 
 	@RequiredArgsConstructor
-	private class RemoveModsCall implements Callable<Object>, ProgressObservable {
+	class RemoveModsCall implements Callable<Object>, ProgressObservable {
 		private final List<AddedMod> mods;
 		private final SettableProgress progress = new SettableProgress("", -1);
 
@@ -105,7 +107,7 @@ public class CursePack {
 
 			for (AddedMod mod : mods) {
 				progress.set(String.format("Removing mod %s", mod.getProject().getName()),
-						100 * (double) current / total);
+						(double) current / total);
 
 				removeMod(mod);
 				current++;

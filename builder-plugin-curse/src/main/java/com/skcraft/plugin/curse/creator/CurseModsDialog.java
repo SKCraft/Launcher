@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.skcraft.concurrency.DefaultProgress;
+import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.creator.model.creator.Pack;
 import com.skcraft.launcher.creator.plugin.MenuContext;
 import com.skcraft.launcher.creator.plugin.PluginMenu;
@@ -28,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -39,14 +41,17 @@ public class CurseModsDialog extends JDialog {
 	private final CursePack cursePack;
 
 	private final JPanel panel = new JPanel(new BorderLayout(0, 5));
+	private final JLabel title = new JLabel("Search for mods on CurseForge:");
 	private final JTextField searchBox = new JTextField();
 	private final JButton searchButton = new JButton("Search");
+	private final JProgressBar progressBar = new JProgressBar(0, 1000);
 	private final JList<CurseProject> searchPane = new JList<>();
 	private final JList<AddedMod> selectedPane = new JList<>();
 	private final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(searchPane), new JScrollPane(selectedPane));
 	private final JButton addMod = new JButton("Add Mods >>");
 	private final JButton removeMod = new JButton("<< Remove Mods");
 	private final JButton done = new JButton("Done");
+	private Timer activeTimer;
 
 	private final CurseProjectListRenderer projectRenderer = new CurseProjectListRenderer();
 
@@ -94,10 +99,17 @@ public class CurseModsDialog extends JDialog {
 		buttonsPanel.addElement(removeMod);
 		buttonsPanel.setAlignmentX(CENTER_ALIGNMENT);
 
-		panel.add(searchBarPanel, BorderLayout.NORTH);
+		LinedBoxPanel topPanel = new LinedBoxPanel(false);
+		topPanel.addElement(title);
+		topPanel.addElement(searchBarPanel);
+		topPanel.addElement(progressBar);
+		topPanel.setAlignmentX(CENTER_ALIGNMENT);
+
+		panel.add(topPanel, BorderLayout.NORTH);
 		panel.add(Box.createVerticalStrut(5));
 		panel.add(splitPane, BorderLayout.CENTER);
 		panel.add(buttonsPanel, BorderLayout.SOUTH);
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
 		add(panel);
 
@@ -105,24 +117,41 @@ public class CurseModsDialog extends JDialog {
 		searchButton.addActionListener(e -> search());
 
 		addMod.addActionListener(e -> {
-			ListenableFuture<Object> future = executor.submit(cursePack.addMany(searchPane.getSelectedValuesList()));
+			CursePack.AddModsCall call = cursePack.addMany(searchPane.getSelectedValuesList());
+			ListenableFuture<Object> future = executor.submit(call);
 
-			// TODO: Update a progress bar built in to the dialog.
+			setProgressItem(new ObservableFuture<>(future, call));
 			SwingHelper.addErrorDialogCallback(getOwner(), future);
 		});
 
 		removeMod.addActionListener(e -> {
-			ListenableFuture<Object> future = executor.submit(
-					cursePack.removeMany(selectedPane.getSelectedValuesList()));
+			CursePack.RemoveModsCall call = cursePack.removeMany(selectedPane.getSelectedValuesList());
+			ListenableFuture<Object> future = executor.submit(call);
 
+			setProgressItem(new ObservableFuture<>(future, call));
 			SwingHelper.addErrorDialogCallback(getOwner(), future);
 		});
 
 		done.addActionListener(e -> dispose());
 	}
 
+	private void setProgressItem(ObservableFuture<?> observable) {
+		if (activeTimer != null) {
+			activeTimer.stop();
+		}
+
+		activeTimer = new Timer(400, e -> progressBar.setValue((int) (1000 * observable.getProgress())));
+		activeTimer.setInitialDelay(0);
+		activeTimer.start();
+
+		observable.addListener(() -> activeTimer.stop(), SwingExecutor.INSTANCE);
+	}
+
 	@Override
 	public void dispose() {
+		if (activeTimer != null) {
+			activeTimer.stop();
+		}
 		// Let's make sure the image cache is emptied
 		projectRenderer.clearCache();
 		super.dispose();
@@ -173,16 +202,24 @@ public class CurseModsDialog extends JDialog {
 	}
 
 	private static class CurseProjectListRenderer extends JLabel implements ListCellRenderer<ProjectHolder> {
-		private HashMap<String, BufferedImage> cache;
+		private final HashMap<String, BufferedImage> cache;
+		private final HashSet<String> pending;
 
 		public CurseProjectListRenderer() {
 			this.cache = new HashMap<>();
+			this.pending = new HashSet<>();
 		}
 
 		private BufferedImage getCachedIcon(String imgUrl, Runnable cb) {
 			if (!cache.containsKey(imgUrl)) {
+				if (pending.contains(imgUrl)) {
+					return null;
+				}
+
+				pending.add(imgUrl);
 				ImageWorker.downloadImage(imgUrl, img -> {
 					cache.put(imgUrl, img);
+					pending.remove(imgUrl);
 					cb.run();
 				});
 
@@ -261,9 +298,11 @@ public class CurseModsDialog extends JDialog {
 			ListenableFuture<?> future = ctx.getExecutor().submit(() -> {
 				File target = new File(pack.getDirectory(), "cursemods");
 
-				if (target.isDirectory()) {
-					scanner.walk(target);
+				if (!target.isDirectory()) {
+					target.mkdirs();
 				}
+
+				scanner.walk(target);
 				return null;
 			});
 
