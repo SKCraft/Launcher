@@ -7,11 +7,14 @@
 package com.skcraft.launcher.auth;
 
 import com.skcraft.launcher.LauncherException;
+import lombok.Getter;
 
 /**
  * Thrown on authentication error.
  */
 public class AuthenticationException extends LauncherException {
+    @Getter
+    private boolean invalidatedSession = false;
 
     public AuthenticationException(String message, String localizedMessage) {
         super(message, localizedMessage);
@@ -19,6 +22,11 @@ public class AuthenticationException extends LauncherException {
 
     public AuthenticationException(String message) {
         super(message, message);
+    }
+
+    public AuthenticationException(String message, boolean invalidatedSession) {
+        super(message, message);
+        this.invalidatedSession = invalidatedSession;
     }
 
     public AuthenticationException(Throwable cause, String localizedMessage) {

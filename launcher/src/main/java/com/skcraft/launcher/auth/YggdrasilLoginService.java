@@ -54,10 +54,12 @@ public class YggdrasilLoginService implements LoginService {
         if (req.getResponseCode() != 200) {
             ErrorResponse error = req.returnContent().asJson(ErrorResponse.class);
 
-            throw new AuthenticationException(error.getErrorMessage());
+            throw new AuthenticationException(error.getErrorMessage(), true);
         } else {
             AuthenticateResponse response = req.returnContent().asJson(AuthenticateResponse.class);
             Profile profile = response.getSelectedProfile();
+
+            if (profile == null) return null; // Minecraft not owned
 
             if (previous != null && previous.getAvatarImage() != null) {
                 profile.setAvatarImage(previous.getAvatarImage());
