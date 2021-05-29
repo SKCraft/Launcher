@@ -20,6 +20,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -183,7 +186,7 @@ public class Bootstrap {
         } catch (Throwable e) {
         }
     }
-
+    
     private static File getFileChooseDefaultDir() {
         JFileChooser chooser = new JFileChooser();
         FileSystemView fsv = chooser.getFileSystemView();
@@ -194,6 +197,21 @@ public class Bootstrap {
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("win")) {
             return new File(getFileChooseDefaultDir(), getProperties().getProperty("homeFolderWindows"));
+        } else if (osName.contains("mac") && getProperties().getProperty("homeFolderMac") != null) {
+            // this scope can be replaced with: return new File(getFileChooseDefaultDir(), getProperties().getProperty("homeFolderMac"));
+            File macHomeFolder = new File(getFileChooseDefaultDir(), getProperties().getProperty("homeFolderMac"));
+            try {
+                if (!macHomeFolder.exists()) {
+                    File standartHomeFolder = new File(System.getProperty("user.home"), getProperties().getProperty("homeFolder"));
+                    if (standartHomeFolder.exists()) {
+                        log.info("Found launcher directory at the wrong place... Moving " + standartHomeFolder.getAbsolutePath() + " to " + macHomeFolder.getAbsolutePath() + "...");
+                        Files.move(Paths.get(standartHomeFolder.getPath()), Paths.get(macHomeFolder.getPath()), StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Error occurred while moving the directory. Creating and using new laucher directory (" + macHomeFolder.getAbsolutePath() + ").", e);
+            }
+            return macHomeFolder;
         } else {
             return new File(System.getProperty("user.home"), getProperties().getProperty("homeFolder"));
         }
