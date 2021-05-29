@@ -269,7 +269,7 @@ public class HttpDownloader implements Downloader {
 
                 // We only want to try to resume a partial download if the request succeeded before
                 // throwing an exception halfway through. If it didn't succeed, just throw the error.
-                if (tries >= tryCount || !request.isSuccessCode()) {
+                if (tries >= tryCount || !request.isConnected() || !request.isSuccessCode()) {
                     throw e;
                 }
 
