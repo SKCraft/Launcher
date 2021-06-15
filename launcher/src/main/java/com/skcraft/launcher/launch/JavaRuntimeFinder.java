@@ -6,16 +6,16 @@
 
 package com.skcraft.launcher.launch;
 
+import com.skcraft.launcher.model.minecraft.JavaVersion;
 import com.skcraft.launcher.util.Environment;
+import com.skcraft.launcher.util.EnvironmentParser;
 import com.skcraft.launcher.util.Platform;
 import com.skcraft.launcher.util.WinRegistry;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Finds the best Java runtime to use.
@@ -25,52 +25,110 @@ public final class JavaRuntimeFinder {
     private JavaRuntimeFinder() {
     }
 
+    public static List<JavaRuntime> getAvailableRuntimes() {
+        Environment env = Environment.getInstance();
+        List<JavaRuntime> entries = new ArrayList<>();
+        File launcherDir;
+
+        if (env.getPlatform() == Platform.WINDOWS) {
+            try {
+                String launcherPath = WinRegistry.readString(WinRegistry.HKEY_CURRENT_USER,
+                        "SOFTWARE\\Mojang\\InstalledProducts\\Minecraft Launcher", "InstallLocation");
+
+                launcherDir = new File(launcherPath);
+            } catch (Throwable ignored) {
+                launcherDir = new File(System.getenv("APPDATA"), ".minecraft");
+            }
+
+            try {
+                getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
+                getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
+            } catch (Throwable ignored) {
+            }
+            Collections.sort(entries);
+        } else if (env.getPlatform() == Platform.LINUX) {
+            launcherDir = new File(System.getenv("HOME"), ".minecraft");
+        } else {
+            return Collections.emptyList();
+        }
+
+        if (!launcherDir.isDirectory()) {
+            return entries;
+        }
+
+        File runtimes = new File(launcherDir, "runtime");
+        for (File potential : Objects.requireNonNull(runtimes.listFiles())) {
+            if (potential.getName().startsWith("jre-x")) {
+                boolean is64Bit = potential.getName().equals("jre-x64");
+
+                entries.add(new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit));
+            } else {
+                String runtimeName = potential.getName();
+
+                String[] children = potential.list();
+                if (children == null || children.length == 0) continue;
+                String platformName = children[0];
+
+                String[] parts = platformName.split("-");
+                if (parts.length < 2) continue;
+
+                String arch = parts[1];
+                boolean is64Bit = arch.equals("x64");
+
+                File javaDir = new File(potential, String.format("%s/%s", platformName, runtimeName));
+
+                entries.add(new JavaRuntime(javaDir.getAbsoluteFile(), readVersionFromRelease(javaDir), is64Bit));
+            }
+        }
+
+        return entries;
+    }
+
     /**
      * Return the path to the best found JVM location.
      *
      * @return the JVM location, or null
      */
     public static File findBestJavaPath() {
-        if (Environment.getInstance().getPlatform() != Platform.WINDOWS) {
-            return null;
-        }
-        
-        List<JREEntry> entries = new ArrayList<JREEntry>();
-        try {
-            getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
-            getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
-        } catch (Throwable ignored) {
-        }
-        Collections.sort(entries);
-        
+        List<JavaRuntime> entries = getAvailableRuntimes();
         if (entries.size() > 0) {
-            return new File(entries.get(0).dir, "bin");
+            return new File(entries.get(0).getDir(), "bin");
         }
         
         return null;
     }
+
+    public static Optional<JavaRuntime> findBestJavaRuntime(JavaVersion targetVersion) {
+        List<JavaRuntime> entries = getAvailableRuntimes();
+
+        return entries.stream().sorted()
+                .filter(runtime -> runtime.getMajorVersion() == targetVersion.getMajorVersion())
+                .findFirst();
+    }
+
+    public static JavaRuntime getRuntimeFromPath(String path) {
+        File target = new File(path);
+
+        return new JavaRuntime(target, readVersionFromRelease(target), guessIf64Bit(target));
+    }
     
-    private static void getEntriesFromRegistry(List<JREEntry> entries, String basePath)
+    private static void getEntriesFromRegistry(List<JavaRuntime> entries, String basePath)
             throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         List<String> subKeys = WinRegistry.readStringSubKeys(WinRegistry.HKEY_LOCAL_MACHINE, basePath);
         for (String subKey : subKeys) {
-            JREEntry entry = getEntryFromRegistry(basePath, subKey);
+            JavaRuntime entry = getEntryFromRegistry(basePath, subKey);
             if (entry != null) {
                 entries.add(entry);
             }
         }
     }
     
-    private static JREEntry getEntryFromRegistry(String basePath, String version)  throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private static JavaRuntime getEntryFromRegistry(String basePath, String version)  throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         String regPath = basePath + "\\" + version;
         String path = WinRegistry.readString(WinRegistry.HKEY_LOCAL_MACHINE, regPath, "JavaHome");
         File dir = new File(path);
         if (dir.exists() && new File(dir, "bin/java.exe").exists()) {
-            JREEntry entry = new JREEntry();
-            entry.dir = dir;
-            entry.version = version;
-            entry.is64Bit = guessIf64Bit(dir);
-            return entry;
+            return new JavaRuntime(dir, version, guessIf64Bit(dir));
         } else {
             return null;
         }
@@ -84,52 +142,18 @@ public final class JavaRuntimeFinder {
             return false;
         }
     }
-    
-    private static class JREEntry implements Comparable<JREEntry> {
-        private File dir;
-        private String version;
-        private boolean is64Bit;
 
-        @Override
-        public int compareTo(JREEntry o) {
-            if (is64Bit && !o.is64Bit) {
-                return -1;
-            } else if (!is64Bit && o.is64Bit) {
-                return 1;
+    private static String readVersionFromRelease(File javaPath) {
+        File releaseFile = new File(javaPath, "release");
+        if (releaseFile.exists()) {
+            try {
+                Map<String, String> releaseDetails = EnvironmentParser.parse(releaseFile);
+
+                return releaseDetails.get("JAVA_VERSION");
+            } catch (IOException ignored) {
             }
-            
-            String[] a = version.split("[\\._]");
-            String[] b = o.version.split("[\\._]");
-            int min = Math.min(a.length, b.length);
-            
-            for (int i = 0; i < min; i++) {
-                int first, second;
-                
-                try {
-                    first = Integer.parseInt(a[i]);
-                } catch (NumberFormatException e) {
-                    return -1;
-                }
-                
-                try {
-                    second = Integer.parseInt(b[i]);
-                } catch (NumberFormatException e) {
-                    return 1;
-                }
-                
-                if (first > second) {
-                    return -1;
-                } else if (first < second) {
-                    return 1;
-                }
-            }
-            
-            if (a.length == b.length) {
-                return 0; // Same
-            }
-            
-            return a.length > b.length ? -1 : 1;
         }
-    }
 
+        return null;
+    }
 }

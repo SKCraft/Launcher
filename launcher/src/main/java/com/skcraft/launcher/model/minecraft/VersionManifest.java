@@ -27,6 +27,7 @@ public class VersionManifest {
     private String mainClass;
     private int minimumLauncherVersion;
     private LinkedHashSet<Library> libraries;
+    private JavaVersion javaVersion;
     private Map<String, Artifact> downloads = new HashMap<String, Artifact>();
 
     public String getAssetId() {
