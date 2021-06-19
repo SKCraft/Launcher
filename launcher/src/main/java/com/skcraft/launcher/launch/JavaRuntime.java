@@ -12,6 +12,10 @@ public class JavaRuntime implements Comparable<JavaRuntime> {
 	private boolean isMinecraftBundled = false;
 
 	public int getMajorVersion() {
+		if (version == null) {
+			return 0; //
+		}
+
 		String[] parts = version.split("\\.");
 
 		if (parts.length < 2) {
@@ -37,6 +41,12 @@ public class JavaRuntime implements Comparable<JavaRuntime> {
 			return -1;
 		} else if (!is64Bit && o.is64Bit) {
 			return 1;
+		}
+
+		if (version == null) {
+			return 1;
+		} else if (o.version == null) {
+			return -1;
 		}
 
 		String[] a = version.split("[\\._]");

@@ -1,27 +1,139 @@
 package com.skcraft.launcher.util;
 
-import com.google.common.base.Splitter;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
+import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Parses dotenv-style files.
  */
+@RequiredArgsConstructor
 public class EnvironmentParser {
+	private final BufferedReader reader;
+
+	private char read() throws IOException {
+		int c = reader.read();
+
+		if (c == -1) {
+			throw new EOFException("End of stream reached unexpectedly!");
+		}
+
+		return (char) c;
+	}
+
+	public Map<String, String> parse() throws IOException {
+		HashMap<String, String> result = new HashMap<>();
+
+		while (reader.ready()) {
+			KeyValue entry = parseLine();
+
+			result.put(entry.getKey(), entry.getValue());
+		}
+
+		return result;
+	}
+
+	public KeyValue parseLine() throws IOException {
+		String key = parseKey();
+		String value = parseValue();
+
+		try {
+			reader.mark(1);
+			char newline = read();
+			if (newline == '\r') {
+				reader.mark(1);
+				if (read() != '\n') {
+					throw new IOException("Expected CRLF but only got CR");
+				}
+				reader.reset();
+			} else if (newline != '\n') {
+				reader.reset();
+			}
+		} catch (EOFException ignored) {
+		}
+
+		return new KeyValue(key, value);
+	}
+
+	private String parseKey() throws IOException {
+		StringBuilder buffer = new StringBuilder();
+
+		// Very lenient key parsing.
+		while (true) {
+			char c = read();
+
+			switch (c) {
+				case '=':
+				case '\r':
+				case '\n':
+					return buffer.toString();
+				default:
+					buffer.append(c);
+			}
+		}
+	}
+
+	private String parseValue() throws IOException {
+		StringBuffer buffer = new StringBuffer();
+
+		while (true) {
+			char c = read();
+
+			switch (c) {
+				case '\r':
+				case '\n':
+					return buffer.toString();
+				case '"':
+					buffer.append(parseQuotedPhrase());
+					break;
+				case '\\':
+					char next = read();
+					buffer.append(next);
+					break;
+				default:
+					buffer.append(c);
+			}
+		}
+	}
+
+	private String parseQuotedPhrase() throws IOException {
+		StringBuilder buffer = new StringBuilder();
+
+		while (true) {
+			char c = read();
+
+			switch (c) {
+				case '"':
+					return buffer.toString();
+				case '\\':
+					char next = read();
+					buffer.append(next);
+					break;
+				default:
+					buffer.append(c);
+			}
+		}
+	}
+
 	public static Map<String, String> parse(File target) throws IOException {
 		CharSource charSource = Files.asCharSource(target, StandardCharsets.UTF_8);
-		Map<String, String> values = Splitter.onPattern("\r?\n").withKeyValueSeparator('=')
-				.split(charSource.read());
 
-		// Remove quotes
-		// TODO do this better. it works fine for the release file, though
-		values.replaceAll((key, value) -> value.substring(1, value.length() - 1));
+		EnvironmentParser parser = new EnvironmentParser(charSource.openBufferedStream());
+		return parser.parse();
+	}
 
-		return values;
+	@Data
+	private static class KeyValue {
+		private final String key;
+		private final String value;
 	}
 }

@@ -62,6 +62,8 @@ public class Configuration {
      * Backwards compatibility for old configs with jvmPaths
      */
     public void setJvmPath(String jvmPath) {
-        this.javaRuntime = JavaRuntimeFinder.getRuntimeFromPath(jvmPath);
+        if (jvmPath != null) {
+            this.javaRuntime = JavaRuntimeFinder.getRuntimeFromPath(jvmPath);
+        }
     }
 }

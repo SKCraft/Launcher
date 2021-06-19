@@ -8,6 +8,9 @@ package com.skcraft.launcher.dialog;
 
 import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.dialog.component.BetterComboBox;
+import com.skcraft.launcher.launch.JavaRuntime;
+import com.skcraft.launcher.launch.JavaRuntimeFinder;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.*;
 import com.skcraft.launcher.util.SharedLocale;
@@ -29,7 +32,7 @@ public class ConfigurationDialog extends JDialog {
     private final JPanel tabContainer = new JPanel(new BorderLayout());
     private final JTabbedPane tabbedPane = new JTabbedPane();
     private final FormPanel javaSettingsPanel = new FormPanel();
-    private final JTextField jvmPathText = new JTextField();
+    private final JComboBox<JavaRuntime> jvmRuntime = new BetterComboBox<>();
     private final JTextField jvmArgsText = new JTextField();
     private final JSpinner minMemorySpinner = new JSpinner();
     private final JSpinner maxMemorySpinner = new JSpinner();
@@ -70,7 +73,10 @@ public class ConfigurationDialog extends JDialog {
         setResizable(false);
         setLocationRelativeTo(owner);
 
-        mapper.map(jvmPathText, "jvmPath");
+        JavaRuntime[] javaRuntimes = JavaRuntimeFinder.getAvailableRuntimes().toArray(new JavaRuntime[0]);
+        jvmRuntime.setModel(new DefaultComboBoxModel<>(javaRuntimes));
+        jvmRuntime.setSelectedItem(config.getJavaRuntime());
+
         mapper.map(jvmArgsText, "jvmArgs");
         mapper.map(minMemorySpinner, "minMemory");
         mapper.map(maxMemorySpinner, "maxMemory");
@@ -88,7 +94,7 @@ public class ConfigurationDialog extends JDialog {
     }
 
     private void initComponents() {
-        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmPath")), jvmPathText);
+        javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmPath")), jvmRuntime);
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.jvmArguments")), jvmArgsText);
         javaSettingsPanel.addRow(Box.createVerticalStrut(15));
         javaSettingsPanel.addRow(new JLabel(SharedLocale.tr("options.64BitJavaWarning")));
@@ -157,6 +163,8 @@ public class ConfigurationDialog extends JDialog {
      */
     public void save() {
         mapper.copyFromSwing();
+        config.setJavaRuntime((JavaRuntime) jvmRuntime.getSelectedItem());
+
         Persistence.commitAndForget(config);
         dispose();
     }

@@ -48,6 +48,22 @@ public final class JavaRuntimeFinder {
             Collections.sort(entries);
         } else if (env.getPlatform() == Platform.LINUX) {
             launcherDir = new File(System.getenv("HOME"), ".minecraft");
+
+            String javaHome = System.getenv("JAVA_HOME");
+            if (javaHome != null) {
+                entries.add(getRuntimeFromPath(javaHome));
+            }
+
+            File[] runtimesList = new File("/usr/lib/jvm").listFiles();
+            if (runtimesList != null) {
+                Arrays.stream(runtimesList).map(file -> {
+                    try {
+                        return file.getCanonicalFile();
+                    } catch (IOException exception) {
+                        return file;
+                    }
+                }).distinct().forEach(file -> entries.add(getRuntimeFromPath(file.getAbsolutePath())));
+            }
         } else {
             return Collections.emptyList();
         }
@@ -57,7 +73,12 @@ public final class JavaRuntimeFinder {
         }
 
         File runtimes = new File(launcherDir, "runtime");
-        for (File potential : Objects.requireNonNull(runtimes.listFiles())) {
+        File[] runtimeList = runtimes.listFiles();
+        if (runtimeList == null) {
+            return entries;
+        }
+
+        for (File potential : runtimeList) {
             if (potential.getName().startsWith("jre-x")) {
                 boolean is64Bit = potential.getName().equals("jre-x64");
 
@@ -108,6 +129,12 @@ public final class JavaRuntimeFinder {
 
     public static JavaRuntime getRuntimeFromPath(String path) {
         File target = new File(path);
+        {
+            File jre = new File(target, "jre/release");
+            if (jre.isFile()) {
+                target = jre.getParentFile();
+            }
+        }
 
         return new JavaRuntime(target, readVersionFromRelease(target), guessIf64Bit(target));
     }
@@ -150,7 +177,8 @@ public final class JavaRuntimeFinder {
                 Map<String, String> releaseDetails = EnvironmentParser.parse(releaseFile);
 
                 return releaseDetails.get("JAVA_VERSION");
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to read release file", e);
             }
         }
 
