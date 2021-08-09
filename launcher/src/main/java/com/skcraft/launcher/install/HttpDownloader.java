@@ -248,17 +248,36 @@ public class HttpDownloader implements Downloader {
                     first = false;
 
                     try {
-                        request = HttpRequest.get(url);
-                        request.execute().expectResponseCode(200).saveContent(file);
+                        tryDownloadFrom(url, file, null, 0);
                         return;
                     } catch (IOException e) {
                         lastException = e;
-                        log.log(Level.WARNING, "Failed to download " + url, e);
                     }
                 }
             } while (++trial < tryCount);
 
             throw new IOException("Failed to download from " + urls, lastException);
+        }
+
+        private void tryDownloadFrom(URL url, File file, HttpRequest.PartialDownloadInfo retryDetails, int tries)
+                throws InterruptedException, IOException {
+            try {
+                request = HttpRequest.get(url);
+                request.setResumeInfo(retryDetails).execute().expectResponseCode(200).saveContent(file);
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Failed to download " + url, e);
+
+                // We only want to try to resume a partial download if the request succeeded before
+                // throwing an exception halfway through. If it didn't succeed, just throw the error.
+                if (tries >= tryCount || !request.isConnected() || !request.isSuccessCode()) {
+                    throw e;
+                }
+
+                Optional<HttpRequest.PartialDownloadInfo> byteRangeSupport = request.canRetryPartial();
+                if (byteRangeSupport.isPresent()) {
+                    tryDownloadFrom(url, file, byteRangeSupport.get(), tries + 1);
+                }
+            }
         }
 
         @Override
@@ -277,5 +296,4 @@ public class HttpDownloader implements Downloader {
             }
         }
     }
-
 }

@@ -1,6 +1,12 @@
 SKCraft Launcher
 ================
 
+![Now with 1.13+ support!](readme/now_with_support.png)
+
+[![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/offbeatwitch/donate)
+
+*If you rely on this software, please consider [donating](https://liberapay.com/offbeatwitch/donate) to help keep it maintained!*
+
 Need to make it easy for people to install and play your modpack? The SKCraft Launcher platform may be for you if:
 
 :heavy_check_mark: You want your own logo and branding on the launcher, with your own news feed  
@@ -21,7 +27,7 @@ Creating modpacks with this launcher is super easy: :one: only drag & drop of co
 
 The launcher has all standard features that you'd expect like :one: resume of incomplete downloads, :two: incremental updates, and :three: file deduplication (saves disk space when you have files duplicated between updates or modpacks).
 
-LiteLoader, Forge, and .jar mods are supported. You can put resource packs in, or really even random mod files that don't go in the configs or mods folder.
+LiteLoader, Forge, Fabric, and custom .jar mods are supported. You can put resource packs in, or really even random mod files that don't go in the configs or mods folder.
 
 You do need some sort of website, but it does **not** need anything complicated like PHP.
 
@@ -52,7 +58,7 @@ Making a modpack is just drag and drop into a folder like this:
 * src/**resourcepacks**/
 * loaders/
 
-You'd put LiteLoader and Forge into the *loaders* folder. :ok_hand:
+LiteLoader and Forge installers, or Fabric Loader, go into the *loaders* folder. :ok_hand:
 
 ### More Pictures
 

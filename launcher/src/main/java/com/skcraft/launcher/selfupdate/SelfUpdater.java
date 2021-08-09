@@ -39,8 +39,8 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
 
         try {
             File dir = launcher.getLauncherBinariesDir();
-            File file = new File(dir, String.valueOf(System.currentTimeMillis()) + ".jar.pack");
-            File tempFile = installer.getDownloader().download(url, "", 10000, "launcher.jar.pack");
+            File file = new File(dir, System.currentTimeMillis() + ".jar");
+            File tempFile = installer.getDownloader().download(url, "", 10000, "launcher.jar");
 
             progress = installer.getDownloader();
             installer.download();
@@ -48,7 +48,7 @@ public class SelfUpdater implements Callable<File>, ProgressObservable {
             installer.queue(new FileMover(tempFile, file));
 
             progress = installer;
-            installer.execute();
+            installer.execute(launcher);
 
             return file;
         } finally {

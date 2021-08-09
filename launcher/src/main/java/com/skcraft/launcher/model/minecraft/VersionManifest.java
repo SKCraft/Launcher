@@ -6,12 +6,12 @@
 
 package com.skcraft.launcher.model.minecraft;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Splitter;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.LinkedHashSet;
+import java.util.*;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -21,16 +21,56 @@ public class VersionManifest {
     private Date time;
     private Date releaseTime;
     private String assets;
+    private AssetIndex assetIndex;
     private String type;
-    private String processArguments;
-    private String minecraftArguments;
+    private MinecraftArguments arguments;
     private String mainClass;
     private int minimumLauncherVersion;
     private LinkedHashSet<Library> libraries;
+    private Map<String, Artifact> downloads = new HashMap<String, Artifact>();
 
-    @JsonIgnore
-    public String getAssetsIndex() {
-        return getAssets() != null ? getAssets() : "legacy";
+    public String getAssetId() {
+        return getAssetIndex() != null
+                ? getAssetIndex().getId()
+                : "legacy";
     }
 
+    public Library findLibrary(String name) {
+        for (Library library : getLibraries()) {
+            if (library.getName().equals(name)) {
+                return library;
+            }
+        }
+
+        return null;
+    }
+
+    public void setMinecraftArguments(String minecraftArguments) {
+        MinecraftArguments result = new MinecraftArguments();
+        result.setGameArguments(new ArrayList<GameArgument>());
+        result.setJvmArguments(new ArrayList<GameArgument>());
+
+        for (String arg : Splitter.on(' ').split(minecraftArguments)) {
+            result.getGameArguments().add(new GameArgument(arg));
+        }
+
+        setArguments(result);
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Artifact {
+        private String url;
+        private int size;
+
+        @JsonProperty("sha1")
+        private String hash;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class AssetIndex {
+        private String id;
+        private String url;
+    }
 }

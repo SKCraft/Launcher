@@ -61,11 +61,10 @@ public class Downloader implements Runnable, ProgressObservable {
             }
         });
 
-        File finalFile = new File(bootstrap.getBinariesDir(), System.currentTimeMillis() + ".jar.pack");
-        File tempFile = new File(finalFile.getParentFile(), finalFile.getName() + ".tmp");
         URL updateUrl = HttpRequest.url(bootstrap.getProperties().getProperty("latestUrl"));
 
         log.info("Reading update URL " + updateUrl + "...");
+        List<LauncherBinary> binaries = new ArrayList<LauncherBinary>();
 
         try {
             String data = HttpRequest
@@ -93,6 +92,9 @@ public class Downloader implements Runnable, ProgressObservable {
 
             checkInterrupted();
 
+            File finalFile = new File(bootstrap.getBinariesDir(), System.currentTimeMillis() + ".jar");
+            File tempFile = new File(finalFile.getParentFile(), finalFile.getName() + ".tmp");
+
             log.info("Downloading " + url + " to " + tempFile.getAbsolutePath());
 
             httpRequest = HttpRequest.get(url);
@@ -103,6 +105,9 @@ public class Downloader implements Runnable, ProgressObservable {
 
             finalFile.delete();
             tempFile.renameTo(finalFile);
+
+            LauncherBinary binary = new LauncherBinary(finalFile);
+            binaries.add(binary);
         } finally {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -113,9 +118,6 @@ public class Downloader implements Runnable, ProgressObservable {
             });
         }
 
-        LauncherBinary binary = new LauncherBinary(finalFile);
-        List<LauncherBinary> binaries = new ArrayList<LauncherBinary>();
-        binaries.add(binary);
         bootstrap.launchExisting(binaries, false);
     }
 

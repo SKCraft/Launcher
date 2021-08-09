@@ -6,9 +6,11 @@
 
 package com.skcraft.launcher.builder;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -41,8 +43,15 @@ public final class BuilderUtils {
         return null;
     }
 
+    public static String readStringFromStream(Readable r) throws IOException {
+        String data = CharStreams.toString(r);
+        data = data.replaceAll(",\\s*\\}", "}"); // Fix issues with trailing commas
+
+        return data;
+    }
+
     public static List<Compressor> getCompressors(String repoUrl) {
-        if (repoUrl.matches("^https?://files.minecraftforge.net/maven/")) {
+        if (repoUrl.matches("^https?://files.minecraftforge.net/maven/?")) {
             return Lists.newArrayList(
                     new Compressor("xz", CompressorStreamFactory.XZ),
                     new Compressor("pack", CompressorStreamFactory.PACK200));
