@@ -22,7 +22,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean build
     - name: Create Jar Pack
-      run: pack200 --no-gzip launcher.jar.pack launcher/build/libs/launcher-:${{ steps.get_version.outputs.VERSION }}.jar
+      run: pack200 --no-gzip launcher.jar.pack launcher/build/libs/launcher-${{ steps.get_version.outputs.VERSION }}.jar
     
     - name: Upload launcher.pack to release
       uses: svenstaro/upload-release-action@v1-release
@@ -36,31 +36,31 @@ jobs:
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: launcher/build/libs/launcher-${{ steps.get_version.outputs.VERSION }}-all.jar
-        asset_name: launcher-${{ steps.get_version.outputs.VERSION }}-all.jar
+        file: launcher/build/libs/launcher-${{ steps.get_version.outputs.VERSION }}.jar
+        asset_name: launcher-${{ steps.get_version.outputs.VERSION }}.jar
         tag: ${{ github.ref }}
         overwrite: true
     - name: Upload launcher bootstrap to release
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: launcher-bootstrap/build/libs/launcher-bootstrap-${{ steps.get_version.outputs.VERSION }}-all.jar
-        asset_name: launcher-bootstrap-${{ steps.get_version.outputs.VERSION }}-all.jar
+        file: launcher-bootstrap/build/libs/launcher-bootstrap-${{ steps.get_version.outputs.VERSION }}.jar
+        asset_name: launcher-bootstrap-${{ steps.get_version.outputs.VERSION }}.jar
         tag: ${{ github.ref }}
         overwrite: true
     - name: Upload launcher fancy to release
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: launcher-fancy/build/libs/launcher-fancy-${{ steps.get_version.outputs.VERSION }}-all.jar
-        asset_name: launcher-fancy-${{ steps.get_version.outputs.VERSION }}-all.jar
+        file: launcher-fancy/build/libs/launcher-fancy-${{ steps.get_version.outputs.VERSION }}.jar
+        asset_name: launcher-fancy-${{ steps.get_version.outputs.VERSION }}.jar
         tag: ${{ github.ref }}
         overwrite: true
     - name: Upload launcher builder to release
       uses: svenstaro/upload-release-action@v1-release
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: launcher-builder/build/libs/launcher-builder-${{ steps.get_version.outputs.VERSION }}-all.jar
+        file: launcher-builder/build/libs/launcher-builder-${{ steps.get_version.outputs.VERSION }}.jar
         asset_name: launcher-builder.jar
         tag: ${{ github.ref }}
         overwrite: true
