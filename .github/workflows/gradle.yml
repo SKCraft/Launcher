@@ -15,16 +15,14 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Set env
-      run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF/refs\/tags\//}
     - name: Get the version
       id: get_version
-      run: echo ::set-output name=RELEASE_VERSION::${GITHUB_REF/refs\/tags\//}
+      run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
       
     - name: Build with Gradle
-      run: ./gradlew -Pversion=$RELEASE_VERSION clean build
+      run: ./gradlew -Pversion=:${{ steps.get_version.outputs.VERSION }} clean build
     - name: Create Jar Pack
-      run: pack200 --no-gzip launcher.jar.pack launcher/build/libs/launcher-$RELEASE_VERSION-all.jar
+      run: pack200 --no-gzip launcher.jar.pack launcher/build/libs/launcher-:${{ steps.get_version.outputs.VERSION }}-all.jar
     
     - name: Upload launcher.pack to release
       uses: svenstaro/upload-release-action@v1-release
