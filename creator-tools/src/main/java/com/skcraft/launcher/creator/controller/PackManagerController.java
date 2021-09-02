@@ -6,14 +6,17 @@
 
 package com.skcraft.launcher.creator.controller;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.skcraft.concurrency.Deferred;
 import com.skcraft.concurrency.Deferreds;
 import com.skcraft.concurrency.SettableProgress;
+import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.OfflineSession;
@@ -22,6 +25,7 @@ import com.skcraft.launcher.builder.BuilderConfig;
 import com.skcraft.launcher.builder.FnPatternList;
 import com.skcraft.launcher.creator.Creator;
 import com.skcraft.launcher.creator.controller.task.*;
+import com.skcraft.launcher.creator.dialog.AboutDialog;
 import com.skcraft.launcher.creator.dialog.*;
 import com.skcraft.launcher.creator.dialog.BuildDialog.BuildOptions;
 import com.skcraft.launcher.creator.dialog.DeployServerDialog.DeployOptions;
@@ -30,10 +34,7 @@ import com.skcraft.launcher.creator.model.swing.PackTableModel;
 import com.skcraft.launcher.creator.server.TestServer;
 import com.skcraft.launcher.creator.server.TestServerBuilder;
 import com.skcraft.launcher.creator.swing.PackDirectoryFilter;
-import com.skcraft.launcher.dialog.AccountSelectDialog;
-import com.skcraft.launcher.dialog.ConfigurationDialog;
-import com.skcraft.launcher.dialog.ConsoleFrame;
-import com.skcraft.launcher.dialog.ProgressDialog;
+import com.skcraft.launcher.dialog.*;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.PopupMouseAdapter;
@@ -55,6 +56,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class PackManagerController {
@@ -177,10 +179,10 @@ public class PackManagerController {
         if (selectedIndex >= 0) {
             Pack pack = workspace.getPacks().get(selectedIndex);
             if (pack != null && (!requireLoaded || checkPackLoaded(pack))) {
-                return Optional.fromNullable(pack);
+                return Optional.of(pack);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<Pack> getSelectedPack(boolean requireLoaded) {
@@ -190,12 +192,12 @@ public class PackManagerController {
             selectedIndex = table.convertRowIndexToModel(selectedIndex);
             Pack pack = workspace.getPacks().get(selectedIndex);
             if (pack != null && (!requireLoaded || checkPackLoaded(pack))) {
-                return Optional.fromNullable(pack);
+                return Optional.of(pack);
             }
         }
 
         SwingHelper.showErrorDialog(frame, "Please select a modpack from the list.", "Error");
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public boolean writeWorkspace() {
@@ -456,11 +458,9 @@ public class PackManagerController {
         });
 
         frame.getOpenFolderMenuItem().addActionListener(e -> {
-            Optional<Pack> optional = getSelectedPack(true);
+            Optional<Pack> selectedPack = getSelectedPack(true);
 
-            if (optional.isPresent()) {
-                SwingHelper.browseDir(optional.get().getDirectory(), frame);
-            }
+            selectedPack.ifPresent(pack -> SwingHelper.browseDir(pack.getDirectory(), frame));
         });
 
         frame.getCheckProblemsMenuItem().addActionListener(e -> {
@@ -496,6 +496,45 @@ public class PackManagerController {
         frame.getOptionsMenuItem().addActionListener(e -> {
             ConfigurationDialog configDialog = new ConfigurationDialog(frame, launcher);
             configDialog.setVisible(true);
+        });
+
+        frame.getInstanceOptionsMenuItem().addActionListener(e -> {
+            Optional<Pack> selectedPack = getSelectedPack(true);
+
+            selectedPack.ifPresent(pack -> {
+                InstanceList.Enumerator instanceList = launcher.getInstances().createEnumerator();
+
+                ListenableFuture<InstanceList> future = executor.submit(instanceList);
+                Futures.addCallback(future, new FutureCallback<InstanceList>() {
+                    @Override
+                    public void onSuccess(InstanceList result) {
+                        Instance found = null;
+
+                        for (Instance instance : result.getInstances()) {
+                            if (instance.getName().equals(pack.getCachedConfig().getName())) {
+                                found = instance;
+                                break;
+                            }
+                        }
+
+                        if (found == null) {
+                            SwingHelper.showErrorDialog(frame, "No instance found for that pack - you need " +
+                                            "to test the pack first.", "Not Found");
+                            return;
+                        }
+
+                        InstanceSettingsDialog.open(frame, found);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable ignored) {
+                    }
+                }, SwingExecutor.INSTANCE);
+
+                ProgressDialog.showProgress(frame, future, instanceList, "Enumerating instances...",
+                        "Enumerating instances...");
+                SwingHelper.addErrorDialogCallback(frame, future);
+            });
         });
 
         frame.getClearInstanceMenuItem().addActionListener(e -> {
@@ -627,6 +666,10 @@ public class PackManagerController {
 
         menuItem = new JMenuItem("Test Online");
         menuItem.addActionListener(e -> frame.getTestOnlineMenuItem().doClick());
+        popup.add(menuItem);
+
+        menuItem = new JMenuItem("Instance settings...");
+        menuItem.addActionListener(e -> frame.getInstanceOptionsMenuItem().doClick());
         popup.add(menuItem);
 
         menuItem = new JMenuItem("Build...");
