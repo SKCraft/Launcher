@@ -1,5 +1,9 @@
 package com.skcraft.launcher.launch;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.base.Objects;
 import lombok.Data;
 
 import java.io.File;
@@ -9,11 +13,22 @@ public class JavaRuntime implements Comparable<JavaRuntime> {
 	private final File dir;
 	private final String version;
 	private final boolean is64Bit;
-	private boolean isMinecraftBundled = false;
+	private boolean isMinecraftBundled = false; // Used only in list sorting & not serialized.
 
+	@JsonValue
+	public File getDir() {
+		return dir;
+	}
+
+	@JsonCreator
+	public static JavaRuntime fromDir(String dir) {
+		return JavaRuntimeFinder.getRuntimeFromPath(dir);
+	}
+
+	@JsonIgnore
 	public int getMajorVersion() {
 		if (version == null) {
-			return 0; //
+			return 0; // uhh make this an error?
 		}
 
 		String[] parts = version.split("\\.");
@@ -27,6 +42,19 @@ public class JavaRuntime implements Comparable<JavaRuntime> {
 		} else {
 			return Integer.parseInt(parts[0]);
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		JavaRuntime that = (JavaRuntime) o;
+		return Objects.equal(dir, that.dir);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(dir);
 	}
 
 	@Override

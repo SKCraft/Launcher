@@ -212,12 +212,14 @@ public class Runner implements Callable<Process>, ProgressObservable {
      *
      * @throws IOException on I/O error
      */
-    private void addJvmArgs() throws IOException {
-        int minMemory = instance.getSettings().getMemorySettings()
+    private void addJvmArgs() throws IOException, LauncherException {
+        Optional<MemorySettings> memorySettings = Optional.ofNullable(instance.getSettings().getMemorySettings());
+
+        int minMemory = memorySettings
                 .map(MemorySettings::getMinMemory)
                 .orElse(config.getMinMemory());
 
-        int maxMemory = instance.getSettings().getMemorySettings()
+        int maxMemory = memorySettings
                 .map(MemorySettings::getMaxMemory)
                 .orElse(config.getMaxMemory());
 
@@ -247,14 +249,18 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder.setMaxMemory(maxMemory);
         builder.setPermGen(permGen);
 
-        JavaRuntime selectedRuntime = instance.getSettings().getRuntime()
+        JavaRuntime selectedRuntime = Optional.ofNullable(instance.getSettings().getRuntime())
                 .orElseGet(() -> Optional.ofNullable(versionManifest.getJavaVersion())
                         .flatMap(JavaRuntimeFinder::findBestJavaRuntime)
                         .orElse(config.getJavaRuntime())
                 );
-        String rawJvmPath = selectedRuntime.getDir().getAbsolutePath();
-        if (!Strings.isNullOrEmpty(rawJvmPath)) {
-            builder.tryJvmPath(new File(rawJvmPath));
+
+        // Builder defaults to a found runtime or just the PATH `java` otherwise
+        if (selectedRuntime != null) {
+            String rawJvmPath = selectedRuntime.getDir().getAbsolutePath();
+            if (!Strings.isNullOrEmpty(rawJvmPath)) {
+                builder.tryJvmPath(new File(rawJvmPath));
+            }
         }
 
         List<String> flags = builder.getFlags();

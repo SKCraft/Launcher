@@ -45,7 +45,6 @@ public final class JavaRuntimeFinder {
                 getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
             } catch (Throwable ignored) {
             }
-            Collections.sort(entries);
         } else if (env.getPlatform() == Platform.LINUX) {
             launcherDir = new File(System.getenv("HOME"), ".minecraft");
 
@@ -68,40 +67,39 @@ public final class JavaRuntimeFinder {
             return Collections.emptyList();
         }
 
-        if (!launcherDir.isDirectory()) {
-            return entries;
-        }
-
         File runtimes = new File(launcherDir, "runtime");
         File[] runtimeList = runtimes.listFiles();
-        if (runtimeList == null) {
-            return entries;
-        }
+        if (runtimeList != null) {
+            for (File potential : runtimeList) {
+                if (potential.getName().startsWith("jre-x")) {
+                    boolean is64Bit = potential.getName().equals("jre-x64");
 
-        for (File potential : runtimeList) {
-            if (potential.getName().startsWith("jre-x")) {
-                boolean is64Bit = potential.getName().equals("jre-x64");
+                    JavaRuntime runtime = new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit);
+                    runtime.setMinecraftBundled(true);
+                    entries.add(runtime);
+                } else {
+                    String runtimeName = potential.getName();
 
-                entries.add(new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit));
-            } else {
-                String runtimeName = potential.getName();
+                    String[] children = potential.list();
+                    if (children == null || children.length == 0) continue;
+                    String platformName = children[0];
 
-                String[] children = potential.list();
-                if (children == null || children.length == 0) continue;
-                String platformName = children[0];
+                    String[] parts = platformName.split("-");
+                    if (parts.length < 2) continue;
 
-                String[] parts = platformName.split("-");
-                if (parts.length < 2) continue;
+                    String arch = parts[1];
+                    boolean is64Bit = arch.equals("x64");
 
-                String arch = parts[1];
-                boolean is64Bit = arch.equals("x64");
+                    File javaDir = new File(potential, String.format("%s/%s", platformName, runtimeName));
+                    JavaRuntime runtime = new JavaRuntime(javaDir.getAbsoluteFile(), readVersionFromRelease(javaDir), is64Bit);
+                    runtime.setMinecraftBundled(true);
 
-                File javaDir = new File(potential, String.format("%s/%s", platformName, runtimeName));
-
-                entries.add(new JavaRuntime(javaDir.getAbsoluteFile(), readVersionFromRelease(javaDir), is64Bit));
+                    entries.add(runtime);
+                }
             }
         }
 
+        Collections.sort(entries);
         return entries;
     }
 
@@ -127,8 +125,18 @@ public final class JavaRuntimeFinder {
                 .findFirst();
     }
 
+    public static Optional<JavaRuntime> findAnyJavaRuntime() {
+        return getAvailableRuntimes().stream().sorted().findFirst();
+    }
+
     public static JavaRuntime getRuntimeFromPath(String path) {
         File target = new File(path);
+
+        if (target.isFile()) {
+            // Probably referring directly to bin/java, back up two levels
+            target = target.getParentFile().getParentFile();
+        }
+
         {
             File jre = new File(target, "jre/release");
             if (jre.isFile()) {
