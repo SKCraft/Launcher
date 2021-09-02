@@ -33,6 +33,8 @@ public class LoaderSubResolver implements Function<String, String> {
 	public String apply(String arg) {
 		if (arg == null) return null;
 
+		arg = replaceTokens(arg);
+
 		while (true) {
 			char start = arg.charAt(0);
 			int bound = arg.length() - 1;
@@ -65,5 +67,56 @@ public class LoaderSubResolver implements Function<String, String> {
 				return arg;
 			}
 		}
+	}
+
+	private String replaceTokens(String arg) {
+		StringBuilder buf = new StringBuilder();
+
+		int length = arg.length();
+		for (int i = 0; i < length; i++) {
+			char c = arg.charAt(i);
+
+			if (c == '\\') {
+				buf.append(arg.charAt(i + 1));
+				i++;
+			} else if (c == '{' || c == '\'') {
+				StringBuilder keyBuf = new StringBuilder();
+
+				for (int j = i + 1; j <= length; j++) {
+					if (j == length) {
+						throw new IllegalArgumentException("Illegal pattern: unclosed " + c);
+					}
+
+					char d = arg.charAt(j);
+
+					if (d == '\\') {
+						keyBuf.append(arg.charAt(j + 1));
+						j++;
+					} else if (c == '{' && d == '}') {
+						String key = keyBuf.toString();
+						SidedData<String> sidedData = loader.getSidedData().get(key);
+
+						if (sidedData != null) {
+							buf.append(sidedData.resolveFor(side));
+						} else {
+							throw new IllegalArgumentException("Missing key: " + key);
+						}
+
+						i = j;
+						break;
+					} else if (c == '\'' && d == '\'') {
+						buf.append(keyBuf.toString());
+						i = j;
+						break;
+					} else {
+						keyBuf.append(d);
+					}
+				}
+			} else {
+				buf.append(c);
+			}
+		}
+
+		return buf.toString();
 	}
 }

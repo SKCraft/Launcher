@@ -429,6 +429,10 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("classpath", builder.buildClassPath());
         map.put("natives_directory", extractDir.getAbsolutePath());
 
+        // Forge additions
+        map.put("library_directory", launcher.getLibrariesDir().getAbsolutePath());
+        map.put("classpath_separator", System.getProperty("path.separator"));
+
         return map;
     }
 
