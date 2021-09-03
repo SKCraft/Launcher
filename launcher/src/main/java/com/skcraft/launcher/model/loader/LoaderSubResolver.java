@@ -17,11 +17,11 @@ public class LoaderSubResolver implements Function<String, String> {
 	private final LoaderManifest loader;
 	private final Environment env;
 	private final Side side;
-	private final File baseDir;
+	private final File libraryDir;
 	private final HashMap<String, DownloadableFile.LocalFile> localFiles;
 
 	public String getPathOf(String... rest) {
-		File file = baseDir;
+		File file = libraryDir;
 		for (String part : rest) {
 			file = new File(file, part);
 		}
@@ -49,9 +49,9 @@ public class LoaderSubResolver implements Function<String, String> {
 				String libraryName = arg.substring(1, bound);
 				Library library = loader.findLibrary(libraryName);
 				if (library != null) {
-					arg = getPathOf(manifest.getLibrariesLocation(), library.getPath(env));
+					arg = getPathOf(library.getPath(env));
 				} else {
-					arg = getPathOf(manifest.getLibrariesLocation(), Library.mavenNameToPath(libraryName));
+					arg = getPathOf(Library.mavenNameToPath(libraryName));
 				}
 			} else if (start == '&' && end == '&') {
 				String localFileName = arg.substring(1, bound);

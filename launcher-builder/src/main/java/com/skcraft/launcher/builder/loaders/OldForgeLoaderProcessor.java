@@ -86,7 +86,7 @@ public class OldForgeLoaderProcessor implements ILoaderProcessor {
 					ZipEntry libraryEntry = BuilderUtils.getZipEntry(jarFile, filePath);
 
 					if (libraryEntry != null) {
-						File librariesDir = new File(baseDir, manifest.getLibrariesLocation());
+						File librariesDir = new File(baseDir, "libraries");
 						File extractPath = new File(librariesDir, Library.mavenNameToPath(libraryPath));
 
 						Files.createParentDirs(extractPath);

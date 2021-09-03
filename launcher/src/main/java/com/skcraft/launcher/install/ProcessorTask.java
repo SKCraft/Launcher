@@ -44,12 +44,12 @@ public class ProcessorTask implements InstallTask {
 		VersionManifest versionManifest = manifest.getVersionManifest();
 
 		LoaderSubResolver resolver = new LoaderSubResolver(manifest, loaderManifest,
-				Environment.getInstance(), Side.CLIENT, launcher.getBaseDir(), localFiles);
+				Environment.getInstance(), Side.CLIENT, launcher.getLibrariesDir(), localFiles);
 
 		Map<String, SidedData<String>> sidedData = loaderManifest.getSidedData();
 		sidedData.put("ROOT", SidedData.of(launcher.getInstallerDir().getAbsolutePath()));
 		sidedData.put("MINECRAFT_JAR", SidedData.of(launcher.getJarPath(versionManifest).getAbsolutePath()));
-		sidedData.put("LIBRARY_DIR", SidedData.of(resolver.getPathOf(manifest.getLibrariesLocation())));
+		sidedData.put("LIBRARY_DIR", SidedData.of(launcher.getLibrariesDir().getAbsolutePath()));
 		sidedData.put("MINECRAFT_VERSION", SidedData.of(versionManifest.getId()));
 
 		message = "Resolving parameters";
