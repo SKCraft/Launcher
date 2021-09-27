@@ -83,7 +83,7 @@ public class EnvironmentParser {
 	}
 
 	private String parseValue() throws IOException {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
 		while (true) {
 			char c = read();

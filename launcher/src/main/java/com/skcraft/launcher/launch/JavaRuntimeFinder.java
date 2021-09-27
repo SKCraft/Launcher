@@ -11,15 +11,18 @@ import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.EnvironmentParser;
 import com.skcraft.launcher.util.Platform;
 import com.skcraft.launcher.util.WinRegistry;
+import lombok.extern.java.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * Finds the best Java runtime to use.
  */
+@Log
 public final class JavaRuntimeFinder {
 
     private JavaRuntimeFinder() {
@@ -186,7 +189,8 @@ public final class JavaRuntimeFinder {
 
                 return releaseDetails.get("JAVA_VERSION");
             } catch (IOException e) {
-                throw new RuntimeException("Failed to read release file", e);
+                log.log(Level.WARNING, "Failed to read release file " + releaseFile.getAbsolutePath(), e);
+                return null;
             }
         }
 
