@@ -33,11 +33,7 @@ public class JavaRuntime implements Comparable<JavaRuntime> {
 
 		String[] parts = version.split("\\.");
 
-		if (parts.length < 2) {
-			throw new IllegalArgumentException("Invalid Java runtime version: " + version);
-		}
-
-		if (parts[0].equals("1")) {
+		if (parts[0].equals("1") && parts.length > 1) {
 			return Integer.parseInt(parts[1]);
 		} else {
 			return Integer.parseInt(parts[0]);
