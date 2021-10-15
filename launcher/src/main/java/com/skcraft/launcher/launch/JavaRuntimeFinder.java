@@ -39,6 +39,7 @@ public final class JavaRuntimeFinder {
                         "SOFTWARE\\Mojang\\InstalledProducts\\Minecraft Launcher", "InstallLocation");
 
                 launcherDir = new File(launcherPath);
+                if (!launcherDir.exists()) throw new Exception(); // i know i know
             } catch (Throwable ignored) {
                 launcherDir = new File(System.getenv("APPDATA"), ".minecraft");
             }
@@ -46,6 +47,7 @@ public final class JavaRuntimeFinder {
             try {
                 getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
                 getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
+                getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\JDK");
             } catch (Throwable ignored) {
             }
         } else if (env.getPlatform() == Platform.LINUX) {

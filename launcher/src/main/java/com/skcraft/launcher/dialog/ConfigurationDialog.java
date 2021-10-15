@@ -9,6 +9,7 @@ package com.skcraft.launcher.dialog;
 import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.dialog.component.BetterComboBox;
+import com.skcraft.launcher.launch.AddJavaRuntime;
 import com.skcraft.launcher.launch.JavaRuntime;
 import com.skcraft.launcher.launch.JavaRuntimeFinder;
 import com.skcraft.launcher.persistence.Persistence;
@@ -17,9 +18,12 @@ import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.Arrays;
 
 /**
  * A dialog to modify configuration options.
@@ -74,8 +78,18 @@ public class ConfigurationDialog extends JDialog {
         setLocationRelativeTo(owner);
 
         JavaRuntime[] javaRuntimes = JavaRuntimeFinder.getAvailableRuntimes().toArray(new JavaRuntime[0]);
-        jvmRuntime.setModel(new DefaultComboBoxModel<>(javaRuntimes));
+        DefaultComboBoxModel<JavaRuntime> model = new DefaultComboBoxModel<>(javaRuntimes);
+
+        // Put the runtime from the config in the model if it isn't
+        boolean configRuntimeFound = Arrays.stream(javaRuntimes).anyMatch(r -> config.getJavaRuntime().equals(r));
+        if (!configRuntimeFound) {
+            model.insertElementAt(config.getJavaRuntime(), 0);
+        }
+
+        jvmRuntime.setModel(model);
         jvmRuntime.setSelectedItem(config.getJavaRuntime());
+
+        jvmRuntime.addItem(AddJavaRuntime.ADD_RUNTIME_SENTINEL);
 
         mapper.map(jvmArgsText, "jvmArgs");
         mapper.map(minMemorySpinner, "minMemory");
@@ -156,6 +170,28 @@ public class ConfigurationDialog extends JDialog {
                 ConsoleFrame.showMessages();
             }
         });
+
+        jvmRuntime.addActionListener(e -> {
+            // A little fun hack...
+            if (jvmRuntime.getSelectedItem() == AddJavaRuntime.ADD_RUNTIME_SENTINEL) {
+                jvmRuntime.setSelectedItem(null);
+                jvmRuntime.setPopupVisible(false);
+
+                JFileChooser chooser = new JFileChooser();
+                chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                chooser.setFileFilter(new JavaRuntimeFileFilter());
+                chooser.setDialogTitle("Choose a Java executable");
+
+                int result = chooser.showOpenDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    JavaRuntime runtime = JavaRuntimeFinder.getRuntimeFromPath(chooser.getSelectedFile().getAbsolutePath());
+
+                    MutableComboBoxModel<JavaRuntime> model = (MutableComboBoxModel<JavaRuntime>) jvmRuntime.getModel();
+                    model.insertElementAt(runtime, 0);
+                    jvmRuntime.setSelectedItem(runtime);
+                }
+            }
+        });
     }
 
     /**
@@ -167,5 +203,17 @@ public class ConfigurationDialog extends JDialog {
 
         Persistence.commitAndForget(config);
         dispose();
+    }
+
+    static class JavaRuntimeFileFilter extends FileFilter {
+        @Override
+        public boolean accept(File f) {
+            return f.isDirectory() || f.getName().startsWith("java") && f.canExecute();
+        }
+
+        @Override
+        public String getDescription() {
+            return "Java runtime executables";
+        }
     }
 }
