@@ -81,8 +81,8 @@ public class ConfigurationDialog extends JDialog {
         DefaultComboBoxModel<JavaRuntime> model = new DefaultComboBoxModel<>(javaRuntimes);
 
         // Put the runtime from the config in the model if it isn't
-        boolean configRuntimeFound = Arrays.stream(javaRuntimes).anyMatch(r -> config.getJavaRuntime().equals(r));
-        if (!configRuntimeFound) {
+        boolean configRuntimeFound = Arrays.stream(javaRuntimes).anyMatch(r -> r.equals(config.getJavaRuntime()));
+        if (!configRuntimeFound && config.getJavaRuntime() != null) {
             model.insertElementAt(config.getJavaRuntime(), 0);
         }
 
