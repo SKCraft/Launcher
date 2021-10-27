@@ -39,7 +39,6 @@ public final class JavaRuntimeFinder {
                         "SOFTWARE\\Mojang\\InstalledProducts\\Minecraft Launcher", "InstallLocation");
 
                 launcherDir = new File(launcherPath);
-                if (!launcherDir.exists()) throw new Exception(); // i know i know
             } catch (Throwable ignored) {
                 launcherDir = new File(System.getenv("APPDATA"), ".minecraft");
             }
