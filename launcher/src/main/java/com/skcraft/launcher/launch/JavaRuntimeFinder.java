@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Finds the best Java runtime to use.
@@ -30,7 +31,7 @@ public final class JavaRuntimeFinder {
 
     public static List<JavaRuntime> getAvailableRuntimes() {
         Environment env = Environment.getInstance();
-        List<JavaRuntime> entries = new ArrayList<>();
+        Set<JavaRuntime> entries = new HashSet<>();
         File launcherDir;
 
         if (env.getPlatform() == Platform.WINDOWS) {
@@ -39,15 +40,22 @@ public final class JavaRuntimeFinder {
                         "SOFTWARE\\Mojang\\InstalledProducts\\Minecraft Launcher", "InstallLocation");
 
                 launcherDir = new File(launcherPath);
-            } catch (Throwable ignored) {
-                launcherDir = new File(System.getenv("APPDATA"), ".minecraft");
+            } catch (Throwable err) {
+                log.log(Level.WARNING, "Failed to read launcher location from registry", err);
+
+                String programFiles = Objects.equals(env.getArchBits(), "64")
+                        ? System.getenv("ProgramFiles(x86)")
+                        : System.getenv("ProgramFiles");
+
+                launcherDir = new File(programFiles, "Minecraft Launcher");
             }
 
             try {
                 getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
                 getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
                 getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\JDK");
-            } catch (Throwable ignored) {
+            } catch (Throwable err) {
+                log.log(Level.WARNING, "Failed to read Java locations from registry", err);
             }
         } else if (env.getPlatform() == Platform.LINUX) {
             launcherDir = new File(System.getenv("HOME"), ".minecraft");
@@ -103,8 +111,7 @@ public final class JavaRuntimeFinder {
             }
         }
 
-        Collections.sort(entries);
-        return entries;
+        return entries.stream().sorted().collect(Collectors.toList());
     }
 
     /**
@@ -151,7 +158,7 @@ public final class JavaRuntimeFinder {
         return new JavaRuntime(target, readVersionFromRelease(target), guessIf64Bit(target));
     }
     
-    private static void getEntriesFromRegistry(List<JavaRuntime> entries, String basePath)
+    private static void getEntriesFromRegistry(Collection<JavaRuntime> entries, String basePath)
             throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         List<String> subKeys = WinRegistry.readStringSubKeys(WinRegistry.HKEY_LOCAL_MACHINE, basePath);
         for (String subKey : subKeys) {
