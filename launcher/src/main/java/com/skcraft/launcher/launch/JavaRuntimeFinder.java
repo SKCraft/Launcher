@@ -50,13 +50,9 @@ public final class JavaRuntimeFinder {
                 launcherDir = new File(programFiles, "Minecraft Launcher");
             }
 
-            try {
-                getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
-                getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
-                getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\JDK");
-            } catch (Throwable err) {
-                log.log(Level.WARNING, "Failed to read Java locations from registry", err);
-            }
+            getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
+            getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
+            getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\JDK");
         } else if (env.getPlatform() == Platform.LINUX) {
             launcherDir = new File(System.getenv("HOME"), ".minecraft");
 
@@ -159,13 +155,17 @@ public final class JavaRuntimeFinder {
     }
     
     private static void getEntriesFromRegistry(Collection<JavaRuntime> entries, String basePath)
-            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        List<String> subKeys = WinRegistry.readStringSubKeys(WinRegistry.HKEY_LOCAL_MACHINE, basePath);
-        for (String subKey : subKeys) {
-            JavaRuntime entry = getEntryFromRegistry(basePath, subKey);
-            if (entry != null) {
-                entries.add(entry);
+            throws IllegalArgumentException {
+        try {
+            List<String> subKeys = WinRegistry.readStringSubKeys(WinRegistry.HKEY_LOCAL_MACHINE, basePath);
+            for (String subKey : subKeys) {
+                JavaRuntime entry = getEntryFromRegistry(basePath, subKey);
+                if (entry != null) {
+                    entries.add(entry);
+                }
             }
+        } catch (Throwable err) {
+            log.log(Level.INFO, "Failed to read Java locations from registry in " + basePath);
         }
     }
     
