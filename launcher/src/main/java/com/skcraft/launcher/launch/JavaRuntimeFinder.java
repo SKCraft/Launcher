@@ -11,11 +11,11 @@ import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.EnvironmentParser;
 import com.skcraft.launcher.util.Platform;
 import com.skcraft.launcher.util.WinRegistry;
+import com.sun.jna.platform.win32.WinReg;
 import lombok.extern.java.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -29,6 +29,10 @@ public final class JavaRuntimeFinder {
     private JavaRuntimeFinder() {
     }
 
+    /**
+     * Get all available Java runtimes on the system
+     * @return List of available Java runtimes sorted by newest first
+     */
     public static List<JavaRuntime> getAvailableRuntimes() {
         Environment env = Environment.getInstance();
         Set<JavaRuntime> entries = new HashSet<>();
@@ -36,7 +40,7 @@ public final class JavaRuntimeFinder {
 
         if (env.getPlatform() == Platform.WINDOWS) {
             try {
-                String launcherPath = WinRegistry.readString(WinRegistry.HKEY_CURRENT_USER,
+                String launcherPath = WinRegistry.readString(WinReg.HKEY_CURRENT_USER,
                         "SOFTWARE\\Mojang\\InstalledProducts\\Minecraft Launcher", "InstallLocation");
 
                 launcherDir = new File(launcherPath);
@@ -151,13 +155,13 @@ public final class JavaRuntimeFinder {
             }
         }
 
-        return new JavaRuntime(target, readVersionFromRelease(target), guessIf64Bit(target));
+        return new JavaRuntime(target, readVersionFromRelease(target), guessIf64BitWindows(target));
     }
     
     private static void getEntriesFromRegistry(Collection<JavaRuntime> entries, String basePath)
             throws IllegalArgumentException {
         try {
-            List<String> subKeys = WinRegistry.readStringSubKeys(WinRegistry.HKEY_LOCAL_MACHINE, basePath);
+            List<String> subKeys = WinRegistry.readStringSubKeys(WinReg.HKEY_LOCAL_MACHINE, basePath);
             for (String subKey : subKeys) {
                 JavaRuntime entry = getEntryFromRegistry(basePath, subKey);
                 if (entry != null) {
@@ -169,18 +173,18 @@ public final class JavaRuntimeFinder {
         }
     }
     
-    private static JavaRuntime getEntryFromRegistry(String basePath, String version)  throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private static JavaRuntime getEntryFromRegistry(String basePath, String version) {
         String regPath = basePath + "\\" + version;
-        String path = WinRegistry.readString(WinRegistry.HKEY_LOCAL_MACHINE, regPath, "JavaHome");
+        String path = WinRegistry.readString(WinReg.HKEY_LOCAL_MACHINE, regPath, "JavaHome");
         File dir = new File(path);
         if (dir.exists() && new File(dir, "bin/java.exe").exists()) {
-            return new JavaRuntime(dir, version, guessIf64Bit(dir));
+            return new JavaRuntime(dir, version, guessIf64BitWindows(dir));
         } else {
             return null;
         }
     }
     
-    private static boolean guessIf64Bit(File path) {
+    private static boolean guessIf64BitWindows(File path) {
         try {
             String programFilesX86 = System.getenv("ProgramFiles(x86)");
             return programFilesX86 == null || !path.getCanonicalPath().startsWith(new File(programFilesX86).getCanonicalPath());
