@@ -255,13 +255,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
                         .orElse(config.getJavaRuntime())
                 );
 
-        // Builder defaults to a found runtime or just the PATH `java` otherwise
-        if (selectedRuntime != null) {
-            String rawJvmPath = selectedRuntime.getDir().getAbsolutePath();
-            if (!Strings.isNullOrEmpty(rawJvmPath)) {
-                builder.tryJvmPath(new File(rawJvmPath));
-            }
-        }
+        // Builder defaults to the PATH `java` if the runtime is null
+        builder.setRuntime(selectedRuntime);
 
         List<String> flags = builder.getFlags();
         String[] rawJvmArgsList = new String[] {
