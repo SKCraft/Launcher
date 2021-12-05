@@ -332,11 +332,11 @@ public class PackManagerController {
 
         Optional<Pack> pack = getSelectedPack(true);
 
-        List<CreatorPluginWrapper<?>> enabledPlugins = pack.transform(p ->
+        List<CreatorPluginWrapper<?>> enabledPlugins = pack.map(p ->
                 creator.getPlugins().stream().filter(wrapper ->
                         p.getEnabledPlugins().contains(wrapper.getInfo().getId())).collect(Collectors.toList()
                 )
-        ).or(creator.getPlugins());
+        ).orElse(creator.getPlugins());
 
         if (enabledPlugins.isEmpty()) {
             pluginsMenu.add("No plugins enabled").setEnabled(false);
@@ -355,7 +355,7 @@ public class PackManagerController {
                         return;
                     }
 
-                    menu.onOpen(new MenuContext(frame, creator.getExecutor()), e, pack.orNull());
+                    menu.onOpen(new MenuContext(frame, creator.getExecutor()), e, pack.orElse(null));
                 });
 
                 submenu.add(item);
