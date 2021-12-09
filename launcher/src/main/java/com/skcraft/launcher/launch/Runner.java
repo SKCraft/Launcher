@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
@@ -211,9 +212,17 @@ public class Runner implements Callable<Process>, ProgressObservable {
      *
      * @throws IOException on I/O error
      */
-    private void addJvmArgs() throws IOException {
-        int minMemory = config.getMinMemory();
-        int maxMemory = config.getMaxMemory();
+    private void addJvmArgs() throws IOException, LauncherException {
+        Optional<MemorySettings> memorySettings = Optional.ofNullable(instance.getSettings().getMemorySettings());
+
+        int minMemory = memorySettings
+                .map(MemorySettings::getMinMemory)
+                .orElse(config.getMinMemory());
+
+        int maxMemory = memorySettings
+                .map(MemorySettings::getMaxMemory)
+                .orElse(config.getMaxMemory());
+
         int permGen = config.getPermGen();
 
         if (minMemory <= 0) {
@@ -240,16 +249,24 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder.setMaxMemory(maxMemory);
         builder.setPermGen(permGen);
 
-        String rawJvmPath = config.getJvmPath();
-        if (!Strings.isNullOrEmpty(rawJvmPath)) {
-            builder.tryJvmPath(new File(rawJvmPath));
-        }
+        JavaRuntime selectedRuntime = Optional.ofNullable(instance.getSettings().getRuntime())
+                .orElseGet(() -> Optional.ofNullable(versionManifest.getJavaVersion())
+                        .flatMap(JavaRuntimeFinder::findBestJavaRuntime)
+                        .orElse(config.getJavaRuntime())
+                );
+
+        // Builder defaults to the PATH `java` if the runtime is null
+        builder.setRuntime(selectedRuntime);
 
         List<String> flags = builder.getFlags();
-        String rawJvmArgs = config.getJvmArgs();
-        if (!Strings.isNullOrEmpty(rawJvmArgs)) {
-            for (String arg : JavaProcessBuilder.splitArgs(rawJvmArgs)) {
-                flags.add(arg);
+        String[] rawJvmArgsList = new String[] {
+                config.getJvmArgs(),
+                instance.getSettings().getCustomJvmArgs()
+        };
+
+        for (String rawJvmArgs : rawJvmArgsList) {
+            if (!Strings.isNullOrEmpty(rawJvmArgs)) {
+                flags.addAll(JavaProcessBuilder.splitArgs(rawJvmArgs));
             }
         }
 
@@ -406,6 +423,10 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("launcher_version", launcher.getVersion());
         map.put("classpath", builder.buildClassPath());
         map.put("natives_directory", extractDir.getAbsolutePath());
+
+        // Forge additions
+        map.put("library_directory", launcher.getLibrariesDir().getAbsolutePath());
+        map.put("classpath_separator", System.getProperty("path.separator"));
 
         return map;
     }

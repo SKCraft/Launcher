@@ -42,10 +42,15 @@ public class ProcessorTask implements InstallTask {
 	@Override
 	public void execute(Launcher launcher) throws Exception {
 		VersionManifest versionManifest = manifest.getVersionManifest();
-		loaderManifest.getSidedData().put("MINECRAFT_JAR", SidedData.of(launcher.getJarPath(versionManifest).getAbsolutePath()));
 
 		LoaderSubResolver resolver = new LoaderSubResolver(manifest, loaderManifest,
-				Environment.getInstance(), Side.CLIENT, launcher.getBaseDir(), localFiles);
+				Environment.getInstance(), Side.CLIENT, launcher.getLibrariesDir(), localFiles);
+
+		Map<String, SidedData<String>> sidedData = loaderManifest.getSidedData();
+		sidedData.put("ROOT", SidedData.of(launcher.getInstallerDir().getAbsolutePath()));
+		sidedData.put("MINECRAFT_JAR", SidedData.of(launcher.getJarPath(versionManifest).getAbsolutePath()));
+		sidedData.put("LIBRARY_DIR", SidedData.of(launcher.getLibrariesDir().getAbsolutePath()));
+		sidedData.put("MINECRAFT_VERSION", SidedData.of(versionManifest.getId()));
 
 		message = "Resolving parameters";
 		List<String> programArgs = processor.resolveArgs(resolver);
@@ -83,6 +88,7 @@ public class ProcessorTask implements InstallTask {
 		message = "Executing";
 
 		log.info(String.format("Running processor '%s' with %d args", processor.getJar(), programArgs.size()));
+		log.info("Arguments: [" + String.join(", ", programArgs) + "]");
 
 		ClassLoader parent;
 		try {
@@ -94,13 +100,19 @@ public class ProcessorTask implements InstallTask {
 			parent = null;
 		}
 
+		ClassLoader prev = Thread.currentThread().getContextClassLoader();
 		ClassLoader cl = new URLClassLoader(classpath.toArray(new URL[0]), parent);
 		try {
 			Class<?> mainClazz = Class.forName(mainClass, true, cl);
 			Method main = mainClazz.getDeclaredMethod("main", String[].class);
+
+			// engage spicy mode
+			Thread.currentThread().setContextClassLoader(cl);
 			main.invoke(null, (Object) programArgs.toArray(new String[0]));
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
+		} finally {
+			Thread.currentThread().setContextClassLoader(prev);
 		}
 
 		message = "Verifying";
@@ -118,6 +130,7 @@ public class ProcessorTask implements InstallTask {
 				}
 
 				if (!FileUtils.getShaHash(artifact).equals(output.getValue())) {
+					log.warning("Invalid hash, expected " + output.getValue());
 					throw new RuntimeException(String.format("Artifact '%s' has invalid hash!", output.getKey()));
 				}
 

@@ -18,10 +18,7 @@ import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.FileUtils;
 import lombok.extern.java.Log;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -59,6 +56,12 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 					}
 
 					version.getArguments().getGameArguments().addAll(gameArguments);
+				}
+
+				// Copy JVM arguments
+				List<GameArgument> jvmArguments = info.getArguments().getJvmArguments();
+				if (jvmArguments != null) {
+					version.getArguments().getJvmArguments().addAll(jvmArguments);
 				}
 
 				// Add libraries
@@ -101,11 +104,13 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 
 				// Extract the data files
 				List<DownloadableFile> extraFiles = Lists.newArrayList();
+				File objectsDir = new File(baseDir, manifest.getObjectsLocation());
+
 				ZipEntry clientBinpatch = BuilderUtils.getZipEntry(jarFile, "data/client.lzma");
 				if (clientBinpatch != null) {
 					DownloadableFile entry = FileUtils.saveStreamToObjectsDir(
 							closer.register(jarFile.getInputStream(clientBinpatch)),
-							new File(baseDir, manifest.getObjectsLocation()));
+							objectsDir);
 
 					entry.setName("client.lzma");
 					entry.setSide(Side.CLIENT);
@@ -117,12 +122,26 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 				if (serverBinpatch != null) {
 					DownloadableFile entry = FileUtils.saveStreamToObjectsDir(
 							closer.register(jarFile.getInputStream(serverBinpatch)),
-							new File(baseDir, manifest.getObjectsLocation()));
+							objectsDir);
 
 					entry.setName("server.lzma");
 					entry.setSide(Side.SERVER);
 					extraFiles.add(entry);
 					profile.getData().get("BINPATCH").setServer("&" + entry.getName() + "&");
+				}
+
+				// Forge install profile spec version 1 and above.
+				if (profile.getSpec() >= 1) {
+					// Add the installer itself to the extra files.
+					// This is for a server-only task like above, but hey.
+					DownloadableFile entry = FileUtils.saveStreamToObjectsDir(
+							closer.register(new FileInputStream(loaderJar)), objectsDir);
+
+					entry.setName(loaderJar.getName());
+					entry.setSide(Side.SERVER);
+					extraFiles.add(entry);
+
+					profile.getData().put("INSTALLER", SidedData.of("&" + entry.getName() + "&"));
 				}
 
 				// Add extra sided data

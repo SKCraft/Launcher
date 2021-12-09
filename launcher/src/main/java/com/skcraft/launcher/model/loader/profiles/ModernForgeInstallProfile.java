@@ -21,6 +21,7 @@ import java.util.Map;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ModernForgeInstallProfile {
+    private int spec;
     private List<Library> libraries;
     private List<InstallProcessor> processors;
     private Map<String, SidedData<String>> data;

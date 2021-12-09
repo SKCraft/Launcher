@@ -15,6 +15,8 @@ dependencies {
     compile 'com.beust:jcommander:1.32'
     compile 'com.miglayout:miglayout:3.7.4'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
+
+    implementation 'net.java.dev.jna:jna-platform:5.10.0'
 }
 
 processResources {
