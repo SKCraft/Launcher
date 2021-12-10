@@ -9,6 +9,7 @@ package com.skcraft.launcher.launch;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
@@ -278,6 +279,16 @@ public class Runner implements Callable<Process>, ProgressObservable {
                     flags.add(substitutor.replace(subArg));
                 }
             }
+        }
+
+        if (versionManifest.getLogging() != null) {
+            log.info("Logging config present, log4j2 bug likely mitigated");
+
+            VersionManifest.LoggingConfig config = versionManifest.getLogging().getClient();
+            File configFile = new File(launcher.getLibrariesDir(), config.getFile().getId());
+            StrSubstitutor loggingSub = new StrSubstitutor(ImmutableMap.of("path", configFile.getAbsolutePath()));
+
+            flags.add(loggingSub.replace(config.getArgument()));
         }
     }
 

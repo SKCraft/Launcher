@@ -25,6 +25,7 @@ import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.model.modpack.ManifestEntry;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
+import com.skcraft.launcher.util.FileUtils;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
@@ -40,6 +41,7 @@ import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.LauncherUtils.concat;
+import static com.skcraft.launcher.util.HttpRequest.url;
 
 /**
  * The base implementation of the various routines involved in downloading
@@ -231,7 +233,7 @@ public abstract class BaseUpdater {
     protected void installLibraries(@NonNull Installer installer,
                                     @NonNull Manifest manifest,
                                     @NonNull File librariesDir,
-                                    @NonNull List<URL> sources) throws InterruptedException {
+                                    @NonNull List<URL> sources) throws InterruptedException, IOException {
         VersionManifest versionManifest = manifest.getVersionManifest();
 
         Iterable<Library> allLibraries = versionManifest.getLibraries();
@@ -269,6 +271,21 @@ public abstract class BaseUpdater {
                         installer.queue(new FileVerify(targetFile, library.getName(), artifact.getSha1()));
                     }
                 }
+            }
+        }
+
+        // Fetch logging config
+        if (versionManifest.getLogging() != null) {
+            VersionManifest.LoggingConfig config = versionManifest.getLogging().getClient();
+
+            VersionManifest.Artifact file = config.getFile();
+            File targetFile = new File(librariesDir, file.getId());
+
+            if (!targetFile.exists() || !Objects.equals(config.getFile().getHash(), FileUtils.getShaHash(targetFile))) {
+                File tempFile = installer.getDownloader().download(url(file.getUrl()), file.getHash(), file.getSize(), file.getId());
+
+                log.info("Downloading logging config " + file.getId() + " from " + file.getUrl());
+                installer.queue(new FileMover(tempFile, targetFile));
             }
         }
     }
