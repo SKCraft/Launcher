@@ -6,6 +6,10 @@
 
 package com.skcraft.launcher.launch;
 
+import com.dd.plist.NSArray;
+import com.dd.plist.NSDictionary;
+import com.dd.plist.NSObject;
+import com.dd.plist.PropertyListParser;
 import com.skcraft.launcher.model.minecraft.JavaVersion;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.EnvironmentParser;
@@ -75,6 +79,24 @@ public final class JavaRuntimeFinder {
                     }
                 }).distinct().forEach(file -> entries.add(getRuntimeFromPath(file.getAbsolutePath())));
             }
+        } else if (env.getPlatform() == Platform.MAC_OS_X) {
+            launcherDir = new File(System.getenv("HOME"), "Library/Application Support/minecraft");
+
+            try {
+                Process p = Runtime.getRuntime().exec("/usr/libexec/java_home -X");
+                NSArray root = (NSArray) PropertyListParser.parse(p.getInputStream());
+                NSObject[] arr = root.getArray();
+                for (NSObject obj : arr) {
+                    NSDictionary dict = (NSDictionary) obj;
+                    entries.add(new JavaRuntime(
+                        new File(dict.objectForKey("JVMHomePath").toString()).getAbsoluteFile(),
+                        dict.objectForKey("JVMVersion").toString(),
+                        dict.objectForKey("JVMArch").toString().equals("x86_64")
+                    ));
+                }
+            } catch (Throwable err) {
+                log.log(Level.WARNING, "Failed to parse java_home command", err);
+            }
         } else {
             return Collections.emptyList();
         }
@@ -83,7 +105,17 @@ public final class JavaRuntimeFinder {
         File[] runtimeList = runtimes.listFiles();
         if (runtimeList != null) {
             for (File potential : runtimeList) {
-                if (potential.getName().startsWith("jre-x")) {
+                File[] isMacOS = potential.listFiles((dir, name) -> name.equals("mac-os"));
+                if (isMacOS != null && isMacOS.length > 0) {
+                    potential = new File(potential, String.format("mac-os/%s/jre.bundle/Contents/Home", potential.getName()));
+
+                    String arch = readArchFromRelease(potential);
+                    boolean is64Bit = Objects.isNull(arch) || Objects.equals(arch, "x86_64");
+
+                    JavaRuntime runtime = new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit);
+                    runtime.setMinecraftBundled(true);
+                    entries.add(runtime);
+                } else if (potential.getName().startsWith("jre-x")) {
                     boolean is64Bit = potential.getName().equals("jre-x64");
 
                     JavaRuntime runtime = new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit);
@@ -200,6 +232,22 @@ public final class JavaRuntimeFinder {
                 Map<String, String> releaseDetails = EnvironmentParser.parse(releaseFile);
 
                 return releaseDetails.get("JAVA_VERSION");
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Failed to read release file " + releaseFile.getAbsolutePath(), e);
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private static String readArchFromRelease(File javaPath) {
+        File releaseFile = new File(javaPath, "release");
+        if (releaseFile.exists()) {
+            try {
+                Map<String, String> releaseDetails = EnvironmentParser.parse(releaseFile);
+
+                return releaseDetails.get("OS_ARCH");
             } catch (IOException e) {
                 log.log(Level.WARNING, "Failed to read release file " + releaseFile.getAbsolutePath(), e);
                 return null;
