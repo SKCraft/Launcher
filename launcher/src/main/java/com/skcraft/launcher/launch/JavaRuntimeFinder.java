@@ -52,6 +52,10 @@ public final class JavaRuntimeFinder {
                         : System.getenv("ProgramFiles");
 
                 launcherDir = new File(programFiles, "Minecraft Launcher");
+
+                if (!launcherDir.exists()) {
+                    launcherDir = new File(programFiles, "Minecraft");
+                }
             }
 
             getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
