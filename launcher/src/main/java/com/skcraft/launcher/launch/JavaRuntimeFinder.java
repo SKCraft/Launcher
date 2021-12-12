@@ -127,7 +127,7 @@ public final class JavaRuntimeFinder {
                         }
 
                         String arch = readArchFromRelease(javaDir);
-                        boolean is64Bit = arch == null || isArch64Bit(arch);
+                        boolean is64Bit = isArch64Bit(arch);
 
                         JavaRuntime runtime = new JavaRuntime(javaDir.getAbsoluteFile(), readVersionFromRelease(javaDir), is64Bit);
                         runtime.setMinecraftBundled(true);
@@ -223,7 +223,7 @@ public final class JavaRuntimeFinder {
     }
 
     private static boolean isArch64Bit(String string) {
-        return string != null && string.matches("x64|x86_64|amd64|aarch64");
+        return string == null || string.matches("x64|x86_64|amd64|aarch64");
     }
 
     private static String readVersionFromRelease(File javaPath) {
