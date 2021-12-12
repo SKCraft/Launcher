@@ -40,29 +40,32 @@ public final class JavaRuntimeFinder {
     public static List<JavaRuntime> getAvailableRuntimes() {
         Environment env = Environment.getInstance();
         Set<JavaRuntime> entries = new HashSet<>();
-        File launcherDir;
+        Set<File> launcherDirs = new HashSet<>();
 
         if (env.getPlatform() == Platform.WINDOWS) {
             try {
                 String launcherPath = WinRegistry.readString(WinReg.HKEY_CURRENT_USER,
                         "SOFTWARE\\Mojang\\InstalledProducts\\Minecraft Launcher", "InstallLocation");
 
-                launcherDir = new File(launcherPath);
+                launcherDirs.add(new File(launcherPath));
             } catch (Throwable err) {
                 log.log(Level.WARNING, "Failed to read launcher location from registry", err);
-
-                String programFiles = Objects.equals(env.getArchBits(), "64")
-                        ? System.getenv("ProgramFiles(x86)")
-                        : System.getenv("ProgramFiles");
-
-                launcherDir = new File(programFiles, "Minecraft Launcher");
             }
+
+            String programFiles = Objects.equals(env.getArchBits(), "64")
+                ? System.getenv("ProgramFiles(x86)")
+                : System.getenv("ProgramFiles");
+
+            // Mojang likes to move the java runtime directory
+            launcherDirs.add(new File(programFiles, "Minecraft"));
+            launcherDirs.add(new File(programFiles, "Minecraft Launcher"));
+            launcherDirs.add(new File(System.getenv("LOCALAPPDATA"), "Packages\\Microsoft.4297127D64EC6_8wekyb3d8bbwe\\LocalCache\\Local"));
 
             getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
             getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\Java Development Kit");
             getEntriesFromRegistry(entries, "SOFTWARE\\JavaSoft\\JDK");
         } else if (env.getPlatform() == Platform.LINUX) {
-            launcherDir = new File(System.getenv("HOME"), ".minecraft");
+            launcherDirs.add(new File(System.getenv("HOME"), ".minecraft"));
 
             String javaHome = System.getenv("JAVA_HOME");
             if (javaHome != null) {
@@ -80,7 +83,7 @@ public final class JavaRuntimeFinder {
                 }).distinct().forEach(file -> entries.add(getRuntimeFromPath(file.getAbsolutePath())));
             }
         } else if (env.getPlatform() == Platform.MAC_OS_X) {
-            launcherDir = new File(System.getenv("HOME"), "Library/Application Support/minecraft");
+            launcherDirs.add(new File(System.getenv("HOME"), "Library/Application Support/minecraft"));
 
             try {
                 Process p = Runtime.getRuntime().exec("/usr/libexec/java_home -X");
@@ -91,7 +94,7 @@ public final class JavaRuntimeFinder {
                     entries.add(new JavaRuntime(
                         new File(dict.objectForKey("JVMHomePath").toString()).getAbsoluteFile(),
                         dict.objectForKey("JVMVersion").toString(),
-                        dict.objectForKey("JVMArch").toString().equals("x86_64")
+                        isArch64Bit(dict.objectForKey("JVMArch").toString())
                     ));
                 }
             } catch (Throwable err) {
@@ -101,44 +104,35 @@ public final class JavaRuntimeFinder {
             return Collections.emptyList();
         }
 
-        File runtimes = new File(launcherDir, "runtime");
-        File[] runtimeList = runtimes.listFiles();
-        if (runtimeList != null) {
-            for (File potential : runtimeList) {
-                File[] isMacOS = potential.listFiles((dir, name) -> name.equals("mac-os"));
-                if (isMacOS != null && isMacOS.length > 0) {
-                    potential = new File(potential, String.format("mac-os/%s/jre.bundle/Contents/Home", potential.getName()));
-
-                    String arch = readArchFromRelease(potential);
-                    boolean is64Bit = Objects.isNull(arch) || Objects.equals(arch, "x86_64");
-
-                    JavaRuntime runtime = new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit);
-                    runtime.setMinecraftBundled(true);
-                    entries.add(runtime);
-                } else if (potential.getName().startsWith("jre-x")) {
-                    boolean is64Bit = potential.getName().equals("jre-x64");
-
-                    JavaRuntime runtime = new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit);
-                    runtime.setMinecraftBundled(true);
-                    entries.add(runtime);
-                } else {
+        for (File install : launcherDirs) {
+            File runtimes = new File(install, "runtime");
+            File[] runtimeList = runtimes.listFiles();
+            if (runtimeList != null) {
+                for (File potential : runtimeList) {
                     String runtimeName = potential.getName();
+                    if (runtimeName.startsWith("jre-x")) {
+                        boolean is64Bit = runtimeName.equals("jre-x64");
 
-                    String[] children = potential.list();
-                    if (children == null || children.length == 0) continue;
-                    String platformName = children[0];
+                        JavaRuntime runtime = new JavaRuntime(potential.getAbsoluteFile(), readVersionFromRelease(potential), is64Bit);
+                        runtime.setMinecraftBundled(true);
+                        entries.add(runtime);
+                    } else {
+                        String[] children = potential.list((dir, name) -> new File(dir, name).isDirectory());
+                        if (children == null || children.length != 1) continue;
+                        String platformName = children[0];
 
-                    String[] parts = platformName.split("-");
-                    if (parts.length < 2) continue;
+                        File javaDir = new File(potential, String.format("%s/%s", platformName, runtimeName));
+                        if (env.getPlatform() == Platform.MAC_OS_X) {
+                            javaDir = new File(javaDir, "jre.bundle/Contents/Home");
+                        }
 
-                    String arch = parts[1];
-                    boolean is64Bit = arch.equals("x64");
+                        String arch = readArchFromRelease(javaDir);
+                        boolean is64Bit = arch == null || isArch64Bit(arch);
 
-                    File javaDir = new File(potential, String.format("%s/%s", platformName, runtimeName));
-                    JavaRuntime runtime = new JavaRuntime(javaDir.getAbsoluteFile(), readVersionFromRelease(javaDir), is64Bit);
-                    runtime.setMinecraftBundled(true);
-
-                    entries.add(runtime);
+                        JavaRuntime runtime = new JavaRuntime(javaDir.getAbsoluteFile(), readVersionFromRelease(javaDir), is64Bit);
+                        runtime.setMinecraftBundled(true);
+                        entries.add(runtime);
+                    }
                 }
             }
         }
@@ -178,6 +172,9 @@ public final class JavaRuntimeFinder {
         if (target.isFile()) {
             // Probably referring directly to bin/java, back up two levels
             target = target.getParentFile().getParentFile();
+        } else if (target.getName().equals("bin")) {
+            // Probably copied the bin directory that java.exe is in
+            target = target.getParentFile();
         }
 
         {
@@ -223,6 +220,10 @@ public final class JavaRuntimeFinder {
         } catch (IOException ignored) {
             return false;
         }
+    }
+
+    private static boolean isArch64Bit(String string) {
+        return string != null && string.matches("x64|x86_64|amd64|aarch64");
     }
 
     private static String readVersionFromRelease(File javaPath) {
