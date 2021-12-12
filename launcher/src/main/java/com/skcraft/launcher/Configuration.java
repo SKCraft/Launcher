@@ -7,8 +7,8 @@
 package com.skcraft.launcher;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.skcraft.launcher.launch.JavaRuntime;
-import com.skcraft.launcher.launch.JavaRuntimeFinder;
+import com.skcraft.launcher.launch.runtime.JavaRuntime;
+import com.skcraft.launcher.launch.runtime.JavaRuntimeFinder;
 import lombok.Data;
 
 /**

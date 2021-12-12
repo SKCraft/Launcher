@@ -1,4 +1,4 @@
-package com.skcraft.launcher.launch;
+package com.skcraft.launcher.launch.runtime;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
