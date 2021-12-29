@@ -12,6 +12,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.launcher.LauncherException;
+import com.skcraft.launcher.util.Environment;
+import com.skcraft.launcher.util.Platform;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
 import lombok.NonNull;
@@ -103,9 +105,19 @@ public final class SwingHelper {
     public static void openURL(URL url, Component parentComponent) {
         try {
             Desktop.getDesktop().browse(url.toURI());
+        } catch (UnsupportedOperationException e) {
+            if (Environment.detectPlatform() == Platform.LINUX) {
+                // Try xdg-open instead
+                try {
+                    Runtime.getRuntime().exec(new String[]{"xdg-open", url.toString()});
+                } catch (IOException ex) {
+                    showErrorDialog(parentComponent, tr("errors.openUrlError", url.toString()), tr("errorTitle"), ex);
+                }
+            }
         } catch (IOException e) {
             showErrorDialog(parentComponent, tr("errors.openUrlError", url.toString()), SharedLocale.tr("errorTitle"));
         } catch (URISyntaxException e) {
+            log.log(Level.WARNING, "Malformed URL; this is a programming error!", e);
         }
     }
 

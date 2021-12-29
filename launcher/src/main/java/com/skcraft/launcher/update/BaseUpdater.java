@@ -8,6 +8,7 @@ package com.skcraft.launcher.update;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.skcraft.launcher.AssetsRoot;
 import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
@@ -16,15 +17,15 @@ import com.skcraft.launcher.dialog.FeatureSelectionDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.install.*;
 import com.skcraft.launcher.model.loader.LoaderManifest;
-import com.skcraft.launcher.model.minecraft.Asset;
-import com.skcraft.launcher.model.minecraft.AssetsIndex;
-import com.skcraft.launcher.model.minecraft.Library;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.loader.LocalLoader;
+import com.skcraft.launcher.model.minecraft.*;
+import com.skcraft.launcher.model.modpack.DownloadableFile;
 import com.skcraft.launcher.model.modpack.Feature;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.model.modpack.ManifestEntry;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
+import com.skcraft.launcher.util.FileUtils;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
@@ -40,6 +41,7 @@ import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.LauncherUtils.concat;
+import static com.skcraft.launcher.util.HttpRequest.url;
 
 /**
  * The base implementation of the various routines involved in downloading
@@ -127,8 +129,24 @@ public abstract class BaseUpdater {
             }
         }
 
+        // Download any extra processing files for each loader
+        HashMap<String, LocalLoader> loaders = Maps.newHashMap();
+        for (Map.Entry<String, LoaderManifest> entry : manifest.getLoaders().entrySet()) {
+            HashMap<String, DownloadableFile.LocalFile> localFilesMap = Maps.newHashMap();
+
+            for (DownloadableFile file : entry.getValue().getDownloadableFiles()) {
+                if (file.getSide() != Side.CLIENT) continue;
+
+                DownloadableFile.LocalFile localFile = file.download(installer, manifest);
+                localFilesMap.put(localFile.getName(), localFile);
+            }
+
+            loaders.put(entry.getKey(), new LocalLoader(entry.getValue(), localFilesMap));
+        }
+
+        InstallExtras extras = new InstallExtras(contentDir, loaders);
         for (ManifestEntry entry : manifest.getTasks()) {
-            entry.install(installer, currentLog, updateCache, contentDir);
+            entry.install(installer, currentLog, updateCache, extras);
         }
 
         executeOnCompletion.add(new Runnable() {
@@ -215,7 +233,7 @@ public abstract class BaseUpdater {
     protected void installLibraries(@NonNull Installer installer,
                                     @NonNull Manifest manifest,
                                     @NonNull File librariesDir,
-                                    @NonNull List<URL> sources) throws InterruptedException {
+                                    @NonNull List<URL> sources) throws InterruptedException, IOException {
         VersionManifest versionManifest = manifest.getVersionManifest();
 
         Iterable<Library> allLibraries = versionManifest.getLibraries();
@@ -253,6 +271,21 @@ public abstract class BaseUpdater {
                         installer.queue(new FileVerify(targetFile, library.getName(), artifact.getSha1()));
                     }
                 }
+            }
+        }
+
+        // Fetch logging config
+        if (versionManifest.getLogging() != null) {
+            VersionManifest.LoggingConfig config = versionManifest.getLogging().getClient();
+
+            VersionManifest.Artifact file = config.getFile();
+            File targetFile = new File(librariesDir, file.getId());
+
+            if (!targetFile.exists() || !Objects.equals(config.getFile().getHash(), FileUtils.getShaHash(targetFile))) {
+                File tempFile = installer.getDownloader().download(url(file.getUrl()), file.getHash(), file.getSize(), file.getId());
+
+                log.info("Downloading logging config " + file.getId() + " from " + file.getUrl());
+                installer.queue(new FileMover(tempFile, targetFile));
             }
         }
     }

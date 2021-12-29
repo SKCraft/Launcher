@@ -13,7 +13,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,7 +119,7 @@ public class HttpRequest implements Closeable, ProgressObservable {
             throw new IOException("Too many redirects!");
         }
 
-        HttpURLConnection conn = (HttpURLConnection) reformat(url).openConnection();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Java) SKMCLauncher");
         conn.setInstanceFollowRedirects(false);
 
@@ -154,7 +157,6 @@ public class HttpRequest implements Closeable, ProgressObservable {
             case 307:
             case 308:
                 String location = conn.getHeaderField("Location");
-                location = URLDecoder.decode(location, "UTF-8");
                 redirectCount++;
 
                 return runRequest(new URL(this.url, location));
@@ -355,27 +357,6 @@ public class HttpRequest implements Closeable, ProgressObservable {
             return new URL(url);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * URL may contain spaces and other nasties that will cause a failure.
-     *
-     * @param existing the existing URL to transform
-     * @return the new URL, or old one if there was a failure
-     */
-    private static URL reformat(URL existing) {
-        try {
-            URL url = new URL(existing.toString());
-            URI uri = new URI(
-                    url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(),
-                    url.getPath(), url.getQuery(), url.getRef());
-            url = uri.toURL();
-            return url;
-        } catch (MalformedURLException e) {
-            return existing;
-        } catch (URISyntaxException e) {
-            return existing;
         }
     }
 

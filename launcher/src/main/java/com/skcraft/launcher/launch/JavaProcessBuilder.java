@@ -6,6 +6,7 @@
 
 package com.skcraft.launcher.launch;
 
+import com.skcraft.launcher.launch.runtime.JavaRuntime;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,7 +28,7 @@ public class JavaProcessBuilder {
 
     private static final Pattern argsPattern = Pattern.compile("(?:([^\"]\\S*)|\"(.+?)\")\\s*");
 
-    @Getter @Setter private File jvmPath = JavaRuntimeFinder.findBestJavaPath();
+    @Getter @Setter private JavaRuntime runtime;
     @Getter @Setter private int minMemory;
     @Getter @Setter private int maxMemory;
     @Getter @Setter private int permGen;
@@ -37,7 +38,9 @@ public class JavaProcessBuilder {
     @Getter private final List<String> args = new ArrayList<String>();
     @Getter @Setter private String mainClass;
 
-    public void tryJvmPath(File path) throws IOException {
+    private File getJavaBinPath() throws IOException {
+        File path = runtime.getDir().getAbsoluteFile();
+
         // Try the parent directory
         if (!path.exists()) {
             throw new IOException(
@@ -51,7 +54,7 @@ public class JavaProcessBuilder {
             path = binDir;
         }
 
-        setJvmPath(path);
+        return path;
     }
 
     public JavaProcessBuilder classPath(File file) {
@@ -81,36 +84,35 @@ public class JavaProcessBuilder {
         return builder.toString();
     }
 
-    public List<String> buildCommand() {
+    public List<String> buildCommand() throws IOException {
         List<String> command = new ArrayList<String>();
 
-        if (getJvmPath() != null) {
-            command.add(getJvmPath() + File.separator + "java");
+        if (getRuntime() != null) {
+            File javaBinary = new File(getJavaBinPath(), "java");
+            command.add(javaBinary.getAbsolutePath());
         } else {
             command.add("java");
         }
 
-        for (String flag : flags) {
-            command.add(flag);
-        }
+        command.addAll(flags);
 
         if (minMemory > 0) {
-            command.add("-Xms" + String.valueOf(minMemory) + "M");
+            command.add("-Xms" + minMemory + "M");
         }
 
         if (maxMemory > 0) {
-            command.add("-Xmx" + String.valueOf(maxMemory) + "M");
+            command.add("-Xmx" + maxMemory + "M");
         }
 
         if (permGen > 0) {
-            command.add("-XX:MaxPermSize=" + String.valueOf(permGen) + "M");
+            // If we know the Java version, only add permsize for 7 or older
+            if (getRuntime() == null || getRuntime().getMajorVersion() < 8) {
+                command.add("-XX:MaxPermSize=" + permGen + "M");
+            }
         }
 
         command.add(mainClass);
-
-        for (String arg : args) {
-            command.add(arg);
-        }
+        command.addAll(args);
 
         return command;
     }

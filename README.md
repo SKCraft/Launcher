@@ -3,7 +3,6 @@ NoHope Launcher
 
 The NoHopeLauncher is the minecraft launcher used for all the 360NoHope modpacks and servers.
 
-
 ## Getting Started
 
 You'll probably need a few hours to get everything working. Fortunately, we have a [detailed wiki](https://github.com/SKCraft/Launcher/wiki) with screenshots for every step, intended for someone with minimal technical experience.
@@ -27,7 +26,7 @@ Making a modpack is just drag and drop into a folder like this:
 * src/**resourcepacks**/
 * loaders/
 
-You'd put LiteLoader and Forge into the *loaders* folder. :ok_hand:
+LiteLoader and Forge installers, or Fabric Loader, go into the *loaders* folder. :ok_hand:
 
 ### More Pictures
 

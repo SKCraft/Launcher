@@ -7,10 +7,7 @@ import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.concurrency.ProgressObservable;
 import com.skcraft.concurrency.SettableProgress;
 import com.skcraft.launcher.Launcher;
-import com.skcraft.launcher.auth.LoginService;
-import com.skcraft.launcher.auth.OfflineSession;
-import com.skcraft.launcher.auth.SavedSession;
-import com.skcraft.launcher.auth.Session;
+import com.skcraft.launcher.auth.*;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.LinedBoxPanel;
 import com.skcraft.launcher.swing.SwingHelper;
@@ -44,7 +41,7 @@ public class AccountSelectDialog extends JDialog {
 		setTitle(SharedLocale.tr("accounts.title"));
 		initComponents();
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setMinimumSize(new Dimension(350, 170));
+		setMinimumSize(new Dimension(350, 250));
 		setResizable(false);
 		pack();
 		setLocationRelativeTo(owner);
@@ -59,37 +56,38 @@ public class AccountSelectDialog extends JDialog {
 		accountList.setCellRenderer(new AccountRenderer());
 
 		JScrollPane accountPane = new JScrollPane(accountList);
-		accountPane.setPreferredSize(new Dimension(250, 100));
+		accountPane.setPreferredSize(new Dimension(280, 150));
 		accountPane.setAlignmentX(CENTER_ALIGNMENT);
 
 		loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
 		loginButton.setMargin(new Insets(0, 10, 0, 10));
 
+		//Start Buttons
 		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));
 		if (launcher.getConfig().isOfflineEnabled()) {
 			buttonsPanel.addElement(offlineButton);
 		}
 		buttonsPanel.addGlue();
-		buttonsPanel.addElement(loginButton);
 		buttonsPanel.addElement(cancelButton);
+		buttonsPanel.addElement(loginButton);
 
-		LinedBoxPanel loginButtonsRow = new LinedBoxPanel(true);
-		loginButtonsRow.add(addMojangButton);
-		loginButtonsRow.add(addMicrosoftButton);
-		loginButtonsRow.addGlue();
-		loginButtonsRow.add(removeSelected);
-		loginButtonsRow.setAlignmentX(CENTER_ALIGNMENT);
-		loginButtonsRow.setBorder(null);
+		//Login Buttons
+		JPanel loginButtonsRow = new JPanel(new BorderLayout(0, 5));
+		addMojangButton.setAlignmentX(CENTER_ALIGNMENT);
+		addMicrosoftButton.setAlignmentX(CENTER_ALIGNMENT);
+		removeSelected.setAlignmentX(CENTER_ALIGNMENT);
+		loginButtonsRow.add(addMojangButton, BorderLayout.NORTH);
+		loginButtonsRow.add(addMicrosoftButton, BorderLayout.CENTER);
+		loginButtonsRow.add(removeSelected, BorderLayout.SOUTH);
+		loginButtonsRow.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-		JPanel listPane = new JPanel();
-		listPane.setLayout(new BoxLayout(listPane, BoxLayout.Y_AXIS));
-		listPane.add(accountPane);
-		listPane.add(Box.createVerticalStrut(5));
-		listPane.add(loginButtonsRow);
-		listPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		listPane.setAlignmentX(CENTER_ALIGNMENT);
+		JPanel listAndLoginContainer = new JPanel();
+		listAndLoginContainer.add(accountPane, BorderLayout.WEST);
+		listAndLoginContainer.add(loginButtonsRow, BorderLayout.EAST);
+		listAndLoginContainer.add(Box.createVerticalStrut(5));
+		listAndLoginContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		add(listPane, BorderLayout.CENTER);
+		add(listAndLoginContainer, BorderLayout.CENTER);
 		add(buttonsPanel, BorderLayout.SOUTH);
 
 		loginButton.addActionListener(ev -> attemptExistingLogin(accountList.getSelectedValue()));
@@ -99,7 +97,7 @@ public class AccountSelectDialog extends JDialog {
 			Session newSession = LoginDialog.showLoginRequest(this, launcher);
 
 			if (newSession != null) {
-				launcher.getAccounts().add(newSession.toSavedSession());
+				launcher.getAccounts().update(newSession.toSavedSession());
 				setResult(newSession);
 			}
 		});
@@ -156,7 +154,7 @@ public class AccountSelectDialog extends JDialog {
 					progress.set(SharedLocale.tr("login.loggingInStatus"), -1));
 
 			if (newSession != null) {
-				launcher.getAccounts().add(newSession.toSavedSession());
+				launcher.getAccounts().update(newSession.toSavedSession());
 				setResult(newSession);
 			}
 
@@ -183,13 +181,22 @@ public class AccountSelectDialog extends JDialog {
 
 			@Override
 			public void onFailure(Throwable t) {
-				t.printStackTrace();
+				if (t instanceof AuthenticationException) {
+					if (((AuthenticationException) t).isInvalidatedSession()) {
+						// Just need to log in again
+						LoginDialog.ReloginDetails details = new LoginDialog.ReloginDetails(session.getUsername(), t.getLocalizedMessage());
+						Session newSession = LoginDialog.showLoginRequest(AccountSelectDialog.this, launcher, details);
+
+						setResult(newSession);
+					}
+				} else {
+					SwingHelper.showErrorDialog(AccountSelectDialog.this, t.getLocalizedMessage(), SharedLocale.tr("errorTitle"), t);
+				}
 			}
 		}, SwingExecutor.INSTANCE);
 
 		ProgressDialog.showProgress(this, future, SharedLocale.tr("login.loggingInTitle"),
 				SharedLocale.tr("login.loggingInStatus"));
-		SwingHelper.addErrorDialogCallback(this, future);
 	}
 
 	@RequiredArgsConstructor
@@ -215,7 +222,7 @@ public class AccountSelectDialog extends JDialog {
 
 	private static class AccountRenderer extends JLabel implements ListCellRenderer<SavedSession> {
 		public AccountRenderer() {
-			setHorizontalAlignment(CENTER);
+			setHorizontalAlignment(LEFT);
 		}
 
 		@Override
