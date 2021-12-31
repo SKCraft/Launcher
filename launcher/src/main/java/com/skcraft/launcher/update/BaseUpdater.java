@@ -82,6 +82,9 @@ public abstract class BaseUpdater {
         final File cachePath = new File(instance.getDir(), "update_cache.json");
         final File featuresPath = new File(instance.getDir(), "features.json");
 
+        // Make sure the temp dir exists
+        installer.getTempDir().mkdirs();
+
         final InstallLog previousLog = Persistence.read(logPath, InstallLog.class);
         final InstallLog currentLog = new InstallLog();
         currentLog.setBaseDir(contentDir);
