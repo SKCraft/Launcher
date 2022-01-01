@@ -39,6 +39,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -298,7 +299,7 @@ public abstract class BaseUpdater {
                 // Use our embedded replacement
 
                 Path tempFile = installer.getTempDir().toPath().resolve(file.getId());
-                Files.copy(embeddedConfig, tempFile);
+                Files.copy(embeddedConfig, tempFile, StandardCopyOption.REPLACE_EXISTING);
 
                 log.info("Substituting embedded logging config " + file.getId());
                 installer.queue(new FileMover(tempFile.toFile(), targetFile));
