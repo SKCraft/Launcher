@@ -35,6 +35,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
@@ -104,20 +105,22 @@ public final class SwingHelper {
      */
     public static void openURL(URL url, Component parentComponent) {
         try {
-            Desktop.getDesktop().browse(url.toURI());
-        } catch (UnsupportedOperationException e) {
-            if (Environment.detectPlatform() == Platform.LINUX) {
-                // Try xdg-open instead
-                try {
-                    Runtime.getRuntime().exec(new String[]{"xdg-open", url.toString()});
-                } catch (IOException ex) {
-                    showErrorDialog(parentComponent, tr("errors.openUrlError", url.toString()), tr("errorTitle"), ex);
-                }
-            }
+            openURL(url.toURI());
         } catch (IOException e) {
             showErrorDialog(parentComponent, tr("errors.openUrlError", url.toString()), SharedLocale.tr("errorTitle"));
         } catch (URISyntaxException e) {
             log.log(Level.WARNING, "Malformed URL; this is a programming error!", e);
+        }
+    }
+
+    public static void openURL(URI url) throws IOException {
+        try {
+            Desktop.getDesktop().browse(url);
+        } catch (UnsupportedOperationException e) {
+            if (Environment.detectPlatform() == Platform.LINUX) {
+                // Try xdg-open instead
+                Runtime.getRuntime().exec(new String[]{"xdg-open", url.toString()});
+            }
         }
     }
 

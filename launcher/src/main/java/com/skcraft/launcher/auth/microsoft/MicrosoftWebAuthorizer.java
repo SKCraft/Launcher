@@ -1,6 +1,7 @@
 package com.skcraft.launcher.auth.microsoft;
 
 import com.skcraft.launcher.auth.AuthenticationException;
+import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.util.HttpRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class MicrosoftWebAuthorizer {
 
 	private OauthResult authorizeInteractive() throws IOException, AuthenticationException, InterruptedException {
 		OauthHttpHandler httpHandler = new OauthHttpHandler();
-		Desktop.getDesktop().browse(generateInteractiveUrl(httpHandler.getPort()));
+		SwingHelper.openURL(generateInteractiveUrl(httpHandler.getPort()));
 
 		return httpHandler.await();
 	}
