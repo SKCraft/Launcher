@@ -42,7 +42,7 @@ public class PastebinPoster {
             InputStream in = null;
             
             try {
-                URL url = new URL("http://pastebin.com/api/api_post.php");
+                URL url = new URL("https://pastebin.com/api/api_post.php");
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(CONNECT_TIMEOUT);
                 conn.setReadTimeout(READ_TIMEOUT);
