@@ -184,7 +184,8 @@ public class AccountSelectDialog extends JDialog {
 				if (t instanceof AuthenticationException) {
 					if (((AuthenticationException) t).isInvalidatedSession()) {
 						// Just need to log in again
-						LoginDialog.ReloginDetails details = new LoginDialog.ReloginDetails(session.getUsername(), t.getLocalizedMessage());
+						LoginDialog.ReloginDetails details = new LoginDialog.ReloginDetails(session.getUsername(),
+								SharedLocale.tr("login.relogin", t.getLocalizedMessage()));
 						Session newSession = LoginDialog.showLoginRequest(AccountSelectDialog.this, launcher, details);
 
 						setResult(newSession);

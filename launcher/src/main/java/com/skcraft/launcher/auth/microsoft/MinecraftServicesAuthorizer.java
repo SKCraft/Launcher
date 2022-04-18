@@ -37,7 +37,13 @@ public class MinecraftServicesAuthorizer {
 				.header("Authorization", authorization)
 				.execute()
 				.expectResponseCodeOr(200, req -> {
-					McServicesError error = req.returnContent().asJson(McServicesError.class);
+					HttpRequest.BufferedResponse content = req.returnContent();
+					if (content.asBytes().length == 0) {
+						return new AuthenticationException("Got empty response from Minecraft services",
+								SharedLocale.tr("login.minecraft.error", req.getResponseCode()));
+					}
+
+					McServicesError error = content.asJson(McServicesError.class);
 
 					if (error.getError().equals("NOT_FOUND")) {
 						return new AuthenticationException("No Minecraft profile",
