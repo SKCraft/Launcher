@@ -73,6 +73,7 @@ public final class JavaRuntimeFinder {
     }
 
     public static JavaRuntime getRuntimeFromPath(File target) {
+        // Normalize target to root first
         if (target.isFile()) {
             // Probably referring directly to bin/java, back up two levels
             target = target.getParentFile().getParentFile();
@@ -81,20 +82,26 @@ public final class JavaRuntimeFinder {
             target = target.getParentFile();
         }
 
-        {
-            File jre = new File(target, "jre/release");
-            if (jre.isFile()) {
-                target = jre.getParentFile();
-            }
+        // Find the release file
+        File releaseFile = new File(target, "release");
+        if (!releaseFile.isFile()) {
+            releaseFile = new File(target, "jre/release");
+            // may still not exist - parseFromRelease below will return null if so
         }
 
-        JavaReleaseFile release = JavaReleaseFile.parseFromRelease(target);
+        // Find the bin folder
+        File binFolder = new File(target, "bin");
+        if (!binFolder.isDirectory()) {
+            binFolder = new File(target, "jre/bin");
+        }
+
+        JavaReleaseFile release = JavaReleaseFile.parseFromRelease(releaseFile.getParentFile());
         if (release == null) {
             // Make some assumptions...
-            return new JavaRuntime(target, null, true);
+            return new JavaRuntime(binFolder.getParentFile(), null, true);
         }
 
-        return new JavaRuntime(target, release.getVersion(), release.isArch64Bit());
+        return new JavaRuntime(binFolder.getParentFile(), release.getVersion(), release.isArch64Bit());
     }
 
     private static PlatformRuntimeFinder getRuntimeFinder(Environment env) {
