@@ -43,6 +43,7 @@ public final class JavaRuntimeFinder {
         // Add system Javas
         runtimeFinder.getCandidateJavaLocations().stream()
                 .map(JavaRuntimeFinder::getRuntimeFromPath)
+                .filter(Objects::nonNull)
                 .forEach(entries::add);
 
         // Add extra runtimes
@@ -93,6 +94,11 @@ public final class JavaRuntimeFinder {
         File binFolder = new File(target, "bin");
         if (!binFolder.isDirectory()) {
             binFolder = new File(target, "jre/bin");
+        }
+
+        if (!binFolder.isDirectory()) {
+            // No bin folder, this isn't a usable install
+            return null;
         }
 
         JavaReleaseFile release = JavaReleaseFile.parseFromRelease(releaseFile.getParentFile());
