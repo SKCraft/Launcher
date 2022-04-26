@@ -367,7 +367,7 @@ public class PackageBuilder {
 
     private static BuilderOptions parseArgs(String[] args) {
         BuilderOptions options = new BuilderOptions();
-        new JCommander(options, args);
+        new JCommander(options).parse(args);
         options.choosePaths();
         return options;
     }

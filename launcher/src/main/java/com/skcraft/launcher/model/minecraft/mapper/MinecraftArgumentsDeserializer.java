@@ -26,6 +26,6 @@ public class MinecraftArgumentsDeserializer extends StdDeserializer<GameArgument
 			return new GameArgument(argument);
 		}
 
-		throw new InvalidFormatException("Invalid JSON type for deserializer (not string or object)", null, GameArgument.class);
+		throw new InvalidFormatException(jp, "Invalid JSON type for deserializer (not string or object)", null, GameArgument.class);
 	}
 }

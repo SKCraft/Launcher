@@ -558,7 +558,7 @@ public class HttpRequest implements Closeable, ProgressObservable {
          * @return the object
          * @throws java.io.IOException on I/O error
          */
-        public <T> T asJson(TypeReference type) throws IOException {
+        public <T> T asJson(TypeReference<T> type) throws IOException {
             return mapper.readValue(asString("UTF-8"), type);
         }
 
