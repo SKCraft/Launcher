@@ -1,21 +1,25 @@
 plugins {
     id 'application'
+    id 'java-library'
     id "com.github.johnrengelman.shadow"
     id 'io.freefair.lombok'
 }
 
-mainClassName = "com.skcraft.launcher.Launcher"
+application {
+    mainClassName = "com.skcraft.launcher.Launcher"
+}
 
 dependencies {
-    compile 'javax.xml.bind:jaxb-api:2.2.4'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
-    compile 'commons-lang:commons-lang:2.6'
-    compile 'commons-io:commons-io:1.2'
-    compile 'com.google.guava:guava:15.0'
-    compile 'com.beust:jcommander:1.32'
-    compile 'com.miglayout:miglayout:3.7.4'
-    compile 'com.google.code.findbugs:jsr305:3.0.0'
-    compile 'com.googlecode.plist:dd-plist:1.23'
+    api 'javax.xml.bind:jaxb-api:2.2.4'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
+    api 'commons-lang:commons-lang:2.6'
+    api 'commons-io:commons-io:1.2'
+    api 'com.google.guava:guava:15.0'
+    api 'com.beust:jcommander:1.32'
+    api 'com.miglayout:miglayout:3.7.4'
+    api 'com.google.code.findbugs:jsr305:3.0.0'
+
+    implementation 'com.googlecode.plist:dd-plist:1.23'
 
     implementation 'net.java.dev.jna:jna-platform:5.10.0'
 }
@@ -31,4 +35,6 @@ processResources {
 shadowJar {
 }
 
-build.dependsOn(shadowJar)
+build {
+    dependsOn(shadowJar)
+}

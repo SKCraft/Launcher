@@ -4,11 +4,13 @@ plugins {
     id 'io.freefair.lombok'
 }
 
-mainClassName = "com.skcraft.launcher.Bootstrap"
+application {
+    mainClassName = "com.skcraft.launcher.Bootstrap"
+}
 
 dependencies {
-    compile 'com.googlecode.json-simple:json-simple:1.1.1'
-    compile 'javax.xml.bind:jaxb-api:2.3.0'
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'javax.xml.bind:jaxb-api:2.3.0'
 }
 
 processResources {
@@ -22,4 +24,6 @@ processResources {
 shadowJar {
 }
 
-build.dependsOn(shadowJar)
+build {
+    dependsOn(shadowJar)
+}
