@@ -16,11 +16,12 @@ repositories {
 }
 
 dependencies {
-    implementation project(':launcher')
+    implementation project(path: ':launcher', configuration: 'shadow')
     implementation 'io.github.cottonmc.insubstantial:substance:7.3.1-SNAPSHOT'
 }
 
 shadowJar {
+    archiveClassifier.set("")
 }
 
 build {
