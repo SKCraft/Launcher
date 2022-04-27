@@ -9,6 +9,7 @@ import com.skcraft.launcher.model.minecraft.mapper.MinecraftArgumentsDeserialize
 import com.skcraft.launcher.model.minecraft.mapper.MinecraftArgumentsSerializer;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -18,12 +19,12 @@ public class MinecraftArguments {
 	@JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 	@JsonSerialize(contentUsing = MinecraftArgumentsSerializer.class)
 	@JsonDeserialize(contentUsing = MinecraftArgumentsDeserializer.class)
-	private List<GameArgument> gameArguments;
+	private List<GameArgument> gameArguments = new ArrayList<>();
 
 	@JsonProperty("jvm")
 	@JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 	@JsonSerialize(contentUsing =  MinecraftArgumentsSerializer.class)
 	@JsonDeserialize(contentUsing = MinecraftArgumentsDeserializer.class)
-	private List<GameArgument> jvmArguments;
+	private List<GameArgument> jvmArguments = new ArrayList<>();
 }
 
