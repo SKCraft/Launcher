@@ -407,7 +407,7 @@ public class PackageBuilder {
         // Initialize
         SimpleLogFormatter.configureGlobalLogger();
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
 
         Manifest manifest = new Manifest();
         manifest.setMinimumVersion(Manifest.MIN_PROTOCOL_VERSION);
