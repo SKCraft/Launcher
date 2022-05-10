@@ -2,10 +2,7 @@ package com.skcraft.launcher.util;
 
 import lombok.extern.java.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -30,27 +27,32 @@ public class LocaleEncodingControl extends ResourceBundle.Control {
 			return null;
 		}
 
+		BufferedInputStream bis = new BufferedInputStream(is);
+
 		// Let's do the timewalk
 		boolean isUtf8;
-		is.mark(3);
+		bis.mark(3);
 		{
 			byte[] buf = new byte[3];
-			int read = 0;
-			while (read < 3) {
-				read = is.read(buf);
+			int nread = 0;
+			while (nread < 3) {
+				int read = bis.read(buf);
+
+				if (read == -1) throw new EOFException("Locale file is truncated or empty!");
+				nread += read;
 			}
 
 			// the BOM is 0xEF,0xBB,0xBF
 			isUtf8 = buf[0] == (byte) 0xEF && buf[1] == (byte) 0xBB && buf[2] == (byte) 0xBF;
 		}
-		is.reset();
+		bis.reset();
 
 		if (isUtf8) {
 			log.info("Found UTF-8 locale file " + resourceName);
 		}
 
 		Charset charset = isUtf8 ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1;
-		Reader reader = new InputStreamReader(is, charset);
+		Reader reader = new InputStreamReader(bis, charset);
 
 		try {
 			PropertyResourceBundle bundle = new PropertyResourceBundle(reader);
