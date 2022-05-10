@@ -34,13 +34,7 @@ public class LocaleEncodingControl extends ResourceBundle.Control {
 		bis.mark(3);
 		{
 			byte[] buf = new byte[3];
-			int nread = 0;
-			while (nread < 3) {
-				int read = bis.read(buf);
-
-				if (read == -1) throw new EOFException("Locale file is truncated or empty!");
-				nread += read;
-			}
+			readFully(bis, buf);
 
 			// the BOM is 0xEF,0xBB,0xBF
 			isUtf8 = buf[0] == (byte) 0xEF && buf[1] == (byte) 0xBB && buf[2] == (byte) 0xBF;
@@ -79,5 +73,20 @@ public class LocaleEncodingControl extends ResourceBundle.Control {
 		}
 
 		return loader.getResourceAsStream(resourceName);
+	}
+
+	private void readFully(InputStream is, byte[] buf) throws IOException {
+		int offset = 0;
+		int length = buf.length;
+
+		while (length > 0) {
+			int n = is.read(buf, offset, length);
+			if (n == -1) {
+				throw new EOFException();
+			}
+
+			offset += n;
+			length -= n;
+		}
 	}
 }
