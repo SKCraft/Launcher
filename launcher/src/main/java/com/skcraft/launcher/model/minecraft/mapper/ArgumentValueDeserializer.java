@@ -30,6 +30,6 @@ public class ArgumentValueDeserializer extends StdDeserializer<List<String>> {
 			return Lists.newArrayList(value);
 		}
 
-		throw new InvalidFormatException("Invalid JSON type for deserializer (not string or array)", null, List.class);
+		throw new InvalidFormatException(jp, "Invalid JSON type for deserializer (not string or array)", null, List.class);
 	}
 }

@@ -415,7 +415,7 @@ public final class Launcher {
      */
     public static Launcher createFromArguments(String[] args) throws ParameterException, IOException {
         LauncherArguments options = new LauncherArguments();
-        new JCommander(options, args);
+        new JCommander(options).parse(args);
 
         Integer bsVersion = options.getBootstrapVersion();
         log.info(bsVersion != null ? "Bootstrap version " + bsVersion + " detected" : "Not bootstrapped");

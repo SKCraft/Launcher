@@ -96,7 +96,7 @@ public class SharedLocale {
         try {
             SharedLocale.locale = locale;
             bundle = ResourceBundle.getBundle(baseName, locale,
-                    SharedLocale.class.getClassLoader());
+                    SharedLocale.class.getClassLoader(), new LocaleEncodingControl());
             return true;
         } catch (MissingResourceException e) {
             log.log(Level.SEVERE, "Failed to load resource bundle", e);

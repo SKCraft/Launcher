@@ -7,8 +7,8 @@
 package com.skcraft.launcher.persistence;
 
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter.Lf2SpacesIndenter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteSink;
 import com.google.common.io.ByteSource;
@@ -43,7 +43,7 @@ public final class Persistence {
 
     static {
         L2F_LIST_PRETTY_PRINTER = new DefaultPrettyPrinter();
-        L2F_LIST_PRETTY_PRINTER.indentArraysWith(Lf2SpacesIndenter.instance);
+        L2F_LIST_PRETTY_PRINTER.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
     }
 
     private Persistence() {

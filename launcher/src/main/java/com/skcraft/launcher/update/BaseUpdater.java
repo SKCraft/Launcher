@@ -25,6 +25,7 @@ import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.model.modpack.ManifestEntry;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
+import com.skcraft.launcher.util.FileUtils;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
 import lombok.NonNull;
@@ -33,13 +34,18 @@ import lombok.extern.java.Log;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.LauncherUtils.concat;
+import static com.skcraft.launcher.util.HttpRequest.url;
 
 /**
  * The base implementation of the various routines involved in downloading
@@ -76,6 +82,9 @@ public abstract class BaseUpdater {
         final File logPath = new File(instance.getDir(), "install_log.json");
         final File cachePath = new File(instance.getDir(), "update_cache.json");
         final File featuresPath = new File(instance.getDir(), "features.json");
+
+        // Make sure the temp dir exists
+        installer.getTempDir().mkdirs();
 
         final InstallLog previousLog = Persistence.read(logPath, InstallLog.class);
         final InstallLog currentLog = new InstallLog();
@@ -231,7 +240,7 @@ public abstract class BaseUpdater {
     protected void installLibraries(@NonNull Installer installer,
                                     @NonNull Manifest manifest,
                                     @NonNull File librariesDir,
-                                    @NonNull List<URL> sources) throws InterruptedException {
+                                    @NonNull List<URL> sources) throws InterruptedException, IOException {
         VersionManifest versionManifest = manifest.getVersionManifest();
 
         Iterable<Library> allLibraries = versionManifest.getLibraries();
@@ -269,6 +278,31 @@ public abstract class BaseUpdater {
                         installer.queue(new FileVerify(targetFile, library.getName(), artifact.getSha1()));
                     }
                 }
+            }
+        }
+
+        // Use our custom logging config depending on what the manifest specifies
+        if (versionManifest.getLogging() != null) {
+            VersionManifest.LoggingConfig config = versionManifest.getLogging().getClient();
+
+            VersionManifest.Artifact file = config.getFile();
+            File targetFile = new File(librariesDir, file.getId());
+            InputStream embeddedConfig = Launcher.class.getResourceAsStream("logging/" + file.getId());
+
+            if (embeddedConfig == null) {
+                // No embedded config, just use whatever the server gives us
+                File tempFile = installer.getDownloader().download(url(file.getUrl()), file.getHash(), file.getSize(), file.getId());
+
+                log.info("Downloading logging config " + file.getId() + " from " + file.getUrl());
+                installer.queue(new FileMover(tempFile, targetFile));
+            } else if (!targetFile.exists() || FileUtils.getShaHash(targetFile).equals(file.getHash())) {
+                // Use our embedded replacement
+
+                Path tempFile = installer.getTempDir().toPath().resolve(file.getId());
+                Files.copy(embeddedConfig, tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+                log.info("Substituting embedded logging config " + file.getId());
+                installer.queue(new FileMover(tempFile.toFile(), targetFile));
             }
         }
     }

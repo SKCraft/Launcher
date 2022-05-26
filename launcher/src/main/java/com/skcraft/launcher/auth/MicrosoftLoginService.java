@@ -1,7 +1,7 @@
 package com.skcraft.launcher.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.skcraft.launcher.auth.microsoft.MicrosoftWebAuthorizer;
 import com.skcraft.launcher.auth.microsoft.MinecraftServicesAuthorizer;
@@ -163,7 +163,7 @@ public class MicrosoftLoginService implements LoginService {
 	}
 
 	@Data
-	@JsonNaming(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class)
+	@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	private static class TokenError {
 		private String error;

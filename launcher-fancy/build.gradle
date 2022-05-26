@@ -4,7 +4,9 @@ plugins {
     id 'io.freefair.lombok'
 }
 
-mainClassName = "com.skcraft.launcher.FancyLauncher"
+application {
+    mainClassName = "com.skcraft.launcher.FancyLauncher"
+}
 
 repositories {
     maven {
@@ -14,11 +16,14 @@ repositories {
 }
 
 dependencies {
-    compile project(':launcher')
-    compile 'io.github.cottonmc.insubstantial:substance:7.3.1-SNAPSHOT'
+    implementation project(path: ':launcher', configuration: 'shadow')
+    implementation 'io.github.cottonmc.insubstantial:substance:7.3.1-SNAPSHOT'
 }
 
 shadowJar {
+    archiveClassifier.set("")
 }
 
-build.dependsOn(shadowJar)
+build {
+    dependsOn(shadowJar)
+}

@@ -5,15 +5,15 @@ plugins {
 }
 
 version = "2.1.0-SNAPSHOT"
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
-mainClassName = "com.skcraft.launcher.creator.Creator"
+application {
+    mainClassName = "com.skcraft.launcher.creator.Creator"
+}
 
 dependencies {
-    compile project(':launcher-builder')
-    compile 'org.eclipse.jetty:jetty-server:9.3.1.v20150714'
-    compile 'com.jidesoft:jide-oss:3.6.10'
+    implementation project(path: ':launcher-builder', configuration: 'shadow')
+    implementation 'org.eclipse.jetty:jetty-server:9.3.1.v20150714'
+    implementation 'com.jidesoft:jide-oss:3.6.18'
 }
 
 processResources {
@@ -25,6 +25,9 @@ processResources {
 }
 
 shadowJar {
+    archiveClassifier.set("")
 }
 
-build.dependsOn(shadowJar)
+build {
+    dependsOn(shadowJar)
+}

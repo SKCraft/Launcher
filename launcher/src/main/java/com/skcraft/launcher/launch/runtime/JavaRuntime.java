@@ -1,4 +1,4 @@
-package com.skcraft.launcher.launch;
+package com.skcraft.launcher.launch.runtime;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -108,6 +108,8 @@ public class JavaRuntime implements Comparable<JavaRuntime> {
 
 	@Override
 	public String toString() {
+		String version = this.version != null ? this.version : "unknown";
+
 		return String.format("Java %s (%s) (%s)", version, is64Bit ? "64-bit" : "32-bit", dir);
 	}
 }

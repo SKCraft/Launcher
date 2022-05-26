@@ -14,7 +14,6 @@ import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.MinecraftArguments;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -29,7 +28,6 @@ public class VersionInfo {
 
     public void setMinecraftArguments(String argumentString) {
         MinecraftArguments minecraftArguments = new MinecraftArguments();
-        minecraftArguments.setGameArguments(new ArrayList<GameArgument>());
 
         for (String arg : Splitter.on(' ').split(argumentString)) {
             minecraftArguments.getGameArguments().add(new GameArgument(arg));

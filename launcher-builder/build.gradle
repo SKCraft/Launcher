@@ -1,18 +1,23 @@
 plugins {
     id 'application'
+    id 'java-library'
     id "com.github.johnrengelman.shadow"
     id 'io.freefair.lombok'
 }
 
-mainClassName = "com.skcraft.launcher.builder.PackageBuilder"
+application {
+    mainClassName = "com.skcraft.launcher.builder.PackageBuilder"
+}
 
 dependencies {
-    compile project(':launcher')
-    compile 'org.tukaani:xz:1.0'
-    compile 'org.apache.commons:commons-compress:1.9'
+    api project(':launcher')
+    implementation 'org.apache.commons:commons-compress:1.21'
 }
 
 shadowJar {
+    archiveClassifier.set("")
 }
 
-build.dependsOn(shadowJar)
+build {
+    dependsOn(shadowJar)
+}

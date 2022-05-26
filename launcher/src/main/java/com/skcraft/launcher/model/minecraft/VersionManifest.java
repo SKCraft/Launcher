@@ -9,9 +9,13 @@ package com.skcraft.launcher.model.minecraft;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Splitter;
+import com.skcraft.launcher.model.loader.SidedData;
 import lombok.Data;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -28,6 +32,7 @@ public class VersionManifest {
     private int minimumLauncherVersion;
     private LinkedHashSet<Library> libraries;
     private JavaVersion javaVersion;
+    private SidedData<LoggingConfig> logging;
     private Map<String, Artifact> downloads = new HashMap<String, Artifact>();
 
     public String getAssetId() {
@@ -48,8 +53,6 @@ public class VersionManifest {
 
     public void setMinecraftArguments(String minecraftArguments) {
         MinecraftArguments result = new MinecraftArguments();
-        result.setGameArguments(new ArrayList<GameArgument>());
-        result.setJvmArguments(new ArrayList<GameArgument>());
 
         for (String arg : Splitter.on(' ').split(minecraftArguments)) {
             result.getGameArguments().add(new GameArgument(arg));
@@ -61,6 +64,7 @@ public class VersionManifest {
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Artifact {
+        private String id;
         private String url;
         private int size;
 
@@ -73,5 +77,12 @@ public class VersionManifest {
     public static class AssetIndex {
         private String id;
         private String url;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class LoggingConfig {
+        private String argument;
+        private Artifact file;
     }
 }
