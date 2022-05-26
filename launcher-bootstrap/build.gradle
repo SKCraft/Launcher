@@ -2,6 +2,8 @@ plugins {
     id 'application'
     id "com.github.johnrengelman.shadow"
     id 'io.freefair.lombok'
+    id 'edu.sc.seis.launch4j' version '2.5.3'
+
 }
 
 application {
@@ -27,4 +29,12 @@ shadowJar {
 
 build {
     dependsOn(shadowJar)
+}
+
+launch4j {
+    // outFile = 'Mineaurion_Launcher.exe'
+    mainClassName = application.mainClassName
+    icon = "${projectDir}/mineaurion.ico"
+    copyConfigurable = []
+    jarTask = project.tasks.shadowJar
 }
