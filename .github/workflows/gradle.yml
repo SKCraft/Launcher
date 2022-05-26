@@ -56,8 +56,8 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
     - name: Upload launcher bootstrap exe to release
-        uses: svenstaro/upload-release-action@v1-release
-        with:
+      uses: svenstaro/upload-release-action@v1-release
+      with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file:  launcher-bootstrap/build/launch4j/launcher-bootstrap.exe
           asset_name: Mineaurion_Launcher.exe
