@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.function.BiPredicate;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.util.SharedLocale.tr;
@@ -54,6 +56,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private final Instance instance;
     private final Session session;
     private final File extractDir;
+    private final BiPredicate<JavaRuntime, JavaVersion> javaRuntimeMismatch;
     @Getter @Setter private Environment environment = Environment.getInstance();
 
     private VersionManifest versionManifest;
@@ -66,18 +69,20 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
     /**
      * Create a new instance launcher.
-     *
-     * @param launcher the launcher
+     *  @param launcher the launcher
      * @param instance the instance
      * @param session the session
      * @param extractDir the directory to extract to
+     * @param javaRuntimeMismatch
      */
     public Runner(@NonNull Launcher launcher, @NonNull Instance instance,
-                  @NonNull Session session, @NonNull File extractDir) {
+                  @NonNull Session session, @NonNull File extractDir,
+                  BiPredicate<JavaRuntime, JavaVersion> javaRuntimeMismatch) {
         this.launcher = launcher;
         this.instance = instance;
         this.session = session;
         this.extractDir = extractDir;
+        this.javaRuntimeMismatch = javaRuntimeMismatch;
         this.featureList = new FeatureList.Mutable();
     }
 
@@ -149,6 +154,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         callLaunchModifier();
 
+        verifyJavaRuntime();
+
         ProcessBuilder processBuilder = new ProcessBuilder(builder.buildCommand());
         processBuilder.directory(instance.getContentDir());
         Runner.log.info("Launching: " + builder);
@@ -164,6 +171,23 @@ public class Runner implements Callable<Process>, ProgressObservable {
      */
     private void callLaunchModifier() {
         instance.modify(builder);
+    }
+
+    private void verifyJavaRuntime() {
+        JavaRuntime pickedRuntime = builder.getRuntime();
+        JavaVersion targetVersion = versionManifest.getJavaVersion();
+
+        if (pickedRuntime == null || targetVersion == null) {
+            return;
+        }
+
+        if (pickedRuntime.getMajorVersion() != targetVersion.getMajorVersion()) {
+            boolean launchAnyway = javaRuntimeMismatch.test(pickedRuntime, targetVersion);
+
+            if (!launchAnyway) {
+                throw new CancellationException("Launch cancelled by user.");
+            }
+        }
     }
 
     /**

@@ -16,11 +16,14 @@ import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.dialog.AccountSelectDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.launch.LaunchOptions.UpdatePolicy;
+import com.skcraft.launcher.launch.runtime.JavaRuntime;
+import com.skcraft.launcher.model.minecraft.JavaVersion;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.update.Updater;
 import com.skcraft.launcher.util.SharedLocale;
 import com.skcraft.launcher.util.SwingExecutor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.apache.commons.io.FileUtils;
 
@@ -29,6 +32,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BiPredicate;
 import java.util.logging.Level;
 
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
@@ -119,7 +124,7 @@ public class LaunchSupervisor {
         final File extractDir = launcher.createExtractDir();
 
         // Get the process
-        Runner task = new Runner(launcher, instance, session, extractDir);
+        Runner task = new Runner(launcher, instance, session, extractDir, new RuntimeVerifier(instance));
         ObservableFuture<Process> processFuture = new ObservableFuture<Process>(
                 launcher.getExecutor().submit(task), task);
 
@@ -168,5 +173,39 @@ public class LaunchSupervisor {
                 });
             }
         }, sameThreadExecutor());
+    }
+
+    @RequiredArgsConstructor
+    static class RuntimeVerifier implements BiPredicate<JavaRuntime, JavaVersion> {
+        private final Instance instance;
+
+        @Override
+        public boolean test(JavaRuntime javaRuntime, JavaVersion javaVersion) {
+            ListenableFuture<Boolean> fut = SwingExecutor.INSTANCE.submit(() -> {
+                Object[] options = new Object[]{
+                        tr("button.cancel"),
+                        tr("button.launchAnyway"),
+                };
+
+                String message = tr("runner.wrongJavaVersion",
+                        instance.getTitle(), javaVersion.getMajorVersion(), javaRuntime.getVersion());
+                int picked = JOptionPane.showOptionDialog(null,
+                        SwingHelper.htmlWrap(message),
+                        tr("launcher.javaMismatchTitle"),
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null,
+                        options,
+                        null);
+
+                return picked == 1;
+            });
+
+            try {
+                return fut.get();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
