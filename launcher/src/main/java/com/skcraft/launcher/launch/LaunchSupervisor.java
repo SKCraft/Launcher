@@ -14,6 +14,7 @@ import com.skcraft.launcher.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.dialog.AccountSelectDialog;
+import com.skcraft.launcher.dialog.ProcessConsoleFrame;
 import com.skcraft.launcher.dialog.ProgressDialog;
 import com.skcraft.launcher.launch.LaunchOptions.UpdatePolicy;
 import com.skcraft.launcher.launch.runtime.JavaRuntime;
@@ -27,11 +28,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.apache.commons.io.FileUtils;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.logging.Level;
@@ -136,12 +139,7 @@ public class LaunchSupervisor {
         Futures.addCallback(processFuture, new FutureCallback<Process>() {
             @Override
             public void onSuccess(Process result) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.gameStarted();
-                    }
-                });
+                SwingUtilities.invokeLater(listener::gameStarted);
             }
 
             @Override
@@ -150,29 +148,36 @@ public class LaunchSupervisor {
         });
 
         // Watch the created process
-        ListenableFuture<?> future = Futures.transform(
+        ListenableFuture<ProcessConsoleFrame> future = Futures.transform(
                 processFuture, new LaunchProcessHandler(launcher), launcher.getExecutor());
         SwingHelper.addErrorDialogCallback(null, future);
 
         // Clean up at the very end
-        future.addListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    log.info("Process ended; cleaning up " + extractDir.getAbsolutePath());
-                    FileUtils.deleteDirectory(extractDir);
-                } catch (IOException e) {
-                    log.log(Level.WARNING, "Failed to clean up " + extractDir.getAbsolutePath(), e);
-                }
-
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.gameClosed();
-                    }
-                });
+        future.addListener(() -> {
+            try {
+                log.info("Process ended; cleaning up " + extractDir.getAbsolutePath());
+                FileUtils.deleteDirectory(extractDir);
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Failed to clean up " + extractDir.getAbsolutePath(), e);
             }
         }, sameThreadExecutor());
+
+        // Hook up launch listener
+        Futures.addCallback(future, new FutureCallback<ProcessConsoleFrame>() {
+            @Override
+            public void onSuccess(@Nullable ProcessConsoleFrame result) {
+                // gameStarted was only invoked on success above, so only call gameClosed on success
+                listener.gameClosed();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                // likely user cancellation
+                if (!(t instanceof CancellationException)) {
+                    log.info("Process failure: " + t.getLocalizedMessage());
+                }
+            }
+        }, SwingExecutor.INSTANCE);
     }
 
     @RequiredArgsConstructor
