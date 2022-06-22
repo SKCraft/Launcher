@@ -63,3 +63,19 @@ jobs:
           asset_name: Mineaurion_Launcher.exe
           tag: ${{ github.ref }}
           overwrite: true
+    - name: Install swiftclient
+      run: pip install python-swiftclient python-keystoneclient
+    - name: Upload new version to bucket
+      env:
+          OS_USERNAME: ${{ secrets.OS_USERNAME }}
+          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
+          CONTAINER_URL: ${{ secrets.CONTAINER_URL }}
+      run: |
+        swift="swift --os-auth-url https://auth.cloud.ovh.net/v3 --auth-version 3 --os-project-name 5082960922491074 --os-project-domain-id default  --os-username ${OS_USERNAME} --os-password ${OS_PASSWORD} --os-region-name GRA"
+        version=${{ steps.get_version.outputs.VERSION }}
+        url="${CONTAINER_URL}/versions/$version.jar"
+        jq --null-input --arg version "$version" --arg url "$url" '{ "version": $version, "url": $url}' > latest.json
+        $swift upload modpack launcher-fancy/build/libs/launcher-fancy-$version.jar --object-name versions/$version.jar
+        $swift upload modpack latest.json --object-name versions/latest.json
+        
+        
