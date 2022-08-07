@@ -168,7 +168,9 @@ public class PackageBuilder {
                     processor = new ModernForgeLoaderProcessor();
                 }
             } else if (BuilderUtils.getZipEntry(jarFile, "fabric-installer.json") != null) {
-            	processor = new FabricLoaderProcessor();
+            	processor = new FabricLoaderProcessor(FabricLoaderProcessor.Variant.FABRIC);
+            } else if (BuilderUtils.getZipEntry(jarFile, "quilt_installer.json") != null) {
+                processor = new FabricLoaderProcessor(FabricLoaderProcessor.Variant.QUILT);
             }
         } finally {
             closer.close();
@@ -205,8 +207,8 @@ public class PackageBuilder {
                     Files.createParentDirs(outputPath);
                     boolean found = false;
 
-                    // Try just the URL, it might be a full URL to the file
-                    if (!artifact.getUrl().isEmpty()) {
+                    // If URL doesn't end with a /, it might be the direct file
+                    if (!artifact.getUrl().endsWith("/")) {
                         found = tryDownloadLibrary(library, artifact, artifact.getUrl(), outputPath);
                     }
 
@@ -261,7 +263,9 @@ public class PackageBuilder {
 
         try {
             log.info("Downloading library " + library.getName() + " from " + url + "...");
-            HttpRequest.get(url).execute().expectResponseCode(200).saveContent(tempFile);
+            HttpRequest.get(url).execute().expectResponseCode(200)
+                    .expectContentType("application/java-archive", "application/octet-stream")
+                    .saveContent(tempFile);
         } catch (IOException e) {
             log.info("Could not get file from " + url + ": " + e.getMessage());
             return false;
