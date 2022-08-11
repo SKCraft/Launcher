@@ -206,9 +206,10 @@ public class PackageBuilder {
                 if (!outputPath.exists()) {
                     Files.createParentDirs(outputPath);
                     boolean found = false;
+                    boolean urlEmpty = artifact.getUrl().isEmpty();
 
                     // If URL doesn't end with a /, it might be the direct file
-                    if (!artifact.getUrl().endsWith("/")) {
+                    if (!urlEmpty && !artifact.getUrl().endsWith("/")) {
                         found = tryDownloadLibrary(library, artifact, artifact.getUrl(), outputPath);
                     }
 
@@ -221,7 +222,7 @@ public class PackageBuilder {
                     }
 
                     // Assume artifact URL is a maven repository URL and try that
-                    if (!found) {
+                    if (!found && !urlEmpty) {
                         URL url = LauncherUtils.concat(url(artifact.getUrl()), artifact.getPath());
                         found = tryDownloadLibrary(library, artifact, url.toString(), outputPath);
                     }
