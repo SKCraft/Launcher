@@ -20,7 +20,39 @@ dependencies {
     implementation 'io.github.cottonmc.insubstantial:substance:7.3.1-SNAPSHOT'
 }
 
+compileJava {
+    dependsOn(':launcher:jar')
+}
+
+startScripts {
+    dependsOn(':launcher:jar')
+    dependsOn(shadowJar)
+}
+
+distTar {
+    dependsOn(':launcher:jar')
+    dependsOn(shadowJar)
+}
+
+distZip {
+    dependsOn(':launcher:jar')
+    dependsOn(shadowJar)
+}
+
+startShadowScripts {
+    dependsOn(jar)
+}
+
+shadowDistTar {
+    dependsOn(jar)
+}
+
+shadowDistZip {
+    dependsOn(jar)
+}
+
 shadowJar {
+    dependsOn(':launcher:jar')
     archiveClassifier.set("")
 }
 

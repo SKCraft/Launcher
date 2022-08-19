@@ -21,6 +21,30 @@ processResources {
     }
 }
 
+startScripts {
+    dependsOn(shadowJar)
+}
+
+distTar {
+    dependsOn(shadowJar)
+}
+
+distZip {
+    dependsOn(shadowJar)
+}
+
+startShadowScripts {
+    dependsOn(jar)
+}
+
+shadowDistTar {
+    dependsOn(jar)
+}
+
+shadowDistZip {
+    dependsOn(jar)
+}
+
 shadowJar {
     archiveClassifier.set("")
 }

@@ -14,6 +14,33 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.21'
 }
 
+startScripts {
+    dependsOn(':launcher:shadowJar')
+    dependsOn(shadowJar)
+}
+
+distTar {
+    dependsOn(':launcher:shadowJar')
+    dependsOn(shadowJar)
+}
+
+distZip {
+    dependsOn(':launcher:shadowJar')
+    dependsOn(shadowJar)
+}
+
+startShadowScripts {
+    dependsOn(jar)
+}
+
+shadowDistTar {
+    dependsOn(jar)
+}
+
+shadowDistZip {
+    dependsOn(jar)
+}
+
 shadowJar {
     archiveClassifier.set("")
 }
