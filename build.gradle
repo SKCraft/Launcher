@@ -38,6 +38,34 @@ subprojects {
         workingDir = new File(rootDir, "run/")
         workingDir.mkdirs()
     }
+
+    // Work around gradle shadow bug
+    // see https://github.com/johnrengelman/shadow/issues/713
+    afterEvaluate {
+        startScripts {
+            dependsOn(shadowJar)
+        }
+
+        distTar {
+            dependsOn(shadowJar)
+        }
+
+        distZip {
+            dependsOn(shadowJar)
+        }
+
+        startShadowScripts {
+            dependsOn(jar)
+        }
+
+        shadowDistTar {
+            dependsOn(jar)
+        }
+
+        shadowDistZip {
+            dependsOn(jar)
+        }
+    }
 }
 
 task clean {
