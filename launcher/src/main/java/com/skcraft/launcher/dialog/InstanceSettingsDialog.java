@@ -57,7 +57,7 @@ public class InstanceSettingsDialog extends JDialog {
 		javaRuntimeBox.setModel(new DefaultComboBoxModel<>(javaRuntimes));
 
 		runtimePanel.addRow(enableCustomRuntime);
-		runtimePanel.addRow(new JLabel(SharedLocale.tr("options.jvmPath")), javaRuntimeBox);
+		runtimePanel.addRow(new JLabel(SharedLocale.tr("options.jvmRuntime")), javaRuntimeBox);
 		runtimePanel.addRow(new JLabel(SharedLocale.tr("options.jvmArguments")), javaArgsBox);
 
 		okButton.setMargin(new Insets(0, 10, 0, 10));
