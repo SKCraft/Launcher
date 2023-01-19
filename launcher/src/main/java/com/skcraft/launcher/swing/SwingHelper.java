@@ -70,6 +70,11 @@ public final class SwingHelper {
                 .replace("&", "&amp;");
     }
 
+    public static String htmlWrap(String message) {
+        // To force the label to wrap, convert the message to broken HTML
+        return "<html><div style=\"width: 250px\">" + htmlEscape(message);
+    }
+
     public static void setClipboard(String text) {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
                 new StringSelection(text), clipboardOwner);
@@ -189,8 +194,7 @@ public final class SwingHelper {
                                          final int messageType) {
 
         if (SwingUtilities.isEventDispatchThread()) {
-            // To force the label to wrap, convert the message to broken HTML
-            String htmlMessage = "<html><div style=\"width: 250px\">" + htmlEscape(message);
+            String htmlMessage = htmlWrap(message);
 
             JPanel panel = new JPanel(new BorderLayout(0, detailsText != null ? 20 : 0));
 

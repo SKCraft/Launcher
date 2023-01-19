@@ -168,7 +168,9 @@ public class PackageBuilder {
                     processor = new ModernForgeLoaderProcessor();
                 }
             } else if (BuilderUtils.getZipEntry(jarFile, "fabric-installer.json") != null) {
-            	processor = new FabricLoaderProcessor();
+            	processor = new FabricLoaderProcessor(FabricLoaderProcessor.Variant.FABRIC);
+            } else if (BuilderUtils.getZipEntry(jarFile, "quilt_installer.json") != null) {
+                processor = new FabricLoaderProcessor(FabricLoaderProcessor.Variant.QUILT);
             }
         } finally {
             closer.close();
@@ -204,9 +206,10 @@ public class PackageBuilder {
                 if (!outputPath.exists()) {
                     Files.createParentDirs(outputPath);
                     boolean found = false;
+                    boolean urlEmpty = artifact.getUrl().isEmpty();
 
-                    // Try just the URL, it might be a full URL to the file
-                    if (!artifact.getUrl().isEmpty()) {
+                    // If URL doesn't end with a /, it might be the direct file
+                    if (!urlEmpty && !artifact.getUrl().endsWith("/")) {
                         found = tryDownloadLibrary(library, artifact, artifact.getUrl(), outputPath);
                     }
 
@@ -219,7 +222,7 @@ public class PackageBuilder {
                     }
 
                     // Assume artifact URL is a maven repository URL and try that
-                    if (!found) {
+                    if (!found && !urlEmpty) {
                         URL url = LauncherUtils.concat(url(artifact.getUrl()), artifact.getPath());
                         found = tryDownloadLibrary(library, artifact, url.toString(), outputPath);
                     }
@@ -261,7 +264,9 @@ public class PackageBuilder {
 
         try {
             log.info("Downloading library " + library.getName() + " from " + url + "...");
-            HttpRequest.get(url).execute().expectResponseCode(200).saveContent(tempFile);
+            HttpRequest.get(url).execute().expectResponseCode(200)
+                    .expectContentType("application/java-archive", "application/octet-stream", "application/zip")
+                    .saveContent(tempFile);
         } catch (IOException e) {
             log.info("Could not get file from " + url + ": " + e.getMessage());
             return false;
