@@ -132,7 +132,7 @@ public class LauncherFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loadInstances();
-                launcher.getUpdateManager().checkForUpdate();
+                launcher.getUpdateManager().checkForUpdate(LauncherFrame.this);
                 webView.browse(launcher.getNewsURL(), false);
             }
         });
@@ -394,8 +394,8 @@ public class LauncherFrame extends JFrame {
 
         @Override
         public void gameClosed() {
-            launcher.showLauncherWindow();
-            launcher.getUpdateManager().checkForUpdate();
+            Window newLauncherWindow = launcher.showLauncherWindow();
+            launcher.getUpdateManager().checkForUpdate(newLauncherWindow);
         }
     }
 
