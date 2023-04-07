@@ -54,6 +54,8 @@ public final class Launcher {
 
     public static final int PROTOCOL_VERSION = 3;
 
+    public static Launcher INSTANCE;
+
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
     @Getter @Setter private Supplier<Window> mainWindowSupplier = new DefaultLauncherSupplier(this);
@@ -76,6 +78,7 @@ public final class Launcher {
      */
     public Launcher(@NonNull File baseDir) throws IOException {
         this(baseDir, baseDir);
+        INSTANCE = this;
     }
 
     /**

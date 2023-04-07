@@ -6,13 +6,28 @@
 
 package com.skcraft.launcher.swing;
 
+import com.skcraft.launcher.Launcher;
+
 import javax.swing.table.TableModel;
 
 public class InstanceTable extends DefaultTable {
 
+    public int lastSelected = getSelectedRow();
+    public boolean switched = false;
+
     public InstanceTable() {
         super();
         setTableHeader(null);
+        getSelectionModel().addListSelectionListener(e -> {
+                int selected = getSelectedRow();
+                if (lastSelected != selected) {
+                    lastSelected = selected;
+                    switched = true;
+                } else {
+                    switched = false;
+                }
+            }
+        );
     }
 
     @Override
@@ -23,4 +38,5 @@ public class InstanceTable extends DefaultTable {
         } catch (ArrayIndexOutOfBoundsException e) {
         }
     }
+
 }

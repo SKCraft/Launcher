@@ -1,1 +1,0 @@
-Normally, libraries would be generated for this folder if we were actually using a mod loader (Forge, LiteLoader, etc.).

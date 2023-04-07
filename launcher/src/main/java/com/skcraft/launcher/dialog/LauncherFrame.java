@@ -25,13 +25,15 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.skcraft.launcher.util.SharedLocale.tr;
 
@@ -48,13 +50,14 @@ public class LauncherFrame extends JFrame {
     private final InstanceTableModel instancesModel;
     @Getter
     private final JScrollPane instanceScroll = new JScrollPane(instancesTable);
-    private WebpagePanel webView;
+    private WebpagePanel newsPanel;
     private JSplitPane splitPane;
     private final JButton launchButton = new JButton(SharedLocale.tr("launcher.launch"));
     private final JButton refreshButton = new JButton(SharedLocale.tr("launcher.checkForUpdates"));
     private final JButton optionsButton = new JButton(SharedLocale.tr("launcher.options"));
     private final JButton selfUpdateButton = new JButton(SharedLocale.tr("launcher.updateLauncher"));
     private final JCheckBox updateCheck = new JCheckBox(SharedLocale.tr("launcher.downloadUpdates"));
+    private final Map<Instance, WebpagePanel> instancePages = new HashMap<>();
 
     /**
      * Create a new frame.
@@ -87,8 +90,8 @@ public class LauncherFrame extends JFrame {
         JPanel container = createContainerPanel();
         container.setLayout(new MigLayout("fill, insets dialog", "[][]push[][]", "[grow][]"));
 
-        webView = createNewsPanel();
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, webView);
+        newsPanel = createNewsPanel();
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, instanceScroll, newsPanel);
         selfUpdateButton.setVisible(launcher.getUpdateManager().getPendingUpdate());
 
         launcher.getUpdateManager().addPropertyChangeListener(new PropertyChangeListener() {
@@ -131,9 +134,10 @@ public class LauncherFrame extends JFrame {
         refreshButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                updateNewsPanel();
                 loadInstances();
                 launcher.getUpdateManager().checkForUpdate(LauncherFrame.this);
-                webView.browse(launcher.getNewsURL(), false);
+                newsPanel.browse(launcher.getNewsURL(), false);
             }
         });
 
@@ -170,6 +174,34 @@ public class LauncherFrame extends JFrame {
                 popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
             }
         });
+
+        instancesTable.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                updateInstancePanel(launcher.getInstances().get(instancesTable.getSelectedRow()));
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                updateInstancePanel(launcher.getInstances().get(instancesTable.getSelectedRow()));
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                updateInstancePanel(launcher.getInstances().get(instancesTable.getSelectedRow()));
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
     }
 
     protected JPanel createContainerPanel() {
@@ -183,6 +215,47 @@ public class LauncherFrame extends JFrame {
      */
     protected WebpagePanel createNewsPanel() {
         return WebpagePanel.forURL(launcher.getNewsURL(), false);
+    }
+
+    /**
+     * Force the News Panel to be set as the right panel
+     */
+    protected void updateNewsPanel() {
+        splitPane.setRightComponent(newsPanel);
+        splitPane.setDividerLocation(200);
+        splitPane.setDividerSize(0);
+        splitPane.setOpaque(false);
+    }
+
+    /**
+     * Return an instance panel
+     *
+     * @param instance the instance to create a panel for
+     * @return the instance panel
+     */
+    protected WebpagePanel createInstancePanel(Instance instance) {
+        try {
+            URL manifestUrl = instance.getManifestURL();
+            String instancePageFile = manifestUrl.getFile().replace(".json", ".html");
+            URL instancePageUrl = new URL(manifestUrl.getProtocol(), manifestUrl.getHost(), manifestUrl.getPort(), instancePageFile);
+            return WebpagePanel.forURL(instancePageUrl, false);
+        } catch (IOException e) {
+            // If no instance panel could be made, return a News panel
+            return createNewsPanel();
+        }
+    }
+
+    /**
+     * Update the webview to an instance panel
+     *
+     * @param instance the instance to change the webview for
+     */
+    protected void updateInstancePanel(Instance instance) {
+        WebpagePanel instancePanel = instancePages.get(instance);
+        splitPane.setRightComponent(instancePanel);
+        splitPane.setDividerLocation(200);
+        splitPane.setDividerSize(0);
+        splitPane.setOpaque(false);
     }
 
     /**
@@ -334,13 +407,23 @@ public class LauncherFrame extends JFrame {
     private void loadInstances() {
         ObservableFuture<InstanceList> future = launcher.getInstanceTasks().reloadInstances(this);
 
+        // Load instance pages
+        InstanceList instances = launcher.getInstances();
+        for (int i = 0; i < instances.size(); i++) {
+            Instance instance = instances.get(i);
+            instancePages.put(
+                    instance,
+                    createInstancePanel(instance)
+            );
+        }
+
         future.addListener(new Runnable() {
             @Override
             public void run() {
                 instancesModel.update();
-                if (instancesTable.getRowCount() > 0) {
-                    instancesTable.setRowSelectionInterval(0, 0);
-                }
+                //if (instancesTable.getRowCount() > 0) {
+                //    instancesTable.setRowSelectionInterval(0, 0);
+                //}
                 requestFocus();
             }
         }, SwingExecutor.INSTANCE);
