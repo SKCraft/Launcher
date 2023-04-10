@@ -9,7 +9,7 @@ package com.skcraft.launcher.creator.controller.task;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.skcraft.concurrency.ProgressObservable;
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;

@@ -4,11 +4,12 @@
  * Please see LICENSE.txt for license information.
  */
 
-package com.skcraft.launcher;
+package com.skcraft.launcher.instance;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.io.Files;
+import com.skcraft.launcher.InstanceSettings;
 import com.skcraft.launcher.launch.JavaProcessBuilder;
 import com.skcraft.launcher.model.modpack.LaunchModifier;
 import lombok.Data;
@@ -40,6 +41,8 @@ public class Instance implements Comparable<Instance> {
     @JsonIgnore private int priority;
     @JsonIgnore private boolean selected;
     @JsonIgnore private boolean local;
+    // boolean to indicate instance is in a collection
+    @JsonIgnore private boolean inCollection;
 
     /**
      * Get the tile of the instance, which might be the same as the

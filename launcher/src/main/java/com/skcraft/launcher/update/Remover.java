@@ -7,7 +7,7 @@
 package com.skcraft.launcher.update;
 
 import com.skcraft.concurrency.ProgressObservable;
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.LauncherUtils;
 import com.skcraft.launcher.persistence.Persistence;

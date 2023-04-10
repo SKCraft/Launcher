@@ -8,6 +8,7 @@ package com.skcraft.launcher;
 
 import com.skcraft.concurrency.ObservableFuture;
 import com.skcraft.launcher.dialog.ProgressDialog;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.update.HardResetter;
 import com.skcraft.launcher.update.Remover;

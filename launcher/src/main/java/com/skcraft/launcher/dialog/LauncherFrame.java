@@ -7,9 +7,8 @@
 package com.skcraft.launcher.dialog;
 
 import com.skcraft.concurrency.ObservableFuture;
-import com.skcraft.launcher.Instance;
-import com.skcraft.launcher.InstanceList;
-import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.*;
+import com.skcraft.launcher.instance.*;
 import com.skcraft.launcher.launch.LaunchListener;
 import com.skcraft.launcher.launch.LaunchOptions;
 import com.skcraft.launcher.launch.LaunchOptions.UpdatePolicy;
@@ -170,37 +169,24 @@ public class LauncherFrame extends JFrame {
                 if (index >= 0) {
                     instancesTable.setRowSelectionInterval(index, index);
                     selected = launcher.getInstances().get(index);
+                    if (selected instanceof InstanceNonRunnable) {
+                        return;
+                    }
                 }
                 popupInstanceMenu(e.getComponent(), e.getX(), e.getY(), selected);
             }
         });
 
-        instancesTable.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                updateInstancePanel(launcher.getInstances().get(instancesTable.getSelectedRow()));
+        instancesTable.getSelectionModel().addListSelectionListener(e -> {
+            int index = instancesTable.getSelectedRow();
+            if (index >= 0) {
+                Instance _instance = launcher.getInstances().get(index);
+                if (_instance instanceof InstanceNonSelectable) {
+                    instancesTable.getSelectionModel().setSelectionInterval(index + 1, index + 1);
+                } else {
+                    updateInstancePanel(_instance);
+                }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                updateInstancePanel(launcher.getInstances().get(instancesTable.getSelectedRow()));
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                updateInstancePanel(launcher.getInstances().get(instancesTable.getSelectedRow()));
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
-
         });
     }
 
@@ -239,7 +225,7 @@ public class LauncherFrame extends JFrame {
             String instancePageFile = manifestUrl.getFile().replace(".json", ".html");
             URL instancePageUrl = new URL(manifestUrl.getProtocol(), manifestUrl.getHost(), manifestUrl.getPort(), instancePageFile);
             return WebpagePanel.forURL(instancePageUrl, false);
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             // If no instance panel could be made, return a News panel
             return createNewsPanel();
         }
@@ -252,6 +238,10 @@ public class LauncherFrame extends JFrame {
      */
     protected void updateInstancePanel(Instance instance) {
         WebpagePanel instancePanel = instancePages.get(instance);
+        if (instance instanceof InstanceNews || instancePanel == null) {
+            updateNewsPanel();
+            return;
+        }
         splitPane.setRightComponent(instancePanel);
         splitPane.setDividerLocation(200);
         splitPane.setDividerSize(0);
@@ -421,9 +411,9 @@ public class LauncherFrame extends JFrame {
             @Override
             public void run() {
                 instancesModel.update();
-                //if (instancesTable.getRowCount() > 0) {
-                //    instancesTable.setRowSelectionInterval(0, 0);
-                //}
+                if (instancesTable.getRowCount() > 0) {
+                    instancesTable.setRowSelectionInterval(0, 0);
+                }
                 requestFocus();
             }
         }, SwingExecutor.INSTANCE);
@@ -440,6 +430,10 @@ public class LauncherFrame extends JFrame {
     private void launch() {
         boolean permitUpdate = updateCheck.isSelected();
         Instance instance = launcher.getInstances().get(instancesTable.getSelectedRow());
+
+        if (instance instanceof InstanceNonRunnable) {
+            return;
+        }
 
         LaunchOptions options = new LaunchOptions.Builder()
                 .setInstance(instance)

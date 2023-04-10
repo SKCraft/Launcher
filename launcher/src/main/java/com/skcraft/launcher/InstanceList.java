@@ -8,6 +8,7 @@ package com.skcraft.launcher;
 
 import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
+import com.skcraft.launcher.instance.*;
 import com.skcraft.launcher.model.modpack.ManifestInfo;
 import com.skcraft.launcher.model.modpack.PackageList;
 import com.skcraft.launcher.persistence.Persistence;
@@ -22,9 +23,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static com.skcraft.launcher.LauncherUtils.concat;
@@ -96,7 +95,36 @@ public class InstanceList {
      * Sort the list of instances.
      */
     public synchronized void sort() {
-        Collections.sort(instances);
+        List<Instance> locals = new ArrayList<>();
+        List<Instance> remote = new ArrayList<>();
+
+        for (Instance i : instances) {
+            if (i instanceof InstanceCollection) {
+                if (((InstanceCollection) i).hasLocalInstance()) {
+                    locals.add(i);
+                    locals.addAll(((InstanceCollection) i).getInstances());
+                } else {
+                    remote.add(i);
+                    remote.addAll(((InstanceCollection) i).getInstances());
+                }
+            } else if (i.isInCollection()) {
+            } else if (i.isLocal()) {
+                locals.add(i);
+            } else {
+                remote.add(i);
+            }
+        }
+
+        instances.clear();
+        instances.add(new InstanceNews());
+        if (locals.size() > 0) {
+            instances.add(new InstanceSpacer());
+            instances.addAll(locals);
+        }
+        if (remote.size() > 0) {
+            instances.add(new InstanceSpacer());
+            instances.addAll(remote);
+        }
     }
 
     public final class Enumerator implements Callable<InstanceList>, ProgressObservable {
@@ -109,6 +137,8 @@ public class InstanceList {
         public InstanceList call() throws Exception {
             log.info("Enumerating instance list...");
             progress = new DefaultProgress(0, SharedLocale.tr("instanceLoader.loadingLocal"));
+
+            HashMap<String, List<Instance>> instancesMap = new HashMap<>();
 
             List<Instance> local = new ArrayList<Instance>();
             List<Instance> remote = new ArrayList<Instance>();
@@ -156,6 +186,11 @@ public class InstanceList {
                             URL url = concat(packagesURL, manifest.getLocation());
                             instance.setManifestURL(url);
 
+                            // Add to list within map based on title
+                            List<Instance> _instances = instancesMap.getOrDefault(manifest.getTitle(), new ArrayList<>());
+                            _instances.add(instance);
+                            instancesMap.put(manifest.getTitle(), _instances);
+
                             log.info("(" + instance.getName() + ").setManifestURL(" + url + ")");
 
                             // Check if an update is required
@@ -183,6 +218,11 @@ public class InstanceList {
                         instance.setLocal(false);
                         remote.add(instance);
 
+                        // Add to list within map based on title
+                        List<Instance> _instances = instancesMap.getOrDefault(manifest.getTitle(), new ArrayList<>());
+                        _instances.add(instance);
+                        instancesMap.put(manifest.getTitle(), _instances);
+
                         log.info("Available remote instance: '" + instance.getName() +
                                 "' at version " + instance.getVersion());
                     }
@@ -191,11 +231,24 @@ public class InstanceList {
                 throw new IOException("The list of modpacks could not be downloaded.", e);
             } finally {
                 synchronized (InstanceList.this) {
-                    instances.clear();
-                    instances.addAll(local);
-                    instances.addAll(remote);
 
-                    log.info(instances.size() + " instance(s) enumerated.");
+                    instances.clear();
+
+                    for (Map.Entry<String, List<Instance>> e : instancesMap.entrySet()) {
+                        log.info( "| " + e.getKey());
+                        List<Instance> _instances = e.getValue();
+                        if (_instances.size() > 1) {
+                            instances.add(new InstanceCollection(_instances));
+                            for (Instance _instance : _instances) {
+                                _instance.setInCollection(true);
+                                instances.add(_instance);
+                            }
+                        } else {
+                            instances.addAll(_instances);
+                        }
+                    }
+
+                    log.info(instances.size() + " instance(s) enumerated:");
                 }
             }
 

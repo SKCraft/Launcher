@@ -10,7 +10,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.skcraft.concurrency.ObservableFuture;
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.dialog.AccountSelectDialog;

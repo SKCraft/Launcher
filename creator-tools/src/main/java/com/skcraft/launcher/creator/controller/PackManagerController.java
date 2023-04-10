@@ -16,7 +16,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.skcraft.concurrency.Deferred;
 import com.skcraft.concurrency.Deferreds;
 import com.skcraft.concurrency.SettableProgress;
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.InstanceList;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.auth.OfflineSession;

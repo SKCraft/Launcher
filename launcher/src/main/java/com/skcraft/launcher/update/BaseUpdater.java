@@ -10,7 +10,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.skcraft.launcher.AssetsRoot;
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.dialog.FeatureSelectionDialog;

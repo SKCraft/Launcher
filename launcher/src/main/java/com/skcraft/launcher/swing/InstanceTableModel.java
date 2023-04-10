@@ -6,9 +6,8 @@
 
 package com.skcraft.launcher.swing;
 
-import com.skcraft.launcher.Instance;
-import com.skcraft.launcher.InstanceList;
-import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.*;
+import com.skcraft.launcher.instance.*;
 import com.skcraft.launcher.util.SharedLocale;
 
 import javax.swing.*;
@@ -18,14 +17,18 @@ public class InstanceTableModel extends AbstractTableModel {
 
     private final InstanceList instances;
     private final Icon instanceIcon;
+    private final Icon instanceCollectionIcon;
     private final Icon customInstanceIcon;
     private final Icon downloadIcon;
+    private final Icon newsIcon;
 
     public InstanceTableModel(InstanceList instances) {
         this.instances = instances;
         instanceIcon = SwingHelper.createIcon(Launcher.class, "instance_icon.png", 16, 16);
+        instanceCollectionIcon = SwingHelper.createIcon(Launcher.class, "collection_icon.png", 16, 16);
         customInstanceIcon = SwingHelper.createIcon(Launcher.class, "custom_instance_icon.png", 16, 16);
-        downloadIcon = SwingHelper.createIcon(Launcher.class, "download_icon.png", 14, 14);
+        downloadIcon = SwingHelper.createIcon(Launcher.class, "download_icon.png", 16, 16);
+        newsIcon = SwingHelper.createIcon(Launcher.class, "news_icon.png", 16, 16);
     }
 
     public void update() {
@@ -97,7 +100,13 @@ public class InstanceTableModel extends AbstractTableModel {
         switch (columnIndex) {
             case 0:
                 instance = instances.get(rowIndex);
-                if (!instance.isLocal()) {
+                if (instance instanceof InstanceSpacer) {
+                    return null;
+                } else if (instance instanceof InstanceNews) {
+                    return newsIcon;
+                } else if (instance instanceof InstanceCollection) {
+                    return instanceCollectionIcon;
+                } else if (!instance.isLocal()) {
                     return downloadIcon;
                 } else if (instance.getManifestURL() != null) {
                     return instanceIcon;
@@ -106,7 +115,11 @@ public class InstanceTableModel extends AbstractTableModel {
                 }
             case 1:
                 instance = instances.get(rowIndex);
-                return instance.getTitle();
+                if (instance.isInCollection()) {
+                    return instance.getName().replace(instance.getTitle(), "");
+                } else {
+                    return instance.getTitle();
+                }
             default:
                 return null;
         }

@@ -1,6 +1,6 @@
 package com.skcraft.launcher.dialog;
 
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.InstanceSettings;
 import com.skcraft.launcher.dialog.component.BetterComboBox;
 import com.skcraft.launcher.launch.MemorySettings;

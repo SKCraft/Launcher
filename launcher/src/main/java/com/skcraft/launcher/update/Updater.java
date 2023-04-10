@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressFilter;
 import com.skcraft.concurrency.ProgressObservable;
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.install.Installer;

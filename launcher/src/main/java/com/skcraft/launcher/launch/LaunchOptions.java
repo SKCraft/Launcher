@@ -6,7 +6,7 @@
 
 package com.skcraft.launcher.launch;
 
-import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.instance.Instance;
 import com.skcraft.launcher.auth.Session;
 import lombok.Data;
 import lombok.Getter;
