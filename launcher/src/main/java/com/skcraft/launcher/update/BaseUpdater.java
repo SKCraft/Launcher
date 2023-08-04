@@ -282,7 +282,7 @@ public abstract class BaseUpdater {
         }
 
         // Use our custom logging config depending on what the manifest specifies
-        if (versionManifest.getLogging() != null) {
+        if (versionManifest.getLogging() != null && versionManifest.getLogging().getClient() != null) {
             VersionManifest.LoggingConfig config = versionManifest.getLogging().getClient();
 
             VersionManifest.Artifact file = config.getFile();

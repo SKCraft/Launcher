@@ -12,6 +12,7 @@ import com.google.common.base.Splitter;
 import com.skcraft.launcher.model.minecraft.GameArgument;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.MinecraftArguments;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
 import lombok.Data;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class VersionInfo {
     private MinecraftArguments arguments;
     private String mainClass;
     private List<Library> libraries;
+    private SidedData<VersionManifest.LoggingConfig> logging;
 
     @JsonIgnore private transient boolean overridingArguments;
 
