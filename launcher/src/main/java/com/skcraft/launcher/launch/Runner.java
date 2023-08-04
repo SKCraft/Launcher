@@ -140,7 +140,6 @@ public class Runner implements Callable<Process>, ProgressObservable {
         }
 
         progress = new DefaultProgress(0.9, SharedLocale.tr("runner.collectingArgs"));
-        builder.classPath(getJarPath());
         builder.setMainClass(versionManifest.getMainClass());
 
         addWindowArgs();
@@ -232,6 +231,9 @@ public class Runner implements Callable<Process>, ProgressObservable {
                         tr("runner.missingLibrary", instance.getTitle(), library.getName()));
             }
         }
+
+        // The official launcher puts the vanilla jar at the end of the classpath, we'll do the same
+        builder.classPath(getJarPath());
     }
 
     /**
