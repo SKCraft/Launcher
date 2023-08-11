@@ -102,10 +102,12 @@ public class LauncherFrame extends JFrame {
         });
 
         updateCheck.setSelected(true);
+        updateCheck.setOpaque(false);
         instancesTable.setModel(instancesModel);
         splitPane.setDividerLocation(200);
         splitPane.setDividerSize(4);
         splitPane.setOpaque(false);
+        splitPane.setEnabled(false);
         container.add(splitPane, "grow, wrap, span 5, gapbottom unrel, w null:680, h null:350");
         SwingHelper.flattenJSplitPane(splitPane);
         container.add(refreshButton);
