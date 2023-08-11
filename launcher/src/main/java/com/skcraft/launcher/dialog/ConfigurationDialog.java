@@ -135,11 +135,11 @@ public class ConfigurationDialog extends JDialog {
         SwingHelper.removeOpaqueness(advancedPanel);
         tabbedPane.addTab(SharedLocale.tr("options.advancedTab"), SwingHelper.alignTabbedPane(advancedPanel));
 
-        buttonsPanel.addElement(logButton);
         buttonsPanel.addElement(aboutButton);
+        buttonsPanel.addElement(logButton);
         buttonsPanel.addGlue();
-        buttonsPanel.addElement(okButton);
         buttonsPanel.addElement(cancelButton);
+        buttonsPanel.addElement(okButton);
 
         tabContainer.add(tabbedPane, BorderLayout.CENTER);
         tabContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
