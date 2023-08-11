@@ -83,7 +83,7 @@ public class LoginDialog extends JDialog {
     private void initComponents() {
         usernameText.setEditable(true);
 
-        loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
+        loginButton.setFont(new Font("Roboto Bold", Font.PLAIN, 16));
 
         formPanel.addRow(message);
         formPanel.addRow(new JLabel(SharedLocale.tr("login.idEmail")), usernameText);

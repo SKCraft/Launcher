@@ -59,8 +59,7 @@ public class AccountSelectDialog extends JDialog {
 		accountPane.setPreferredSize(new Dimension(280, 150));
 		accountPane.setAlignmentX(CENTER_ALIGNMENT);
 
-		loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD));
-		loginButton.setMargin(new Insets(0, 10, 0, 10));
+		loginButton.setFont(new Font("Roboto Bold", Font.PLAIN, 16));
 
 		//Start Buttons
 		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(26, 13, 13, 13));

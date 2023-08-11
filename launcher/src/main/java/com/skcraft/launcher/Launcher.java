@@ -31,6 +31,7 @@ import lombok.extern.java.Log;
 import org.apache.commons.io.FileUtils;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.io.File;
 import java.io.FileFilter;
@@ -39,6 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -88,6 +90,16 @@ public final class Launcher {
      */
     public Launcher(@NonNull File baseDir, @NonNull File configDir) throws IOException {
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
+
+        try {
+            Font robotoBold = Font.createFont(Font.TRUETYPE_FONT, Launcher.class.getResourceAsStream("font/Roboto-Bold.ttf")).deriveFont(12f);
+            Font robotoRegular = Font.createFont(Font.TRUETYPE_FONT, Launcher.class.getResourceAsStream("font/Roboto-Regular.ttf")).deriveFont(12f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(robotoBold);
+            ge.registerFont(robotoRegular);
+        } catch (IOException | FontFormatException e) {
+            throw new IOException(e);
+        }
 
         this.baseDir = baseDir.getAbsoluteFile();
         this.properties = LauncherUtils.loadProperties(Launcher.class, "launcher.properties", "com.skcraft.launcher.propertiesFile");
@@ -442,6 +454,16 @@ public final class Launcher {
         SimpleLogFormatter.configureGlobalLogger();
     }
 
+    public static void setUIFont(javax.swing.plaf.FontUIResource f){
+        Enumeration<Object> keys = UIManager.getDefaults().keys();
+        while (keys.hasMoreElements()) {
+            Object key = keys.nextElement();
+            Object value = UIManager.get(key);
+            if (value instanceof javax.swing.plaf.FontUIResource)
+                UIManager.put(key, f);
+        }
+    }
+
     /**
      * Bootstrap.
      *
@@ -457,6 +479,7 @@ public final class Launcher {
                     Launcher launcher = createFromArguments(args);
                     SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    setUIFont(new FontUIResource(new Font("Roboto Regular", Font.PLAIN, 14)));
                     launcher.showLauncherWindow();
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);

@@ -103,7 +103,6 @@ public class LauncherFrame extends JFrame {
 
         updateCheck.setSelected(true);
         instancesTable.setModel(instancesModel);
-        launchButton.setFont(launchButton.getFont().deriveFont(Font.BOLD));
         splitPane.setDividerLocation(200);
         splitPane.setDividerSize(4);
         splitPane.setOpaque(false);
@@ -112,7 +111,9 @@ public class LauncherFrame extends JFrame {
         container.add(refreshButton);
         container.add(updateCheck);
         container.add(selfUpdateButton);
+        System.out.println(optionsButton.getFont().getFontName());
         container.add(optionsButton);
+        launchButton.setFont(new Font("Roboto Bold", Font.PLAIN, 16));
         container.add(launchButton);
 
         add(container, BorderLayout.CENTER);
