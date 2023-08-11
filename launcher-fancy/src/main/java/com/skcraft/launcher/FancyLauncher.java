@@ -11,8 +11,12 @@ import com.skcraft.launcher.swing.SwingHelper;
 import lombok.extern.java.Log;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.util.logging.Level;
+
+import static com.skcraft.launcher.Launcher.setUIFont;
+
 
 @Log
 public class FancyLauncher {
@@ -36,6 +40,8 @@ public class FancyLauncher {
                         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     }
 
+                    setUIFont(new FontUIResource(new Font("Roboto", Font.PLAIN, 14)));
+
                     Launcher launcher = Launcher.createFromArguments(args);
                     launcher.setMainWindowSupplier(new CustomWindowSupplier(launcher));
                     launcher.showLauncherWindow();
@@ -47,6 +53,7 @@ public class FancyLauncher {
             }
         });
     }
+
 
     private static class CustomWindowSupplier implements Supplier<Window> {
 

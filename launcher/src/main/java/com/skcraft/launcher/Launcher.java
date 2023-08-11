@@ -479,7 +479,7 @@ public final class Launcher {
                     Launcher launcher = createFromArguments(args);
                     SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    setUIFont(new FontUIResource(new Font("Roboto Regular", Font.PLAIN, 14)));
+                    setUIFont(new FontUIResource(new Font("Roboto", Font.PLAIN, 14)));
                     launcher.showLauncherWindow();
                 } catch (Throwable t) {
                     log.log(Level.WARNING, "Load failure", t);

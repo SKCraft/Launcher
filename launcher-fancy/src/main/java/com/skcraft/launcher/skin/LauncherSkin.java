@@ -64,7 +64,7 @@ public class LauncherSkin extends GraphiteSkin {
         this.setSelectedTabFadeStart(0.1);
         this.setSelectedTabFadeEnd(0.3);
 
-//        this.buttonShaper = new LauncherButtonShaper();
+        this.buttonShaper = new LauncherButtonShaper();
         this.watermark = null;
         this.fillPainter = new FractionBasedFillPainter("Graphite",
                 new float[] { 0.0f, 0.5f, 1.0f },
