@@ -194,16 +194,21 @@ public class Bootstrap {
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("win")) {
             return new File(getFileChooseDefaultDir(), getProperties().getProperty("homeFolderWindows"));
-        } else if (osName.contains("linux")) {
+        }
+
+        File dotFolder = new File(System.getProperty("user.home"), getProperties().getProperty("homeFolder"));
+        String xdgFolderName = getProperties().getProperty("homeFolderLinux");
+
+        if (osName.contains("linux") && !dotFolder.exists() && !xdgFolderName.isEmpty()) {
             String xdgDataHome = System.getenv("XDG_DATA_HOME");
-            if (xdgDataHome == null) {
+            if (xdgDataHome.isEmpty()) {
                 xdgDataHome = System.getProperty("user.home") + "/.local/share";
             }
 
-            return new File(xdgDataHome, getProperties().getProperty("homeFolderLinux"));
-        } else {
-            return new File(System.getProperty("user.home"), getProperties().getProperty("homeFolder"));
+            return new File(xdgDataHome, xdgFolderName);
         }
+
+        return dotFolder;
     }
 
     private static boolean isPortableMode() {
