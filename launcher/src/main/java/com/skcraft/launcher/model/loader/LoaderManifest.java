@@ -19,7 +19,7 @@ public class LoaderManifest {
 
 	public Library findLibrary(String name) {
 		for (Library library : getLibraries()) {
-			if (library.getName().equals(name)) {
+			if (library.matches(name)) {
 				return library;
 			}
 		}

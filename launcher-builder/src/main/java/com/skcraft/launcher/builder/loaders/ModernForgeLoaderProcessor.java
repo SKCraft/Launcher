@@ -158,7 +158,7 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 					libraryName = libraryName.substring(1, libraryName.length() - 1);
 
 					for (Library lib : result.getLoaderLibraries()) {
-						if (lib.getName().equals(libraryName)) {
+						if (lib.matches(libraryName)) {
 							lib.setGenerated(true);
 							log.info(String.format("Setting generated flag on library '%s'", lib.getName()));
 							break;
