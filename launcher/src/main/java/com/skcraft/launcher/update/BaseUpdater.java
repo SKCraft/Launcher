@@ -249,6 +249,8 @@ public abstract class BaseUpdater {
         }
 
         for (Library library : allLibraries) {
+            if (library.isGenerated()) continue; // Skip generated libraries.
+
             if (library.matches(environment)) {
                 checkInterrupted();
 

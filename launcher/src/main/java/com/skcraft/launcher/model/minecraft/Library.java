@@ -8,6 +8,7 @@ package com.skcraft.launcher.model.minecraft;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -33,7 +34,8 @@ public class Library {
     private String comment;
 
     // Custom
-    private boolean locallyAvailable;
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    private boolean generated;
 
     public boolean matches(Environment environment) {
         boolean allow = false;
