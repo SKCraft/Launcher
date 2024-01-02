@@ -73,6 +73,12 @@ public class ModernForgeLoaderProcessor implements ILoaderProcessor {
 					}
 				}
 
+				// Copy logging config
+				SidedData<VersionManifest.LoggingConfig> loggingConfig = info.getLogging();
+				if (loggingConfig != null) {
+					version.setLogging(loggingConfig);
+				}
+
 				// Copy main class
 				String mainClass = info.getMainClass();
 				if (mainClass != null) {
