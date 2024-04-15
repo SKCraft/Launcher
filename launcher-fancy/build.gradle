@@ -10,8 +10,8 @@ application {
 
 repositories {
     maven {
-        name = 'obw maven'
-        url = 'https://maven.offbeatwit.ch/repository/snapshots'
+        name = 'bbkr.space maven'
+        url = 'https://server.bbkr.space/artifactory/libs-snapshot'
     }
 }
 
