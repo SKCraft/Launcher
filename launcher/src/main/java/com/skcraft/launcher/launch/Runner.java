@@ -447,7 +447,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("auth_uuid", session.getUuid());
 
         map.put("profile_name", session.getName());
-        map.put("user_type", session.getUserType().getName());
+        map.put("user_type", session.getUserType().getId());
         map.put("user_properties", mapper.writeValueAsString(session.getUserProperties()));
 
         map.put("game_directory", instance.getContentDir().getAbsolutePath());
