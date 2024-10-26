@@ -1,1 +1,25 @@
-<p>OK: you can close the browser now</p>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>You can now close your browser</title>
+	<link rel="icon" href="data:image/png;base64,%1$s">
+	<style>
+		body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-wrap: nowrap;
+			text-align: center;
+			font-family: system-ui;
+			background-color: #0e0e0e;
+			color: #eee;
+		}
+	</style>
+</head>
+<body>
+<main>
+	<img src="data:image/png;base64,%1$s" alt="icon.png" onerror="this.style.display='none'">
+	<h2>You can now close your browser</h2>
+</main>
+</body>
+</html>
