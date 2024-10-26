@@ -102,7 +102,7 @@ public class AccountSelectDialog extends JDialog {
 			}
 		});
 
-		addMicrosoftButton.addActionListener(ev -> attemptMicrosoftLogin());
+		addMicrosoftButton.addActionListener(ev -> attemptMicrosoftLogin(SharedLocale.tr("login.microsoft.seeBrowser")));
 
 		offlineButton.addActionListener(ev ->
 				setResult(new OfflineSession(launcher.getProperties().getProperty("offlinePlayerName"))));
@@ -145,8 +145,7 @@ public class AccountSelectDialog extends JDialog {
 		dispose();
 	}
 
-	private void attemptMicrosoftLogin() {
-		String status = SharedLocale.tr("login.microsoft.seeBrowser");
+	private void attemptMicrosoftLogin(String status) {
 		SettableProgress progress = new SettableProgress(status, -1);
 
 		ListenableFuture<?> future = launcher.getExecutor().submit(() -> {
@@ -181,15 +180,9 @@ public class AccountSelectDialog extends JDialog {
 
 			@Override
 			public void onFailure(Throwable t) {
-				if (t instanceof AuthenticationException) {
-					if (((AuthenticationException) t).isInvalidatedSession()) {
-						// Just need to log in again
-						LoginDialog.ReloginDetails details = new LoginDialog.ReloginDetails(session.getUsername(),
-								SharedLocale.tr("login.relogin", t.getLocalizedMessage()));
-						Session newSession = LoginDialog.showLoginRequest(AccountSelectDialog.this, launcher, details);
-
-						setResult(newSession);
-					}
+				if (t instanceof AuthenticationException && ((AuthenticationException) t).isInvalidatedSession()) {
+					// Just need to log in again
+					relogin(session, t.getLocalizedMessage());
 				} else {
 					SwingHelper.showErrorDialog(AccountSelectDialog.this, t.getLocalizedMessage(), SharedLocale.tr("errorTitle"), t);
 				}
@@ -198,6 +191,22 @@ public class AccountSelectDialog extends JDialog {
 
 		ProgressDialog.showProgress(this, future, SharedLocale.tr("login.loggingInTitle"),
 				SharedLocale.tr("login.loggingInStatus"));
+	}
+
+	/**
+	 * Re-login to an expired session
+	 */
+	private void relogin(SavedSession session, String message) {
+		if (session.getType() == UserType.MICROSOFT) {
+			this.attemptMicrosoftLogin(message);
+		} else {
+			LoginDialog.ReloginDetails details = new LoginDialog.ReloginDetails(session.getUsername(),
+					SharedLocale.tr("login.relogin", message));
+			Session newSession = LoginDialog.showLoginRequest(AccountSelectDialog.this, launcher, details);
+
+			launcher.getAccounts().update(newSession.toSavedSession());
+			setResult(newSession);
+		}
 	}
 
 	@RequiredArgsConstructor

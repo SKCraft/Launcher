@@ -87,7 +87,7 @@ public class MicrosoftLoginService implements LoginService {
 				.expectResponseCodeOr(200, (req) -> {
 					TokenError error = req.returnContent().asJson(TokenError.class);
 
-					return new AuthenticationException(error.errorDescription);
+					return new AuthenticationException(error.errorDescription, true);
 				})
 				.returnContent()
 				.asJson(TokenResponse.class);
