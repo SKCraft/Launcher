@@ -72,7 +72,7 @@ public class OauthHttpHandler {
 			if (iconStream != null) {
 				byte[] iconBytes = IOUtils.toByteArray(iconStream);
 				String encodedIcon = Base64.getEncoder().encodeToString(iconBytes);
-				response = String.format(new String(response), encodedIcon).getBytes();
+				response = String.format(new String(response), encodedIcon).getBytes(Charsets.UTF_8);
 			} else {
 				log.warning("Unable to fetch resource icon.png");
 			}
