@@ -41,16 +41,6 @@ public class VersionManifest {
                 : "legacy";
     }
 
-    public Library findLibrary(String name) {
-        for (Library library : getLibraries()) {
-            if (library.getName().equals(name)) {
-                return library;
-            }
-        }
-
-        return null;
-    }
-
     public void setMinecraftArguments(String minecraftArguments) {
         MinecraftArguments result = new MinecraftArguments();
 

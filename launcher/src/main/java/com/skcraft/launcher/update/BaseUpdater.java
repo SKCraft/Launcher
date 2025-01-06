@@ -273,11 +273,11 @@ public abstract class BaseUpdater {
                     }
 
                     File tempFile = installer.getDownloader().download(urls, "", size,
-                            library.getName() + ".jar");
+                            library.getName().toString());
                     log.info("Fetching " + path + " from " + urls);
                     installer.queue(new FileMover(tempFile, targetFile));
                     if (artifact.getSha1() != null) {
-                        installer.queue(new FileVerify(targetFile, library.getName(), artifact.getSha1()));
+                        installer.queue(new FileVerify(targetFile, library.getName().toString(), artifact.getSha1()));
                     }
                 }
             }

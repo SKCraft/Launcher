@@ -7,6 +7,7 @@ import com.skcraft.launcher.model.loader.FabricMod;
 import com.skcraft.launcher.model.loader.QuiltMod;
 import com.skcraft.launcher.model.loader.Versionable;
 import com.skcraft.launcher.model.minecraft.Library;
+import com.skcraft.launcher.model.minecraft.MavenName;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.Manifest;
 import com.skcraft.launcher.util.HttpRequest;
@@ -66,7 +67,8 @@ public class FabricLoaderProcessor implements ILoaderProcessor {
 				// a hack that replaced hashed with intermediary! This is a lot of technical debt that is gonna come
 				// back to bite them in the ass later, because it's all still there!
 				// TODO pester Quilt again about fixing this....
-				if (library.getName().startsWith("org.quiltmc:hashed") && loaderMod instanceof QuiltMod) {
+				MavenName libraryName = library.getName();
+				if (libraryName.getGroup().equals("org.quiltmc") && libraryName.getPath().equals("hashed") && loaderMod instanceof QuiltMod) {
 					continue;
 				}
 

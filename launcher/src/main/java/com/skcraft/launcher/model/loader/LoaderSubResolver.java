@@ -2,6 +2,7 @@ package com.skcraft.launcher.model.loader;
 
 import com.google.common.base.Function;
 import com.skcraft.launcher.model.minecraft.Library;
+import com.skcraft.launcher.model.minecraft.MavenName;
 import com.skcraft.launcher.model.minecraft.Side;
 import com.skcraft.launcher.model.modpack.DownloadableFile;
 import com.skcraft.launcher.model.modpack.Manifest;
@@ -51,7 +52,7 @@ public class LoaderSubResolver implements Function<String, String> {
 				if (library != null) {
 					arg = getPathOf(library.getPath(env));
 				} else {
-					arg = getPathOf(Library.mavenNameToPath(libraryName));
+					arg = getPathOf(MavenName.from(libraryName).getFilePath());
 				}
 			} else if (start == '&' && end == '&') {
 				String localFileName = arg.substring(1, bound);

@@ -6,10 +6,7 @@ import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.skcraft.launcher.builder.BuilderUtils;
 import com.skcraft.launcher.model.loader.profiles.LegacyInstallProfile;
-import com.skcraft.launcher.model.minecraft.GameArgument;
-import com.skcraft.launcher.model.minecraft.Library;
-import com.skcraft.launcher.model.minecraft.MinecraftArguments;
-import com.skcraft.launcher.model.minecraft.VersionManifest;
+import com.skcraft.launcher.model.minecraft.*;
 import com.skcraft.launcher.model.modpack.Manifest;
 import lombok.extern.java.Log;
 
@@ -64,11 +61,7 @@ public class OldForgeLoaderProcessor implements ILoaderProcessor {
 				// Add libraries
 				List<Library> libraries = profile.getVersionInfo().getLibraries();
 				if (libraries != null) {
-					for (Library library : libraries) {
-						if (!version.getLibraries().contains(library)) {
-							result.getLoaderLibraries().add(library);
-						}
-					}
+					result.getLoaderLibraries().addAll(libraries);
 				}
 
 				// Copy main class
@@ -87,7 +80,7 @@ public class OldForgeLoaderProcessor implements ILoaderProcessor {
 
 					if (libraryEntry != null) {
 						File librariesDir = new File(baseDir, "libraries");
-						File extractPath = new File(librariesDir, Library.mavenNameToPath(libraryPath));
+						File extractPath = new File(librariesDir, MavenName.from(libraryPath).getFilePath());
 
 						Files.createParentDirs(extractPath);
 						ByteStreams.copy(closer.register(jarFile.getInputStream(libraryEntry)),
