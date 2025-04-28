@@ -1,6 +1,6 @@
 plugins {
     id 'application'
-    id "com.github.johnrengelman.shadow"
+    id 'com.gradleup.shadow'
     id 'io.freefair.lombok'
 }
 
@@ -19,12 +19,4 @@ processResources {
             it.replace('${project.version}', project.version)
         }
     }
-}
-
-shadowJar {
-    archiveClassifier.set("")
-}
-
-build {
-    dependsOn(shadowJar)
 }

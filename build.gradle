@@ -1,6 +1,6 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id 'io.freefair.lombok' version '5.3.0'
+    id "com.gradleup.shadow" version "8.3.6"
+    id 'io.freefair.lombok' version '8.13.1'
 }
 
 println """
@@ -39,37 +39,6 @@ subprojects {
         workingDir.mkdirs()
     }
 
-    // Work around gradle shadow bug
-    // see https://github.com/johnrengelman/shadow/issues/713
-    afterEvaluate {
-        startScripts {
-            dependsOn(shadowJar)
-        }
-
-        distTar {
-            dependsOn(shadowJar)
-        }
-
-        distZip {
-            dependsOn(shadowJar)
-        }
-
-        startShadowScripts {
-            dependsOn(jar)
-        }
-
-        shadowDistTar {
-            dependsOn(jar)
-        }
-
-        shadowDistZip {
-            dependsOn(jar)
-        }
-    }
-}
-
-task clean {
-    subprojects {
-        rootProject.clean.dependsOn tasks.matching { it.name == "clean" }
-    }
+    // Disable un-shadowed jar
+    tasks.jar.enabled = false
 }

@@ -1,7 +1,7 @@
 plugins {
     id 'application'
     id 'java-library'
-    id "com.github.johnrengelman.shadow"
+    id 'com.gradleup.shadow'
     id 'io.freefair.lombok'
 }
 
@@ -16,13 +16,4 @@ dependencies {
 
 shadowJar {
     dependsOn ':launcher:shadowJar'
-    archiveClassifier.set("")
 }
-
-// Work around gradle shadow bug
-// see https://github.com/johnrengelman/shadow/issues/713
-startScripts.dependsOn(':launcher:shadowJar')
-distTar.dependsOn(':launcher:shadowJar')
-distZip.dependsOn(':launcher:shadowJar')
-
-build.dependsOn(shadowJar)
