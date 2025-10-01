@@ -76,7 +76,10 @@ public class AccountSelectDialog extends JDialog {
 		addMojangButton.setAlignmentX(CENTER_ALIGNMENT);
 		addMicrosoftButton.setAlignmentX(CENTER_ALIGNMENT);
 		removeSelected.setAlignmentX(CENTER_ALIGNMENT);
-		loginButtonsRow.add(addMojangButton, BorderLayout.NORTH);
+
+		if (launcher.getProperties().containsKey("yggdrasilAuthUrl")) {
+			loginButtonsRow.add(addMojangButton, BorderLayout.NORTH);
+		}
 		loginButtonsRow.add(addMicrosoftButton, BorderLayout.CENTER);
 		loginButtonsRow.add(removeSelected, BorderLayout.SOUTH);
 		loginButtonsRow.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));

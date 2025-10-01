@@ -38,7 +38,4 @@ subprojects {
         workingDir = new File(rootDir, "run/")
         workingDir.mkdirs()
     }
-
-    // Disable un-shadowed jar
-    tasks.jar.enabled = false
 }
