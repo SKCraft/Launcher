@@ -12,9 +12,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -92,29 +93,26 @@ public class Downloader implements Runnable, ProgressObservable {
 
             checkInterrupted();
 
-            File finalFile = new File(bootstrap.getBinariesDir(), System.currentTimeMillis() + ".jar");
-            File tempFile = new File(finalFile.getParentFile(), finalFile.getName() + ".tmp");
+            var filename = System.currentTimeMillis() + ".jar";
+            var finalFile = bootstrap.getBinariesDir().resolve(filename);
+            var tempFile = bootstrap.getBinariesDir().resolve(filename + ".tmp");
 
-            log.info("Downloading " + url + " to " + tempFile.getAbsolutePath());
+            log.info("Downloading " + url + " to " + tempFile.toAbsolutePath());
 
             httpRequest = HttpRequest.get(url);
             httpRequest
                     .execute()
                     .expectResponseCode(200)
-                    .saveContent(tempFile);
+                    .saveContent(tempFile.toFile());
 
-            finalFile.delete();
-            tempFile.renameTo(finalFile);
+            Files.move(tempFile, finalFile, StandardCopyOption.REPLACE_EXISTING);
 
             LauncherBinary binary = new LauncherBinary(finalFile);
             binaries.add(binary);
         } finally {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    dialog.setDownloader(null);
-                    dialog.dispose();
-                }
+            SwingUtilities.invokeLater(() -> {
+                dialog.setDownloader(null);
+                dialog.dispose();
             });
         }
 

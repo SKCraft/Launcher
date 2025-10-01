@@ -1,7 +1,10 @@
+import org.panteleyev.jpackage.ImageType
+
 plugins {
     id 'application'
     id 'com.gradleup.shadow'
     id 'io.freefair.lombok'
+    id 'org.panteleyev.jpackageplugin' version '1.7.6'
 }
 
 application {
@@ -9,8 +12,11 @@ application {
 }
 
 dependencies {
+    implementation project(':launcher-dirs')
+
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'net.java.dev.jna:jna-platform:5.11.0'
 }
 
 processResources {
@@ -18,5 +24,39 @@ processResources {
         filter {
             it.replace('${project.version}', project.version)
         }
+    }
+}
+
+tasks.register('preparePackage', Copy) {
+    into file(layout.buildDirectory.dir('prepackage'))
+    from tasks.shadowJar.outputs.files
+}
+
+tasks.jpackage {
+    appName = 'SKCraft Launcher'
+    vendor = 'com.skcraft'
+    appVersion = '4.6.0'
+
+    inputs.files(tasks.preparePackage.outputs)
+    input = tasks.preparePackage.destinationDir
+    destination = layout.buildDirectory.dir('package')
+
+    mainJar = tasks.shadowJar.archiveFileName
+    mainClass = application.mainClass
+    type = ImageType.APP_IMAGE
+
+    outputs.dir(destination)
+
+    windows {
+        winConsole = false
+    }
+
+    mac {
+        type = ImageType.PKG
+        macPackageName = 'SKCraft Launcher'
+    }
+
+    linux {
+
     }
 }

@@ -6,21 +6,35 @@
 
 package com.skcraft.launcher;
 
-import com.skcraft.launcher.bootstrap.*;
+import com.skcraft.launcher.bootstrap.BootstrapArgs;
+import com.skcraft.launcher.bootstrap.BootstrapConfig;
+import com.skcraft.launcher.bootstrap.BootstrapUtils;
+import com.skcraft.launcher.bootstrap.Downloader;
+import com.skcraft.launcher.bootstrap.LauncherBinary;
+import com.skcraft.launcher.bootstrap.LegacyBootstrapConfig;
+import com.skcraft.launcher.bootstrap.PlatformDirFinder;
+import com.skcraft.launcher.bootstrap.SharedLocale;
+import com.skcraft.launcher.bootstrap.SimpleLogFormatter;
+import com.skcraft.launcher.bootstrap.SwingHelper;
+import com.skcraft.launcher.dirs.LauncherDirs;
+import com.skcraft.launcher.util.Platform;
 import lombok.Getter;
 import lombok.extern.java.Log;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
 import java.util.logging.Level;
 
 import static com.skcraft.launcher.bootstrap.SharedLocale.tr;
@@ -28,12 +42,16 @@ import static com.skcraft.launcher.bootstrap.SharedLocale.tr;
 @Log
 public class Bootstrap {
 
-    private static final int BOOTSTRAP_VERSION = 1;
+    private static final int BOOTSTRAP_VERSION = 2;
 
-    @Getter private final File baseDir;
-    @Getter private final boolean portable;
-    @Getter private final File binariesDir;
-    @Getter private final Properties properties;
+    @Getter
+    private final LauncherDirs launcherDirs;
+    @Getter
+    private final boolean portable;
+    @Getter
+    private final Path binariesDir;
+    @Getter
+    private final Properties properties;
     private final String[] originalArgs;
 
     public static void main(String[] args) throws Throwable {
@@ -56,41 +74,44 @@ public class Bootstrap {
     public Bootstrap(boolean portable, String[] args) throws IOException {
         this.properties = BootstrapUtils.loadProperties(Bootstrap.class, "bootstrap.properties");
 
-        File baseDir = portable ? new File(".") : getUserLauncherDir();
+        var platform = detectPlatform();
 
-        this.baseDir = baseDir;
+        if (portable) {
+            this.launcherDirs = LauncherDirs.singleFolder(Path.of("."));
+        } else if (properties.getProperty("legacyMode", "true").equals("true")) {
+            var config = new LegacyBootstrapConfig(properties.getProperty("homeFolderWindows"), properties.getProperty("homeFolderLinux"), properties.getProperty("homeFolder"));
+            this.launcherDirs = PlatformDirFinder.getLegacy(platform, config);
+        } else {
+            var config = new BootstrapConfig(properties.getProperty("appFolderWindows"), properties.getProperty("appFolderUnix"));
+            this.launcherDirs = PlatformDirFinder.get(platform, config);
+        }
+
         this.portable = portable;
-        this.binariesDir = new File(baseDir, "launcher");
+        this.binariesDir = launcherDirs.getLauncherDir();
         this.originalArgs = args;
 
-        binariesDir.mkdirs();
+        Files.createDirectories(binariesDir);
     }
 
     public void cleanup() {
-        File[] files = binariesDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".tmp");
+        var matcher = FileSystems.getDefault().getPathMatcher("glob:*.tmp");
+        try (var files = Files.find(binariesDir, 5, (path, $) -> matcher.matches(path))) {
+            for (var path : (Iterable<Path>) files::iterator) {
+                Files.delete(path);
             }
-        });
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Failed cleaning up .tmp files", e);
+        }
+    }
 
-        if (files != null) {
-            for (File file : files) {
-                file.delete();
-            }
+    public List<LauncherBinary> findBinaries() throws IOException {
+        try (var files = Files.find(binariesDir, 1, new LauncherBinary.Filter())) {
+            return files.map(LauncherBinary::new).toList();
         }
     }
 
     public void launch() throws Throwable {
-        File[] files = binariesDir.listFiles(new LauncherBinary.Filter());
-        List<LauncherBinary> binaries = new ArrayList<LauncherBinary>();
-
-        if (files != null) {
-            for (File file : files) {
-                Bootstrap.log.info("Found " + file.getAbsolutePath() + "...");
-                binaries.add(new LauncherBinary(file));
-            }
-        }
+        var binaries = findBinaries();
 
         if (!binaries.isEmpty()) {
             launchExisting(binaries, true);
@@ -111,16 +132,16 @@ public class Bootstrap {
         Class<?> clazz = null;
 
         for (LauncherBinary binary : binaries) {
-            File testFile = binary.getPath();
+            var testFile = binary.getPath();
             try {
                 testFile = binary.getExecutableJar();
-                Bootstrap.log.info("Trying " + testFile.getAbsolutePath() + "...");
+                Bootstrap.log.info("Trying " + testFile.toAbsolutePath() + "...");
                 clazz = load(testFile);
                 Bootstrap.log.info("Launcher loaded successfully.");
                 working = binary;
                 break;
             } catch (Throwable t) {
-                Bootstrap.log.log(Level.WARNING, "Failed to load " + testFile.getAbsoluteFile(), t);
+                Bootstrap.log.log(Level.WARNING, "Failed to load " + testFile.toAbsolutePath(), t);
             }
         }
 
@@ -142,36 +163,15 @@ public class Bootstrap {
         }
     }
 
-    public void execute(Class<?> clazz) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        Method method = clazz.getDeclaredMethod("main", String[].class);
-        String[] launcherArgs;
+    public void execute(Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        var method = clazz.getDeclaredMethod("bootstrapMain", BootstrapArgs.class);
 
-        if (portable) {
-            launcherArgs = new String[] {
-                    "--portable",
-                    "--dir",
-                    baseDir.getAbsolutePath(),
-                    "--bootstrap-version",
-                    String.valueOf(BOOTSTRAP_VERSION) };
-        } else {
-            launcherArgs = new String[] {
-                    "--dir",
-                    baseDir.getAbsolutePath(),
-                    "--bootstrap-version",
-                    String.valueOf(BOOTSTRAP_VERSION)  };
-        }
-
-        String[] args = new String[originalArgs.length + launcherArgs.length];
-        System.arraycopy(launcherArgs, 0, args, 0, launcherArgs.length);
-        System.arraycopy(originalArgs, 0, args, launcherArgs.length, originalArgs.length);
-
-        log.info("Launching with arguments " + Arrays.toString(args));
-
-        method.invoke(null, new Object[] { args });
+        log.info("Launching via bootstrapMain with data dir '%s'".formatted(launcherDirs.dataDir()));
+        method.invoke(null, new BootstrapArgs(launcherDirs, BOOTSTRAP_VERSION, originalArgs));
     }
 
-    public Class<?> load(File jarFile) throws MalformedURLException, ClassNotFoundException {
-        URL[] urls = new URL[] { jarFile.toURI().toURL() };
+    public Class<?> load(Path jarFile) throws MalformedURLException, ClassNotFoundException {
+        URL[] urls = new URL[]{jarFile.toUri().toURL()};
         URLClassLoader child = new URLClassLoader(urls, this.getClass().getClassLoader());
         Class<?> clazz = Class.forName(getProperties().getProperty("launcherClass"), true, child);
         return clazz;
@@ -184,36 +184,30 @@ public class Bootstrap {
         }
     }
 
-    private static File getFileChooseDefaultDir() {
-        JFileChooser chooser = new JFileChooser();
-        FileSystemView fsv = chooser.getFileSystemView();
-        return fsv.getDefaultDirectory();
-    }
-
-    private File getUserLauncherDir() {
-        String osName = System.getProperty("os.name").toLowerCase();
-        if (osName.contains("win")) {
-            return new File(getFileChooseDefaultDir(), getProperties().getProperty("homeFolderWindows"));
-        }
-
-        File dotFolder = new File(System.getProperty("user.home"), getProperties().getProperty("homeFolder"));
-        String xdgFolderName = getProperties().getProperty("homeFolderLinux");
-
-        if (osName.contains("linux") && !dotFolder.exists() && xdgFolderName != null && !xdgFolderName.isEmpty()) {
-            String xdgDataHome = System.getenv("XDG_DATA_HOME");
-            if (xdgDataHome.isEmpty()) {
-                xdgDataHome = System.getProperty("user.home") + "/.local/share";
-            }
-
-            return new File(xdgDataHome, xdgFolderName);
-        }
-
-        return dotFolder;
-    }
-
     private static boolean isPortableMode() {
         return new File("portable.txt").exists();
     }
 
+    /**
+     * Detect the current platform.
+     *
+     * @return the current platform
+     */
+    public static Platform detectPlatform() {
+        String osName = System.getProperty("os.name").toLowerCase();
+        if (osName.contains("win"))
+            return Platform.WINDOWS;
+        if (osName.contains("mac"))
+            return Platform.MAC_OS_X;
+        if (osName.contains("solaris") || osName.contains("sunos"))
+            return Platform.SOLARIS;
+        if (osName.contains("linux"))
+            return Platform.LINUX;
+        if (osName.contains("unix"))
+            return Platform.LINUX;
+        if (osName.contains("bsd"))
+            return Platform.LINUX;
 
+        return Platform.UNKNOWN;
+    }
 }

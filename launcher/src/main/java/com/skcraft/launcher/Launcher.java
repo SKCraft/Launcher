@@ -12,7 +12,13 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.skcraft.launcher.auth.*;
+import com.skcraft.launcher.auth.AccountList;
+import com.skcraft.launcher.auth.LoginService;
+import com.skcraft.launcher.auth.MicrosoftLoginService;
+import com.skcraft.launcher.auth.UserType;
+import com.skcraft.launcher.auth.YggdrasilLoginService;
+import com.skcraft.launcher.bootstrap.BootstrapArgs;
+import com.skcraft.launcher.dirs.LauncherDirs;
 import com.skcraft.launcher.launch.LaunchSupervisor;
 import com.skcraft.launcher.model.minecraft.Library;
 import com.skcraft.launcher.model.minecraft.VersionManifest;
@@ -41,6 +47,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
@@ -57,7 +64,8 @@ public final class Launcher {
     @Getter
     private final ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
     @Getter @Setter private Supplier<Window> mainWindowSupplier = new DefaultLauncherSupplier(this);
-    @Getter private final File baseDir;
+    @Getter
+    private final LauncherDirs launcherDirs;
     @Getter private final Properties properties;
     @Getter private final InstanceList instances;
     @Getter private final Configuration config;
@@ -75,26 +83,25 @@ public final class Launcher {
      * @throws java.io.IOException on load error
      */
     public Launcher(@NonNull File baseDir) throws IOException {
-        this(baseDir, baseDir);
+        this(LauncherDirs.singleFolder(baseDir.toPath()));
     }
 
     /**
      * Create a new launcher instance with the given base and configuration
      * directories.
      *
-     * @param baseDir the base directory
-     * @param configDir the config directory
+     * @param dirs Launcher directories
      * @throws java.io.IOException on load error
      */
-    public Launcher(@NonNull File baseDir, @NonNull File configDir) throws IOException {
+    public Launcher(@NonNull LauncherDirs dirs) throws IOException {
         SharedLocale.loadBundle("com.skcraft.launcher.lang.Launcher", Locale.getDefault());
 
-        this.baseDir = baseDir.getAbsoluteFile();
+        this.launcherDirs = dirs;
         this.properties = LauncherUtils.loadProperties(Launcher.class, "launcher.properties", "com.skcraft.launcher.propertiesFile");
         this.instances = new InstanceList(this);
-        this.assets = new AssetsRoot(new File(baseDir, "assets"));
-        this.config = Persistence.load(new File(configDir, "config.json"), Configuration.class);
-        this.accounts = Persistence.load(new File(configDir, "accounts.dat"), AccountList.class);
+        this.assets = new AssetsRoot(dirs.dataDir().resolve("assets"));
+        this.config = Persistence.load(dirs.configDir().resolve("config.json").toFile(), Configuration.class);
+        this.accounts = Persistence.load(dirs.configDir().resolve("accounts.dat").toFile(), AccountList.class);
 
         setDefaultConfig();
 
@@ -186,16 +193,7 @@ public final class Launcher {
      * @return the instances dir
      */
     public File getInstancesDir() {
-        return new File(getBaseDir(), "instances");
-    }
-
-    /**
-     * Get the directory to store temporary files.
-     *
-     * @return the temporary directory
-     */
-    public File getTemporaryDir() {
-        return new File(getBaseDir(), "temp");
+        return launcherDirs.getInstancesDir().toFile();
     }
 
     /**
@@ -204,7 +202,7 @@ public final class Launcher {
      * @return the temporary install directory
      */
     public File getInstallerDir() {
-        return new File(getTemporaryDir(), "install");
+        return launcherDirs.getInstallerDir().toFile();
     }
 
     /**
@@ -213,7 +211,7 @@ public final class Launcher {
      * @return the directory
      */
     private File getExtractDir() {
-        return new File(getTemporaryDir(), "extract");
+        return launcherDirs.getExtractDir().toFile();
     }
 
     /**
@@ -266,16 +264,7 @@ public final class Launcher {
      * @return the libraries directory
      */
     public File getLauncherBinariesDir() {
-        return new File(getBaseDir(), "launcher");
-    }
-
-    /**
-     * Get the directory to store common data files.
-     *
-     * @return the common data directory
-     */
-    public File getCommonDataDir() {
-        return getBaseDir();
+        return launcherDirs.dataDir().resolve("launcher").toFile();
     }
 
     /**
@@ -284,7 +273,7 @@ public final class Launcher {
      * @return the libraries directory
      */
     public File getLibrariesDir() {
-        return new File(getCommonDataDir(), "libraries");
+        return launcherDirs.getLibrariesDir().toFile();
     }
 
     /**
@@ -302,7 +291,7 @@ public final class Launcher {
      * @return the versions directory
      */
     public File getVersionsDir() {
-        return new File(getCommonDataDir(), "versions");
+        return launcherDirs.getVersionsDir().toFile();
     }
 
     /**
@@ -443,29 +432,37 @@ public final class Launcher {
     }
 
     /**
-     * Bootstrap.
+     * New-style bootstrap main
+     *
+     * @param args Launcher directories
+     */
+    public static void bootstrapMain(final BootstrapArgs args) {
+        setupLogger();
+        swingStart(() -> new Launcher(args.launcherDirs()));
+    }
+
+    /**
+     * Legacy main, invokes the launcher from string arguments
      *
      * @param args args
      */
     public static void main(final String[] args) {
         setupLogger();
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Launcher launcher = createFromArguments(args);
-                    SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    launcher.showLauncherWindow();
-                } catch (Throwable t) {
-                    log.log(Level.WARNING, "Load failure", t);
-                    SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a " +
-                            "problem was encountered.", "Launcher error", t);
-                }
-            }
-        });
-
+        swingStart(() -> createFromArguments(args));
     }
 
+    public static void swingStart(Callable<Launcher> launcherSupplier) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                var launcher = launcherSupplier.call();
+                SwingHelper.setSwingProperties(tr("launcher.appTitle", launcher.getVersion()));
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                launcher.showLauncherWindow();
+            } catch (Throwable t) {
+                log.log(Level.WARNING, "Load failure", t);
+                SwingHelper.showErrorDialog(null, "Uh oh! The updater couldn't be opened because a " +
+                        "problem was encountered.", "Launcher error", t);
+            }
+        });
+    }
 }

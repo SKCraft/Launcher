@@ -15,9 +15,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -30,16 +30,15 @@ import static com.skcraft.launcher.util.SharedLocale.tr;
  */
 @Log
 public class AssetsRoot {
-
     @Getter
-    private final File dir;
+    private final Path dir;
 
     /**
      * Create a new instance.
      *
      * @param dir the directory to the assets folder
      */
-    public AssetsRoot(@NonNull File dir) {
+    public AssetsRoot(@NonNull Path dir) {
         this.dir = dir;
     }
 
@@ -49,8 +48,8 @@ public class AssetsRoot {
      * @param versionManifest the version manifest
      * @return the file, which may not exist
      */
-    public File getIndexPath(VersionManifest versionManifest) {
-        return new File(dir, "indexes/" + versionManifest.getAssetId() + ".json");
+    public Path getIndexPath(VersionManifest versionManifest) {
+        return dir.resolve("indexes").resolve(versionManifest.getAssetId() + ".json");
     }
 
     /**
@@ -59,9 +58,9 @@ public class AssetsRoot {
      * @param asset the asset
      * @return the file, which may not exist
      */
-    public File getObjectPath(Asset asset) {
+    public Path getObjectPath(Asset asset) {
         String hash = asset.getHash();
-        return new File(dir, "objects/" + hash.substring(0, 2) + "/" + hash);
+        return dir.resolve("objects").resolve(hash.substring(0, 2)).resolve(hash);
     }
 
     /**
@@ -74,57 +73,59 @@ public class AssetsRoot {
      * @return the builder
      * @throws LauncherException
      */
-    public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) throws LauncherException {
-        String indexId = versionManifest.getAssetId();
-        File path = getIndexPath(versionManifest);
-        AssetsIndex index = Persistence.read(path, AssetsIndex.class, true);
+    public AssetsTreeBuilder createAssetsBuilder(@NonNull VersionManifest versionManifest) throws LauncherException, IOException {
+        var indexId = versionManifest.getAssetId();
+        var path = getIndexPath(versionManifest);
+        AssetsIndex index = Persistence.read(path.toFile(), AssetsIndex.class, true);
         if (index == null || index.getObjects() == null) {
-            throw new LauncherException("Missing index at " + path, tr("assets.missingIndex", path.getAbsolutePath()));
+            throw new LauncherException("Missing index at " + path, tr("assets.missingIndex", path.toAbsolutePath()));
         }
-        File treeDir = new File(dir, "virtual/" + indexId);
-        treeDir.mkdirs();
+
+        var treeDir = dir.resolve("virtual").resolve(indexId);
+        Files.createDirectories(treeDir);
         return new AssetsTreeBuilder(index, treeDir);
     }
 
     public class AssetsTreeBuilder implements ProgressObservable {
         private final AssetsIndex index;
-        private final File destDir;
+        private final Path destDir;
         private final int count;
         private int processed = 0;
 
-        public AssetsTreeBuilder(AssetsIndex index, File destDir) {
+        public AssetsTreeBuilder(AssetsIndex index, Path destDir) {
             this.index = index;
             this.destDir = destDir;
             count = index.getObjects().size();
         }
 
-        public File build() throws IOException, LauncherException {
-            AssetsRoot.log.info("Building asset virtual tree at '" + destDir.getAbsolutePath() + "'...");
+        public Path build() throws IOException, LauncherException {
+            AssetsRoot.log.info("Building asset virtual tree at '" + destDir.toAbsolutePath() + "'...");
 
             boolean supportsLinks = true;
             for (Map.Entry<String, Asset> entry : index.getObjects().entrySet()) {
-                File objectPath = getObjectPath(entry.getValue());
-                File virtualPath = new File(destDir, entry.getKey());
-                virtualPath.getParentFile().mkdirs();
-                if (!virtualPath.exists()) {
-                    log.log(Level.INFO, "Copying {0} to {1}...", new Object[] {
-                            objectPath.getAbsolutePath(), virtualPath.getAbsolutePath()});
+                var objectPath = getObjectPath(entry.getValue());
+                var virtualPath = destDir.resolve(entry.getKey());
 
-                    if (!objectPath.exists()) {
-                        String message = tr("assets.missingObject", objectPath.getAbsolutePath());
-                        throw new LauncherException("Missing object " + objectPath.getAbsolutePath(), message);
+                if (!Files.exists(virtualPath)) {
+                    Files.createDirectories(virtualPath.getParent());
+                    log.log(Level.INFO, "Copying {0} to {1}...", new Object[] {
+                            objectPath.toString(), virtualPath.toString()});
+
+                    if (!Files.exists(objectPath)) {
+                        String message = tr("assets.missingObject", objectPath.toAbsolutePath());
+                        throw new LauncherException("Missing object " + objectPath.toAbsolutePath(), message);
                     }
 
                     if (supportsLinks) {
                         try {
-                            Files.createLink(virtualPath.toPath(), objectPath.toPath());
+                            Files.createLink(virtualPath, objectPath);
                         } catch (UnsupportedOperationException e) {
                             supportsLinks = false;
                         }
                     }
 
                     if (!supportsLinks) {
-                        Files.copy(objectPath.toPath(), virtualPath.toPath());
+                        Files.copy(objectPath, virtualPath);
                     }
                 }
                 processed++;

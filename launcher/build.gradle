@@ -19,6 +19,7 @@ dependencies {
     api 'com.miglayout:miglayout:3.7.4'
     api 'com.google.code.findbugs:jsr305:3.0.2'
 
+    implementation project(':launcher-dirs')
     implementation 'com.googlecode.plist:dd-plist:1.23'
     implementation 'net.java.dev.jna:jna-platform:5.11.0'
 }

@@ -13,12 +13,21 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.skcraft.concurrency.DefaultProgress;
 import com.skcraft.concurrency.ProgressObservable;
-import com.skcraft.launcher.*;
+import com.skcraft.launcher.AssetsRoot;
+import com.skcraft.launcher.Configuration;
+import com.skcraft.launcher.Instance;
+import com.skcraft.launcher.Launcher;
+import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.install.ZipExtract;
 import com.skcraft.launcher.launch.runtime.JavaRuntime;
 import com.skcraft.launcher.launch.runtime.JavaRuntimeFinder;
-import com.skcraft.launcher.model.minecraft.*;
+import com.skcraft.launcher.model.minecraft.AssetsIndex;
+import com.skcraft.launcher.model.minecraft.FeatureList;
+import com.skcraft.launcher.model.minecraft.GameArgument;
+import com.skcraft.launcher.model.minecraft.JavaVersion;
+import com.skcraft.launcher.model.minecraft.Library;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.Platform;
@@ -32,6 +41,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +52,7 @@ import java.util.function.BiPredicate;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
 import static com.skcraft.launcher.util.SharedLocale.tr;
+import static java.nio.file.Files.newBufferedReader;
 
 /**
  * Handles the launching of an instance.
@@ -61,7 +72,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
     private VersionManifest versionManifest;
     private AssetsIndex assetsIndex;
-    private File virtualAssetsDir;
+    private Path virtualAssetsDir;
     private Configuration config;
     private JavaProcessBuilder builder;
     private AssetsRoot assetsRoot;
@@ -113,19 +124,19 @@ public class Runner implements Callable<Process>, ProgressObservable {
         versionManifest = mapper.readValue(instance.getVersionPath(), VersionManifest.class);
 
         // Load assets index
-        File assetsFile = assetsRoot.getIndexPath(versionManifest);
-        try {
-            assetsIndex = mapper.readValue(assetsFile, AssetsIndex.class);
+        var assetsFile = assetsRoot.getIndexPath(versionManifest);
+        try (var reader = newBufferedReader(assetsFile)) {
+            assetsIndex = mapper.readValue(reader, AssetsIndex.class);
         } catch (FileNotFoundException e) {
             instance.setInstalled(false);
             Persistence.commitAndForget(instance);
-            throw new LauncherException("Missing assets index " + assetsFile.getAbsolutePath(),
-                    tr("runner.missingAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
+            throw new LauncherException("Missing assets index " + assetsFile.toAbsolutePath(),
+                    tr("runner.missingAssetsIndex", instance.getTitle(), assetsFile.toAbsolutePath()));
         } catch (IOException e) {
             instance.setInstalled(false);
             Persistence.commitAndForget(instance);
-            throw new LauncherException("Corrupt assets index " + assetsFile.getAbsolutePath(),
-                    tr("runner.corruptAssetsIndex", instance.getTitle(), assetsFile.getAbsolutePath()));
+            throw new LauncherException("Corrupt assets index " + assetsFile.toAbsolutePath(),
+                    tr("runner.corruptAssetsIndex", instance.getTitle(), assetsFile.toAbsolutePath()));
         }
 
         // Copy over assets to the tree
@@ -195,9 +206,9 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private void addPlatformArgs() {
         // Mac OS X arguments
         if (getEnvironment().getPlatform() == Platform.MAC_OS_X) {
-            File icnsPath = assetsIndex.getObjectPath(assetsRoot, "icons/minecraft.icns");
+            var icnsPath = assetsIndex.getObjectPath(assetsRoot, "icons/minecraft.icns");
             if (icnsPath != null) {
-                builder.getFlags().add("-Xdock:icon=" + icnsPath.getAbsolutePath());
+                builder.getFlags().add("-Xdock:icon=" + icnsPath.toAbsolutePath());
                 builder.getFlags().add("-Xdock:name=Minecraft");
             }
         }
@@ -451,8 +462,8 @@ public class Runner implements Callable<Process>, ProgressObservable {
         map.put("user_properties", mapper.writeValueAsString(session.getUserProperties()));
 
         map.put("game_directory", instance.getContentDir().getAbsolutePath());
-        map.put("game_assets", virtualAssetsDir.getAbsolutePath());
-        map.put("assets_root", launcher.getAssets().getDir().getAbsolutePath());
+        map.put("game_assets", virtualAssetsDir.toAbsolutePath().toString());
+        map.put("assets_root", launcher.getAssets().getDir().toString());
         map.put("assets_index_name", versionManifest.getAssetId());
 
         map.put("resolution_width", String.valueOf(config.getWindowWidth()));

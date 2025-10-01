@@ -22,8 +22,4 @@ public class LauncherArguments {
 
     @Parameter(names = "--bootstrap-version")
     private Integer bootstrapVersion;
-
-    @Parameter(names = "--portable")
-    private boolean portable;
-
 }

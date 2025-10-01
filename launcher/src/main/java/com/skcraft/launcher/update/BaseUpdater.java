@@ -15,10 +15,20 @@ import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.LauncherException;
 import com.skcraft.launcher.dialog.FeatureSelectionDialog;
 import com.skcraft.launcher.dialog.ProgressDialog;
-import com.skcraft.launcher.install.*;
+import com.skcraft.launcher.install.FeatureCache;
+import com.skcraft.launcher.install.FileMover;
+import com.skcraft.launcher.install.FileVerify;
+import com.skcraft.launcher.install.InstallExtras;
+import com.skcraft.launcher.install.InstallLog;
+import com.skcraft.launcher.install.Installer;
+import com.skcraft.launcher.install.UpdateCache;
 import com.skcraft.launcher.model.loader.LoaderManifest;
 import com.skcraft.launcher.model.loader.LocalLoader;
-import com.skcraft.launcher.model.minecraft.*;
+import com.skcraft.launcher.model.minecraft.Asset;
+import com.skcraft.launcher.model.minecraft.AssetsIndex;
+import com.skcraft.launcher.model.minecraft.Library;
+import com.skcraft.launcher.model.minecraft.Side;
+import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.model.modpack.DownloadableFile;
 import com.skcraft.launcher.model.modpack.Feature;
 import com.skcraft.launcher.model.modpack.Manifest;
@@ -40,7 +50,13 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import static com.skcraft.launcher.LauncherUtils.checkInterrupted;
@@ -205,7 +221,7 @@ public abstract class BaseUpdater {
                 .execute()
                 .expectResponseCode(200)
                 .returnContent()
-                .saveContent(assetsRoot.getIndexPath(versionManifest))
+                .saveContent(assetsRoot.getIndexPath(versionManifest).toFile())
                 .asJson(AssetsIndex.class);
 
         // Keep track of duplicates
@@ -216,7 +232,7 @@ public abstract class BaseUpdater {
 
             String hash = entry.getValue().getHash();
             String path = String.format("%s/%s", hash.subSequence(0, 2), hash);
-            File targetFile = assetsRoot.getObjectPath(entry.getValue());
+            File targetFile = assetsRoot.getObjectPath(entry.getValue()).toFile();
 
             if (!targetFile.exists() && !downloading.contains(path)) {
                 List<URL> urls = new ArrayList<URL>();

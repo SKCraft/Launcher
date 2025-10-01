@@ -11,7 +11,7 @@ import com.skcraft.launcher.AssetsRoot;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 
 @Data
@@ -21,7 +21,7 @@ public class AssetsIndex {
     private boolean virtual;
     private Map<String, Asset> objects;
 
-    public File getObjectPath(@NonNull AssetsRoot assetsRoot, @NonNull String name) {
+    public Path getObjectPath(@NonNull AssetsRoot assetsRoot, @NonNull String name) {
         Asset asset = objects.get(name);
         if (asset != null) {
             return assetsRoot.getObjectPath(asset);

@@ -11,7 +11,9 @@ application {
 }
 
 dependencies {
+    implementation project(path: ':launcher-dirs')
     implementation project(path: ':launcher-builder')
+
     implementation 'org.eclipse.jetty:jetty-server:9.3.1.v20150714'
     implementation 'com.jidesoft:jide-oss:3.6.18'
 }

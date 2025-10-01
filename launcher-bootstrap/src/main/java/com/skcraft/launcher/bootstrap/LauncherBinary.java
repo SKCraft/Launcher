@@ -9,8 +9,11 @@ package com.skcraft.launcher.bootstrap;
 import lombok.Getter;
 import lombok.extern.java.Log;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,24 +22,26 @@ public class LauncherBinary implements Comparable<LauncherBinary> {
 
     public static final Pattern PATTERN = Pattern.compile("^([0-9]+)\\.jar(\\.pack)?$");
     @Getter
-    private final File path;
+    private final Path path;
     private final long time;
     private final boolean packed;
 
-    public LauncherBinary(File path) {
+    public LauncherBinary(Path path) {
         this.path = path;
-        String name = path.getName();
+
+        String name = path.getFileName().toString();
         Matcher m = PATTERN.matcher(name);
         if (!m.matches()) {
             throw new IllegalArgumentException("Invalid filename: " + path);
         }
+
         time = Long.parseLong(m.group(1));
         packed = m.group(2) != null;
     }
 
-    public File getExecutableJar() throws PackedJarException {
+    public Path getExecutableJar() throws PackedJarException {
         if (packed) {
-            log.warning("Launcher binary " + path.getAbsolutePath() + " is a pack200 file, which is " +
+            log.warning("Launcher binary " + path.toAbsolutePath() + " is a pack200 file, which is " +
                     "no longer supported.");
 
             throw new PackedJarException("Cannot unpack .jar.pack files!");
@@ -62,14 +67,14 @@ public class LauncherBinary implements Comparable<LauncherBinary> {
         }
     }
 
-    public void remove() {
-        path.delete();
+    public void remove() throws IOException {
+        Files.delete(path);
     }
 
-    public static class Filter implements FileFilter {
+    public static class Filter implements BiPredicate<Path, BasicFileAttributes> {
         @Override
-        public boolean accept(File file) {
-            return file.isFile() && LauncherBinary.PATTERN.matcher(file.getName()).matches();
+        public boolean test(Path path, BasicFileAttributes basicFileAttributes) {
+            return Files.isRegularFile(path) && PATTERN.matcher(path.getFileName().toString()).matches();
         }
     }
 
