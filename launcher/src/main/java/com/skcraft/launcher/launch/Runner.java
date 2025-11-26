@@ -17,7 +17,6 @@ import com.skcraft.launcher.*;
 import com.skcraft.launcher.auth.Session;
 import com.skcraft.launcher.install.ZipExtract;
 import com.skcraft.launcher.launch.runtime.JavaRuntime;
-import com.skcraft.launcher.launch.runtime.JavaRuntimeFinder;
 import com.skcraft.launcher.model.minecraft.*;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.util.Environment;
@@ -57,7 +56,9 @@ public class Runner implements Callable<Process>, ProgressObservable {
     private final Session session;
     private final File extractDir;
     private final BiPredicate<JavaRuntime, JavaVersion> javaRuntimeMismatch;
-    @Getter @Setter private Environment environment = Environment.getInstance();
+    @Getter
+    @Setter
+    private Environment environment = Environment.getInstance();
 
     private VersionManifest versionManifest;
     private AssetsIndex assetsIndex;
@@ -69,10 +70,11 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
     /**
      * Create a new instance launcher.
-     *  @param launcher the launcher
-     * @param instance the instance
-     * @param session the session
-     * @param extractDir the directory to extract to
+     *
+     * @param launcher            the launcher
+     * @param instance            the instance
+     * @param session             the session
+     * @param extractDir          the directory to extract to
      * @param javaRuntimeMismatch
      */
     public Runner(@NonNull Launcher launcher, @NonNull Instance instance,
@@ -280,7 +282,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
 
         JavaRuntime selectedRuntime = Optional.ofNullable(instance.getSettings().getRuntime())
                 .orElseGet(() -> Optional.ofNullable(versionManifest.getJavaVersion())
-                        .flatMap(JavaRuntimeFinder::findBestJavaRuntime)
+                        .flatMap(launcher.getRuntimeManager()::getRuntime)
                         .orElse(config.getJavaRuntime())
                 );
 
@@ -288,7 +290,7 @@ public class Runner implements Callable<Process>, ProgressObservable {
         builder.setRuntime(selectedRuntime);
 
         List<String> flags = builder.getFlags();
-        String[] rawJvmArgsList = new String[] {
+        String[] rawJvmArgsList = new String[]{
                 config.getJvmArgs(),
                 instance.getSettings().getCustomJvmArgs()
         };

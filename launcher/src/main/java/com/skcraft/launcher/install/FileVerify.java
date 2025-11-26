@@ -8,6 +8,8 @@ import lombok.extern.java.Log;
 
 import java.io.File;
 
+import static com.skcraft.launcher.util.SharedLocale.tr;
+
 @RequiredArgsConstructor
 @Log
 public class FileVerify implements InstallTask {
@@ -37,6 +39,6 @@ public class FileVerify implements InstallTask {
 
 	@Override
 	public String getStatus() {
-		return "Verifying " + name;
+		return tr("installer.verifyingFile", name);
 	}
 }

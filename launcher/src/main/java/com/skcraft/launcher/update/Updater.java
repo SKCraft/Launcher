@@ -174,6 +174,12 @@ public class Updater extends BaseUpdater implements Callable<Instance>, Progress
 
         progress = new DefaultProgress(-1, SharedLocale.tr("instanceUpdater.buildingDownloadList"));
 
+        // Install the Java runtime
+        log.info("Enumerating Java runtime...");
+        if (version.getJavaVersion() != null) {
+            installRuntime(installer, version.getJavaVersion());
+        }
+
         // Install the .jar
         File jarPath = launcher.getJarPath(version);
         VersionManifest.Artifact clientJar = version.getDownloads().get("client");
