@@ -153,7 +153,6 @@ public class HttpRequest implements Closeable, ProgressObservable {
                 body = null;
             case HttpURLConnection.HTTP_MOVED_PERM:
             case HttpURLConnection.HTTP_MOVED_TEMP:
-            case HttpURLConnection.HTTP_ACCEPTED:
             case 307:
             case 308:
                 String location = conn.getHeaderField("Location");
