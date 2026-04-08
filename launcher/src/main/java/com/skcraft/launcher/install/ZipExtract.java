@@ -46,6 +46,10 @@ public class ZipExtract implements Runnable {
             while ((entry = zis.getNextEntry()) != null) {
                 if (matches(entry)) {
                     File file = new File(getDestination(), entry.getName());
+                    if (!file.getCanonicalPath().startsWith(getDestination().getCanonicalPath() + File.separator)
+                            && !file.getCanonicalPath().equals(getDestination().getCanonicalPath())) {
+                        throw new IOException("Zip entry outside target directory: " + entry.getName());
+                    }
                     if (entry.isDirectory()) {
                         file.mkdirs();
                     } else {
