@@ -129,7 +129,7 @@ public class JavaProcessBuilder {
         Matcher matcher = argsPattern.matcher(str);
         List<String> parts = new ArrayList<String>();
         while (matcher.find()) {
-            parts.add(matcher.group(1));
+            parts.add(matcher.group(1) != null ? matcher.group(1) : matcher.group(2));
         }
         return parts;
     }
