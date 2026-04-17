@@ -19,6 +19,7 @@ import com.skcraft.launcher.model.minecraft.VersionManifest;
 import com.skcraft.launcher.persistence.Persistence;
 import com.skcraft.launcher.swing.SwingHelper;
 import com.skcraft.launcher.update.UpdateManager;
+import com.skcraft.launcher.update.runtime.JavaRuntimeManager;
 import com.skcraft.launcher.util.Environment;
 import com.skcraft.launcher.util.HttpRequest;
 import com.skcraft.launcher.util.SharedLocale;
@@ -63,6 +64,8 @@ public final class Launcher {
     @Getter private final Configuration config;
     @Getter private final AccountList accounts;
     @Getter private final AssetsRoot assets;
+    @Getter
+    private final JavaRuntimeManager runtimeManager;
     @Getter private final LaunchSupervisor launchSupervisor = new LaunchSupervisor(this);
     @Getter private final UpdateManager updateManager = new UpdateManager(this);
     @Getter private final InstanceTasks instanceTasks = new InstanceTasks(this);
@@ -93,6 +96,7 @@ public final class Launcher {
         this.properties = LauncherUtils.loadProperties(Launcher.class, "launcher.properties", "com.skcraft.launcher.propertiesFile");
         this.instances = new InstanceList(this);
         this.assets = new AssetsRoot(new File(baseDir, "assets"));
+        this.runtimeManager = new JavaRuntimeManager(new File(baseDir, "runtimes"));
         this.config = Persistence.load(new File(configDir, "config.json"), Configuration.class);
         this.accounts = Persistence.load(new File(configDir, "accounts.dat"), AccountList.class);
 

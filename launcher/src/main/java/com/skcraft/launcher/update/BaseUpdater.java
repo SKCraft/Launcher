@@ -309,6 +309,11 @@ public abstract class BaseUpdater {
         }
     }
 
+    protected void installRuntime(@NonNull Installer installer,
+                                  @NonNull JavaVersion version) throws IOException, InterruptedException {
+        launcher.getRuntimeManager().install(installer, launcher.propUrl("runtimeManifestUrl"), version);
+    }
+
     private static void writeDataFile(File path, Object object) {
         try {
             Persistence.write(path, object);
